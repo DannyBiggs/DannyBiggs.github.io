@@ -56,12 +56,29 @@
     }
 
     .achievement {
-      padding: 10px 0;
+      display: grid;
+      grid-template-columns: 56px 1fr;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 0;
       border-bottom: 1px solid #2c2c2c;
+    }
+
+    .achievement.no-icon {
+      display: block;
+      padding: 10px 0;
     }
 
     .achievement:last-child {
       border-bottom: none;
+    }
+
+    .badge-icon {
+      width: 48px;
+      height: 48px;
+      image-rendering: pixelated;
+      object-fit: contain;
+      filter: drop-shadow(0 0 6px rgba(255, 179, 71, 0.35));
     }
 
     .name {
@@ -85,6 +102,30 @@
       color: #c58cff;
     }
 
+    .badge-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 16px;
+      margin-top: 18px;
+    }
+
+    .badge-card {
+      background: #0f0f11;
+      border: 1px solid #3a2a18;
+      border-radius: 10px;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .badge-card img {
+      width: 72px;
+      height: 72px;
+      image-rendering: pixelated;
+      object-fit: contain;
+      margin-bottom: 8px;
+      filter: drop-shadow(0 0 8px rgba(255, 179, 71, 0.35));
+    }
+
     footer {
       text-align: center;
       color: #777;
@@ -104,37 +145,40 @@
     <section class="section">
       <h2>⚒️ Forge Progression</h2>
 
-      <div class="achievement">
+      <div class="achievement no-icon">
         <div class="name">First Spark</div>
         <div class="meta">Pull your first coin. • Common</div>
       </div>
 
-      <div class="achievement">
+      <div class="achievement no-icon">
         <div class="name">Coin Apprentice</div>
         <div class="meta">Pull 25 total coins. • Common</div>
       </div>
 
-      <div class="achievement">
+      <div class="achievement no-icon">
         <div class="name">Forge Regular</div>
         <div class="meta">Pull 100 total coins. • Rare</div>
       </div>
 
-      <div class="achievement">
+      <div class="achievement no-icon">
         <div class="name">Forge Veteran</div>
         <div class="meta">Pull 500 total coins. • Epic</div>
         <div class="reward">Reward: ⚒️ [FORGE VETERAN] nameplate title</div>
       </div>
 
-      <div class="achievement">
+      <div class="achievement no-icon">
         <div class="name">Forge Master</div>
         <div class="meta">Pull 1,000 total coins. • Legendary</div>
         <div class="reward">Reward: ⚒️ [FORGE MASTER] nameplate title</div>
       </div>
 
       <div class="achievement">
-        <div class="name">Forge Legend</div>
-        <div class="meta">Pull 2,500 total coins. • Mythic</div>
-        <div class="reward">Reward: ⚒️ [FORGE LEGEND] nameplate title + badge</div>
+        <img class="badge-icon" src="images/badges/forge_legend.png" alt="Forge Legend badge">
+        <div>
+          <div class="name">Forge Legend</div>
+          <div class="meta">Pull 2,500 total coins. • Mythic</div>
+          <div class="reward">Reward: ⚒️ [FORGE LEGEND] nameplate title + badge</div>
+        </div>
       </div>
     </section>
 
@@ -142,76 +186,90 @@
       <h2>🪙 Coin Milestones</h2>
 
       <h3>Bronze</h3>
-      <div class="achievement">
+
+      <div class="achievement no-icon">
         <div class="name">A Humble Beginning</div>
         <div class="meta">Pull your first Bronze coin. • Common</div>
       </div>
 
-      <div class="achievement">
+      <div class="achievement no-icon">
         <div class="name">Bronze Collector</div>
         <div class="meta">Pull 50 Bronze coins. • Common</div>
       </div>
 
       <h3>Silver</h3>
-      <div class="achievement">
+
+      <div class="achievement no-icon">
         <div class="name">Silver Lining</div>
         <div class="meta">Pull your first Silver coin. • Rare</div>
       </div>
 
       <h3>Gold</h3>
-      <div class="achievement">
+
+      <div class="achievement no-icon">
         <div class="name">Golden Touch</div>
         <div class="meta">Pull your first Gold coin. • Epic</div>
       </div>
 
-      <div class="achievement">
+      <div class="achievement no-icon">
         <div class="name">Gold Hunter</div>
         <div class="meta">Pull 50 Gold coins. • Epic</div>
       </div>
 
       <div class="achievement">
-        <div class="name">Gold Hoarder</div>
-        <div class="meta">Pull 100 Gold coins. • Epic</div>
-        <div class="reward">Reward: 🟡 [GILDED] title + badge</div>
+        <img class="badge-icon" src="images/badges/gold_hoarder.png" alt="Gold Hoarder badge">
+        <div>
+          <div class="name">Gold Hoarder</div>
+          <div class="meta">Pull 100 Gold coins. • Epic</div>
+          <div class="reward">Reward: 🟡 [GILDED] title + badge</div>
+        </div>
       </div>
 
-      <div class="achievement">
+      <div class="achievement no-icon">
         <div class="name">Gold Tyrant</div>
         <div class="meta">Pull 250 Gold coins. • Legendary</div>
         <div class="reward">Reward: 👑 [GOLD TYRANT] nameplate title</div>
       </div>
 
       <h3>Diamond</h3>
-      <div class="achievement">
+
+      <div class="achievement no-icon">
         <div class="name">Shining Fortune</div>
         <div class="meta">Pull your first Diamond coin. • Legendary</div>
       </div>
 
       <div class="achievement">
-        <div class="name">Diamond Collector</div>
-        <div class="meta">Pull 25 Diamond coins. • Legendary</div>
-        <div class="reward">Reward: badge</div>
+        <img class="badge-icon" src="images/badges/diamond_collector.png" alt="Diamond Collector badge">
+        <div>
+          <div class="name">Diamond Collector</div>
+          <div class="meta">Pull 25 Diamond coins. • Legendary</div>
+          <div class="reward">Reward: badge</div>
+        </div>
       </div>
 
-      <div class="achievement">
+      <div class="achievement no-icon">
         <div class="name">A Girl's Best Friend</div>
         <div class="meta">Pull 50 Diamond coins. • Mythic</div>
         <div class="reward">Reward: 💎 [THE LUSTROUS] nameplate title</div>
       </div>
 
       <h3>Rainbow</h3>
-      <div class="achievement">
+
+      <div class="achievement no-icon">
         <div class="name">Impossible Fortune</div>
         <div class="meta">Pull your first Rainbow coin. • Mythic</div>
       </div>
 
       <div class="achievement">
-        <div class="name">Taste the Rainbow</div>
-        <div class="meta">Pull 3 Rainbow coins. • Mythic</div>
-        <div class="reward">Reward: badge</div>
+        <img class="badge-icon" src="images/badges/taste_the_rainbow.png" alt="Taste the Rainbow badge">
+        <div>
+          <div class="name">Taste the Rainbow</div>
+          <div class="meta">Pull 3 Rainbow coins. • Mythic</div>
+          <div class="reward">Reward: badge</div>
+        </div>
       </div>
 
-      <div class="achievement">
+      <div class="achievement no-icon">
         <div class="name">On the Spectrum</div>
         <div class="meta">Pull 7 Rainbow coins. • Mythic</div>
         <div class="reward">Reward: 🌈 [ON THE SPECTRUM] nameplate title</div>
@@ -221,43 +279,43 @@
     <section class="section">
       <h2>🔥 Wood & Forge Fire</h2>
 
-      <div class="achievement">
+      <div class="achievement no-icon">
         <div class="name">The Fire Stirs</div>
         <div class="meta">Pull your first Wood coin. • Common</div>
       </div>
 
-      <div class="achievement">
+      <div class="achievement no-icon">
         <div class="name">Kindling Collector</div>
         <div class="meta">Pull 25 Wood coins. • Epic</div>
       </div>
 
-      <div class="achievement">
+      <div class="achievement no-icon">
         <div class="name">Forge Tender</div>
         <div class="meta">Pull 100 Wood coins. • Legendary</div>
       </div>
 
-      <div class="achievement">
+      <div class="achievement no-icon">
         <div class="name">The Kindled</div>
         <div class="meta">Pull 250 Wood coins.</div>
         <div class="reward">Reward: 🔥 [THE KINDLED] nameplate title</div>
       </div>
 
-      <div class="achievement">
+      <div class="achievement no-icon">
         <div class="name">Silver Surge</div>
         <div class="meta">Trigger a Silver Forge blessing. • Rare</div>
       </div>
 
-      <div class="achievement">
+      <div class="achievement no-icon">
         <div class="name">Golden Inferno</div>
         <div class="meta">Trigger a Gold Forge blessing. • Epic</div>
       </div>
 
-      <div class="achievement">
+      <div class="achievement no-icon">
         <div class="name">The Forge Awakens</div>
         <div class="meta">Ignite the Forge. • Legendary</div>
       </div>
 
-      <div class="achievement">
+      <div class="achievement no-icon">
         <div class="name">Forgeborn</div>
         <div class="meta">Ignite the Forge 15 times.</div>
         <div class="reward">Reward: ⚒️ [FORGEBORN] nameplate title</div>
@@ -267,133 +325,198 @@
     <section class="section">
       <h2>💀 Cursed & Corruption</h2>
 
-      <div class="achievement">
+      <div class="achievement no-icon">
         <div class="name">Cursed Fate</div>
         <div class="meta">Pull your first Anti coin. • Cursed</div>
       </div>
 
-      <div class="achievement">
+      <div class="achievement no-icon">
         <div class="name">Cursed Survivor</div>
         <div class="meta">Pull 10 Anti coins. • Epic</div>
       </div>
 
-      <div class="achievement">
+      <div class="achievement no-icon">
         <div class="name">Curse Bearer</div>
         <div class="meta">Pull 25 Anti coins. • Legendary</div>
       </div>
 
-      <div class="achievement">
+      <div class="achievement no-icon">
         <div class="name">Cursebound</div>
         <div class="meta">Pull 50 Anti coins. • Mythic</div>
       </div>
 
-      <div class="achievement">
+      <div class="achievement no-icon">
         <div class="name">Hexbound</div>
         <div class="meta">Pull 75 Anti coins.</div>
         <div class="reward">Reward: 💀 [HEXBOUND] nameplate title</div>
       </div>
 
       <div class="achievement">
-        <div class="name secret">This Shit Is Rigged</div>
-        <div class="meta">Pull 3 Anti coins in one stream. • Secret</div>
-        <div class="reward">Reward: badge</div>
+        <img class="badge-icon" src="images/badges/this_shit_is_rigged.png" alt="This Shit Is Rigged badge">
+        <div>
+          <div class="name secret">This Shit Is Rigged</div>
+          <div class="meta">Pull 3 Anti coins in one stream. • Secret</div>
+          <div class="reward">Reward: badge</div>
+        </div>
       </div>
     </section>
 
     <section class="section">
       <h2>🎲 Gambling & Jackpot</h2>
 
-      <div class="achievement">
+      <div class="achievement no-icon">
         <div class="name">Double or Nothing</div>
         <div class="meta">Use gamble for the first time. • Rare</div>
       </div>
 
-      <div class="achievement">
+      <div class="achievement no-icon">
         <div class="name secret">The House Always Wins</div>
         <div class="meta">Bust during a gamble pull. • Secret</div>
       </div>
 
-      <div class="achievement">
+      <div class="achievement no-icon">
         <div class="name">Jackpot Chaser</div>
         <div class="meta">Gamble 10 times. • Rare</div>
       </div>
 
-      <div class="achievement">
+      <div class="achievement no-icon">
         <div class="name">Jackpot Addict</div>
         <div class="meta">Gamble 50 times. • Epic</div>
       </div>
 
-      <div class="achievement">
+      <div class="achievement no-icon">
         <div class="name">Jackpot Maniac</div>
         <div class="meta">Gamble 100 times. • Legendary</div>
       </div>
 
       <div class="achievement">
-        <div class="name secret">Broke the House</div>
-        <div class="meta">Win a jackpot payout of 10,000 or more. • Secret</div>
-        <div class="reward">Reward: badge</div>
+        <img class="badge-icon" src="images/badges/broke_the_house.png" alt="Broke the House badge">
+        <div>
+          <div class="name secret">Broke the House</div>
+          <div class="meta">Win a jackpot payout of 10,000 or more. • Secret</div>
+          <div class="reward">Reward: badge</div>
+        </div>
       </div>
 
       <div class="achievement">
-        <div class="name secret">I Don't Have a Problem</div>
-        <div class="meta">Lose 10,000 total coins to gamble busts. • Secret</div>
-        <div class="reward">Reward: badge</div>
+        <img class="badge-icon" src="images/badges/i_dont_have_a_problem.png" alt="I Don't Have a Problem badge">
+        <div>
+          <div class="name secret">I Don't Have a Problem</div>
+          <div class="meta">Lose 10,000 total coins to gamble busts. • Secret</div>
+          <div class="reward">Reward: badge</div>
+        </div>
       </div>
     </section>
 
     <section class="section">
       <h2>👹 World Bosses</h2>
 
-      <div class="achievement">
+      <div class="achievement no-icon">
         <div class="name">Blood on the Anvil</div>
         <div class="meta">Damage a world boss for the first time. • Rare</div>
       </div>
 
-      <div class="achievement">
+      <div class="achievement no-icon">
         <div class="name">Worldbreaker</div>
         <div class="meta">Help defeat a world boss. • Legendary</div>
       </div>
 
-      <div class="achievement">
+      <div class="achievement no-icon">
         <div class="name secret">It Blinked Back</div>
         <div class="meta">Have 100 coins corrupted by the Omen Eye. • Secret</div>
         <div class="reward">Reward: 👁️ [THE WATCHED] nameplate title</div>
       </div>
 
-      <div class="achievement">
+      <div class="achievement no-icon">
         <div class="name secret">Consumed</div>
         <div class="meta">Have 100 coins devoured by the Coin Eater. • Secret</div>
         <div class="reward">Reward: 💀 [DEVOURED] nameplate title</div>
       </div>
 
       <div class="achievement">
-        <div class="name secret">Avaros Hungers</div>
-        <div class="meta">Lose 20,000 total coins to Avaros' devour mechanic. • Secret</div>
-        <div class="reward">Reward: badge</div>
+        <img class="badge-icon" src="images/badges/avaros_hungers.png" alt="Avaros Hungers badge">
+        <div>
+          <div class="name secret">Avaros Hungers</div>
+          <div class="meta">Lose 20,000 total coins to Avaros' devour mechanic. • Secret</div>
+          <div class="reward">Reward: badge</div>
+        </div>
       </div>
 
       <div class="achievement">
-        <div class="name secret">All Eyes On Me</div>
-        <div class="meta">Deal 10,000 total damage to Invidra. • Secret</div>
-        <div class="reward">Reward: badge</div>
+        <img class="badge-icon" src="images/badges/all_eyes_on_me.png" alt="All Eyes On Me badge">
+        <div>
+          <div class="name secret">All Eyes On Me</div>
+          <div class="meta">Deal 10,000 total damage to Invidra. • Secret</div>
+          <div class="reward">Reward: badge</div>
+        </div>
       </div>
     </section>
 
     <section class="section">
       <h2>🏅 Badge Rewards</h2>
       <p>Current badge-granting achievements:</p>
-      <ul>
-        <li>Forge Legend</li>
-        <li>Gold Hoarder</li>
-        <li>Diamond Collector</li>
-        <li>Taste the Rainbow</li>
-        <li>This Shit Is Rigged</li>
-        <li>Broke the House</li>
-        <li>Avaros Hungers</li>
-        <li>All Eyes On Me</li>
-        <li>I Don't Have a Problem</li>
-        <li>Crowned for a Month</li>
-      </ul>
+
+      <div class="badge-grid">
+        <div class="badge-card">
+          <img src="images/badges/forge_legend.png" alt="Forge Legend badge">
+          <div class="name">Forge Legend</div>
+          <div class="meta">2,500 total pulls</div>
+        </div>
+
+        <div class="badge-card">
+          <img src="images/badges/gold_hoarder.png" alt="Gold Hoarder badge">
+          <div class="name">Gold Hoarder</div>
+          <div class="meta">100 Gold coins</div>
+        </div>
+
+        <div class="badge-card">
+          <img src="images/badges/diamond_collector.png" alt="Diamond Collector badge">
+          <div class="name">Diamond Collector</div>
+          <div class="meta">25 Diamond coins</div>
+        </div>
+
+        <div class="badge-card">
+          <img src="images/badges/taste_the_rainbow.png" alt="Taste the Rainbow badge">
+          <div class="name">Taste the Rainbow</div>
+          <div class="meta">3 Rainbow coins</div>
+        </div>
+
+        <div class="badge-card">
+          <img src="images/badges/this_shit_is_rigged.png" alt="This Shit Is Rigged badge">
+          <div class="name">This Shit Is Rigged</div>
+          <div class="meta">3 Anti coins in one stream</div>
+        </div>
+
+        <div class="badge-card">
+          <img src="images/badges/broke_the_house.png" alt="Broke the House badge">
+          <div class="name">Broke the House</div>
+          <div class="meta">10,000+ jackpot payout</div>
+        </div>
+
+        <div class="badge-card">
+          <img src="images/badges/avaros_hungers.png" alt="Avaros Hungers badge">
+          <div class="name">Avaros Hungers</div>
+          <div class="meta">20,000 coins lost to Avaros</div>
+        </div>
+
+        <div class="badge-card">
+          <img src="images/badges/all_eyes_on_me.png" alt="All Eyes On Me badge">
+          <div class="name">All Eyes On Me</div>
+          <div class="meta">10,000 damage to Invidra</div>
+        </div>
+
+        <div class="badge-card">
+          <img src="images/badges/i_dont_have_a_problem.png" alt="I Don't Have a Problem badge">
+          <div class="name">I Don't Have a Problem</div>
+          <div class="meta">10,000 coins lost to gamble busts</div>
+        </div>
+
+        <div class="badge-card">
+          <img src="images/badges/crowned_for_a_month.png" alt="Crowned for a Month badge">
+          <div class="name">Crowned for a Month</div>
+          <div class="meta">Champion of the Week 4 weeks in a row</div>
+        </div>
+      </div>
     </section>
 
     <section class="section">
