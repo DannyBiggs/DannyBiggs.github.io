@@ -1203,20 +1203,29 @@
       }
 
       .cinematic-burst.rainbow {
-        width: 150px;
-        height: 150px;
+        width: 180px;
+        height: 180px;
         border-radius: 50%;
         background:
-          radial-gradient(circle,
-            rgba(255,255,255,0.10) 0%,
-            rgba(255,80,200,0.12) 18%,
-            rgba(80,220,255,0.10) 34%,
-            rgba(80,255,120,0.09) 50%,
-            rgba(255,220,70,0.07) 64%,
-            transparent 82%);
+          conic-gradient(
+            from 18deg,
+            transparent 0deg,
+            rgba(255, 70, 70, 0.28) 18deg,
+            transparent 38deg,
+            rgba(255, 220, 70, 0.24) 68deg,
+            transparent 88deg,
+            rgba(80, 255, 120, 0.24) 118deg,
+            transparent 138deg,
+            rgba(80, 220, 255, 0.26) 178deg,
+            transparent 202deg,
+            rgba(170, 90, 255, 0.26) 242deg,
+            transparent 266deg,
+            rgba(255, 70, 200, 0.24) 306deg,
+            transparent 340deg
+          );
         clip-path: none;
-        filter: blur(28px);
-        transform: translate(-8px, -6px);
+        filter: blur(18px);
+        opacity: 0.72;
       }
     
       .cinematic-burst.mythic {
