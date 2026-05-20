@@ -789,12 +789,12 @@
       .slot-wrap::before {
         content: "";
         position: absolute;
-        inset: -28%;
+        inset: -10%;
         border-radius: 50%;
         opacity: 0;
         pointer-events: none;
-        background: radial-gradient(circle, rgba(255, 190, 80, 0.45), transparent 68%);
         z-index: 0;
+        transform: scale(1);
       }
     
       .slot-coin {
@@ -827,41 +827,57 @@
       }
 
       .slot-wrap.landed-common::before {
-        opacity: 0.45;
-        background: radial-gradient(circle, rgba(190, 190, 190, 0.55) 0%, transparent 66%);
+        opacity: 0.30;
+        background:
+          radial-gradient(circle,
+            rgba(210,210,210,0.35) 0%,
+            rgba(210,210,210,0.18) 42%,
+            transparent 68%);
       }
       
       .slot-wrap.landed-rare::before {
-        opacity: 0.85;
-        background: radial-gradient(circle, rgba(80, 150, 255, 0.75) 0%, transparent 66%);
+        opacity: 0.65;
+        background:
+          radial-gradient(circle,
+            rgba(90,170,255,0.75) 0%,
+            rgba(90,170,255,0.28) 46%,
+            transparent 68%);
       }
       
       .slot-wrap.landed-epic::before {
-        opacity: 0.90;
-        background: radial-gradient(circle, rgba(180, 80, 255, 0.78) 0%, transparent 66%);
+        opacity: 0.72;
+        background:
+          radial-gradient(circle,
+            rgba(180,90,255,0.82) 0%,
+            rgba(180,90,255,0.32) 46%,
+            transparent 68%);
       }
       
       .slot-wrap.landed-legendary::before {
-        opacity: 0.95;
-        background: radial-gradient(circle, rgba(255, 210, 90, 0.85) 0%, transparent 66%);
+        opacity: 0.80;
+        background:
+          radial-gradient(circle,
+            rgba(255,215,90,0.92) 0%,
+            rgba(255,170,40,0.38) 46%,
+            transparent 68%);
       }
       
       .slot-wrap.landed-mythic::before {
-        opacity: 1;
+        opacity: 0.92;
         background:
           radial-gradient(circle,
-            rgba(255, 190, 70, 0.85) 0%,
-            rgba(255, 90, 20, 0.38) 38%,
-            transparent 68%);
+            rgba(255,190,70,0.95) 0%,
+            rgba(255,90,20,0.42) 42%,
+            transparent 70%);
       }
       
       .slot-wrap.landed-cursed::before {
-        opacity: 1;
+        opacity: 0.92;
         background:
           radial-gradient(circle,
-            rgba(90, 185, 255, 0.90) 0%,
-            rgba(20, 90, 255, 0.40) 38%,
-            transparent 68%);
+            rgba(90,190,255,0.95) 0%,
+            rgba(20,90,255,0.42) 42%,
+            transparent 70%);
       }
     
       @keyframes slotLand {
