@@ -1070,7 +1070,23 @@
             rgba(0, 35, 110, 0.40) 62%,
             transparent 76%);
       }
-      
+
+      .cinematic-burst.rainbow {
+        background:
+          conic-gradient(
+            from 0deg,
+            rgba(255, 60, 60, 0.90),
+            rgba(255, 180, 60, 0.90),
+            rgba(255, 255, 80, 0.90),
+            rgba(80, 255, 120, 0.90),
+            rgba(80, 220, 255, 0.90),
+            rgba(150, 90, 255, 0.90),
+            rgba(255, 80, 220, 0.90),
+            rgba(255, 60, 60, 0.90)
+          );
+        filter: blur(10px);
+      }
+    
       .cinematic-burst.mythic {
         background:
           conic-gradient(
@@ -1252,7 +1268,40 @@
           0 0 22px rgba(255,179,71,0.35),
           inset 0 0 18px rgba(255,179,71,0.12);
       }
+
+      .forge-result.final-common {
+        border-color: rgba(190, 190, 190, 0.75);
+      }
       
+      .forge-result.final-rare {
+        border-color: rgba(80, 150, 255, 0.85);
+        box-shadow: 0 0 22px rgba(80, 150, 255, 0.35);
+      }
+      
+      .forge-result.final-epic {
+        border-color: rgba(180, 80, 255, 0.85);
+        box-shadow: 0 0 24px rgba(180, 80, 255, 0.38);
+      }
+      
+      .forge-result.final-legendary {
+        border-color: rgba(255, 210, 90, 0.90);
+        box-shadow: 0 0 26px rgba(255, 190, 80, 0.42);
+      }
+      
+      .forge-result.final-mythic {
+        border-color: rgba(255, 100, 220, 0.95);
+        box-shadow:
+          0 0 28px rgba(255, 100, 220, 0.42),
+          0 0 42px rgba(120, 90, 255, 0.24);
+      }
+      
+      .forge-result.final-cursed {
+        border-color: rgba(90, 185, 255, 0.95);
+        box-shadow:
+          0 0 28px rgba(90, 185, 255, 0.45),
+          0 0 42px rgba(20, 90, 255, 0.22);
+      }
+    
       @keyframes finalPanelReveal {
         0% {
           opacity: 0;
@@ -2621,7 +2670,16 @@
       "cinematic-legendary"
     );
 
-forgeResult.classList.remove("cinematic-text", "final-panel");
+forgeResult.classList.remove(
+  "cinematic-text",
+  "final-panel",
+  "final-common",
+  "final-rare",
+  "final-epic",
+  "final-legendary",
+  "final-mythic",
+  "final-cursed"
+);
 cinematicBurst.className = "cinematic-burst";
 forgeImpactFlash.className = "forge-impact-flash";
 forgeCorruptionWave.className = "forge-corruption-wave";
@@ -2672,10 +2730,19 @@ forgeBloom.className = "forge-bloom";
       return;
     }
   
-    if (coin.name === "Rainbow Coin" || coin.name === "Kingmaker Coin") {
+    if (coin.name === "Rainbow Coin") {
+      forgeStage.classList.add("cinematic-mythic");
+      triggerBurst("rainbow", slot);
+      forgeResult.innerHTML = "🌈 RAINBOW COIN!";
+      forgeResult.classList.add("cinematic-text");
+      await wait(650);
+      return;
+    }
+    
+    if (coin.name === "Kingmaker Coin") {
       forgeStage.classList.add("cinematic-mythic");
       triggerBurst("mythic", slot);
-      forgeResult.innerHTML = `🌈 MYTHIC REVEAL — ${coin.name}!`;
+      forgeResult.innerHTML = "👑 KINGMAKER COIN!";
       forgeResult.classList.add("cinematic-text");
       await wait(650);
       return;
@@ -2876,9 +2943,19 @@ forgeBloom.className = "forge-bloom";
         })
         .join(" &nbsp; ✦ &nbsp; ");
       
-    forgeResult.classList.remove("final-panel");
+    forgeResult.classList.remove(
+      "final-panel",
+      "final-common",
+      "final-rare",
+      "final-epic",
+      "final-legendary",
+      "final-mythic",
+      "final-cursed"
+    );
+    
     void forgeResult.offsetWidth;
-    forgeResult.classList.add("final-panel");
+    
+    forgeResult.classList.add("final-panel", `final-${highestClass}`);
   
     await wait(900);
   
