@@ -1203,29 +1203,19 @@
       }
 
       .cinematic-burst.rainbow {
-        width: 180px;
-        height: 180px;
-        border-radius: 50%;
+        width: 210px;
+        height: 210px;
+        border-radius: 0;
         background:
-          conic-gradient(
-            from 18deg,
-            transparent 0deg,
-            rgba(255, 70, 70, 0.28) 18deg,
-            transparent 38deg,
-            rgba(255, 220, 70, 0.24) 68deg,
-            transparent 88deg,
-            rgba(80, 255, 120, 0.24) 118deg,
-            transparent 138deg,
-            rgba(80, 220, 255, 0.26) 178deg,
-            transparent 202deg,
-            rgba(170, 90, 255, 0.26) 242deg,
-            transparent 266deg,
-            rgba(255, 70, 200, 0.24) 306deg,
-            transparent 340deg
-          );
+          linear-gradient(25deg, transparent 42%, rgba(255,70,70,0.34) 48%, transparent 56%),
+          linear-gradient(75deg, transparent 42%, rgba(255,220,70,0.30) 48%, transparent 56%),
+          linear-gradient(125deg, transparent 42%, rgba(80,255,120,0.28) 48%, transparent 56%),
+          linear-gradient(175deg, transparent 42%, rgba(80,220,255,0.30) 48%, transparent 56%),
+          linear-gradient(230deg, transparent 42%, rgba(170,90,255,0.30) 48%, transparent 56%),
+          linear-gradient(300deg, transparent 42%, rgba(255,70,200,0.28) 48%, transparent 56%);
         clip-path: none;
-        filter: blur(18px);
-        opacity: 0.72;
+        filter: blur(12px);
+        opacity: 0.78;
       }
     
       .cinematic-burst.mythic {
