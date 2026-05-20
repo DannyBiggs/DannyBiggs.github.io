@@ -2316,13 +2316,13 @@
       results.push(weightedRoll());
     }
   
-    for (let cycle = 0; cycle < 26; cycle++) {
+    for (let cycle = 0; cycle < 16; cycle++) {
       slots.forEach(slot => {
         slot.classList.add("spinning");
         spinSlot(slot, null, 0, false);
       });
     
-      await wait(cycle < 14 ? 65 : cycle < 21 ? 95 : 135);
+      await wait(cycle < 10 ? 55 : cycle < 14 ? 80 : 115);
     }
     
     const lockedSlots = new Set();
