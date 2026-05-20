@@ -1029,14 +1029,13 @@
 
       .slot-aura {
         position: absolute;
-        width: 150px;
-        height: 150px;
+        width: 230px;
+        height: 230px;
         border-radius: 50%;
         pointer-events: none;
         opacity: 0;
         transform: translate(-50%, -50%) scale(0.85);
         z-index: 4;
-        filter: blur(12px);
       }
       
       .slot-aura.active {
@@ -1071,8 +1070,12 @@
       }
       
       .slot-aura.kingmaker {
-        background: radial-gradient(circle, rgba(255, 190, 60, 0.65), rgba(255, 90, 20, 0.30), transparent 70%);
-      }
+  background: radial-gradient(circle,
+      rgba(255, 190, 60, 0.45) 0%,
+      rgba(255, 120, 25, 0.22) 32%,
+      rgba(255, 90, 20, 0.08) 52%,
+      transparent 72%);
+}
       
       .slot-aura.anti {
         background: radial-gradient(circle, rgba(90, 185, 255, 0.65), rgba(20, 90, 255, 0.30), transparent 70%);
