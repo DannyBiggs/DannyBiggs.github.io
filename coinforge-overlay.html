@@ -517,58 +517,61 @@
     }
 
     .forge-stage.reveal-common {
-      box-shadow: 0 0 20px rgba(180,180,180,0.10), inset 0 0 50px rgba(255,255,255,0.03);
+      filter: brightness(1.02);
     }
-
+    
     .forge-stage.reveal-rare {
-      box-shadow: 0 0 28px rgba(80,120,255,0.28), inset 0 0 70px rgba(80,120,255,0.08);
+      filter: brightness(1.05) saturate(1.08);
     }
-
+    
     .forge-stage.reveal-epic {
-      box-shadow: 0 0 34px rgba(168,85,247,0.34), inset 0 0 80px rgba(168,85,247,0.10);
+      filter: brightness(1.08) saturate(1.12);
     }
-
+    
     .forge-stage.reveal-legendary {
-      box-shadow: 0 0 42px rgba(255,179,71,0.45), inset 0 0 100px rgba(255,179,71,0.14);
+      filter: brightness(1.12) saturate(1.18);
     }
-
+    
     .forge-stage.reveal-mythic {
       animation: mythicPulse 1.4s ease-in-out infinite alternate;
-      box-shadow: 0 0 48px rgba(255,70,210,0.45), 0 0 90px rgba(120,80,255,0.25), inset 0 0 120px rgba(255,255,255,0.08);
     }
-
-    @keyframes mythicPulse {
-      from { filter: saturate(1); }
-      to { filter: saturate(1.4) brightness(1.12); }
-    }
-
+    
     .forge-stage.reveal-rainbow {
       animation: rainbowPulse 1.4s ease-in-out infinite alternate;
-      box-shadow:
-        0 0 50px rgba(255,255,255,0.30),
-        0 0 80px rgba(255,120,255,0.25),
-        0 0 120px rgba(80,220,255,0.22),
-        inset 0 0 120px rgba(255,255,255,0.08);
+    }
+    
+    .forge-stage.reveal-cursed {
+      animation: cursedReveal 0.7s ease-in-out infinite alternate;
+    }
+    
+    @keyframes mythicPulse {
+      from {
+        filter: brightness(1.08) saturate(1.1);
+      }
+    
+      to {
+        filter: brightness(1.22) saturate(1.4);
+      }
     }
     
     @keyframes rainbowPulse {
       from {
-        filter: saturate(1.1) brightness(1);
+        filter: brightness(1.08) saturate(1.15);
       }
     
       to {
-        filter: saturate(1.8) brightness(1.22) hue-rotate(12deg);
+        filter: brightness(1.28) saturate(1.7) hue-rotate(10deg);
       }
     }
-        
-    .forge-stage.reveal-cursed {
-      animation: cursedReveal 0.7s ease-in-out infinite alternate;
-      box-shadow: 0 0 40px rgba(255,0,0,0.38), inset 0 0 100px rgba(255,0,0,0.12);
-    }
-
+    
     @keyframes cursedReveal {
-      from { filter: brightness(0.95) saturate(1); }
-      to { filter: brightness(1.12) saturate(1.4); }
+      from {
+        filter: brightness(0.95) saturate(1);
+      }
+    
+      to {
+        filter: brightness(1.08) saturate(1.35);
+      }
     }
 
     .forge-result {
