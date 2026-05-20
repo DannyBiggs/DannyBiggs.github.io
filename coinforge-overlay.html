@@ -280,6 +280,18 @@
       background: radial-gradient(circle, rgba(255,255,180,1.0) 0%, rgba(255,180,80,0.88) 18%, rgba(255,90,40,0.62) 36%, rgba(255,40,20,0.40) 50%, rgba(255,0,0,0.10) 62%, transparent 74%);
     }
 
+    .slot-wrap.landed-rainbow::before {
+      opacity: 0.9;
+      background:
+        radial-gradient(circle,
+          rgba(255,255,255,1.0) 0%,
+          rgba(255,220,120,0.85) 16%,
+          rgba(255,80,220,0.55) 34%,
+          rgba(80,220,255,0.45) 52%,
+          rgba(120,255,120,0.18) 66%,
+          transparent 78%);
+    }
+    
     .slot-wrap.landed-cursed::before {
       opacity: 0.82;
       background: radial-gradient(circle, rgba(180,240,255,1.0) 0%, rgba(90,180,255,0.88) 18%, rgba(40,120,255,0.62) 36%, rgba(20,70,255,0.40) 50%, rgba(0,30,255,0.10) 62%, transparent 74%);
@@ -530,6 +542,25 @@
       to { filter: saturate(1.4) brightness(1.12); }
     }
 
+    .forge-stage.reveal-rainbow {
+      animation: rainbowPulse 1.4s ease-in-out infinite alternate;
+      box-shadow:
+        0 0 50px rgba(255,255,255,0.30),
+        0 0 80px rgba(255,120,255,0.25),
+        0 0 120px rgba(80,220,255,0.22),
+        inset 0 0 120px rgba(255,255,255,0.08);
+    }
+    
+    @keyframes rainbowPulse {
+      from {
+        filter: saturate(1.1) brightness(1);
+      }
+    
+      to {
+        filter: saturate(1.8) brightness(1.22) hue-rotate(12deg);
+      }
+    }
+        
     .forge-stage.reveal-cursed {
       animation: cursedReveal 0.7s ease-in-out infinite alternate;
       box-shadow: 0 0 40px rgba(255,0,0,0.38), inset 0 0 100px rgba(255,0,0,0.12);
@@ -582,6 +613,13 @@
     .forge-result.final-epic { border-color: rgba(180, 80, 255, 0.85); box-shadow: 0 0 24px rgba(180, 80, 255, 0.38); }
     .forge-result.final-legendary { border-color: rgba(255, 210, 90, 0.90); box-shadow: 0 0 26px rgba(255, 190, 80, 0.42); }
     .forge-result.final-mythic { border-color: rgba(255, 100, 220, 0.95); box-shadow: 0 0 28px rgba(255, 100, 220, 0.42), 0 0 42px rgba(120, 90, 255, 0.24); }
+    .forge-result.final-rainbow {
+      border-color: rgba(255, 255, 255, 0.95);
+      box-shadow:
+        0 0 28px rgba(255, 255, 255, 0.35),
+        0 0 42px rgba(255, 100, 220, 0.32),
+        0 0 56px rgba(80, 220, 255, 0.26);
+    }
     .forge-result.final-cursed { border-color: rgba(90, 185, 255, 0.95); box-shadow: 0 0 28px rgba(90, 185, 255, 0.45), 0 0 42px rgba(20, 90, 255, 0.22); }
 
     @keyframes finalPanelReveal {
@@ -661,7 +699,7 @@
       { key: "Silver", name: "Silver Coin", file: "images/coins/silver.gif", rarity: "Rare", className: "rare" },
       { key: "Gold", name: "Gold Coin", file: "images/coins/gold.gif", rarity: "Epic", className: "epic" },
       { key: "Diamond", name: "Diamond Coin", file: "images/coins/diamond.gif", rarity: "Legendary", className: "legendary" },
-      { key: "Rainbow", name: "Rainbow Coin", file: "images/coins/rainbow.gif", rarity: "Mythic", className: "mythic" },
+      { key: "Rainbow", name: "Rainbow Coin", file: "images/coins/rainbow.gif", rarity: "Rainbow", className: "rainbow" },
       { key: "Anti", name: "Anti Coin", file: "images/coins/anti.gif", rarity: "Cursed", className: "cursed" },
       { key: "Lucky", name: "Lucky Coin", file: "images/coins/lucky.gif", rarity: "Rare", className: "rare" },
       { key: "Jackpot Booster", name: "Jackpot Booster", file: "images/coins/jackpot.gif", rarity: "Legendary", className: "legendary" },
@@ -759,6 +797,7 @@
         "landed-epic",
         "landed-legendary",
         "landed-mythic",
+        "landed-rainbow",
         "landed-cursed"
       );
     }
@@ -779,6 +818,7 @@
         "reveal-epic",
         "reveal-legendary",
         "reveal-mythic",
+        "reveal-rainbow",
         "reveal-cursed",
         "impact",
         "cinematic-jackpot",
@@ -795,6 +835,7 @@
         "final-epic",
         "final-legendary",
         "final-mythic",
+        "final-rainbow",
         "final-cursed"
       );
 
@@ -943,7 +984,8 @@
         epic: 3,
         legendary: 4,
         mythic: 5,
-        cursed: 6
+        rainbow: 6,
+        cursed: 7
       };
 
       let highest = "common";
@@ -1137,6 +1179,7 @@
         "final-epic",
         "final-legendary",
         "final-mythic",
+        "final-rainbow",
         "final-cursed"
       );
 
@@ -1152,6 +1195,7 @@
         "reveal-epic",
         "reveal-legendary",
         "reveal-mythic",
+        "reveal-rainbow",
         "reveal-cursed"
       );
 
