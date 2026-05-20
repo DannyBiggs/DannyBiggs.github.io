@@ -2188,7 +2188,9 @@
   
   async function runForgeReveal() {
     clearRevealClasses();
-  
+
+    simCoin.classList.remove("landed");
+    
     forgeButton.disabled = true;
     forgeResult.innerText = "⚒️ The forge begins to turn...";
     simCoin.classList.add("spinning");
