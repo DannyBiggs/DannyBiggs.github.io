@@ -2459,7 +2459,11 @@
   function randomCycleCoin() {
     return forgeCoins[Math.floor(Math.random() * forgeCoins.length)];
   }
-  
+
+  function coinFileForSlot(coin, index) {
+    return `${coin.file}?slot=${index}&t=${Date.now()}-${Math.random()}`;
+  }
+    
   function weightedRoll() {
     const roll = Math.floor(Math.random() * 10000) + 1;
   
@@ -2617,7 +2621,7 @@ forgeBloom.className = "forge-bloom";
     for (let i = 0; i < count; i++) {
       const img = document.createElement("img");
       img.className = "sim-coin slot-coin";
-      img.src = "images/coins/bronze.gif";
+      img.src = `images/coins/bronze.gif?slot=${i}&t=${Date.now()}-${Math.random()}`;
       img.alt = "Forged Coin";
       slotRow.appendChild(img);
     }
@@ -2626,7 +2630,7 @@ forgeBloom.className = "forge-bloom";
   async function spinSlot(slot, finalCoin, index, shouldLock) {
   if (!shouldLock) {
     const coin = randomCycleCoin();
-    slot.src = coin.file;
+    slot.src = coinFileForSlot(coin, index);
     return;
   }
 
@@ -2642,7 +2646,7 @@ forgeBloom.className = "forge-bloom";
 
   const nearMiss = nearMissPool[Math.floor(Math.random() * nearMissPool.length)];
 
-  slot.src = nearMiss.file;
+  slot.src = coinFileForSlot(nearMiss, index);
   slot.classList.add("near-miss");
 
   forgeResult.innerText = `Slot ${index + 1} sparks violently...`;
@@ -2653,7 +2657,7 @@ forgeBloom.className = "forge-bloom";
 
   await wait(80);
 
-  slot.src = finalCoin.file;
+  slot.src = coinFileForSlot(finalCoin, index);
   slot.classList.remove("spinning");
   slot.classList.add("landed");
     
@@ -2720,7 +2724,7 @@ forgeBloom.className = "forge-bloom";
       slots.forEach((slot, index) => {
         if (!lockedSlots.has(index)) {
           const coin = randomCycleCoin();
-          slot.src = coin.file;
+          slot.src = coinFileForSlot(coin, index);
         }
       });
     }, 90);
