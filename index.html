@@ -13,6 +13,59 @@
       color: #e8d7a2;
       font-family: Arial, sans-serif;
       margin: 0;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -1;
+      background:
+        radial-gradient(circle at 18% 20%, rgba(255, 120, 32, 0.10), transparent 28%),
+        radial-gradient(circle at 82% 12%, rgba(168, 85, 247, 0.08), transparent 24%),
+        radial-gradient(circle at 50% 95%, rgba(255, 179, 71, 0.10), transparent 34%);
+      animation: forgeGlow 8s ease-in-out infinite alternate;
+    }
+
+    @keyframes forgeGlow {
+      from { opacity: 0.55; transform: scale(1); }
+      to { opacity: 0.9; transform: scale(1.04); }
+    }
+
+    .embers {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .ember {
+      position: absolute;
+      bottom: -20px;
+      width: 4px;
+      height: 4px;
+      background: #ffb347;
+      border-radius: 50%;
+      opacity: 0.45;
+      box-shadow: 0 0 10px rgba(255,179,71,0.8);
+      animation: riseEmber linear infinite;
+    }
+
+    .ember:nth-child(1) { left: 8%; animation-duration: 9s; animation-delay: 0s; }
+    .ember:nth-child(2) { left: 20%; animation-duration: 13s; animation-delay: 2s; }
+    .ember:nth-child(3) { left: 36%; animation-duration: 11s; animation-delay: 5s; }
+    .ember:nth-child(4) { left: 52%; animation-duration: 15s; animation-delay: 1s; }
+    .ember:nth-child(5) { left: 68%; animation-duration: 10s; animation-delay: 4s; }
+    .ember:nth-child(6) { left: 86%; animation-duration: 14s; animation-delay: 3s; }
+
+    @keyframes riseEmber {
+      0% { transform: translateY(0) scale(0.7); opacity: 0; }
+      15% { opacity: 0.6; }
+      100% { transform: translateY(-110vh) scale(1.4); opacity: 0; }
     }
 
     body.secrets-hidden .rarity-secret .details,
@@ -26,10 +79,15 @@
     }
 
     header {
-      background: #17120d;
+      background:
+        linear-gradient(180deg, rgba(23,18,13,0.96), rgba(12,10,8,0.98)),
+        radial-gradient(circle at center, rgba(255,179,71,0.28), transparent 55%);
       text-align: center;
-      padding: 36px 20px;
+      padding: 46px 20px;
       border-bottom: 3px solid #c6842f;
+      box-shadow: 0 0 30px rgba(255, 120, 32, 0.20);
+      position: relative;
+      z-index: 1;
     }
 
     h1 {
@@ -444,6 +502,199 @@
       padding: 30px;
     }
 
+
+    .hero-panel {
+      background:
+        linear-gradient(135deg, rgba(34, 22, 12, 0.95), rgba(12, 10, 8, 0.95)),
+        radial-gradient(circle at top left, rgba(255,179,71,0.22), transparent 42%);
+      border: 1px solid #c6842f;
+      box-shadow: 0 0 24px rgba(255, 179, 71, 0.18);
+    }
+
+    .hero-title {
+      color: #ffffff;
+      font-size: 28px;
+      margin: 0 0 8px;
+    }
+
+    .hero-text {
+      color: #d8c58b;
+      max-width: 760px;
+      line-height: 1.55;
+    }
+
+    .featured-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+      margin-top: 18px;
+    }
+
+    .featured-card {
+      background: linear-gradient(180deg, rgba(15,15,17,0.96), rgba(7,7,9,0.98));
+      border: 2px solid #3a2a18;
+      border-radius: 14px;
+      padding: 18px;
+      position: relative;
+      overflow: hidden;
+      min-height: 160px;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    }
+
+    .featured-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 0 24px rgba(255,179,71,0.22);
+    }
+
+    .featured-card::after,
+    .rarity-mythic::after,
+    .rarity-legendary::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -120%;
+      width: 80%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+      transform: skewX(-18deg);
+      animation: cardShine 5.5s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes cardShine {
+      0%, 70% { left: -120%; }
+      100% { left: 140%; }
+    }
+
+    .featured-topline {
+      color: #ffd36a;
+      font-size: 13px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+    }
+
+    .featured-name {
+      color: #ffffff;
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .lore {
+      color: #d8c58b;
+      font-style: italic;
+      line-height: 1.45;
+      margin-top: 8px;
+    }
+
+    .simulator-panel {
+      display: grid;
+      grid-template-columns: minmax(160px, 240px) 1fr;
+      gap: 18px;
+      align-items: center;
+    }
+
+    .sim-coin-display {
+      background: radial-gradient(circle, rgba(255,179,71,0.12), rgba(0,0,0,0.35));
+      border: 2px solid #3a2a18;
+      border-radius: 16px;
+      padding: 22px;
+      text-align: center;
+      min-height: 190px;
+      display: grid;
+      place-items: center;
+    }
+
+    .sim-coin-display img {
+      width: 128px;
+      height: 128px;
+      image-rendering: pixelated;
+      object-fit: contain;
+      filter: drop-shadow(0 0 14px rgba(255,179,71,0.45));
+    }
+
+    .sim-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .forge-button {
+      background: linear-gradient(180deg, #c6842f, #7a4318);
+      color: #ffffff;
+      border: 1px solid #ffcf7a;
+      border-radius: 999px;
+      padding: 11px 16px;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 0 0 14px rgba(255,179,71,0.24);
+    }
+
+    .forge-button:hover {
+      box-shadow: 0 0 22px rgba(255,179,71,0.45);
+      transform: translateY(-2px);
+    }
+
+    .sim-result {
+      color: #ffffff;
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .sim-text {
+      color: #d8c58b;
+      line-height: 1.5;
+    }
+
+    .tree-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 16px;
+      margin-top: 18px;
+    }
+
+    .tree-card {
+      background: #0f0f11;
+      border: 1px solid #3a2a18;
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .tree-title {
+      color: #ffffff;
+      font-weight: bold;
+      margin-bottom: 12px;
+    }
+
+    .tree-step {
+      color: #d8c58b;
+      padding: 8px 10px;
+      border-left: 3px solid #c6842f;
+      background: rgba(255,179,71,0.05);
+      margin-bottom: 8px;
+      border-radius: 0 8px 8px 0;
+      position: relative;
+    }
+
+    .tree-step:not(:last-child)::after {
+      content: "↓";
+      display: block;
+      color: #ffb347;
+      margin-top: 6px;
+      margin-left: 4px;
+    }
+
+    .mobile-note {
+      display: none;
+      color: #b8a77b;
+      font-size: 13px;
+      margin-top: 10px;
+    }
+
     @media (max-width: 700px) {
       h1 { font-size: 34px; }
 
@@ -491,17 +742,43 @@
         right: 12px;
         bottom: 12px;
       }
+
+      .simulator-panel {
+        grid-template-columns: 1fr;
+      }
+
+      .sim-coin-display img {
+        width: 104px;
+        height: 104px;
+      }
+
+      .featured-grid,
+      .tree-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-title {
+        font-size: 23px;
+      }
+
+      .mobile-note {
+        display: block;
+      }
     }
   </style>
 </head>
 
 <body id="top">
+  <div class="embers" aria-hidden="true"><span class="ember"></span><span class="ember"></span><span class="ember"></span><span class="ember"></span><span class="ember"></span><span class="ember"></span></div>
   <header>
     <h1>⚒️ Coin Forge Codex</h1>
     <div class="subtitle">Achievements • Badges • Titles • Nameplates • World Bosses</div>
   </header>
 
   <nav class="top-nav">
+    <a href="#featured">Featured</a>
+    <a href="#simulator">Simulator</a>
+    <a href="#progression-trees">Trees</a>
     <a href="#achievements">Achievements</a>
     <a href="#coins">Coins</a>
     <a href="#badges">Badges</a>
@@ -513,6 +790,83 @@
 
   <main class="container">
 
+
+    <section class="section hero-panel">
+      <div class="hero-title">Pull fate from the Coin Forge.</div>
+      <div class="hero-text">
+        Spend Resonance, forge coins, unlock achievements, earn badges and nameplates, and survive the sins that awaken inside the forge. Every pull feeds the legend — or the curse.
+      </div>
+      <div class="mobile-note">Tip: Use the search box and rarity legend to quickly filter the codex.</div>
+    </section>
+
+    <section class="section" id="featured">
+      <h2>🏆 Featured Endgame Goals</h2>
+      <div class="featured-grid">
+        <div class="featured-card rarity-mythic searchable" data-category="achievements">
+          <div class="featured-topline">Mythic Goal</div>
+          <div class="featured-name">🌈 Forge Legend</div>
+          <div class="detail"><strong>Criteria:</strong> Pull 2,500 total coins</div>
+          <div class="detail reward"><strong>Reward:</strong> ⚒️ [FORGE LEGEND] title + badge</div>
+          <div class="lore">The Forge no longer tests your resolve — it recognizes your name in the sparks.</div>
+        </div>
+
+        <div class="featured-card rarity-secret searchable" data-category="badges">
+          <div class="featured-topline">Secret Prestige</div>
+          <div class="featured-name">❔ The Sovereign</div>
+          <div class="detail"><strong>Criteria:</strong> Champion of the Week 4 weeks in a row</div>
+          <div class="detail reward"><strong>Reward:</strong> Sovereign badge</div>
+          <div class="lore">Four weeks atop the anvil. The crown was not won once; it was defended.</div>
+        </div>
+
+        <div class="featured-card rarity-secret searchable" data-category="nameplates">
+          <div class="featured-topline">Secret Nameplate</div>
+          <div class="featured-name">👁️ The Watched</div>
+          <div class="detail"><strong>Criteria:</strong> 100 Omen-corrupted coins</div>
+          <div class="detail reward"><strong>Reward:</strong> 👁️ [THE WATCHED] nameplate</div>
+          <div class="lore">Something beyond the flame has noticed your fortune… and it remembers.</div>
+        </div>
+
+        <div class="featured-card rarity-mythic searchable" data-category="nameplates">
+          <div class="featured-topline">Cursed Ascension</div>
+          <div class="featured-name">💀 Hexbound</div>
+          <div class="detail"><strong>Criteria:</strong> Pull 75 Anti coins</div>
+          <div class="detail reward"><strong>Reward:</strong> 💀 [HEXBOUND] nameplate</div>
+          <div class="lore">The curse no longer clings to you. It answers you.</div>
+        </div>
+
+        <div class="featured-card rarity-secret searchable" data-category="badges">
+          <div class="featured-topline">Gambler’s Legend</div>
+          <div class="featured-name">❔ Broke the House</div>
+          <div class="detail"><strong>Criteria:</strong> Win a jackpot payout of 10,000 or more</div>
+          <div class="detail reward"><strong>Reward:</strong> Badge</div>
+          <div class="lore">For one impossible moment, the house blinked first.</div>
+        </div>
+
+        <div class="featured-card rarity-secret searchable" data-category="bosses">
+          <div class="featured-topline">Boss-Forged Badge</div>
+          <div class="featured-name">❔ Avaros Hungers</div>
+          <div class="detail"><strong>Criteria:</strong> Lose 20,000 coins to Avaros</div>
+          <div class="detail reward"><strong>Reward:</strong> Badge</div>
+          <div class="lore">Avaros took tribute from your fortune — and left its mark in the ledger.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="simulator">
+      <h2>🎲 Coin Pull Simulator</h2>
+      <div class="simulator-panel">
+        <div class="sim-coin-display">
+          <img id="simCoinImage" src="images/coins/bronze.gif" alt="Simulated coin result">
+        </div>
+        <div>
+          <div class="sim-result" id="simResult">Bronze Coin</div>
+          <div class="sim-text" id="simText">Click the button to preview a fake Coin Forge pull. This does not affect stream progress — it is only a guide preview.</div>
+          <div class="sim-actions">
+            <button class="forge-button" id="forgeSimButton">⚒️ Forge Coin</button>
+          </div>
+        </div>
+      </div>
+    </section>
     <section class="section">
       <h2>📖 How to Play</h2>
 
@@ -539,7 +893,7 @@
       </div>
     </section>
 
-    <section class="section">
+    <section class="section" id="roadmap">
       <h2>🧭 Progression Roadmap</h2>
 
       <div class="roadmap">
@@ -548,6 +902,53 @@
         <div class="info-card"><strong>Unlock Achievements</strong><div class="detail">Pull rare coins, gamble, fight bosses, and trigger forge events.</div></div>
         <div class="info-card"><strong>Equip Cosmetics</strong><div class="detail">Earn badges and nameplate titles to show off during pulls.</div></div>
         <div class="info-card"><strong>Fight Bosses</strong><div class="detail">Avaros and Invidra twist the forge when greed and envy rise.</div></div>
+      </div>
+    </section>
+
+
+    <section class="section" id="progression-trees">
+      <h2>🌲 Achievement Progression Trees</h2>
+      <div class="tree-grid">
+        <div class="tree-card searchable" data-category="achievements">
+          <div class="tree-title">⚒️ Pull Progression</div>
+          <div class="tree-step">First Spark</div>
+          <div class="tree-step">Coin Apprentice</div>
+          <div class="tree-step">Forge Regular</div>
+          <div class="tree-step">Forge Veteran</div>
+          <div class="tree-step">Forge Master</div>
+          <div class="tree-step">Forge Legend</div>
+        </div>
+
+        <div class="tree-card searchable" data-category="achievements">
+          <div class="tree-title">🟡 Gold Progression</div>
+          <div class="tree-step">Golden Touch</div>
+          <div class="tree-step">Gold Hunter</div>
+          <div class="tree-step">Gold Hoarder</div>
+          <div class="tree-step">Gold Tyrant</div>
+        </div>
+
+        <div class="tree-card searchable" data-category="achievements">
+          <div class="tree-title">💎 Diamond Progression</div>
+          <div class="tree-step">Shining Fortune</div>
+          <div class="tree-step">Diamond Collector</div>
+          <div class="tree-step">The Lustrous</div>
+        </div>
+
+        <div class="tree-card searchable" data-category="achievements">
+          <div class="tree-title">🌈 Rainbow Progression</div>
+          <div class="tree-step">Impossible Fortune</div>
+          <div class="tree-step">Taste the Rainbow</div>
+          <div class="tree-step">On the Spectrum</div>
+        </div>
+
+        <div class="tree-card searchable" data-category="achievements">
+          <div class="tree-title">💀 Curse Progression</div>
+          <div class="tree-step">Cursed Fate</div>
+          <div class="tree-step">Cursed Survivor</div>
+          <div class="tree-step">Curse Bearer</div>
+          <div class="tree-step">Cursebound</div>
+          <div class="tree-step">Hexbound</div>
+        </div>
       </div>
     </section>
 
@@ -579,67 +980,104 @@
       <div class="section-inner">
         <div class="coin-grid">
           <div class="coin-card rarity-common searchable" data-category="coins">
-  <img src="images/coins/wood.gif" alt="Wood Coin">
-  <div class="name">Wood Coin</div>
-  <div class="details">
-    <div class="detail"><strong>Forge Effect:</strong> Adds fuel to the Burn Pile.</div>
-    <div class="detail"><strong>Why it matters:</strong> Helps trigger Forge Blessings and Forge Ignites events.</div>
-  </div>
-</div>
+            <img src="images/coins/wood.gif" alt="Wood Coin">
+            <div class="name">Wood Coin</div>
+            <div class="details">
+              <div class="detail"><strong>Forge Effect:</strong> Adds fuel to the Burn Pile.</div>
+              <div class="detail"><strong>Why it matters:</strong> Helps trigger Forge Blessings and Forge Ignites events.</div>
+              <div class="lore">Every great flame begins with something humble enough to burn.</div>
+            </div>
+          </div>
 
-<div class="coin-card rarity-common searchable" data-category="coins">
-  <img src="images/coins/bronze.gif" alt="Bronze Coin">
-  <div class="name">Bronze Coin</div>
-  <div class="details">
-    <div class="detail"><strong>Forge Effect:</strong> A small but safe reward.</div>
-    <div class="detail"><strong>Why it matters:</strong> Builds early coins, XP, and achievement progress.</div>
-  </div>
-</div>
+          <div class="coin-card rarity-common searchable" data-category="coins">
+            <img src="images/coins/bronze.gif" alt="Bronze Coin">
+            <div class="name">Bronze Coin</div>
+            <div class="details">
+              <div class="detail"><strong>Forge Effect:</strong> A small but safe reward.</div>
+              <div class="detail"><strong>Why it matters:</strong> Builds early coins, XP, and achievement progress.</div>
+              <div class="lore">Not every pull is legendary. Some are the foundation legends stand on.</div>
+            </div>
+          </div>
 
-<div class="coin-card rarity-rare searchable" data-category="coins">
-  <img src="images/coins/silver.gif" alt="Silver Coin">
-  <div class="name">Silver Coin</div>
-  <div class="details">
-    <div class="detail"><strong>Forge Effect:</strong> A reliable mid-tier payout.</div>
-    <div class="detail"><strong>Why it matters:</strong> Starts pushing Envy higher when no boss is active.</div>
-  </div>
-</div>
+          <div class="coin-card rarity-rare searchable" data-category="coins">
+            <img src="images/coins/silver.gif" alt="Silver Coin">
+            <div class="name">Silver Coin</div>
+            <div class="details">
+              <div class="detail"><strong>Forge Effect:</strong> A reliable mid-tier payout.</div>
+              <div class="detail"><strong>Why it matters:</strong> Starts pushing Envy higher when no boss is active.</div>
+              <div class="lore">A clean strike. A bright spark. The forge begins to notice.</div>
+            </div>
+          </div>
 
-<div class="coin-card rarity-epic searchable" data-category="coins">
-  <img src="images/coins/gold.gif" alt="Gold Coin">
-  <div class="name">Gold Coin</div>
-  <div class="details">
-    <div class="detail"><strong>Forge Effect:</strong> A strong pull worth chasing.</div>
-    <div class="detail"><strong>Why it matters:</strong> Progresses Gold achievements, Gilded rewards, and Envy pressure.</div>
-  </div>
-</div>
+          <div class="coin-card rarity-epic searchable" data-category="coins">
+            <img src="images/coins/gold.gif" alt="Gold Coin">
+            <div class="name">Gold Coin</div>
+            <div class="details">
+              <div class="detail"><strong>Forge Effect:</strong> A strong pull worth chasing.</div>
+              <div class="detail"><strong>Why it matters:</strong> Progresses Gold achievements, Gilded rewards, and Envy pressure.</div>
+              <div class="lore">Fortune rings loudest when gold hits the anvil.</div>
+            </div>
+          </div>
 
-<div class="coin-card rarity-legendary searchable" data-category="coins">
-  <img src="images/coins/diamond.gif" alt="Diamond Coin">
-  <div class="name">Diamond Coin</div>
-  <div class="details">
-    <div class="detail"><strong>Forge Effect:</strong> A rare high-value treasure.</div>
-    <div class="detail"><strong>Why it matters:</strong> Drives Diamond milestones and heavily feeds Envy pressure.</div>
-  </div>
-</div>
+          <div class="coin-card rarity-legendary searchable" data-category="coins">
+            <img src="images/coins/diamond.gif" alt="Diamond Coin">
+            <div class="name">Diamond Coin</div>
+            <div class="details">
+              <div class="detail"><strong>Forge Effect:</strong> A rare high-value treasure.</div>
+              <div class="detail"><strong>Why it matters:</strong> Drives Diamond milestones and heavily feeds Envy pressure.</div>
+              <div class="lore">A flawless shard of luck, struck from impossible heat.</div>
+            </div>
+          </div>
 
-<div class="coin-card rarity-mythic searchable" data-category="coins">
-  <img src="images/coins/rainbow.gif" alt="Rainbow Coin">
-  <div class="name">Rainbow Coin</div>
-  <div class="details">
-    <div class="detail"><strong>Forge Effect:</strong> The forge’s mythic jackpot-tier blessing.</div>
-    <div class="detail"><strong>Why it matters:</strong> Unlocks Rainbow progression and causes a major Envy spike.</div>
-  </div>
-</div>
+          <div class="coin-card rarity-mythic searchable" data-category="coins">
+            <img src="images/coins/rainbow.gif" alt="Rainbow Coin">
+            <div class="name">Rainbow Coin</div>
+            <div class="details">
+              <div class="detail"><strong>Forge Effect:</strong> The forge’s mythic jackpot-tier blessing.</div>
+              <div class="detail"><strong>Why it matters:</strong> Unlocks Rainbow progression and causes a major Envy spike.</div>
+              <div class="lore">The flame breaks into colors it was never meant to show.</div>
+            </div>
+          </div>
 
-<div class="coin-card rarity-cursed searchable" data-category="coins">
-  <img src="images/coins/anti.gif" alt="Anti Coin">
-  <div class="name">Anti Coin</div>
-  <div class="details">
-    <div class="detail"><strong>Forge Effect:</strong> A cursed pull that punishes the user.</div>
-    <div class="detail"><strong>Why it matters:</strong> Breaks momentum, progresses curse achievements, and can heal active bosses.</div>
-  </div>
-</div>
+          <div class="coin-card rarity-cursed searchable" data-category="coins">
+            <img src="images/coins/anti.gif" alt="Anti Coin">
+            <div class="name">Anti Coin</div>
+            <div class="details">
+              <div class="detail"><strong>Forge Effect:</strong> A cursed pull that punishes the user.</div>
+              <div class="detail"><strong>Why it matters:</strong> Breaks momentum, progresses curse achievements, and can heal active bosses.</div>
+              <div class="lore">The forge gives. The forge takes. Sometimes it takes first.</div>
+            </div>
+          </div>
+
+          <div class="coin-card rarity-rare searchable" data-category="coins">
+            <img src="images/coins/lucky.gif" alt="Lucky Coin">
+            <div class="name">Lucky Coin</div>
+            <div class="details">
+              <div class="detail"><strong>Forge Effect:</strong> Improves or rescues the next pull.</div>
+              <div class="detail"><strong>Why it matters:</strong> Can turn weak outcomes into something worth celebrating.</div>
+              <div class="lore">A coin that lands on its edge and dares fate to argue.</div>
+            </div>
+          </div>
+
+          <div class="coin-card rarity-legendary searchable" data-category="coins">
+            <img src="images/coins/Jackpot.gif" alt="Jackpot Booster Coin">
+            <div class="name">Jackpot Booster</div>
+            <div class="details">
+              <div class="detail"><strong>Forge Effect:</strong> Feeds the shared jackpot pool.</div>
+              <div class="detail"><strong>Why it matters:</strong> Makes future gamble outcomes more explosive.</div>
+              <div class="lore">The pot grows heavier. So does the temptation.</div>
+            </div>
+          </div>
+
+          <div class="coin-card rarity-mythic searchable" data-category="coins">
+            <img src="images/coins/kingmaker.gif" alt="Kingmaker Coin">
+            <div class="name">Kingmaker Coin</div>
+            <div class="details">
+              <div class="detail"><strong>Forge Effect:</strong> A premium fortune coin tied to powerful outcomes.</div>
+              <div class="detail"><strong>Why it matters:</strong> Designed for rare, memorable, stream-defining moments.</div>
+              <div class="lore">Some coins buy power. This one crowns it.</div>
+            </div>
+          </div>
         </div>
       </div>
     </details>
@@ -1509,6 +1947,75 @@
       });
 
       searchInput.addEventListener("input", applyFilters);
+
+
+      const simCoins = [
+        {
+          name: "Wood Coin",
+          image: "images/coins/wood.gif",
+          text: "The forge coughs up kindling. It may look small, but every ignition begins here."
+        },
+        {
+          name: "Bronze Coin",
+          image: "images/coins/bronze.gif",
+          text: "A safe pull. Not flashy, but it keeps the anvil ringing."
+        },
+        {
+          name: "Silver Coin",
+          image: "images/coins/silver.gif",
+          text: "A clean mid-tier reward. Envy begins to stir when luck improves."
+        },
+        {
+          name: "Gold Coin",
+          image: "images/coins/gold.gif",
+          text: "Gold flashes across the forge. Achievements, greed, and envy all take notice."
+        },
+        {
+          name: "Diamond Coin",
+          image: "images/coins/diamond.gif",
+          text: "A rare treasure strikes the anvil. The forge burns brighter around it."
+        },
+        {
+          name: "Rainbow Coin",
+          image: "images/coins/rainbow.gif",
+          text: "A mythic pull. The flame fractures into impossible color."
+        },
+        {
+          name: "Anti Coin",
+          image: "images/coins/anti.gif",
+          text: "The curse answers. Momentum breaks, and active bosses may feed."
+        },
+        {
+          name: "Lucky Coin",
+          image: "images/coins/lucky.gif",
+          text: "Luck bends sideways. A weak outcome may become something far better."
+        },
+        {
+          name: "Jackpot Booster",
+          image: "images/coins/Jackpot.gif",
+          text: "The shared jackpot grows heavier. The next gamble becomes harder to ignore."
+        },
+        {
+          name: "Kingmaker Coin",
+          image: "images/coins/kingmaker.gif",
+          text: "A royal spark from the forge. Some pulls do not reward players — they crown them."
+        }
+      ];
+
+      const forgeSimButton = document.getElementById("forgeSimButton");
+      const simCoinImage = document.getElementById("simCoinImage");
+      const simResult = document.getElementById("simResult");
+      const simText = document.getElementById("simText");
+
+      if (forgeSimButton) {
+        forgeSimButton.addEventListener("click", function () {
+          const result = simCoins[Math.floor(Math.random() * simCoins.length)];
+          simCoinImage.src = result.image;
+          simCoinImage.alt = result.name;
+          simResult.textContent = result.name;
+          simText.textContent = result.text;
+        });
+      }
     </script>
 </body>
 </html>
