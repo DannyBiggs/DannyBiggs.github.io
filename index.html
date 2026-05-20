@@ -1275,10 +1275,17 @@
         left: 50%;
         bottom: 5%;
         transform: translateX(-50%);
-        background: rgba(0,0,0,0.78);
-        border: 1px solid #c6842f;
+        background:
+          linear-gradient(
+            180deg,
+            rgba(18,18,18,0.92),
+            rgba(6,6,6,0.96)
+          );
+        border: 2px solid rgba(255, 190, 90, 0.75);
         border-radius: 10px;
         padding: 10px 16px;
+        backdrop-filter: blur(6px);
+        letter-spacing: 0.02em;
         color: #fff;
         font-weight: bold;
         font-size: clamp(14px, 1.7vw, 20px);
@@ -2851,8 +2858,23 @@ forgeBloom.className = "forge-bloom";
   
     forgeResult.innerHTML =
       results
-        .map(coin => `${coin.rarity} • ${coin.name}`)
-        .join(" &nbsp;|&nbsp; ");
+        .map(coin => {
+          const shortNameMap = {
+            "Wood Coin": "🪵 Wood",
+            "Bronze Coin": "🟤 Bronze",
+            "Silver Coin": "⚪ Silver",
+            "Gold Coin": "🟡 Gold",
+            "Diamond Coin": "💎 Diamond",
+            "Rainbow Coin": "🌈 Rainbow",
+            "Anti Coin": "💀 Anti",
+            "Lucky Coin": "🍀 Lucky",
+            "Jackpot Booster": "🎰 Jackpot",
+            "Kingmaker Coin": "👑 Kingmaker"
+          };
+    
+          return shortNameMap[coin.name] || coin.name;
+        })
+        .join(" &nbsp; ✦ &nbsp; ");
       
     forgeResult.classList.remove("final-panel");
     void forgeResult.offsetWidth;
