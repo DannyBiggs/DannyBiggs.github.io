@@ -2341,15 +2341,15 @@
   function weightedRoll() {
     const roll = Math.random() * 10000;
   
-    if (roll < 5) return forgeCoins.find(c => c.name === "Rainbow Coin");
-    if (roll < 2000) return forgeCoins.find(c => c.name === "Kingmaker Coin");
-    if (roll < 60) return forgeCoins.find(c => c.name === "Diamond Coin");
-    if (roll < 120) return forgeCoins.find(c => c.name === "Jackpot Booster");
-    if (roll < 220) return forgeCoins.find(c => c.name === "Anti Coin");
-    if (roll < 800) return forgeCoins.find(c => c.name === "Gold Coin");
+    if (roll < 20) return forgeCoins.find(c => c.name === "Rainbow Coin");
+    if (roll < 110) return forgeCoins.find(c => c.name === "Kingmaker Coin");
+    if (roll < 150) return forgeCoins.find(c => c.name === "Diamond Coin");
+    if (roll < 40) return forgeCoins.find(c => c.name === "Jackpot Booster");
+    if (roll < 100) return forgeCoins.find(c => c.name === "Anti Coin");
+    if (roll < 100) return forgeCoins.find(c => c.name === "Gold Coin");
     if (roll < 2200) return forgeCoins.find(c => c.name === "Silver Coin");
-    if (roll < 2800) return forgeCoins.find(c => c.name === "Lucky Coin");
-    if (roll < 5200) return forgeCoins.find(c => c.name === "Wood Coin");
+    if (roll < 50) return forgeCoins.find(c => c.name === "Lucky Coin");
+    if (roll < 750) return forgeCoins.find(c => c.name === "Wood Coin");
   
     return forgeCoins.find(c => c.name === "Bronze Coin");
   }
