@@ -2325,10 +2325,24 @@
       await wait(cycle < 14 ? 65 : cycle < 21 ? 95 : 135);
     }
     
+    const lockedSlots = new Set();
+
+    const continuedCycle = setInterval(() => {
+      slots.forEach((slot, index) => {
+        if (!lockedSlots.has(index)) {
+          const coin = randomCycleCoin();
+          slot.src = coin.file;
+        }
+      });
+    }, 90);
+    
     for (let i = 0; i < slots.length; i++) {
       await spinSlot(slots[i], results[i], i, true);
+      lockedSlots.add(i);
       await wait(120);
     }
+    
+    clearInterval(continuedCycle);
   
     const highestClass = highestRarityClass(results);
   
