@@ -870,7 +870,82 @@
           transform: translateX(0px);
         }
       }
-
+    
+      .forge-impact-flash,
+      .forge-corruption-wave,
+      .forge-bloom {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0;
+        z-index: 4;
+      }
+      
+      .forge-impact-flash.active {
+        animation: forgeImpactFlash 420ms ease-out;
+      }
+      
+      @keyframes forgeImpactFlash {
+        0% {
+          opacity: 0;
+          background: radial-gradient(circle, rgba(255, 235, 170, 0.70), transparent 52%);
+        }
+      
+        30% {
+          opacity: 1;
+        }
+      
+        100% {
+          opacity: 0;
+          background: radial-gradient(circle, rgba(255, 170, 40, 0.15), transparent 70%);
+        }
+      }
+      
+      .forge-bloom.mythic {
+        animation: forgeMythicBloom 1.15s ease-out;
+      }
+      
+      @keyframes forgeMythicBloom {
+        0% {
+          opacity: 0;
+          box-shadow: inset 0 0 0 rgba(255, 180, 40, 0);
+        }
+      
+        35% {
+          opacity: 1;
+          box-shadow:
+            inset 0 0 90px rgba(255, 190, 60, 0.50),
+            inset 0 0 150px rgba(255, 110, 20, 0.25);
+        }
+      
+        100% {
+          opacity: 0;
+          box-shadow: inset 0 0 20px rgba(255, 120, 20, 0);
+        }
+      }
+      
+      .forge-corruption-wave.active {
+        animation: forgeCorruptionWave 900ms ease-out;
+      }
+      
+      @keyframes forgeCorruptionWave {
+        0% {
+          opacity: 0;
+          transform: scale(0.65);
+          background: radial-gradient(circle, rgba(255, 0, 0, 0.50), transparent 28%);
+        }
+      
+        35% {
+          opacity: 1;
+        }
+      
+        100% {
+          opacity: 0;
+          transform: scale(1.25);
+          background: radial-gradient(circle, rgba(90, 0, 0, 0.30), transparent 72%);
+        }
+      }
+    
       .cinematic-burst {
         position: absolute;
         left: 50%;
@@ -1258,6 +1333,9 @@
           >
     
           <div class="forge-glow"></div>
+          <div id="forgeImpactFlash" class="forge-impact-flash"></div>
+          <div id="forgeCorruptionWave" class="forge-corruption-wave"></div>
+          <div id="forgeBloom" class="forge-bloom"></div>
           <div id="cinematicBurst" class="cinematic-burst"></div>
     
           <div class="slot-row" id="slotRow">
@@ -2313,6 +2391,9 @@
   const forgeStage = document.querySelector(".forge-stage");
   const slotRow = document.getElementById("slotRow");
   const cinematicBurst = document.getElementById("cinematicBurst");
+  const forgeImpactFlash = document.getElementById("forgeImpactFlash");
+  const forgeCorruptionWave = document.getElementById("forgeCorruptionWave");
+  const forgeBloom = document.getElementById("forgeBloom");
   const pullCountButtons = document.querySelectorAll(".pull-count-button");
   
   let selectedPullCount = 1;
@@ -2355,6 +2436,26 @@
     return forgeCoins.find(c => c.name === "Bronze Coin");
   }
 
+  function restartClassAnimation(element, className) {
+    if (!element) return;
+  
+    element.classList.remove(className);
+    void element.offsetWidth;
+    element.classList.add(className);
+  }
+  
+  function triggerImpactFlash() {
+    restartClassAnimation(forgeImpactFlash, "active");
+  }
+  
+  function triggerCorruptionWave() {
+    restartClassAnimation(forgeCorruptionWave, "active");
+  }
+  
+  function triggerMythicBloom() {
+    restartClassAnimation(forgeBloom, "mythic");
+  }
+    
   function clearCinematicStageClasses() {
     forgeStage.classList.remove(
       "cinematic-jackpot",
@@ -2381,6 +2482,9 @@
 
 forgeResult.classList.remove("cinematic-text");
 cinematicBurst.className = "cinematic-burst";
+forgeImpactFlash.className = "forge-impact-flash";
+forgeCorruptionWave.className = "forge-corruption-wave";
+forgeBloom.className = "forge-bloom";
   }
 
   function triggerBurst(type, slot) {
@@ -2511,7 +2615,17 @@ cinematicBurst.className = "cinematic-burst";
   void forgeStage.offsetWidth;
   
   forgeStage.classList.add(`reveal-${finalCoin.className}`, "impact");
+
+  triggerImpactFlash();
+
+  if (finalCoin.name === "Anti Coin") {
+    triggerCorruptionWave();
+  }
   
+  if (finalCoin.name === "Rainbow Coin" || finalCoin.name === "Kingmaker Coin") {
+    triggerMythicBloom();
+  }
+    
   const cinematicPromise = playFinalCinematic(finalCoin, slot);
   
   await wait(300);
