@@ -737,6 +737,108 @@
         transition: transform 0.2s ease;
         z-index: 5;
       }
+      .slot-row {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 72%;
+        transform: translate(-50%, -50%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: clamp(8px, 1.2vw, 18px);
+        z-index: 5;
+      }
+      
+      .slot-coin {
+        position: relative;
+        left: auto;
+        top: auto;
+        transform: none;
+        width: clamp(72px, 10vw, 140px);
+        height: clamp(72px, 10vw, 140px);
+      }
+      
+      .slot-coin.spinning {
+        animation: slotSpin 0.34s linear infinite;
+      }
+      
+      @keyframes slotSpin {
+        from {
+          transform: rotateY(0deg) scale(1);
+        }
+      
+        to {
+          transform: rotateY(360deg) scale(1.08);
+        }
+      }
+      
+      .slot-coin.landed {
+        animation: slotLand 0.35s ease-out;
+      }
+      
+      @keyframes slotLand {
+        0% {
+          transform: scale(1.28);
+        }
+      
+        40% {
+          transform: scale(0.92);
+        }
+      
+        70% {
+          transform: scale(1.08);
+        }
+      
+        100% {
+          transform: scale(1);
+        }
+      }
+      
+      .slot-coin.near-miss {
+        animation: slotNearMissFlash 0.18s ease-in-out infinite alternate;
+      }
+      
+      @keyframes slotNearMissFlash {
+        from {
+          transform: scale(1);
+          filter:
+            brightness(1)
+            drop-shadow(0 0 12px rgba(255,180,60,0.45));
+        }
+      
+        to {
+          transform: scale(1.12);
+          filter:
+            brightness(1.45)
+            drop-shadow(0 0 26px rgba(255,255,255,0.75));
+        }
+      }
+      
+      .forge-controls {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 14px 0;
+      }
+      
+      .pull-count-button {
+        background: #0f0f11;
+        color: #ffd36a;
+        border: 1px solid #3a2a18;
+        border-radius: 999px;
+        padding: 8px 14px;
+        cursor: pointer;
+        font-weight: bold;
+      }
+      
+      .pull-count-button:hover,
+      .pull-count-button.active {
+        border-color: #ffb347;
+        color: #ffffff;
+        box-shadow: 0 0 12px rgba(255,179,71,0.28);
+      }
       
       .sim-coin.spinning {
       
@@ -1085,17 +1187,20 @@
     
           <div class="forge-glow"></div>
     
-          <img
-            id="simCoin"
-            class="sim-coin"
-            src="images/coins/bronze.gif"
-            alt="Forged Coin"
-          >
+          <div class="slot-row" id="slotRow">
+            <img class="sim-coin slot-coin" src="images/coins/bronze.gif" alt="Forged Coin">
+          </div>
     
           <div id="forgeResult" class="forge-result">
             Pull fate from the Coin Forge...
           </div>
     
+        </div>
+    
+        <div class="forge-controls">
+          <button class="pull-count-button active" data-pulls="1">1 Pull</button>
+          <button class="pull-count-button" data-pulls="3">3 Pulls</button>
+          <button class="pull-count-button" data-pulls="5">5 Pulls</button>
         </div>
     
         <button id="forgeButton" class="forge-button">
@@ -2130,129 +2235,212 @@
   </footer>
 
   <script>
-  const forgeButton = document.getElementById("forgeButton");
-  const simCoin = document.getElementById("simCoin");
-  const forgeResult = document.getElementById("forgeResult");
-  const forgeStage = document.querySelector(".forge-stage");
-  
-  const forgeCoins = [
-    { name: "Wood Coin", file: "images/coins/wood.gif", rarity: "Common", className: "common" },
-    { name: "Bronze Coin", file: "images/coins/bronze.gif", rarity: "Common", className: "common" },
-    { name: "Silver Coin", file: "images/coins/silver.gif", rarity: "Rare", className: "rare" },
-    { name: "Gold Coin", file: "images/coins/gold.gif", rarity: "Epic", className: "epic" },
-    { name: "Diamond Coin", file: "images/coins/diamond.gif", rarity: "Legendary", className: "legendary" },
-    { name: "Rainbow Coin", file: "images/coins/rainbow.gif", rarity: "Mythic", className: "mythic" },
-    { name: "Anti Coin", file: "images/coins/anti.gif", rarity: "Cursed", className: "cursed" },
-    { name: "Lucky Coin", file: "images/coins/lucky.gif", rarity: "Rare", className: "rare" },
-    { name: "Jackpot Booster", file: "images/coins/jackpot.gif", rarity: "Legendary", className: "legendary" },
-    { name: "Kingmaker Coin", file: "images/coins/kingmaker.gif", rarity: "Mythic", className: "mythic" }
+  <script>
+const forgeButton = document.getElementById("forgeButton");
+const forgeResult = document.getElementById("forgeResult");
+const forgeStage = document.querySelector(".forge-stage");
+const slotRow = document.getElementById("slotRow");
+const pullCountButtons = document.querySelectorAll(".pull-count-button");
+
+let selectedPullCount = 1;
+
+const forgeCoins = [
+  { name: "Wood Coin", file: "images/coins/wood.gif", rarity: "Common", className: "common" },
+  { name: "Bronze Coin", file: "images/coins/bronze.gif", rarity: "Common", className: "common" },
+  { name: "Silver Coin", file: "images/coins/silver.gif", rarity: "Rare", className: "rare" },
+  { name: "Gold Coin", file: "images/coins/gold.gif", rarity: "Epic", className: "epic" },
+  { name: "Diamond Coin", file: "images/coins/diamond.gif", rarity: "Legendary", className: "legendary" },
+  { name: "Rainbow Coin", file: "images/coins/rainbow.gif", rarity: "Mythic", className: "mythic" },
+  { name: "Anti Coin", file: "images/coins/anti.gif", rarity: "Cursed", className: "cursed" },
+  { name: "Lucky Coin", file: "images/coins/lucky.gif", rarity: "Rare", className: "rare" },
+  { name: "Jackpot Booster", file: "images/coins/jackpot.gif", rarity: "Legendary", className: "legendary" },
+  { name: "Kingmaker Coin", file: "images/coins/kingmaker.gif", rarity: "Mythic", className: "mythic" }
+];
+
+function wait(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function randomCycleCoin() {
+  return forgeCoins[Math.floor(Math.random() * forgeCoins.length)];
+}
+
+function weightedRoll() {
+  const roll = Math.random() * 10000;
+
+  if (roll < 5) return forgeCoins.find(c => c.name === "Rainbow Coin");
+  if (roll < 20) return forgeCoins.find(c => c.name === "Kingmaker Coin");
+  if (roll < 60) return forgeCoins.find(c => c.name === "Diamond Coin");
+  if (roll < 120) return forgeCoins.find(c => c.name === "Jackpot Booster");
+  if (roll < 220) return forgeCoins.find(c => c.name === "Anti Coin");
+  if (roll < 800) return forgeCoins.find(c => c.name === "Gold Coin");
+  if (roll < 2200) return forgeCoins.find(c => c.name === "Silver Coin");
+  if (roll < 2800) return forgeCoins.find(c => c.name === "Lucky Coin");
+  if (roll < 5200) return forgeCoins.find(c => c.name === "Wood Coin");
+
+  return forgeCoins.find(c => c.name === "Bronze Coin");
+}
+
+function clearRevealClasses() {
+  forgeStage.classList.remove(
+    "reveal-common",
+    "reveal-rare",
+    "reveal-epic",
+    "reveal-legendary",
+    "reveal-mythic",
+    "reveal-cursed",
+    "impact"
+  );
+}
+
+function highestRarityClass(results) {
+  const priority = {
+    common: 1,
+    rare: 2,
+    epic: 3,
+    legendary: 4,
+    mythic: 5,
+    cursed: 6
+  };
+
+  let highest = "common";
+
+  results.forEach(coin => {
+    if (priority[coin.className] > priority[highest]) {
+      highest = coin.className;
+    }
+  });
+
+  return highest;
+}
+
+function createSlots(count) {
+  slotRow.innerHTML = "";
+
+  for (let i = 0; i < count; i++) {
+    const img = document.createElement("img");
+    img.className = "sim-coin slot-coin";
+    img.src = "images/coins/bronze.gif";
+    img.alt = "Forged Coin";
+    slotRow.appendChild(img);
+  }
+}
+
+async function spinSlot(slot, finalCoin, index) {
+  slot.classList.remove("landed", "near-miss");
+  slot.classList.add("spinning");
+
+  const pacing = [55, 55, 60, 65, 75, 90, 110, 140, 180, 240];
+
+  for (let i = 0; i < pacing.length; i++) {
+    const coin = randomCycleCoin();
+    slot.src = coin.file;
+    await wait(pacing[i]);
+  }
+
+  const nearMissPool = [
+    forgeCoins.find(c => c.name === "Diamond Coin"),
+    forgeCoins.find(c => c.name === "Rainbow Coin"),
+    forgeCoins.find(c => c.name === "Anti Coin"),
+    forgeCoins.find(c => c.name === "Jackpot Booster")
   ];
-  
-  function weightedRoll() {
-    const roll = Math.random() * 10000;
-  
-    if (roll < 5) return forgeCoins.find(c => c.name === "Rainbow Coin");
-    if (roll < 20) return forgeCoins.find(c => c.name === "Kingmaker Coin");
-    if (roll < 60) return forgeCoins.find(c => c.name === "Diamond Coin");
-    if (roll < 120) return forgeCoins.find(c => c.name === "Jackpot Booster");
-    if (roll < 220) return forgeCoins.find(c => c.name === "Anti Coin");
-    if (roll < 800) return forgeCoins.find(c => c.name === "Gold Coin");
-    if (roll < 2200) return forgeCoins.find(c => c.name === "Silver Coin");
-    if (roll < 2800) return forgeCoins.find(c => c.name === "Lucky Coin");
-    if (roll < 5200) return forgeCoins.find(c => c.name === "Wood Coin");
-  
-    return forgeCoins.find(c => c.name === "Bronze Coin");
-  }
-  
-  function wait(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
-  
-  function randomCycleCoin() {
-    return forgeCoins[Math.floor(Math.random() * forgeCoins.length)];
-  }
-  
-  function clearRevealClasses() {
-    forgeStage.classList.remove(
-      "reveal-common",
-      "reveal-rare",
-      "reveal-epic",
-      "reveal-legendary",
-      "reveal-mythic",
-      "reveal-cursed",
-      "impact"
-    );
-  
-    simCoin.classList.remove("spinning", "landed", "near-miss");
-  }
-  
-  async function runForgeReveal() {
-    clearRevealClasses();
 
-    simCoin.classList.remove("landed");
-    
-    forgeButton.disabled = true;
-    forgeResult.innerText = "⚒️ The forge begins to turn...";
-    simCoin.classList.add("spinning");
-  
-    const finalCoin = weightedRoll();
-  
-    const pacing = [55, 55, 60, 65, 75, 90, 110, 140, 180, 240];
-  
-    for (let i = 0; i < pacing.length; i++) {
-      const coin = randomCycleCoin();
-      simCoin.src = coin.file;
-      await wait(pacing[i]);
-    }
-  
-    const nearMissPool = [
-      forgeCoins.find(c => c.name === "Diamond Coin"),
-      forgeCoins.find(c => c.name === "Rainbow Coin"),
-      forgeCoins.find(c => c.name === "Anti Coin"),
-      forgeCoins.find(c => c.name === "Jackpot Booster")
-    ];
-  
-    const nearMiss = nearMissPool[Math.floor(Math.random() * nearMissPool.length)];
-  
-    simCoin.src = nearMiss.file;
-    simCoin.classList.add("near-miss");
-    forgeResult.innerText = "The forge sparks violently...";
-    await wait(280);
-  
-    simCoin.classList.remove("near-miss");
-  
-    const finalSlowdown = [180, 240, 320];
-  
-    for (let i = 0; i < finalSlowdown.length; i++) {
-      const coin = randomCycleCoin();
-      simCoin.src = coin.file;
-      await wait(finalSlowdown[i]);
-    }
-  
-    simCoin.src = finalCoin.file;
-    simCoin.classList.remove("spinning");
-    simCoin.classList.add("landed");
-  
-    forgeStage.classList.add(`reveal-${finalCoin.className}`, "impact");
-  
-    forgeResult.innerHTML = `⚒️ ${finalCoin.rarity} • ${finalCoin.name}`;
-  
-    await wait(900);
+  const nearMiss = nearMissPool[Math.floor(Math.random() * nearMissPool.length)];
 
-    forgeStage.classList.remove(
-      "impact",
-      "reveal-common",
-      "reveal-rare",
-      "reveal-epic",
-      "reveal-legendary",
-      "reveal-mythic",
-      "reveal-cursed"
-    );
-    
-    forgeButton.disabled = false;
+  slot.src = nearMiss.file;
+  slot.classList.add("near-miss");
+  forgeResult.innerText = `Slot ${index + 1} sparks violently...`;
+  await wait(240);
+
+  slot.classList.remove("near-miss");
+
+  const finalSlowdown = [180, 240, 320];
+
+  for (let i = 0; i < finalSlowdown.length; i++) {
+    const coin = randomCycleCoin();
+    slot.src = coin.file;
+    await wait(finalSlowdown[i]);
   }
-  
-  forgeButton.addEventListener("click", runForgeReveal);
+
+  slot.src = finalCoin.file;
+  slot.classList.remove("spinning");
+  slot.classList.add("landed");
+
+  forgeStage.classList.add(`reveal-${finalCoin.className}`, "impact");
+
+  await wait(260);
+
+  forgeStage.classList.remove("impact");
+}
+
+async function runForgeReveal() {
+  clearRevealClasses();
+
+  forgeButton.disabled = true;
+  pullCountButtons.forEach(button => button.disabled = true);
+
+  createSlots(selectedPullCount);
+
+  const slots = Array.from(document.querySelectorAll(".slot-coin"));
+  const results = [];
+
+  forgeResult.innerText =
+    selectedPullCount === 1
+      ? "⚒️ The forge begins to turn..."
+      : `⚒️ The forge prepares ${selectedPullCount} coins...`;
+
+  for (let i = 0; i < selectedPullCount; i++) {
+    results.push(weightedRoll());
+  }
+
+  for (let i = 0; i < slots.length; i++) {
+    await spinSlot(slots[i], results[i], i);
+    await wait(180);
+  }
+
+  const highestClass = highestRarityClass(results);
+
+  forgeStage.classList.add(`reveal-${highestClass}`);
+
+  forgeResult.innerHTML =
+    results
+      .map(coin => `${coin.rarity} • ${coin.name}`)
+      .join(" &nbsp;|&nbsp; ");
+
+  await wait(900);
+
+  forgeStage.classList.remove(
+    "reveal-common",
+    "reveal-rare",
+    "reveal-epic",
+    "reveal-legendary",
+    "reveal-mythic",
+    "reveal-cursed"
+  );
+
+  forgeButton.disabled = false;
+  pullCountButtons.forEach(button => button.disabled = false);
+}
+
+pullCountButtons.forEach(button => {
+  button.addEventListener("click", () => {
+    selectedPullCount = Number(button.dataset.pulls);
+
+    pullCountButtons.forEach(btn => btn.classList.remove("active"));
+    button.classList.add("active");
+
+    createSlots(selectedPullCount);
+
+    forgeResult.innerText =
+      selectedPullCount === 1
+        ? "Pull fate from the Coin Forge..."
+        : `${selectedPullCount} coins ready for the forge...`;
+  });
+});
+
+createSlots(selectedPullCount);
+forgeButton.addEventListener("click", runForgeReveal);
+</script>
   </script>
 </body>
 </html>
