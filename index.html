@@ -1203,6 +1203,8 @@
       }
 
       .cinematic-burst.rainbow {
+        width: 230px;
+        height: 230px;
         background:
           conic-gradient(
             from 0deg,
@@ -1215,7 +1217,25 @@
             rgba(255, 80, 220, 0.90),
             rgba(255, 60, 60, 0.90)
           );
-        filter: blur(10px);
+        clip-path: polygon(
+          50% 0%,
+          58% 30%,
+          82% 10%,
+          70% 38%,
+          100% 50%,
+          70% 62%,
+          82% 90%,
+          58% 70%,
+          50% 100%,
+          42% 70%,
+          18% 90%,
+          30% 62%,
+          0% 50%,
+          30% 38%,
+          18% 10%,
+          42% 30%
+        );
+        filter: blur(8px);
       }
     
       .cinematic-burst.mythic {
@@ -1243,17 +1263,17 @@
       @keyframes burstPop {
         0% {
           opacity: 0;
-          transform: translate(-50%, -50%) scale(0.2);
+          transform: translate(-50%, -50%) scale(0.15) rotate(0deg);
         }
       
-        30% {
+        28% {
           opacity: 0.95;
-          transform: translate(-50%, -50%) scale(1.1);
+          transform: translate(-50%, -50%) scale(1.05) rotate(18deg);
         }
       
         100% {
           opacity: 0;
-          transform: translate(-50%, -50%) scale(2.4);
+          transform: translate(-50%, -50%) scale(2.35) rotate(42deg);
         }
       }
     
