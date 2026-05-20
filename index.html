@@ -589,39 +589,6 @@
       margin-top: 8px;
     }
 
-    .simulator-panel {
-      display: grid;
-      grid-template-columns: minmax(160px, 240px) 1fr;
-      gap: 18px;
-      align-items: center;
-    }
-
-    .sim-coin-display {
-      background: radial-gradient(circle, rgba(255,179,71,0.12), rgba(0,0,0,0.35));
-      border: 2px solid #3a2a18;
-      border-radius: 16px;
-      padding: 22px;
-      text-align: center;
-      min-height: 190px;
-      display: grid;
-      place-items: center;
-    }
-
-    .sim-coin-display img {
-      width: 128px;
-      height: 128px;
-      image-rendering: pixelated;
-      object-fit: contain;
-      filter: drop-shadow(0 0 14px rgba(255,179,71,0.45));
-    }
-
-    .sim-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 14px;
-    }
-
     .forge-button {
       background: linear-gradient(180deg, #c6842f, #7a4318);
       color: #ffffff;
@@ -772,6 +739,7 @@
       }
       
       .sim-coin.spinning {
+      
         animation: forgeSpin 0.34s linear infinite;
       }
       
@@ -784,7 +752,157 @@
           transform: translate(-50%, -50%) rotateY(360deg) scale(1.08);
         }
       }
+      .sim-coin.near-miss {
+        animation:
+          nearMissFlash 0.18s ease-in-out infinite alternate;
+      }
       
+      @keyframes nearMissFlash {
+        from {
+          transform:
+            translate(-50%, -50%)
+            scale(1);
+          filter:
+            brightness(1)
+            drop-shadow(0 0 12px rgba(255,180,60,0.45));
+        }
+      
+        to {
+          transform:
+            translate(-50%, -50%)
+            scale(1.12);
+          filter:
+            brightness(1.45)
+            drop-shadow(0 0 26px rgba(255,255,255,0.75));
+        }
+      }
+      
+      .sim-coin.landed {
+        animation:
+          coinLand 0.35s ease-out;
+      }
+      
+      @keyframes coinLand {
+        0% {
+          transform:
+            translate(-50%, -50%)
+            scale(1.28);
+        }
+      
+        40% {
+          transform:
+            translate(-50%, -50%)
+            scale(0.92);
+        }
+      
+        70% {
+          transform:
+            translate(-50%, -50%)
+            scale(1.08);
+        }
+      
+        100% {
+          transform:
+            translate(-50%, -50%)
+            scale(1);
+        }
+      }
+      
+      .forge-stage.impact {
+        animation:
+          stageImpact 0.28s ease-out;
+      }
+      
+      @keyframes stageImpact {
+        0% {
+          transform: translateX(0px);
+        }
+      
+        20% {
+          transform: translateX(-5px);
+        }
+      
+        40% {
+          transform: translateX(5px);
+        }
+      
+        60% {
+          transform: translateX(-3px);
+        }
+      
+        80% {
+          transform: translateX(3px);
+        }
+      
+        100% {
+          transform: translateX(0px);
+        }
+      }
+      
+      .forge-stage.reveal-common {
+        box-shadow:
+          0 0 20px rgba(180,180,180,0.10),
+          inset 0 0 50px rgba(255,255,255,0.03);
+      }
+      
+      .forge-stage.reveal-rare {
+        box-shadow:
+          0 0 28px rgba(80,120,255,0.28),
+          inset 0 0 70px rgba(80,120,255,0.08);
+      }
+      
+      .forge-stage.reveal-epic {
+        box-shadow:
+          0 0 34px rgba(168,85,247,0.34),
+          inset 0 0 80px rgba(168,85,247,0.10);
+      }
+      
+      .forge-stage.reveal-legendary {
+        box-shadow:
+          0 0 42px rgba(255,179,71,0.45),
+          inset 0 0 100px rgba(255,179,71,0.14);
+      }
+      
+      .forge-stage.reveal-mythic {
+        animation:
+          mythicPulse 1.4s ease-in-out infinite alternate;
+        box-shadow:
+          0 0 48px rgba(255,70,210,0.45),
+          0 0 90px rgba(120,80,255,0.25),
+          inset 0 0 120px rgba(255,255,255,0.08);
+      }
+      
+      @keyframes mythicPulse {
+        from {
+          filter: saturate(1);
+        }
+      
+        to {
+          filter: saturate(1.4) brightness(1.12);
+        }
+      }
+      
+      .forge-stage.reveal-cursed {
+        animation:
+          cursedReveal 0.7s ease-in-out infinite alternate;
+        box-shadow:
+          0 0 40px rgba(255,0,0,0.38),
+          inset 0 0 100px rgba(255,0,0,0.12);
+      }
+      
+      @keyframes cursedReveal {
+        from {
+          filter:
+            brightness(0.95)
+            saturate(1);
+        }
+      
+        to {
+          filter:
+            brightness(1.12)
+            saturate(1.4);
+        }
+      }
       .forge-result {
         position: absolute;
         left: 50%;
@@ -850,15 +968,6 @@
       .back-to-top {
         right: 12px;
         bottom: 12px;
-      }
-      
-      .simulator-panel {
-        grid-template-columns: 1fr;
-      }
-
-      .sim-coin-display img {
-        width: 104px;
-        height: 104px;
       }
 
       .featured-grid,
@@ -2021,260 +2130,118 @@
   </footer>
 
   <script>
-      const searchInput = document.getElementById("codexSearch");
-      const legendItems = document.querySelectorAll(".legend-item");
-
-      let activeFilter = "all";
-
-      function applyFilters() {
-        const searchTerm = searchInput.value.toLowerCase().trim();
-        const searchableCards = document.querySelectorAll(".searchable");
-
-        searchableCards.forEach(function (card) {
-          const cardText = card.innerText.toLowerCase();
-          const matchesSearch = cardText.includes(searchTerm);
-
-          let matchesFilter = true;
-
-          if (activeFilter !== "all") {
-            matchesFilter = card.classList.contains(activeFilter);
-          }
-
-          if (matchesSearch && matchesFilter) {
-            card.classList.remove("is-hidden");
-
-            const parentDetails = card.closest("details");
-            if (parentDetails && (searchTerm.length > 0 || activeFilter !== "all")) {
-              parentDetails.open = true;
-            }
-          } else {
-            card.classList.add("is-hidden");
-          }
-        });
-      }
-
-      legendItems.forEach(function (item) {
-        item.addEventListener("click", function () {
-          const clickedFilter = item.dataset.filter;
-
-          if (activeFilter === clickedFilter) {
-            activeFilter = "all";
-            item.classList.remove("active");
-          } else {
-            activeFilter = clickedFilter;
-
-            legendItems.forEach(function (legend) {
-              legend.classList.remove("active");
-            });
-
-            item.classList.add("active");
-          }
-
-          applyFilters();
-        });
-      });
-
-      searchInput.addEventListener("input", applyFilters);
-
-
-      const simCoins = [
-        {
-          name: "Wood Coin",
-          image: "images/coins/wood.gif",
-          text: "The forge coughs up kindling. It may look small, but every ignition begins here."
-        },
-        {
-          name: "Bronze Coin",
-          image: "images/coins/bronze.gif",
-          text: "A safe pull. Not flashy, but it keeps the anvil ringing."
-        },
-        {
-          name: "Silver Coin",
-          image: "images/coins/silver.gif",
-          text: "A clean mid-tier reward. Envy begins to stir when luck improves."
-        },
-        {
-          name: "Gold Coin",
-          image: "images/coins/gold.gif",
-          text: "Gold flashes across the forge. Achievements, greed, and envy all take notice."
-        },
-        {
-          name: "Diamond Coin",
-          image: "images/coins/diamond.gif",
-          text: "A rare treasure strikes the anvil. The forge burns brighter around it."
-        },
-        {
-          name: "Rainbow Coin",
-          image: "images/coins/rainbow.gif",
-          text: "A mythic pull. The flame fractures into impossible color."
-        },
-        {
-          name: "Anti Coin",
-          image: "images/coins/anti.gif",
-          text: "The curse answers. Momentum breaks, and active bosses may feed."
-        },
-        {
-          name: "Lucky Coin",
-          image: "images/coins/lucky.gif",
-          text: "Luck bends sideways. A weak outcome may become something far better."
-        },
-        {
-          name: "Jackpot Booster",
-          image: "images/coins/Jackpot.gif",
-          text: "The shared jackpot grows heavier. The next gamble becomes harder to ignore."
-        },
-        {
-          name: "Kingmaker Coin",
-          image: "images/coins/kingmaker.gif",
-          text: "A royal spark from the forge. Some pulls do not reward players — they crown them."
-        }
-      ];
-
-      const forgeSimButton = document.getElementById("forgeSimButton");
-      const simCoinImage = document.getElementById("simCoinImage");
-      const simResult = document.getElementById("simResult");
-      const simText = document.getElementById("simText");
-
-      if (forgeSimButton) {
-        forgeSimButton.addEventListener("click", function () {
-          const result = simCoins[Math.floor(Math.random() * simCoins.length)];
-          simCoinImage.src = result.image;
-          simCoinImage.alt = result.name;
-          simResult.textContent = result.name;
-          simText.textContent = result.text;
-        });
-      }
-    </script>
-    <script>
-    const forgeButton = document.getElementById("forgeButton");
-    const simCoin = document.getElementById("simCoin");
-    const forgeResult = document.getElementById("forgeResult");
-    
-    const forgeCoins = [
-      {
-        name: "Wood Coin",
-        file: "images/coins/wood.gif",
-        rarity: "Common"
-      },
-      {
-        name: "Bronze Coin",
-        file: "images/coins/bronze.gif",
-        rarity: "Common"
-      },
-      {
-        name: "Silver Coin",
-        file: "images/coins/silver.gif",
-        rarity: "Rare"
-      },
-      {
-        name: "Gold Coin",
-        file: "images/coins/gold.gif",
-        rarity: "Epic"
-      },
-      {
-        name: "Diamond Coin",
-        file: "images/coins/diamond.gif",
-        rarity: "Legendary"
-      },
-      {
-        name: "Rainbow Coin",
-        file: "images/coins/rainbow.gif",
-        rarity: "Mythic"
-      },
-      {
-        name: "Anti Coin",
-        file: "images/coins/anti.gif",
-        rarity: "Cursed"
-      },
-      {
-        name: "Lucky Coin",
-        file: "images/coins/lucky.gif",
-        rarity: "Rare"
-      },
-      {
-        name: "Jackpot Booster",
-        file: "images/coins/jackpot.gif",
-        rarity: "Legendary"
-      },
-      {
-        name: "Kingmaker Coin",
-        file: "images/coins/kingmaker.gif",
-        rarity: "Mythic"
-      }
-    ];
-    
-    function weightedRoll() {
-      const roll = Math.random() * 10000;
-    
-      if (roll < 5)
-        return forgeCoins.find(c => c.name === "Rainbow Coin");
-    
-      if (roll < 20)
-        return forgeCoins.find(c => c.name === "Kingmaker Coin");
-    
-      if (roll < 60)
-        return forgeCoins.find(c => c.name === "Diamond Coin");
-    
-      if (roll < 120)
-        return forgeCoins.find(c => c.name === "Jackpot Booster");
-    
-      if (roll < 220)
-        return forgeCoins.find(c => c.name === "Anti Coin");
-    
-      if (roll < 800)
-        return forgeCoins.find(c => c.name === "Gold Coin");
-    
-      if (roll < 2200)
-        return forgeCoins.find(c => c.name === "Silver Coin");
-    
-      if (roll < 2800)
-        return forgeCoins.find(c => c.name === "Lucky Coin");
-    
-      if (roll < 5200)
-        return forgeCoins.find(c => c.name === "Wood Coin");
-    
-      return forgeCoins.find(c => c.name === "Bronze Coin");
+  const forgeButton = document.getElementById("forgeButton");
+  const simCoin = document.getElementById("simCoin");
+  const forgeResult = document.getElementById("forgeResult");
+  const forgeStage = document.querySelector(".forge-stage");
+  
+  const forgeCoins = [
+    { name: "Wood Coin", file: "images/coins/wood.gif", rarity: "Common", className: "common" },
+    { name: "Bronze Coin", file: "images/coins/bronze.gif", rarity: "Common", className: "common" },
+    { name: "Silver Coin", file: "images/coins/silver.gif", rarity: "Rare", className: "rare" },
+    { name: "Gold Coin", file: "images/coins/gold.gif", rarity: "Epic", className: "epic" },
+    { name: "Diamond Coin", file: "images/coins/diamond.gif", rarity: "Legendary", className: "legendary" },
+    { name: "Rainbow Coin", file: "images/coins/rainbow.gif", rarity: "Mythic", className: "mythic" },
+    { name: "Anti Coin", file: "images/coins/anti.gif", rarity: "Cursed", className: "cursed" },
+    { name: "Lucky Coin", file: "images/coins/lucky.gif", rarity: "Rare", className: "rare" },
+    { name: "Jackpot Booster", file: "images/coins/jackpot.gif", rarity: "Legendary", className: "legendary" },
+    { name: "Kingmaker Coin", file: "images/coins/kingmaker.gif", rarity: "Mythic", className: "mythic" }
+  ];
+  
+  function weightedRoll() {
+    const roll = Math.random() * 10000;
+  
+    if (roll < 5) return forgeCoins.find(c => c.name === "Rainbow Coin");
+    if (roll < 20) return forgeCoins.find(c => c.name === "Kingmaker Coin");
+    if (roll < 60) return forgeCoins.find(c => c.name === "Diamond Coin");
+    if (roll < 120) return forgeCoins.find(c => c.name === "Jackpot Booster");
+    if (roll < 220) return forgeCoins.find(c => c.name === "Anti Coin");
+    if (roll < 800) return forgeCoins.find(c => c.name === "Gold Coin");
+    if (roll < 2200) return forgeCoins.find(c => c.name === "Silver Coin");
+    if (roll < 2800) return forgeCoins.find(c => c.name === "Lucky Coin");
+    if (roll < 5200) return forgeCoins.find(c => c.name === "Wood Coin");
+  
+    return forgeCoins.find(c => c.name === "Bronze Coin");
+  }
+  
+  function wait(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+  
+  function randomCycleCoin() {
+    return forgeCoins[Math.floor(Math.random() * forgeCoins.length)];
+  }
+  
+  function clearRevealClasses() {
+    forgeStage.classList.remove(
+      "reveal-common",
+      "reveal-rare",
+      "reveal-epic",
+      "reveal-legendary",
+      "reveal-mythic",
+      "reveal-cursed",
+      "impact"
+    );
+  
+    simCoin.classList.remove("spinning", "landed", "near-miss");
+  }
+  
+  async function runForgeReveal() {
+    clearRevealClasses();
+  
+    forgeButton.disabled = true;
+    forgeResult.innerText = "⚒️ The forge begins to turn...";
+    simCoin.classList.add("spinning");
+  
+    const finalCoin = weightedRoll();
+  
+    const pacing = [55, 55, 60, 65, 75, 90, 110, 140, 180, 240];
+  
+    for (let i = 0; i < pacing.length; i++) {
+      const coin = randomCycleCoin();
+      simCoin.src = coin.file;
+      await wait(pacing[i]);
     }
-    
-    forgeButton.addEventListener("click", () => {
-    
-      forgeButton.disabled = true;
-    
-      simCoin.classList.add("spinning");
-    
-      forgeResult.innerText = "⚒️ Forging...";
-    
-      let spinCount = 0;
-    
-      const spinInterval = setInterval(() => {
-    
-        const randomCoin =
-          forgeCoins[Math.floor(Math.random() * forgeCoins.length)];
-    
-        simCoin.src = randomCoin.file;
-    
-        spinCount++;
-    
-      }, 75);
-    
-      setTimeout(() => {
-    
-        clearInterval(spinInterval);
-    
-        const finalCoin = weightedRoll();
-    
-        simCoin.src = finalCoin.file;
-    
-        simCoin.classList.remove("spinning");
-    
-        forgeResult.innerHTML =
-          `${finalCoin.rarity} • ${finalCoin.name}`;
-    
-        forgeButton.disabled = false;
-    
-      }, 2200);
-    
-    });
-    </script>
+  
+    const nearMissPool = [
+      forgeCoins.find(c => c.name === "Diamond Coin"),
+      forgeCoins.find(c => c.name === "Rainbow Coin"),
+      forgeCoins.find(c => c.name === "Anti Coin"),
+      forgeCoins.find(c => c.name === "Jackpot Booster")
+    ];
+  
+    const nearMiss = nearMissPool[Math.floor(Math.random() * nearMissPool.length)];
+  
+    simCoin.src = nearMiss.file;
+    simCoin.classList.add("near-miss");
+    forgeResult.innerText = "The forge sparks violently...";
+    await wait(280);
+  
+    simCoin.classList.remove("near-miss");
+  
+    const finalSlowdown = [180, 240, 320];
+  
+    for (let i = 0; i < finalSlowdown.length; i++) {
+      const coin = randomCycleCoin();
+      simCoin.src = coin.file;
+      await wait(finalSlowdown[i]);
+    }
+  
+    simCoin.src = finalCoin.file;
+    simCoin.classList.remove("spinning");
+    simCoin.classList.add("landed");
+  
+    forgeStage.classList.add(`reveal-${finalCoin.className}`, "impact");
+  
+    forgeResult.innerHTML = `${finalCoin.rarity} • ${finalCoin.name}`;
+  
+    await wait(500);
+  
+    forgeStage.classList.remove("impact");
+    forgeButton.disabled = false;
+  }
+  
+  forgeButton.addEventListener("click", runForgeReveal);
+  </script>
 </body>
 </html>
