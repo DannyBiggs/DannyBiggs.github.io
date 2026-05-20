@@ -695,55 +695,7 @@
       margin-top: 10px;
     }
 
-    @media (max-width: 700px) {
-      h1 { font-size: 34px; }
-
-      .top-nav { position: static; }
-
-      .top-nav a {
-        font-size: 14px;
-        padding: 7px 10px;
-      }
-
-      .search-wrap { position: static; }
-
-      .container { padding: 20px 12px; }
-
-      .section,
-      .section-inner { padding: 16px; }
-
-      details.section { padding: 0; }
-
-      details.section > summary {
-        font-size: 20px;
-        padding: 18px;
-      }
-
-      .achievement {
-        grid-template-columns: 44px 1fr;
-        padding: 12px;
-      }
-
-      .badge-icon {
-        width: 40px;
-        height: 40px;
-      }
-
-      .badge-grid,
-      .coin-grid {
-        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-      }
-
-      .nameplate-card {
-        grid-column: span 1;
-      }
-
-      .back-to-top {
-        right: 12px;
-        bottom: 12px;
-      }
-
-      .forge-simulator {
+    .forge-simulator {
         text-align: center;
       }
       
@@ -850,6 +802,54 @@
         text-align: center;
         box-shadow: 0 0 14px rgba(255,179,71,0.18);
         z-index: 10;
+      }
+    
+    @media (max-width: 700px) {
+      h1 { font-size: 34px; }
+
+      .top-nav { position: static; }
+
+      .top-nav a {
+        font-size: 14px;
+        padding: 7px 10px;
+      }
+
+      .search-wrap { position: static; }
+
+      .container { padding: 20px 12px; }
+
+      .section,
+      .section-inner { padding: 16px; }
+
+      details.section { padding: 0; }
+
+      details.section > summary {
+        font-size: 20px;
+        padding: 18px;
+      }
+
+      .achievement {
+        grid-template-columns: 44px 1fr;
+        padding: 12px;
+      }
+
+      .badge-icon {
+        width: 40px;
+        height: 40px;
+      }
+
+      .badge-grid,
+      .coin-grid {
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      }
+
+      .nameplate-card {
+        grid-column: span 1;
+      }
+
+      .back-to-top {
+        right: 12px;
+        bottom: 12px;
       }
       
       .simulator-panel {
