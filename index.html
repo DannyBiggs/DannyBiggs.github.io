@@ -1244,6 +1244,32 @@
       .forge-stage.impact {
         animation: stageImpact 0.28s ease-out !important;
       }
+
+      .forge-result.final-panel {
+        animation: finalPanelReveal 0.55s ease-out;
+        border-color: #ffd36a;
+        box-shadow:
+          0 0 22px rgba(255,179,71,0.35),
+          inset 0 0 18px rgba(255,179,71,0.12);
+      }
+      
+      @keyframes finalPanelReveal {
+        0% {
+          opacity: 0;
+          transform: translateX(-50%) scale(0.88);
+        }
+      
+        65% {
+          opacity: 1;
+          transform: translateX(-50%) scale(1.06);
+        }
+      
+        100% {
+          opacity: 1;
+          transform: translateX(-50%) scale(1);
+        }
+      }
+    
       .forge-result {
         position: absolute;
         left: 50%;
@@ -2588,7 +2614,7 @@
       "cinematic-legendary"
     );
 
-forgeResult.classList.remove("cinematic-text");
+forgeResult.classList.remove("cinematic-text", "final-panel");
 cinematicBurst.className = "cinematic-burst";
 forgeImpactFlash.className = "forge-impact-flash";
 forgeCorruptionWave.className = "forge-corruption-wave";
@@ -2827,6 +2853,10 @@ forgeBloom.className = "forge-bloom";
       results
         .map(coin => `${coin.rarity} • ${coin.name}`)
         .join(" &nbsp;|&nbsp; ");
+      
+    forgeResult.classList.remove("final-panel");
+    void forgeResult.offsetWidth;
+    forgeResult.classList.add("final-panel");
   
     await wait(900);
   
