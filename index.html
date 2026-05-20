@@ -2504,18 +2504,22 @@ cinematicBurst.className = "cinematic-burst";
   slot.classList.remove("spinning");
   slot.classList.add("landed");
     
-  await playFinalCinematic(finalCoin, slot);
-
   clearCinematicStageClasses();
-  
+
   forgeStage.classList.remove("impact");
   void forgeStage.offsetWidth;
   
   forgeStage.classList.add(`reveal-${finalCoin.className}`, "impact");
-
+  
+  const cinematicPromise = playFinalCinematic(finalCoin, slot);
+  
   await wait(300);
-
+  
   forgeStage.classList.remove("impact");
+  
+  await cinematicPromise;
+  
+  clearCinematicStageClasses();
 }
 
     async function runForgeReveal() {
