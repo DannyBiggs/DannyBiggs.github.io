@@ -805,7 +805,39 @@
       .slot-coin.landed {
         animation: slotLand 0.35s ease-out;
       }
+
+      .slot-coin.landed-common {
+        filter:
+          drop-shadow(0 0 10px rgba(190, 190, 190, 0.35));
+      }
       
+      .slot-coin.landed-rare {
+        filter:
+          drop-shadow(0 0 14px rgba(80, 150, 255, 0.65));
+      }
+      
+      .slot-coin.landed-epic {
+        filter:
+          drop-shadow(0 0 16px rgba(180, 80, 255, 0.70));
+      }
+      
+      .slot-coin.landed-legendary {
+        filter:
+          drop-shadow(0 0 18px rgba(255, 210, 90, 0.75));
+      }
+      
+      .slot-coin.landed-mythic {
+        filter:
+          drop-shadow(0 0 20px rgba(255, 180, 70, 0.90))
+          drop-shadow(0 0 34px rgba(255, 90, 20, 0.55));
+      }
+      
+      .slot-coin.landed-cursed {
+        filter:
+          drop-shadow(0 0 18px rgba(80, 180, 255, 0.85))
+          drop-shadow(0 0 34px rgba(20, 90, 255, 0.45));
+      }
+    
       @keyframes slotLand {
         0% {
           transform: scale(1.28);
@@ -821,6 +853,26 @@
       
         100% {
           transform: scale(1);
+        }
+      }
+
+      .slot-coin.anticipating {
+        animation: slotAnticipation 0.42s ease-in-out infinite alternate;
+      }
+      
+      @keyframes slotAnticipation {
+        from {
+          transform: scale(1);
+          filter:
+            brightness(1.1)
+            drop-shadow(0 0 14px rgba(255, 220, 120, 0.50));
+        }
+      
+        to {
+          transform: scale(1.16);
+          filter:
+            brightness(1.75)
+            drop-shadow(0 0 30px rgba(255, 255, 255, 0.85));
         }
       }
       
@@ -2500,6 +2552,17 @@
   function triggerMythicBloom() {
     restartClassAnimation(forgeBloom, "mythic");
   }
+
+  function clearSlotLandedClasses(slot) {
+    slot.classList.remove(
+      "landed-common",
+      "landed-rare",
+      "landed-epic",
+      "landed-legendary",
+      "landed-mythic",
+      "landed-cursed"
+    );
+  }
     
   function clearCinematicStageClasses() {
     forgeStage.classList.remove(
@@ -2593,7 +2656,17 @@ forgeBloom.className = "forge-bloom";
       await wait(500);
     }
   }
-    
+
+  function shouldAnticipateReveal(coin) {
+    return (
+      coin.name === "Diamond Coin" ||
+      coin.name === "Rainbow Coin" ||
+      coin.name === "Kingmaker Coin" ||
+      coin.name === "Jackpot Booster" ||
+      coin.name === "Anti Coin"
+    );
+  }
+  
   function highestRarityClass(results) {
     const priority = {
       common: 1,
@@ -2634,7 +2707,8 @@ forgeBloom.className = "forge-bloom";
     return;
   }
 
-  slot.classList.remove("near-miss");
+  slot.classList.remove("near-miss", "anticipating");
+  clearSlotLandedClasses(slot);
   slot.classList.add("spinning");
 
   const nearMissPool = [
@@ -2655,11 +2729,19 @@ forgeBloom.className = "forge-bloom";
 
   slot.classList.remove("near-miss");
 
-  await wait(80);
-
+  if (shouldAnticipateReveal(finalCoin)) {
+    slot.classList.add("anticipating");
+    forgeResult.innerText = "The forge hesitates...";
+    await wait(360);
+    slot.classList.remove("anticipating");
+  } else {
+    await wait(80);
+  }
+  
   slot.src = coinFileForSlot(finalCoin, index);
   slot.classList.remove("spinning");
-  slot.classList.add("landed");
+  clearSlotLandedClasses(slot);
+  slot.classList.add("landed", `landed-${finalCoin.className}`);
     
   clearCinematicStageClasses();
 
@@ -2710,9 +2792,9 @@ forgeBloom.className = "forge-bloom";
     }
   
     for (let cycle = 0; cycle < 16; cycle++) {
-      slots.forEach(slot => {
+      slots.forEach((slot, index) => {
         slot.classList.add("spinning");
-        spinSlot(slot, null, 0, false);
+        spinSlot(slot, null, index, false);
       });
     
       await wait(cycle < 10 ? 55 : cycle < 14 ? 80 : 115);
