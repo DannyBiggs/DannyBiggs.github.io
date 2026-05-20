@@ -2233,11 +2233,20 @@
   
     forgeStage.classList.add(`reveal-${finalCoin.className}`, "impact");
   
-    forgeResult.innerHTML = `${finalCoin.rarity} • ${finalCoin.name}`;
+    forgeResult.innerHTML = `⚒️ ${finalCoin.rarity} • ${finalCoin.name}`;
   
-    await wait(500);
-  
-    forgeStage.classList.remove("impact");
+    await wait(900);
+
+    forgeStage.classList.remove(
+      "impact",
+      "reveal-common",
+      "reveal-rare",
+      "reveal-epic",
+      "reveal-legendary",
+      "reveal-mythic",
+      "reveal-cursed"
+    );
+    
     forgeButton.disabled = false;
   }
   
