@@ -871,6 +871,78 @@
         }
       }
 
+      .cinematic-burst {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 180px;
+        height: 180px;
+        transform: translate(-50%, -50%) scale(0.2);
+        border-radius: 50%;
+        opacity: 0;
+        pointer-events: none;
+        z-index: 4;
+      }
+      
+      .cinematic-burst.active {
+        animation: burstPop 0.75s ease-out;
+      }
+      
+      .cinematic-burst.jackpot {
+        background:
+          radial-gradient(circle,
+            rgba(255, 210, 80, 0.85) 0%,
+            rgba(255, 155, 30, 0.45) 35%,
+            transparent 70%);
+      }
+      
+      .cinematic-burst.cursed {
+        background:
+          radial-gradient(circle,
+            rgba(255, 30, 30, 0.75) 0%,
+            rgba(120, 0, 0, 0.45) 38%,
+            transparent 72%);
+      }
+      
+      .cinematic-burst.mythic {
+        background:
+          conic-gradient(
+            from 0deg,
+            rgba(255, 0, 90, 0.85),
+            rgba(255, 200, 0, 0.85),
+            rgba(0, 255, 160, 0.85),
+            rgba(0, 150, 255, 0.85),
+            rgba(180, 60, 255, 0.85),
+            rgba(255, 0, 90, 0.85)
+          );
+        filter: blur(10px);
+      }
+      
+      .cinematic-burst.legendary {
+        background:
+          radial-gradient(circle,
+            rgba(180, 255, 255, 0.85) 0%,
+            rgba(80, 220, 255, 0.45) 35%,
+            transparent 70%);
+      }
+      
+      @keyframes burstPop {
+        0% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(0.2);
+        }
+      
+        30% {
+          opacity: 0.95;
+          transform: translate(-50%, -50%) scale(1.1);
+        }
+      
+        100% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(2.4);
+        }
+      }
+    
       .forge-stage.cinematic-jackpot {
         animation: jackpotOverload 0.9s ease-in-out;
       }
@@ -1183,6 +1255,7 @@
           >
     
           <div class="forge-glow"></div>
+          <div id="cinematicBurst" class="cinematic-burst"></div>
     
           <div class="slot-row" id="slotRow">
             <img class="sim-coin slot-coin" src="images/coins/bronze.gif" alt="Forged Coin">
@@ -2236,6 +2309,7 @@
   const forgeResult = document.getElementById("forgeResult");
   const forgeStage = document.querySelector(".forge-stage");
   const slotRow = document.getElementById("slotRow");
+  const cinematicBurst = document.getElementById("cinematicBurst");
   const pullCountButtons = document.querySelectorAll(".pull-count-button");
   
   let selectedPullCount = 1;
@@ -2293,13 +2367,22 @@
     );
 
 forgeResult.classList.remove("cinematic-text");
+cinematicBurst.className = "cinematic-burst";
   }
 
+  function triggerBurst(type) {
+    cinematicBurst.className = `cinematic-burst ${type}`;
+    void cinematicBurst.offsetWidth;
+    cinematicBurst.classList.add("active");
+  }
+  
   async function playFinalCinematic(coin) {
     forgeResult.classList.remove("cinematic-text");
+
   
     if (coin.name === "Jackpot Booster") {
       forgeStage.classList.add("cinematic-jackpot");
+      triggerBurst("jackpot");
       forgeResult.innerHTML = "💰 JACKPOT BOOSTER!";
       forgeResult.classList.add("cinematic-text");
       await wait(550);
@@ -2308,6 +2391,7 @@ forgeResult.classList.remove("cinematic-text");
   
     if (coin.name === "Anti Coin") {
       forgeStage.classList.add("cinematic-cursed");
+      triggerBurst("cursed");
       forgeResult.innerHTML = "💀 The forge rejects the offering...";
       forgeResult.classList.add("cinematic-text");
       await wait(550);
@@ -2316,6 +2400,7 @@ forgeResult.classList.remove("cinematic-text");
   
     if (coin.name === "Rainbow Coin" || coin.name === "Kingmaker Coin") {
       forgeStage.classList.add("cinematic-mythic");
+      triggerBurst("mythic");
       forgeResult.innerHTML = `🌈 MYTHIC REVEAL — ${coin.name}!`;
       forgeResult.classList.add("cinematic-text");
       await wait(650);
@@ -2324,6 +2409,7 @@ forgeResult.classList.remove("cinematic-text");
   
     if (coin.name === "Diamond Coin") {
       forgeStage.classList.add("cinematic-legendary");
+      triggerBurst("legendary");
       forgeResult.innerHTML = `💎 LEGENDARY REVEAL — ${coin.name}!`;
       forgeResult.classList.add("cinematic-text");
       await wait(500);
