@@ -840,76 +840,6 @@
         box-shadow: 0 0 12px rgba(255,179,71,0.28);
       }
       
-      .sim-coin.spinning {
-      
-        animation: forgeSpin 0.34s linear infinite;
-      }
-      
-      @keyframes forgeSpin {
-        from {
-          transform: translate(-50%, -50%) rotateY(0deg) scale(1);
-        }
-      
-        to {
-          transform: translate(-50%, -50%) rotateY(360deg) scale(1.08);
-        }
-      }
-      .sim-coin.near-miss {
-        animation:
-          nearMissFlash 0.18s ease-in-out infinite alternate;
-      }
-      
-      @keyframes nearMissFlash {
-        from {
-          transform:
-            translate(-50%, -50%)
-            scale(1);
-          filter:
-            brightness(1)
-            drop-shadow(0 0 12px rgba(255,180,60,0.45));
-        }
-      
-        to {
-          transform:
-            translate(-50%, -50%)
-            scale(1.12);
-          filter:
-            brightness(1.45)
-            drop-shadow(0 0 26px rgba(255,255,255,0.75));
-        }
-      }
-      
-      .sim-coin.landed {
-        animation:
-          coinLand 0.35s ease-out;
-      }
-      
-      @keyframes coinLand {
-        0% {
-          transform:
-            translate(-50%, -50%)
-            scale(1.28);
-        }
-      
-        40% {
-          transform:
-            translate(-50%, -50%)
-            scale(0.92);
-        }
-      
-        70% {
-          transform:
-            translate(-50%, -50%)
-            scale(1.08);
-        }
-      
-        100% {
-          transform:
-            translate(-50%, -50%)
-            scale(1);
-        }
-      }
-      
       .forge-stage.impact {
         animation:
           stageImpact 0.28s ease-out;
@@ -2325,54 +2255,46 @@
     }
   }
   
-  async function spinSlot(slot, finalCoin, index) {
-    slot.classList.remove("landed", "near-miss");
-    slot.classList.add("spinning");
-  
-    const pacing = [55, 55, 60, 65, 75, 90, 110, 140, 180, 240];
-  
-    for (let i = 0; i < pacing.length; i++) {
-      const coin = randomCycleCoin();
-      slot.src = coin.file;
-      await wait(pacing[i]);
-    }
-  
-    const nearMissPool = [
-      forgeCoins.find(c => c.name === "Diamond Coin"),
-      forgeCoins.find(c => c.name === "Rainbow Coin"),
-      forgeCoins.find(c => c.name === "Anti Coin"),
-      forgeCoins.find(c => c.name === "Jackpot Booster")
-    ];
-  
-    const nearMiss = nearMissPool[Math.floor(Math.random() * nearMissPool.length)];
-  
-    slot.src = nearMiss.file;
-    slot.classList.add("near-miss");
-    forgeResult.innerText = `Slot ${index + 1} sparks violently...`;
-    await wait(240);
-  
-    slot.classList.remove("near-miss");
-  
-    const finalSlowdown = [180, 240, 320];
-  
-    for (let i = 0; i < finalSlowdown.length; i++) {
-      const coin = randomCycleCoin();
-      slot.src = coin.file;
-      await wait(finalSlowdown[i]);
-    }
-  
-    slot.src = finalCoin.file;
-    slot.classList.remove("spinning");
-    slot.classList.add("landed");
-  
-    forgeStage.classList.add(`reveal-${finalCoin.className}`, "impact");
-  
-    await wait(260);
-  
-    forgeStage.classList.remove("impact");
+  async function spinSlot(slot, finalCoin, index, shouldLock) {
+  if (!shouldLock) {
+    const coin = randomCycleCoin();
+    slot.src = coin.file;
+    return;
   }
-  
-  async function runForgeReveal() {
+
+  slot.classList.remove("near-miss");
+  slot.classList.add("spinning");
+
+  const nearMissPool = [
+    forgeCoins.find(c => c.name === "Diamond Coin"),
+    forgeCoins.find(c => c.name === "Rainbow Coin"),
+    forgeCoins.find(c => c.name === "Anti Coin"),
+    forgeCoins.find(c => c.name === "Jackpot Booster")
+  ];
+
+  const nearMiss = nearMissPool[Math.floor(Math.random() * nearMissPool.length)];
+
+  slot.src = nearMiss.file;
+  slot.classList.add("near-miss");
+
+  forgeResult.innerText = `Slot ${index + 1} sparks violently...`;
+
+  await wait(180);
+
+  slot.classList.remove("near-miss");
+
+  await wait(80);
+
+  slot.src = finalCoin.file;
+  slot.classList.remove("spinning");
+  slot.classList.add("landed");
+
+  forgeStage.classList.add(`reveal-${finalCoin.className}`, "impact");
+
+  await wait(180);
+
+  forgeStage.classList.remove("impact");
+}
     clearRevealClasses();
   
     forgeButton.disabled = true;
@@ -2392,9 +2314,18 @@
       results.push(weightedRoll());
     }
   
+    for (let cycle = 0; cycle < 26; cycle++) {
+      slots.forEach(slot => {
+        slot.classList.add("spinning");
+        spinSlot(slot, null, 0, false);
+      });
+    
+      await wait(cycle < 14 ? 65 : cycle < 21 ? 95 : 135);
+    }
+    
     for (let i = 0; i < slots.length; i++) {
-      await spinSlot(slots[i], results[i], i);
-      await wait(180);
+      await spinSlot(slots[i], results[i], i, true);
+      await wait(120);
     }
   
     const highestClass = highestRarityClass(results);
