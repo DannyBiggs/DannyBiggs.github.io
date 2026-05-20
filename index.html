@@ -826,36 +826,34 @@
         animation: slotLand 0.35s ease-out;
       }
 
-      .slot-coin.landed-common {
-        filter:
-          drop-shadow(0 0 10px rgba(190, 190, 190, 0.35));
+      .slot-wrap.landed-common::before {
+        opacity: 0.35;
+        background: radial-gradient(circle, rgba(190, 190, 190, 0.35), transparent 70%);
       }
       
-      .slot-coin.landed-rare {
-        filter:
-          drop-shadow(0 0 14px rgba(80, 150, 255, 0.65));
+      .slot-wrap.landed-rare::before {
+        opacity: 0.65;
+        background: radial-gradient(circle, rgba(80, 150, 255, 0.55), transparent 70%);
       }
       
-      .slot-coin.landed-epic {
-        filter:
-          drop-shadow(0 0 16px rgba(180, 80, 255, 0.70));
+      .slot-wrap.landed-epic::before {
+        opacity: 0.70;
+        background: radial-gradient(circle, rgba(180, 80, 255, 0.60), transparent 70%);
       }
       
-      .slot-coin.landed-legendary {
-        filter:
-          drop-shadow(0 0 18px rgba(255, 210, 90, 0.75));
+      .slot-wrap.landed-legendary::before {
+        opacity: 0.75;
+        background: radial-gradient(circle, rgba(255, 210, 90, 0.65), transparent 70%);
       }
       
-      .slot-coin.landed-mythic {
-        filter:
-          drop-shadow(0 0 20px rgba(255, 180, 70, 0.90))
-          drop-shadow(0 0 34px rgba(255, 90, 20, 0.55));
+      .slot-wrap.landed-mythic::before {
+        opacity: 0.85;
+        background: radial-gradient(circle, rgba(255, 170, 60, 0.70), rgba(255, 80, 20, 0.25), transparent 72%);
       }
       
-      .slot-coin.landed-cursed {
-        filter:
-          drop-shadow(0 0 18px rgba(80, 180, 255, 0.85))
-          drop-shadow(0 0 34px rgba(20, 90, 255, 0.45));
+      .slot-wrap.landed-cursed::before {
+        opacity: 0.85;
+        background: radial-gradient(circle, rgba(90, 185, 255, 0.70), rgba(20, 90, 255, 0.28), transparent 72%);
       }
     
       @keyframes slotLand {
@@ -2727,7 +2725,10 @@
   }
 
   function clearSlotLandedClasses(slot) {
-    slot.classList.remove(
+    const slotWrap = slot.closest(".slot-wrap");
+    if (!slotWrap) return;
+  
+    slotWrap.classList.remove(
       "landed-common",
       "landed-rare",
       "landed-epic",
@@ -2972,7 +2973,12 @@ forgeBloom.className = "forge-bloom";
   slot.src = coinFileForSlot(finalCoin, index);
   slot.classList.remove("spinning");
   clearSlotLandedClasses(slot);
-  slot.classList.add("landed", `landed-${finalCoin.className}`);
+  slot.classList.add("landed");
+  
+  const slotWrap = slot.closest(".slot-wrap");
+  if (slotWrap) {
+    slotWrap.classList.add(`landed-${finalCoin.className}`);
+  }
     
   clearCinematicStageClasses();
 
