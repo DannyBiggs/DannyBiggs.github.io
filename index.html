@@ -1074,6 +1074,9 @@
             saturate(1.4);
         }
       }
+      .forge-stage.impact {
+        animation: stageImpact 0.28s ease-out !important;
+      }
       .forge-result {
         position: absolute;
         left: 50%;
@@ -2510,7 +2513,7 @@ cinematicBurst.className = "cinematic-burst";
   
   forgeStage.classList.add(`reveal-${finalCoin.className}`, "impact");
 
-  await wait(180);
+  await wait(300);
 
   forgeStage.classList.remove("impact");
 }
