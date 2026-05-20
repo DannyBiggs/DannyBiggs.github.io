@@ -6,15 +6,23 @@
   <title>Coin Forge Codex</title>
 
   <style>
-    html {
-      scroll-behavior: smooth;
-    }
+    html { scroll-behavior: smooth; }
 
     body {
       background: #0b0b0d;
       color: #e8d7a2;
       font-family: Arial, sans-serif;
       margin: 0;
+    }
+
+    body.secrets-hidden .rarity-secret .details,
+    body.secrets-hidden .rarity-secret img {
+      display: none;
+    }
+
+    body.secrets-hidden .rarity-secret .name::after {
+      content: " — ???";
+      color: #58f2ff;
     }
 
     header {
@@ -97,9 +105,7 @@
       border-bottom: 1px solid #3a2a18;
     }
 
-    details.section > summary::-webkit-details-marker {
-      display: none;
-    }
+    details.section > summary::-webkit-details-marker { display: none; }
 
     details.section > summary::after {
       content: "＋";
@@ -107,13 +113,9 @@
       color: #ffb347;
     }
 
-    details.section[open] > summary::after {
-      content: "－";
-    }
+    details.section[open] > summary::after { content: "－"; }
 
-    .section-inner {
-      padding: 24px;
-    }
+    .section-inner { padding: 24px; }
 
     h2 {
       margin-top: 0;
@@ -125,21 +127,30 @@
       margin-bottom: 8px;
     }
 
-    .how-to-play {
+    .how-to-play,
+    .roadmap,
+    .guide-grid,
+    .command-grid,
+    .shop-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 14px;
       margin-top: 14px;
     }
 
-    .info-card {
+    .info-card,
+    .command-card,
+    .guide-card,
+    .shop-card {
       background: #0f0f11;
       border: 1px solid #3a2a18;
       border-radius: 10px;
       padding: 14px;
     }
 
-    .info-card strong {
+    .info-card strong,
+    .guide-card strong,
+    .shop-card strong {
       color: #ffffff;
     }
 
@@ -163,6 +174,7 @@
       border-radius: 10px;
       padding: 12px 14px;
       font-size: 16px;
+      margin-bottom: 12px;
     }
 
     #codexSearch:focus {
@@ -171,9 +183,32 @@
       box-shadow: 0 0 12px rgba(255,179,71,0.35);
     }
 
-    .is-hidden {
-      display: none !important;
+    .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
     }
+
+    .filter-button,
+    .toggle-button {
+      background: #0f0f11;
+      color: #ffd36a;
+      border: 1px solid #3a2a18;
+      border-radius: 999px;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .filter-button:hover,
+    .filter-button.active,
+    .toggle-button:hover {
+      border-color: #ffb347;
+      color: #ffffff;
+      box-shadow: 0 0 10px rgba(255,179,71,0.3);
+    }
+
+    .is-hidden { display: none !important; }
 
     .rarity-legend {
       display: grid;
@@ -201,10 +236,7 @@
       background: rgba(0, 0, 0, 0.25);
       border: 2px solid #444;
       border-radius: 12px;
-      transition:
-        transform 0.18s ease,
-        box-shadow 0.18s ease,
-        border-color 0.18s ease;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
       position: relative;
       overflow: hidden;
     }
@@ -215,15 +247,16 @@
     }
 
     .achievement:hover,
-    .badge-card:hover {
+    .badge-card:hover,
+    .coin-card:hover,
+    .guide-card:hover,
+    .shop-card:hover {
       transform: translateY(-3px);
       box-shadow: 0 0 18px rgba(255,255,255,0.08);
       border-color: #777;
     }
 
-    .rarity-common {
-      border-color: #777;
-    }
+    .rarity-common { border-color: #777; }
 
     .rarity-rare {
       border-color: #4f79ff;
@@ -254,12 +287,7 @@
       content: "";
       position: absolute;
       inset: 0;
-      background: linear-gradient(
-        135deg,
-        transparent 0%,
-        rgba(88,242,255,0.08) 50%,
-        transparent 100%
-      );
+      background: linear-gradient(135deg, transparent 0%, rgba(88,242,255,0.08) 50%, transparent 100%);
       pointer-events: none;
     }
 
@@ -299,35 +327,28 @@
       font-size: 14px;
     }
 
-    .detail strong {
-      color: #ffd36a;
-    }
+    .detail strong { color: #ffd36a; }
 
-    .reward {
-      color: #9ee89e;
-    }
+    .reward { color: #9ee89e; }
 
-    .secret {
-      color: #c58cff;
-    }
+    .secret { color: #c58cff; }
 
-    .badge-grid {
+    .badge-grid,
+    .coin-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
       gap: 16px;
       margin-top: 18px;
     }
 
-    .badge-card {
+    .badge-card,
+    .coin-card {
       background: #0f0f11;
       border: 2px solid #3a2a18;
       border-radius: 10px;
       padding: 14px;
       text-align: center;
-      transition:
-        transform 0.18s ease,
-        box-shadow 0.18s ease,
-        border-color 0.18s ease;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
       position: relative;
       overflow: hidden;
     }
@@ -341,23 +362,50 @@
       filter: drop-shadow(0 0 8px rgba(255, 179, 71, 0.35));
     }
 
-    .command-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 14px;
+    .nameplate-card {
+      grid-column: span 2;
     }
 
-    .command-card {
-      background: #0f0f11;
-      border: 1px solid #3a2a18;
-      border-radius: 10px;
-      padding: 14px;
+    .nameplate-card img {
+      width: 100%;
+      max-width: 260px;
+      height: 84px;
+      object-fit: contain;
+      image-rendering: pixelated;
+    }
+
+    .coin-card img {
+      width: 96px;
+      height: 96px;
+      image-rendering: pixelated;
+      object-fit: contain;
+      margin-bottom: 8px;
+      filter: drop-shadow(0 0 10px rgba(255, 179, 71, 0.35));
     }
 
     .command {
       color: #ffffff;
       font-weight: bold;
       margin-bottom: 6px;
+    }
+
+    .callout {
+      text-align: center;
+      background: #17120d;
+      border: 1px solid #c6842f;
+      border-radius: 12px;
+      padding: 22px;
+      margin-top: 24px;
+    }
+
+    .callout a {
+      color: #ffd36a;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    .callout a:hover {
+      color: #ffffff;
     }
 
     .back-to-top {
@@ -387,35 +435,23 @@
     }
 
     @media (max-width: 700px) {
-      h1 {
-        font-size: 34px;
-      }
+      h1 { font-size: 34px; }
 
-      .top-nav {
-        position: static;
-      }
+      .top-nav { position: static; }
 
       .top-nav a {
         font-size: 14px;
         padding: 7px 10px;
       }
 
-      .search-wrap {
-        position: static;
-      }
+      .search-wrap { position: static; }
 
-      .container {
-        padding: 20px 12px;
-      }
+      .container { padding: 20px 12px; }
 
       .section,
-      .section-inner {
-        padding: 16px;
-      }
+      .section-inner { padding: 16px; }
 
-      details.section {
-        padding: 0;
-      }
+      details.section { padding: 0; }
 
       details.section > summary {
         font-size: 20px;
@@ -432,8 +468,13 @@
         height: 40px;
       }
 
-      .badge-grid {
+      .badge-grid,
+      .coin-grid {
         grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      }
+
+      .nameplate-card {
+        grid-column: span 1;
       }
 
       .back-to-top {
@@ -452,10 +493,12 @@
 
   <nav class="top-nav">
     <a href="#achievements">Achievements</a>
+    <a href="#coins">Coins</a>
     <a href="#badges">Badges</a>
     <a href="#nameplates">Nameplates</a>
     <a href="#commands">Commands</a>
     <a href="#bosses">Bosses</a>
+    <a href="#shop">Shop</a>
   </nav>
 
   <main class="container">
@@ -486,12 +529,38 @@
       </div>
     </section>
 
+    <section class="section">
+      <h2>🧭 Progression Roadmap</h2>
+
+      <div class="roadmap">
+        <div class="info-card"><strong>Start Here</strong><div class="detail">Use !forge and learn the coin tiers.</div></div>
+        <div class="info-card"><strong>Build Resonance</strong><div class="detail">Manage your pull resource and check it with !resonance.</div></div>
+        <div class="info-card"><strong>Unlock Achievements</strong><div class="detail">Pull rare coins, gamble, fight bosses, and trigger forge events.</div></div>
+        <div class="info-card"><strong>Equip Cosmetics</strong><div class="detail">Earn badges and nameplate titles to show off during pulls.</div></div>
+        <div class="info-card"><strong>Fight Bosses</strong><div class="detail">Avaros and Invidra twist the forge when greed and envy rise.</div></div>
+      </div>
+    </section>
+
     <section class="search-wrap">
       <input
         type="text"
         id="codexSearch"
         placeholder="Search achievements, badges, nameplates, commands, bosses..."
       />
+
+      <div class="filter-row">
+        <button class="filter-button active" data-filter="all">All</button>
+        <button class="filter-button" data-filter="rarity-common">Common</button>
+        <button class="filter-button" data-filter="rarity-rare">Rare</button>
+        <button class="filter-button" data-filter="rarity-epic">Epic</button>
+        <button class="filter-button" data-filter="rarity-legendary">Legendary</button>
+        <button class="filter-button" data-filter="rarity-mythic">Mythic</button>
+        <button class="filter-button" data-filter="rarity-cursed">Cursed</button>
+        <button class="filter-button" data-filter="rarity-secret">Secret</button>
+        <button class="filter-button" data-filter="badges">Badges</button>
+        <button class="filter-button" data-filter="nameplates">Nameplates</button>
+        <button class="toggle-button" id="secretToggle">Hide Secrets</button>
+      </div>
     </section>
 
     <section class="section">
@@ -508,10 +577,80 @@
       </div>
     </section>
 
+    <details class="section" id="coins" open>
+      <summary>🪙 Coin Guide</summary>
+      <div class="section-inner">
+        <div class="coin-grid">
+          <div class="coin-card rarity-common searchable" data-category="coins">
+            <img src="images/coins/wood.gif" alt="Wood Coin">
+            <div class="name">⚪ Wood Coin</div>
+            <div class="details">
+              <div class="detail"><strong>Role:</strong> Feeds the Burn Pile and forge events.</div>
+              <div class="detail"><strong>Value:</strong> Low value, high utility.</div>
+            </div>
+          </div>
+
+          <div class="coin-card rarity-common searchable" data-category="coins">
+            <img src="images/coins/bronze.gif" alt="Bronze Coin">
+            <div class="name">⚪ Bronze Coin</div>
+            <div class="details">
+              <div class="detail"><strong>Role:</strong> Common starter coin.</div>
+              <div class="detail"><strong>Value:</strong> Small coin and XP gain.</div>
+            </div>
+          </div>
+
+          <div class="coin-card rarity-rare searchable" data-category="coins">
+            <img src="images/coins/silver.gif" alt="Silver Coin">
+            <div class="name">🔵 Silver Coin</div>
+            <div class="details">
+              <div class="detail"><strong>Role:</strong> Solid mid-tier reward.</div>
+              <div class="detail"><strong>Value:</strong> Better coin and XP gain.</div>
+            </div>
+          </div>
+
+          <div class="coin-card rarity-epic searchable" data-category="coins">
+            <img src="images/coins/gold.gif" alt="Gold Coin">
+            <div class="name">🟣 Gold Coin</div>
+            <div class="details">
+              <div class="detail"><strong>Role:</strong> Major milestone coin.</div>
+              <div class="detail"><strong>Value:</strong> Strong coin and XP gain.</div>
+            </div>
+          </div>
+
+          <div class="coin-card rarity-legendary searchable" data-category="coins">
+            <img src="images/coins/diamond.gif" alt="Diamond Coin">
+            <div class="name">🟠 Diamond Coin</div>
+            <div class="details">
+              <div class="detail"><strong>Role:</strong> Rare high-value pull.</div>
+              <div class="detail"><strong>Value:</strong> Large coin and XP gain.</div>
+            </div>
+          </div>
+
+          <div class="coin-card rarity-mythic searchable" data-category="coins">
+            <img src="images/coins/rainbow.gif" alt="Rainbow Coin">
+            <div class="name">🌈 Rainbow Coin</div>
+            <div class="details">
+              <div class="detail"><strong>Role:</strong> Mythic jackpot-tier pull.</div>
+              <div class="detail"><strong>Value:</strong> Massive coin and XP gain.</div>
+            </div>
+          </div>
+
+          <div class="coin-card rarity-cursed searchable" data-category="coins">
+            <img src="images/coins/anti.gif" alt="Anti Coin">
+            <div class="name">💀 Anti Coin</div>
+            <div class="details">
+              <div class="detail"><strong>Role:</strong> Cursed negative coin.</div>
+              <div class="detail"><strong>Value:</strong> Punishes coins and can heal bosses.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </details>
+
     <details class="section" id="achievements" open>
       <summary>⚒️ Forge Progression</summary>
       <div class="section-inner">
-        <div class="achievement rarity-common no-icon">
+        <div class="achievement rarity-common no-icon searchable" data-category="achievements">
           <div class="name">⚪ First Spark</div>
           <div class="details">
             <div class="detail"><strong>Criteria:</strong> Pull your first coin</div>
@@ -519,7 +658,7 @@
           </div>
         </div>
 
-        <div class="achievement rarity-common no-icon">
+        <div class="achievement rarity-common no-icon searchable" data-category="achievements">
           <div class="name">⚪ Coin Apprentice</div>
           <div class="details">
             <div class="detail"><strong>Criteria:</strong> Pull 25 total coins</div>
@@ -527,7 +666,7 @@
           </div>
         </div>
 
-        <div class="achievement rarity-rare no-icon">
+        <div class="achievement rarity-rare no-icon searchable" data-category="achievements">
           <div class="name">🔵 Forge Regular</div>
           <div class="details">
             <div class="detail"><strong>Criteria:</strong> Pull 100 total coins</div>
@@ -535,7 +674,7 @@
           </div>
         </div>
 
-        <div class="achievement rarity-epic no-icon">
+        <div class="achievement rarity-epic no-icon searchable" data-category="achievements">
           <div class="name">🟣 Forge Veteran</div>
           <div class="details">
             <div class="detail"><strong>Criteria:</strong> Pull 500 total coins</div>
@@ -544,7 +683,7 @@
           </div>
         </div>
 
-        <div class="achievement rarity-legendary no-icon">
+        <div class="achievement rarity-legendary no-icon searchable" data-category="achievements">
           <div class="name">🟠 Forge Master</div>
           <div class="details">
             <div class="detail"><strong>Criteria:</strong> Pull 1,000 total coins</div>
@@ -553,7 +692,7 @@
           </div>
         </div>
 
-        <div class="achievement rarity-mythic">
+        <div class="achievement rarity-mythic searchable" data-category="achievements">
           <img class="badge-icon" src="images/badges/forge_legend.png" alt="Forge Legend badge">
           <div>
             <div class="name">🌈 Forge Legend</div>
@@ -572,7 +711,7 @@
       <div class="section-inner">
         <h3>Bronze</h3>
 
-        <div class="achievement rarity-common no-icon">
+        <div class="achievement rarity-common no-icon searchable" data-category="achievements">
           <div class="name">⚪ A Humble Beginning</div>
           <div class="details">
             <div class="detail"><strong>Criteria:</strong> Pull your first Bronze coin</div>
@@ -580,7 +719,7 @@
           </div>
         </div>
 
-        <div class="achievement rarity-common no-icon">
+        <div class="achievement rarity-common no-icon searchable" data-category="achievements">
           <div class="name">⚪ Bronze Collector</div>
           <div class="details">
             <div class="detail"><strong>Criteria:</strong> Pull 50 Bronze coins</div>
@@ -590,7 +729,7 @@
 
         <h3>Silver</h3>
 
-        <div class="achievement rarity-rare no-icon">
+        <div class="achievement rarity-rare no-icon searchable" data-category="achievements">
           <div class="name">🔵 Silver Lining</div>
           <div class="details">
             <div class="detail"><strong>Criteria:</strong> Pull your first Silver coin</div>
@@ -600,7 +739,7 @@
 
         <h3>Gold</h3>
 
-        <div class="achievement rarity-epic no-icon">
+        <div class="achievement rarity-epic no-icon searchable" data-category="achievements">
           <div class="name">🟣 Golden Touch</div>
           <div class="details">
             <div class="detail"><strong>Criteria:</strong> Pull your first Gold coin</div>
@@ -608,7 +747,7 @@
           </div>
         </div>
 
-        <div class="achievement rarity-epic no-icon">
+        <div class="achievement rarity-epic no-icon searchable" data-category="achievements">
           <div class="name">🟣 Gold Hunter</div>
           <div class="details">
             <div class="detail"><strong>Criteria:</strong> Pull 50 Gold coins</div>
@@ -616,7 +755,7 @@
           </div>
         </div>
 
-        <div class="achievement rarity-epic">
+        <div class="achievement rarity-epic searchable" data-category="achievements">
           <img class="badge-icon" src="images/badges/gold_hoarder.png" alt="Gold Hoarder badge">
           <div>
             <div class="name">🟣 Gold Hoarder</div>
@@ -628,7 +767,7 @@
           </div>
         </div>
 
-        <div class="achievement rarity-legendary no-icon">
+        <div class="achievement rarity-legendary no-icon searchable" data-category="achievements">
           <div class="name">🟠 Gold Tyrant</div>
           <div class="details">
             <div class="detail"><strong>Criteria:</strong> Pull 250 Gold coins</div>
@@ -639,7 +778,7 @@
 
         <h3>Diamond</h3>
 
-        <div class="achievement rarity-legendary no-icon">
+        <div class="achievement rarity-legendary no-icon searchable" data-category="achievements">
           <div class="name">🟠 Shining Fortune</div>
           <div class="details">
             <div class="detail"><strong>Criteria:</strong> Pull your first Diamond coin</div>
@@ -647,7 +786,7 @@
           </div>
         </div>
 
-        <div class="achievement rarity-legendary">
+        <div class="achievement rarity-legendary searchable" data-category="achievements">
           <img class="badge-icon" src="images/badges/diamond_collector.png" alt="Diamond Collector badge">
           <div>
             <div class="name">🟠 Diamond Collector</div>
@@ -659,7 +798,7 @@
           </div>
         </div>
 
-        <div class="achievement rarity-mythic no-icon">
+        <div class="achievement rarity-mythic no-icon searchable" data-category="achievements">
           <div class="name">🌈 A Girl's Best Friend</div>
           <div class="details">
             <div class="detail"><strong>Criteria:</strong> Pull 50 Diamond coins</div>
@@ -670,7 +809,7 @@
 
         <h3>Rainbow</h3>
 
-        <div class="achievement rarity-mythic no-icon">
+        <div class="achievement rarity-mythic no-icon searchable" data-category="achievements">
           <div class="name">🌈 Impossible Fortune</div>
           <div class="details">
             <div class="detail"><strong>Criteria:</strong> Pull your first Rainbow coin</div>
@@ -678,7 +817,7 @@
           </div>
         </div>
 
-        <div class="achievement rarity-mythic">
+        <div class="achievement rarity-mythic searchable" data-category="achievements">
           <img class="badge-icon" src="images/badges/taste_the_rainbow.png" alt="Taste the Rainbow badge">
           <div>
             <div class="name">🌈 Taste the Rainbow</div>
@@ -690,7 +829,7 @@
           </div>
         </div>
 
-        <div class="achievement rarity-mythic no-icon">
+        <div class="achievement rarity-mythic no-icon searchable" data-category="achievements">
           <div class="name">🌈 On the Spectrum</div>
           <div class="details">
             <div class="detail"><strong>Criteria:</strong> Pull 7 Rainbow coins</div>
@@ -704,7 +843,7 @@
     <details class="section" open>
       <summary>🔥 Wood & Forge Fire</summary>
       <div class="section-inner">
-        <div class="achievement rarity-common no-icon">
+        <div class="achievement rarity-common no-icon searchable" data-category="achievements">
           <div class="name">⚪ The Fire Stirs</div>
           <div class="details">
             <div class="detail"><strong>Criteria:</strong> Pull your first Wood coin</div>
@@ -712,7 +851,7 @@
           </div>
         </div>
 
-        <div class="achievement rarity-epic no-icon">
+        <div class="achievement rarity-epic no-icon searchable" data-category="achievements">
           <div class="name">🟣 Kindling Collector</div>
           <div class="details">
             <div class="detail"><strong>Criteria:</strong> Pull 25 Wood coins</div>
@@ -720,7 +859,7 @@
           </div>
         </div>
 
-        <div class="achievement rarity-legendary no-icon">
+        <div class="achievement rarity-legendary no-icon searchable" data-category="achievements">
           <div class="name">🟠 Forge Tender</div>
           <div class="details">
             <div class="detail"><strong>Criteria:</strong> Pull 100 Wood coins</div>
@@ -728,7 +867,7 @@
           </div>
         </div>
 
-        <div class="achievement rarity-legendary no-icon">
+        <div class="achievement rarity-legendary no-icon searchable" data-category="achievements">
           <div class="name">🟠 The Kindled</div>
           <div class="details">
             <div class="detail"><strong>Criteria:</strong> Pull 250 Wood coins</div>
@@ -737,7 +876,7 @@
           </div>
         </div>
 
-        <div class="achievement rarity-rare no-icon">
+        <div class="achievement rarity-rare no-icon searchable" data-category="achievements">
           <div class="name">🔵 Silver Surge</div>
           <div class="details">
             <div class="detail"><strong>Criteria:</strong> Trigger a Silver Forge blessing</div>
@@ -745,7 +884,7 @@
           </div>
         </div>
 
-        <div class="achievement rarity-epic no-icon">
+        <div class="achievement rarity-epic no-icon searchable" data-category="achievements">
           <div class="name">🟣 Golden Inferno</div>
           <div class="details">
             <div class="detail"><strong>Criteria:</strong> Trigger a Gold Forge blessing</div>
@@ -753,7 +892,7 @@
           </div>
         </div>
 
-        <div class="achievement rarity-legendary no-icon">
+        <div class="achievement rarity-legendary no-icon searchable" data-category="achievements">
           <div class="name">🟠 The Forge Awakens</div>
           <div class="details">
             <div class="detail"><strong>Criteria:</strong> Ignite the Forge</div>
@@ -761,7 +900,7 @@
           </div>
         </div>
 
-        <div class="achievement rarity-legendary no-icon">
+        <div class="achievement rarity-legendary no-icon searchable" data-category="achievements">
           <div class="name">🟠 Forgeborn</div>
           <div class="details">
             <div class="detail"><strong>Criteria:</strong> Ignite the Forge 15 times</div>
@@ -775,7 +914,7 @@
     <details class="section" open>
       <summary>💀 Cursed & Corruption</summary>
       <div class="section-inner">
-        <div class="achievement rarity-cursed no-icon">
+        <div class="achievement rarity-cursed no-icon searchable" data-category="achievements">
           <div class="name">💀 Cursed Fate</div>
           <div class="details">
             <div class="detail"><strong>Criteria:</strong> Pull your first Anti coin</div>
@@ -783,7 +922,7 @@
           </div>
         </div>
 
-        <div class="achievement rarity-epic no-icon">
+        <div class="achievement rarity-epic no-icon searchable" data-category="achievements">
           <div class="name">🟣 Cursed Survivor</div>
           <div class="details">
             <div class="detail"><strong>Criteria:</strong> Pull 10 Anti coins</div>
@@ -791,7 +930,7 @@
           </div>
         </div>
 
-        <div class="achievement rarity-legendary no-icon">
+        <div class="achievement rarity-legendary no-icon searchable" data-category="achievements">
           <div class="name">🟠 Curse Bearer</div>
           <div class="details">
             <div class="detail"><strong>Criteria:</strong> Pull 25 Anti coins</div>
@@ -799,7 +938,7 @@
           </div>
         </div>
 
-        <div class="achievement rarity-mythic no-icon">
+        <div class="achievement rarity-mythic no-icon searchable" data-category="achievements">
           <div class="name">🌈 Cursebound</div>
           <div class="details">
             <div class="detail"><strong>Criteria:</strong> Pull 50 Anti coins</div>
@@ -807,7 +946,7 @@
           </div>
         </div>
 
-        <div class="achievement rarity-mythic no-icon">
+        <div class="achievement rarity-mythic no-icon searchable" data-category="achievements">
           <div class="name">🌈 Hexbound</div>
           <div class="details">
             <div class="detail"><strong>Criteria:</strong> Pull 75 Anti coins</div>
@@ -816,7 +955,7 @@
           </div>
         </div>
 
-        <div class="achievement rarity-secret">
+        <div class="achievement rarity-secret searchable" data-category="achievements">
           <img class="badge-icon" src="images/badges/this_shit_is_rigged.png" alt="This Shit Is Rigged badge">
           <div>
             <div class="name secret">❔ This Shit Is Rigged</div>
@@ -833,7 +972,7 @@
     <details class="section" open>
       <summary>🎲 Gambling & Jackpot</summary>
       <div class="section-inner">
-        <div class="achievement rarity-rare no-icon">
+        <div class="achievement rarity-rare no-icon searchable" data-category="achievements">
           <div class="name">🔵 Double or Nothing</div>
           <div class="details">
             <div class="detail"><strong>Criteria:</strong> Use gamble for the first time</div>
@@ -841,7 +980,7 @@
           </div>
         </div>
 
-        <div class="achievement rarity-secret no-icon">
+        <div class="achievement rarity-secret no-icon searchable" data-category="achievements">
           <div class="name secret">❔ The House Always Wins</div>
           <div class="details">
             <div class="detail"><strong>Criteria:</strong> Bust during a gamble pull</div>
@@ -849,7 +988,7 @@
           </div>
         </div>
 
-        <div class="achievement rarity-rare no-icon">
+        <div class="achievement rarity-rare no-icon searchable" data-category="achievements">
           <div class="name">🔵 Jackpot Chaser</div>
           <div class="details">
             <div class="detail"><strong>Criteria:</strong> Gamble 10 times</div>
@@ -857,7 +996,7 @@
           </div>
         </div>
 
-        <div class="achievement rarity-epic no-icon">
+        <div class="achievement rarity-epic no-icon searchable" data-category="achievements">
           <div class="name">🟣 Jackpot Addict</div>
           <div class="details">
             <div class="detail"><strong>Criteria:</strong> Gamble 50 times</div>
@@ -865,7 +1004,7 @@
           </div>
         </div>
 
-        <div class="achievement rarity-legendary no-icon">
+        <div class="achievement rarity-legendary no-icon searchable" data-category="achievements">
           <div class="name">🟠 Jackpot Maniac</div>
           <div class="details">
             <div class="detail"><strong>Criteria:</strong> Gamble 100 times</div>
@@ -873,7 +1012,7 @@
           </div>
         </div>
 
-        <div class="achievement rarity-secret">
+        <div class="achievement rarity-secret searchable" data-category="achievements">
           <img class="badge-icon" src="images/badges/broke_the_house.png" alt="Broke the House badge">
           <div>
             <div class="name secret">❔ Broke the House</div>
@@ -885,7 +1024,7 @@
           </div>
         </div>
 
-        <div class="achievement rarity-secret">
+        <div class="achievement rarity-secret searchable" data-category="achievements">
           <img class="badge-icon" src="images/badges/i_dont_have_a_problem.png" alt="I Don't Have a Problem badge">
           <div>
             <div class="name secret">❔ I Don't Have a Problem</div>
@@ -902,7 +1041,27 @@
     <details class="section" id="bosses" open>
       <summary>👹 World Bosses</summary>
       <div class="section-inner">
-        <div class="achievement rarity-rare no-icon">
+        <div class="guide-grid">
+          <div class="guide-card rarity-secret searchable" data-category="bosses">
+            <strong>💰 Avaros, the Greed Boss</strong>
+            <div class="details">
+              <div class="detail"><strong>Pressure:</strong> Greed rises as the jackpot and coin economy grow.</div>
+              <div class="detail"><strong>Threat:</strong> Devours valuable coins and can erase rewards.</div>
+              <div class="detail"><strong>Connected rewards:</strong> Consumed, Avaros Hungers, Devoured title.</div>
+            </div>
+          </div>
+
+          <div class="guide-card rarity-secret searchable" data-category="bosses">
+            <strong>👁️ Invidra, the Envy Boss</strong>
+            <div class="details">
+              <div class="detail"><strong>Pressure:</strong> Envy rises from lucky pulls, combos, and strong outcomes.</div>
+              <div class="detail"><strong>Threat:</strong> Corrupts valuable coins into negative results.</div>
+              <div class="detail"><strong>Connected rewards:</strong> It Blinked Back, All Eyes On Me, The Watched title.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="achievement rarity-rare no-icon searchable" data-category="achievements">
           <div class="name">🔵 Blood on the Anvil</div>
           <div class="details">
             <div class="detail"><strong>Criteria:</strong> Damage a world boss for the first time</div>
@@ -910,7 +1069,7 @@
           </div>
         </div>
 
-        <div class="achievement rarity-legendary no-icon">
+        <div class="achievement rarity-legendary no-icon searchable" data-category="achievements">
           <div class="name">🟠 Worldbreaker</div>
           <div class="details">
             <div class="detail"><strong>Criteria:</strong> Help defeat a world boss</div>
@@ -918,7 +1077,7 @@
           </div>
         </div>
 
-        <div class="achievement rarity-secret no-icon">
+        <div class="achievement rarity-secret no-icon searchable" data-category="achievements">
           <div class="name secret">❔ It Blinked Back</div>
           <div class="details">
             <div class="detail"><strong>Criteria:</strong> Have 100 coins corrupted by the Omen Eye</div>
@@ -927,7 +1086,7 @@
           </div>
         </div>
 
-        <div class="achievement rarity-secret no-icon">
+        <div class="achievement rarity-secret no-icon searchable" data-category="achievements">
           <div class="name secret">❔ Consumed</div>
           <div class="details">
             <div class="detail"><strong>Criteria:</strong> Have 100 coins devoured by the Coin Eater</div>
@@ -936,7 +1095,7 @@
           </div>
         </div>
 
-        <div class="achievement rarity-secret">
+        <div class="achievement rarity-secret searchable" data-category="achievements">
           <img class="badge-icon" src="images/badges/avaros_hungers.png" alt="Avaros Hungers badge">
           <div>
             <div class="name secret">❔ Avaros Hungers</div>
@@ -948,7 +1107,7 @@
           </div>
         </div>
 
-        <div class="achievement rarity-secret">
+        <div class="achievement rarity-secret searchable" data-category="achievements">
           <img class="badge-icon" src="images/badges/all_eyes_on_me.png" alt="All Eyes On Me badge">
           <div>
             <div class="name secret">❔ All Eyes On Me</div>
@@ -968,7 +1127,7 @@
         <p>Current badge-granting achievements:</p>
 
         <div class="badge-grid">
-          <div class="badge-card rarity-mythic">
+          <div class="badge-card rarity-mythic searchable" data-category="badges">
             <img src="images/badges/forge_legend.png" alt="Forge Legend badge">
             <div class="name">🌈 Forge Legend</div>
             <div class="details">
@@ -977,7 +1136,7 @@
             </div>
           </div>
 
-          <div class="badge-card rarity-epic">
+          <div class="badge-card rarity-epic searchable" data-category="badges">
             <img src="images/badges/gold_hoarder.png" alt="Gold Hoarder badge">
             <div class="name">🟣 Gold Hoarder</div>
             <div class="details">
@@ -986,7 +1145,7 @@
             </div>
           </div>
 
-          <div class="badge-card rarity-legendary">
+          <div class="badge-card rarity-legendary searchable" data-category="badges">
             <img src="images/badges/diamond_collector.png" alt="Diamond Collector badge">
             <div class="name">🟠 Diamond Collector</div>
             <div class="details">
@@ -995,7 +1154,7 @@
             </div>
           </div>
 
-          <div class="badge-card rarity-mythic">
+          <div class="badge-card rarity-mythic searchable" data-category="badges">
             <img src="images/badges/taste_the_rainbow.png" alt="Taste the Rainbow badge">
             <div class="name">🌈 Taste the Rainbow</div>
             <div class="details">
@@ -1004,7 +1163,7 @@
             </div>
           </div>
 
-          <div class="badge-card rarity-secret">
+          <div class="badge-card rarity-secret searchable" data-category="badges">
             <img src="images/badges/this_shit_is_rigged.png" alt="This Shit Is Rigged badge">
             <div class="name secret">❔ This Shit Is Rigged</div>
             <div class="details">
@@ -1013,7 +1172,7 @@
             </div>
           </div>
 
-          <div class="badge-card rarity-secret">
+          <div class="badge-card rarity-secret searchable" data-category="badges">
             <img src="images/badges/broke_the_house.png" alt="Broke the House badge">
             <div class="name secret">❔ Broke the House</div>
             <div class="details">
@@ -1022,7 +1181,7 @@
             </div>
           </div>
 
-          <div class="badge-card rarity-secret">
+          <div class="badge-card rarity-secret searchable" data-category="badges">
             <img src="images/badges/avaros_hungers.png" alt="Avaros Hungers badge">
             <div class="name secret">❔ Avaros Hungers</div>
             <div class="details">
@@ -1031,7 +1190,7 @@
             </div>
           </div>
 
-          <div class="badge-card rarity-secret">
+          <div class="badge-card rarity-secret searchable" data-category="badges">
             <img src="images/badges/all_eyes_on_me.png" alt="All Eyes On Me badge">
             <div class="name secret">❔ All Eyes On Me</div>
             <div class="details">
@@ -1040,7 +1199,7 @@
             </div>
           </div>
 
-          <div class="badge-card rarity-secret">
+          <div class="badge-card rarity-secret searchable" data-category="badges">
             <img src="images/badges/i_dont_have_a_problem.png" alt="I Don't Have a Problem badge">
             <div class="name secret">❔ I Don't Have a Problem</div>
             <div class="details">
@@ -1049,7 +1208,7 @@
             </div>
           </div>
 
-          <div class="badge-card rarity-secret">
+          <div class="badge-card rarity-secret searchable" data-category="badges">
             <img src="images/badges/crowned_for_a_month.png" alt="The Sovereign badge">
             <div class="name secret">❔ The Sovereign</div>
             <div class="details">
@@ -1065,7 +1224,7 @@
       <summary>🏷️ Nameplate Titles</summary>
       <div class="section-inner">
         <div class="badge-grid">
-          <div class="badge-card rarity-secret">
+          <div class="badge-card nameplate-card rarity-secret searchable" data-category="nameplates">
             <img src="images/nameplates/genesis.png" alt="Genesis">
             <div class="name secret">❔ 🌱 [GENESIS]</div>
             <div class="details">
@@ -1074,7 +1233,7 @@
             </div>
           </div>
 
-          <div class="badge-card rarity-epic">
+          <div class="badge-card nameplate-card rarity-epic searchable" data-category="nameplates">
             <img src="images/nameplates/forge_veteran.png" alt="Forge Veteran">
             <div class="name">🟣 ⚒️ [FORGE VETERAN]</div>
             <div class="details">
@@ -1083,7 +1242,7 @@
             </div>
           </div>
 
-          <div class="badge-card rarity-legendary">
+          <div class="badge-card nameplate-card rarity-legendary searchable" data-category="nameplates">
             <img src="images/nameplates/forge_master.png" alt="Forge Master">
             <div class="name">🟠 ⚒️ [FORGE MASTER]</div>
             <div class="details">
@@ -1092,7 +1251,7 @@
             </div>
           </div>
 
-          <div class="badge-card rarity-mythic">
+          <div class="badge-card nameplate-card rarity-mythic searchable" data-category="nameplates">
             <img src="images/nameplates/forge_legend.png" alt="Forge Legend">
             <div class="name">🌈 ⚒️ [FORGE LEGEND]</div>
             <div class="details">
@@ -1101,7 +1260,7 @@
             </div>
           </div>
 
-          <div class="badge-card rarity-epic">
+          <div class="badge-card nameplate-card rarity-epic searchable" data-category="nameplates">
             <img src="images/nameplates/gilded.png" alt="Gilded">
             <div class="name">🟣 🟡 [GILDED]</div>
             <div class="details">
@@ -1110,7 +1269,7 @@
             </div>
           </div>
 
-          <div class="badge-card rarity-legendary">
+          <div class="badge-card nameplate-card rarity-legendary searchable" data-category="nameplates">
             <img src="images/nameplates/gold_tyrant.png" alt="Gold Tyrant">
             <div class="name">🟠 👑 [GOLD TYRANT]</div>
             <div class="details">
@@ -1119,7 +1278,7 @@
             </div>
           </div>
 
-          <div class="badge-card rarity-mythic">
+          <div class="badge-card nameplate-card rarity-mythic searchable" data-category="nameplates">
             <img src="images/nameplates/the_lustrious.png" alt="The Lustrous">
             <div class="name">🌈 💎 [THE LUSTROUS]</div>
             <div class="details">
@@ -1128,7 +1287,7 @@
             </div>
           </div>
 
-          <div class="badge-card rarity-mythic">
+          <div class="badge-card nameplate-card rarity-mythic searchable" data-category="nameplates">
             <img src="images/nameplates/chromatic.png" alt="On The Spectrum">
             <div class="name">🌈 [ON THE SPECTRUM]</div>
             <div class="details">
@@ -1137,7 +1296,7 @@
             </div>
           </div>
 
-          <div class="badge-card rarity-mythic">
+          <div class="badge-card nameplate-card rarity-mythic searchable" data-category="nameplates">
             <img src="images/nameplates/curse_marked.png" alt="Hexbound">
             <div class="name">🌈 💀 [HEXBOUND]</div>
             <div class="details">
@@ -1146,7 +1305,7 @@
             </div>
           </div>
 
-          <div class="badge-card rarity-secret">
+          <div class="badge-card nameplate-card rarity-secret searchable" data-category="nameplates">
             <img src="images/nameplates/the_watched.png" alt="The Watched">
             <div class="name secret">❔ 👁️ [THE WATCHED]</div>
             <div class="details">
@@ -1155,7 +1314,7 @@
             </div>
           </div>
 
-          <div class="badge-card rarity-secret">
+          <div class="badge-card nameplate-card rarity-secret searchable" data-category="nameplates">
             <img src="images/nameplates/devoured.png" alt="Devoured">
             <div class="name secret">❔ 💀 [DEVOURED]</div>
             <div class="details">
@@ -1164,7 +1323,7 @@
             </div>
           </div>
 
-          <div class="badge-card rarity-legendary">
+          <div class="badge-card nameplate-card rarity-legendary searchable" data-category="nameplates">
             <img src="images/nameplates/the_kindled.png" alt="The Kindled">
             <div class="name">🟠 🔥 [THE KINDLED]</div>
             <div class="details">
@@ -1173,7 +1332,7 @@
             </div>
           </div>
 
-          <div class="badge-card rarity-legendary">
+          <div class="badge-card nameplate-card rarity-legendary searchable" data-category="nameplates">
             <img src="images/nameplates/forgeborn.png" alt="Forgeborn">
             <div class="name">🟠 ⚒️ [FORGEBORN]</div>
             <div class="details">
@@ -1185,57 +1344,110 @@
       </div>
     </details>
 
+    <details class="section" id="shop" open>
+      <summary>🛒 Shop / Boosts</summary>
+      <div class="section-inner">
+        <div class="shop-grid">
+          <div class="shop-card searchable" data-category="shop">
+            <strong>⚡ XP Boost</strong>
+            <div class="detail">Boosts XP gained from upcoming positive coin pulls.</div>
+          </div>
+
+          <div class="shop-card searchable" data-category="shop">
+            <strong>💰 Double Value</strong>
+            <div class="detail">Doubles the value of upcoming positive coin pulls.</div>
+          </div>
+
+          <div class="shop-card searchable" data-category="shop">
+            <strong>🛡️ Anti Protection</strong>
+            <div class="detail">Protects against an Anti Coin by converting it into a safer outcome.</div>
+          </div>
+
+          <div class="shop-card searchable" data-category="shop">
+            <strong>🎯 Force Tier</strong>
+            <div class="detail">Improves the next coin outcome by forcing or upgrading its tier.</div>
+          </div>
+
+          <div class="shop-card searchable" data-category="shop">
+            <strong>🍀 Lucky Coin</strong>
+            <div class="detail">Improves the next pull and can convert low-value outcomes upward.</div>
+          </div>
+
+          <div class="shop-card searchable" data-category="shop">
+            <strong>🎟️ Golden Ticket</strong>
+            <div class="detail">Forces a Gold+ style pull when activated.</div>
+          </div>
+
+          <div class="shop-card searchable" data-category="shop">
+            <strong>🎰 Jackpot Booster</strong>
+            <div class="detail">Adds value to the shared jackpot pool.</div>
+          </div>
+
+          <div class="shop-card searchable" data-category="shop">
+            <strong>👑 Kingmaker</strong>
+            <div class="detail">A premium special coin tied to powerful fortune outcomes.</div>
+          </div>
+        </div>
+      </div>
+    </details>
+
     <details class="section" id="commands" open>
       <summary>⌨️ Commands</summary>
       <div class="section-inner">
         <div class="command-grid">
-          <div class="command-card">
+          <div class="command-card searchable" data-category="commands">
             <div class="command">!forge</div>
             <div class="detail">Pull 1 coin from the Coin Forge.</div>
           </div>
 
-          <div class="command-card">
+          <div class="command-card searchable" data-category="commands">
             <div class="command">!forge 5</div>
             <div class="detail">Pull multiple coins, up to 5, if you have enough Resonance.</div>
           </div>
 
-          <div class="command-card">
+          <div class="command-card searchable" data-category="commands">
             <div class="command">!forge gamble</div>
             <div class="detail">Spend full Resonance for a risky gamble pull.</div>
           </div>
 
-          <div class="command-card">
+          <div class="command-card searchable" data-category="commands">
             <div class="command">!resonance</div>
             <div class="detail">Check your current Forge Resonance.</div>
           </div>
 
-          <div class="command-card">
+          <div class="command-card searchable" data-category="commands">
             <div class="command">!materials</div>
             <div class="detail">View your Forge materials.</div>
           </div>
 
-          <div class="command-card">
+          <div class="command-card searchable" data-category="commands">
             <div class="command">!stats</div>
             <div class="detail">View your Coin Forge profile, coins, XP, and progression.</div>
           </div>
 
-          <div class="command-card">
+          <div class="command-card searchable" data-category="commands">
             <div class="command">!title</div>
             <div class="detail">View or equip unlocked nameplate titles.</div>
           </div>
 
-          <div class="command-card">
+          <div class="command-card searchable" data-category="commands">
             <div class="command">!coinshop</div>
             <div class="detail">View boosts, effects, and special shop items.</div>
           </div>
 
-          <div class="command-card">
+          <div class="command-card searchable" data-category="commands">
             <div class="command">!leaderboardweekly</div>
             <div class="detail">View the weekly Coin Forge leaderboard.</div>
           </div>
         </div>
       </div>
     </details>
+
+    <section class="callout">
+      <h2>⚒️ Ready to use the Forge?</h2>
+      <p>Watch live and type <strong>!forge</strong> in chat to begin your Coin Forge progression.</p>
+      <p><a href="https://www.twitch.tv/DannyBiggs" target="_blank">Watch DannyBiggs on Twitch</a></p>
+    </section>
 
   </main>
 
@@ -1247,18 +1459,31 @@
 
   <script>
     const searchInput = document.getElementById("codexSearch");
+    const filterButtons = document.querySelectorAll(".filter-button");
+    const secretToggle = document.getElementById("secretToggle");
 
-    searchInput.addEventListener("input", function () {
+    let activeFilter = "all";
+
+    function applyFilters() {
       const searchTerm = searchInput.value.toLowerCase().trim();
-
-      const searchableCards = document.querySelectorAll(
-        ".achievement, .badge-card, .command-card"
-      );
+      const searchableCards = document.querySelectorAll(".searchable");
 
       searchableCards.forEach(function (card) {
         const cardText = card.innerText.toLowerCase();
+        const category = card.dataset.category || "";
+        const matchesSearch = cardText.includes(searchTerm);
 
-        if (cardText.includes(searchTerm)) {
+        let matchesFilter = true;
+
+        if (activeFilter !== "all") {
+          if (activeFilter === "badges" || activeFilter === "nameplates") {
+            matchesFilter = category === activeFilter;
+          } else {
+            matchesFilter = card.classList.contains(activeFilter);
+          }
+        }
+
+        if (matchesSearch && matchesFilter) {
           card.classList.remove("is-hidden");
 
           const parentDetails = card.closest("details");
@@ -1269,6 +1494,30 @@
           card.classList.add("is-hidden");
         }
       });
+    }
+
+    searchInput.addEventListener("input", applyFilters);
+
+    filterButtons.forEach(function (button) {
+      button.addEventListener("click", function () {
+        filterButtons.forEach(function (btn) {
+          btn.classList.remove("active");
+        });
+
+        button.classList.add("active");
+        activeFilter = button.dataset.filter;
+        applyFilters();
+      });
+    });
+
+    secretToggle.addEventListener("click", function () {
+      document.body.classList.toggle("secrets-hidden");
+
+      if (document.body.classList.contains("secrets-hidden")) {
+        secretToggle.textContent = "Show Secrets";
+      } else {
+        secretToggle.textContent = "Hide Secrets";
+      }
     });
   </script>
 </body>
