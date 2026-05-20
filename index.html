@@ -870,7 +870,74 @@
           transform: translateX(0px);
         }
       }
+
+      .forge-stage.cinematic-jackpot {
+        animation: jackpotOverload 0.9s ease-in-out;
+      }
       
+      @keyframes jackpotOverload {
+        0% { filter: brightness(1); }
+        25% { filter: brightness(1.6) saturate(1.5); }
+        50% { filter: brightness(0.85) saturate(1.2); }
+        75% { filter: brightness(1.4) saturate(1.6); }
+        100% { filter: brightness(1); }
+      }
+      
+      .forge-stage.cinematic-cursed {
+        animation: cursedGlitch 0.9s ease-in-out;
+      }
+      
+      @keyframes cursedGlitch {
+        0% { filter: brightness(1); transform: translateX(0); }
+        15% { filter: brightness(0.65) saturate(1.8); transform: translateX(-4px); }
+        30% { filter: brightness(1.15) saturate(1.4); transform: translateX(4px); }
+        45% { filter: brightness(0.75) saturate(2); transform: translateX(-3px); }
+        60% { filter: brightness(1.25) saturate(1.5); transform: translateX(3px); }
+        100% { filter: brightness(1); transform: translateX(0); }
+      }
+      
+      .forge-stage.cinematic-mythic {
+        animation: mythicBloom 1.1s ease-in-out;
+      }
+      
+      @keyframes mythicBloom {
+        0% { filter: brightness(1) saturate(1); }
+        30% { filter: brightness(1.7) saturate(2); }
+        60% { filter: brightness(1.2) saturate(1.6); }
+        100% { filter: brightness(1) saturate(1); }
+      }
+      
+      .forge-stage.cinematic-legendary {
+        animation: legendaryBurst 0.85s ease-in-out;
+      }
+      
+      @keyframes legendaryBurst {
+        0% { filter: brightness(1); }
+        35% { filter: brightness(1.45) saturate(1.4); }
+        100% { filter: brightness(1); }
+      }
+      
+      .forge-result.cinematic-text {
+        animation: cinematicTextPop 0.45s ease-out;
+      }
+      
+      @keyframes cinematicTextPop {
+        0% {
+          transform: translateX(-50%) scale(0.9);
+          opacity: 0.65;
+        }
+      
+        70% {
+          transform: translateX(-50%) scale(1.08);
+          opacity: 1;
+        }
+      
+        100% {
+          transform: translateX(-50%) scale(1);
+          opacity: 1;
+        }
+      }
+    
       .forge-stage.reveal-common {
         box-shadow:
           0 0 20px rgba(180,180,180,0.10),
@@ -2218,10 +2285,51 @@
       "reveal-legendary",
       "reveal-mythic",
       "reveal-cursed",
-      "impact"
+      "impact",
+      "cinematic-jackpot",
+      "cinematic-cursed",
+      "cinematic-mythic",
+      "cinematic-legendary"
     );
+
+forgeResult.classList.remove("cinematic-text");
   }
+
+  async function playFinalCinematic(coin) {
+    forgeResult.classList.remove("cinematic-text");
   
+    if (coin.name === "Jackpot Booster") {
+      forgeStage.classList.add("cinematic-jackpot");
+      forgeResult.innerHTML = "💰 JACKPOT BOOSTER!";
+      forgeResult.classList.add("cinematic-text");
+      await wait(550);
+      return;
+    }
+  
+    if (coin.name === "Anti Coin") {
+      forgeStage.classList.add("cinematic-cursed");
+      forgeResult.innerHTML = "💀 The forge rejects the offering...";
+      forgeResult.classList.add("cinematic-text");
+      await wait(550);
+      return;
+    }
+  
+    if (coin.name === "Rainbow Coin" || coin.name === "Kingmaker Coin") {
+      forgeStage.classList.add("cinematic-mythic");
+      forgeResult.innerHTML = `🌈 MYTHIC REVEAL — ${coin.name}!`;
+      forgeResult.classList.add("cinematic-text");
+      await wait(650);
+      return;
+    }
+  
+    if (coin.name === "Diamond Coin") {
+      forgeStage.classList.add("cinematic-legendary");
+      forgeResult.innerHTML = `💎 LEGENDARY REVEAL — ${coin.name}!`;
+      forgeResult.classList.add("cinematic-text");
+      await wait(500);
+    }
+  }
+    
   function highestRarityClass(results) {
     const priority = {
       common: 1,
@@ -2288,6 +2396,8 @@
   slot.src = finalCoin.file;
   slot.classList.remove("spinning");
   slot.classList.add("landed");
+    
+  await playFinalCinematic(finalCoin);
 
   forgeStage.classList.add(`reveal-${finalCoin.className}`, "impact");
 
