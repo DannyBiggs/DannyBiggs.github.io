@@ -1121,7 +1121,9 @@
 
     async function runForgeRevealExternal(event) {
       clearRevealClasses();
-
+      
+      forgeStage.classList.add("visible");
+      
       const rawCoins = Array.isArray(event.coins) ? event.coins : [];
       const results = rawCoins.map(getCoinDefinition);
       const pullCount = Math.max(1, Math.min(5, Number(event.pullCount || results.length || 1)));
