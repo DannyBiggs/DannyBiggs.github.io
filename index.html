@@ -1192,19 +1192,36 @@
       }
 
       .cinematic-burst.rainbow {
-        width: 210px;
-        height: 210px;
-        border-radius: 0;
+        width: 240px;
+        height: 240px;
+        border-radius: 50%;
+      
         background:
-          linear-gradient(25deg, transparent 42%, rgba(255,70,70,0.34) 48%, transparent 56%),
-          linear-gradient(75deg, transparent 42%, rgba(255,220,70,0.30) 48%, transparent 56%),
-          linear-gradient(125deg, transparent 42%, rgba(80,255,120,0.28) 48%, transparent 56%),
-          linear-gradient(175deg, transparent 42%, rgba(80,220,255,0.30) 48%, transparent 56%),
-          linear-gradient(230deg, transparent 42%, rgba(170,90,255,0.30) 48%, transparent 56%),
-          linear-gradient(300deg, transparent 42%, rgba(255,70,200,0.28) 48%, transparent 56%);
-        clip-path: none;
-        filter: blur(12px);
-        opacity: 0.78;
+          radial-gradient(circle,
+            rgba(255,255,255,0.16) 0%,
+            rgba(255,255,255,0.08) 16%,
+            transparent 34%),
+      
+          conic-gradient(
+            from 0deg,
+            rgba(255,70,70,0.52),
+            rgba(255,180,70,0.50),
+            rgba(255,255,90,0.48),
+            rgba(80,255,120,0.48),
+            rgba(80,220,255,0.50),
+            rgba(120,140,255,0.50),
+            rgba(190,90,255,0.52),
+            rgba(255,70,200,0.50),
+            rgba(255,70,70,0.52)
+          );
+      
+        filter:
+          blur(20px)
+          saturate(1.35)
+          brightness(1.18);
+      
+        mix-blend-mode: screen;
+        opacity: 0.52;
       }
     
       .cinematic-burst.mythic {
