@@ -604,7 +604,7 @@
   </style>
 </head>
 
-<body class="hide-status">
+<body>
   <div class="embers" aria-hidden="true">
     <span class="ember"></span>
     <span class="ember"></span>
@@ -1195,7 +1195,11 @@
       client.on("General.Custom", handleStreamerbotMessage);
 
       client.on("connected", () => {
-        connectionStatus.textContent = "Connected to Streamer.bot";
+          connectionStatus.textContent = "Connected to Streamer.bot";
+      
+          setTimeout(() => {
+              document.body.classList.add("hide-status");
+          }, 2000);
       });
 
       client.on("disconnected", () => {
