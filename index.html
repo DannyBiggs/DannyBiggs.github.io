@@ -1203,39 +1203,29 @@
       }
 
       .cinematic-burst.rainbow {
-        width: 230px;
-        height: 230px;
+        width: 210px;
+        height: 210px;
+        border-radius: 50%;
         background:
+          radial-gradient(circle,
+            rgba(255,255,255,0.42) 0%,
+            rgba(255,80,200,0.34) 18%,
+            rgba(80,220,255,0.32) 36%,
+            rgba(80,255,120,0.28) 52%,
+            rgba(255,220,70,0.20) 66%,
+            transparent 78%),
           conic-gradient(
-            from 0deg,
-            rgba(255, 60, 60, 0.90),
-            rgba(255, 180, 60, 0.90),
-            rgba(255, 255, 80, 0.90),
-            rgba(80, 255, 120, 0.90),
-            rgba(80, 220, 255, 0.90),
-            rgba(150, 90, 255, 0.90),
-            rgba(255, 80, 220, 0.90),
-            rgba(255, 60, 60, 0.90)
+            from 25deg,
+            rgba(255, 70, 70, 0.28),
+            rgba(255, 220, 70, 0.26),
+            rgba(80, 255, 120, 0.24),
+            rgba(80, 220, 255, 0.26),
+            rgba(170, 90, 255, 0.28),
+            rgba(255, 70, 200, 0.26),
+            rgba(255, 70, 70, 0.28)
           );
-        clip-path: polygon(
-          50% 0%,
-          58% 30%,
-          82% 10%,
-          70% 38%,
-          100% 50%,
-          70% 62%,
-          82% 90%,
-          58% 70%,
-          50% 100%,
-          42% 70%,
-          18% 90%,
-          30% 62%,
-          0% 50%,
-          30% 38%,
-          18% 10%,
-          42% 30%
-        );
-        filter: blur(8px);
+        clip-path: none;
+        filter: blur(14px);
       }
     
       .cinematic-burst.mythic {
@@ -1263,17 +1253,17 @@
       @keyframes burstPop {
         0% {
           opacity: 0;
-          transform: translate(-50%, -50%) scale(0.15) rotate(0deg);
+          transform: translate(-50%, -50%) scale(0.25) rotate(0deg);
         }
       
-        28% {
-          opacity: 0.95;
-          transform: translate(-50%, -50%) scale(1.05) rotate(18deg);
+        30% {
+          opacity: 0.78;
+          transform: translate(-50%, -50%) scale(1.05) rotate(12deg);
         }
       
         100% {
           opacity: 0;
-          transform: translate(-50%, -50%) scale(2.35) rotate(42deg);
+          transform: translate(-50%, -50%) scale(2.1) rotate(26deg);
         }
       }
     
