@@ -743,6 +743,105 @@
         bottom: 12px;
       }
 
+      .forge-simulator {
+        text-align: center;
+      }
+      
+      .forge-stage {
+        position: relative;
+        width: 100%;
+        max-width: 900px;
+        margin: auto;
+        aspect-ratio: 16 / 9;
+        overflow: hidden;
+        border-radius: 18px;
+        border: 2px solid #3a2a18;
+        background: radial-gradient(circle at center, #1a120c 0%, #090909 100%);
+        box-shadow: 0 0 30px rgba(255,179,71,0.18);
+      }
+      
+      .forge-background {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        image-rendering: pixelated;
+        pointer-events: none;
+      }
+      
+      .forge-glow {
+        position: absolute;
+        left: 50%;
+        top: 57%;
+        width: 140px;
+        height: 140px;
+        transform: translate(-50%, -50%);
+        border-radius: 50%;
+        background:
+          radial-gradient(circle,
+            rgba(255,140,40,0.55) 0%,
+            rgba(255,140,40,0.18) 45%,
+            transparent 75%);
+        filter: blur(12px);
+        animation: forgePulse 2s ease-in-out infinite alternate;
+      }
+      
+      @keyframes forgePulse {
+        from {
+          opacity: 0.6;
+          transform: translate(-50%, -50%) scale(0.92);
+        }
+        to {
+          opacity: 1;
+          transform: translate(-50%, -50%) scale(1.12);
+        }
+      }
+      
+      .sim-coin {
+        position: absolute;
+        left: 50%;
+        top: 57%;
+        width: 120px;
+        height: 120px;
+        object-fit: contain;
+        image-rendering: pixelated;
+        transform: translate(-50%, -50%);
+        filter:
+          drop-shadow(0 0 18px rgba(255,179,71,0.6));
+        transition: transform 0.2s ease;
+      }
+      
+      .sim-coin.spinning {
+        animation: forgeSpin 0.08s linear infinite;
+      }
+      
+      @keyframes forgeSpin {
+        from {
+          transform: translate(-50%, -50%) rotateY(0deg);
+        }
+        to {
+          transform: translate(-50%, -50%) rotateY(360deg);
+        }
+      }
+      
+      .forge-result {
+        position: absolute;
+        left: 50%;
+        bottom: 5%;
+        transform: translateX(-50%);
+        background: rgba(0,0,0,0.72);
+        border: 1px solid #c6842f;
+        border-radius: 10px;
+        padding: 10px 16px;
+        color: #fff;
+        font-weight: bold;
+        font-size: 18px;
+        min-width: 280px;
+        text-align: center;
+        box-shadow: 0 0 14px rgba(255,179,71,0.18);
+      }
+      
       .simulator-panel {
         grid-template-columns: 1fr;
       }
@@ -853,18 +952,37 @@
     </section>
 
     <section class="section" id="simulator">
-      <h2>🎲 Coin Pull Simulator</h2>
-      <div class="simulator-panel">
-        <div class="sim-coin-display">
-          <img id="simCoinImage" src="images/coins/bronze.gif" alt="Simulated coin result">
-        </div>
-        <div>
-          <div class="sim-result" id="simResult">Bronze Coin</div>
-          <div class="sim-text" id="simText">Click the button to preview a fake Coin Forge pull. This does not affect stream progress — it is only a guide preview.</div>
-          <div class="sim-actions">
-            <button class="forge-button" id="forgeSimButton">⚒️ Forge Coin</button>
+      <h2>🎰 Coin Pull Simulator</h2>
+    
+      <div class="forge-simulator">
+    
+        <div class="forge-stage">
+    
+          <img
+            class="forge-background"
+            src="images/ui/forge_background.png"
+            alt="Coin Forge"
+          >
+    
+          <div class="forge-glow"></div>
+    
+          <img
+            id="simCoin"
+            class="sim-coin"
+            src="images/coins/bronze.gif"
+            alt="Forged Coin"
+          >
+    
+          <div id="forgeResult" class="forge-result">
+            Pull fate from the Coin Forge...
           </div>
+    
         </div>
+    
+        <button id="forgeButton" class="forge-button">
+          ⚒️ Forge Coin
+        </button>
+    
       </div>
     </section>
     <section class="section">
@@ -2016,6 +2134,137 @@
           simText.textContent = result.text;
         });
       }
+    </script>
+    <script>
+    const forgeButton = document.getElementById("forgeButton");
+    const simCoin = document.getElementById("simCoin");
+    const forgeResult = document.getElementById("forgeResult");
+    
+    const forgeCoins = [
+      {
+        name: "Wood Coin",
+        file: "images/coins/wood.gif",
+        rarity: "Common"
+      },
+      {
+        name: "Bronze Coin",
+        file: "images/coins/bronze.gif",
+        rarity: "Common"
+      },
+      {
+        name: "Silver Coin",
+        file: "images/coins/silver.gif",
+        rarity: "Rare"
+      },
+      {
+        name: "Gold Coin",
+        file: "images/coins/gold.gif",
+        rarity: "Epic"
+      },
+      {
+        name: "Diamond Coin",
+        file: "images/coins/diamond.gif",
+        rarity: "Legendary"
+      },
+      {
+        name: "Rainbow Coin",
+        file: "images/coins/rainbow.gif",
+        rarity: "Mythic"
+      },
+      {
+        name: "Anti Coin",
+        file: "images/coins/anti.gif",
+        rarity: "Cursed"
+      },
+      {
+        name: "Lucky Coin",
+        file: "images/coins/lucky.gif",
+        rarity: "Rare"
+      },
+      {
+        name: "Jackpot Booster",
+        file: "images/coins/Jackpot.gif",
+        rarity: "Legendary"
+      },
+      {
+        name: "Kingmaker Coin",
+        file: "images/coins/kingmaker.gif",
+        rarity: "Mythic"
+      }
+    ];
+    
+    function weightedRoll() {
+      const roll = Math.random() * 10000;
+    
+      if (roll < 5)
+        return forgeCoins.find(c => c.name === "Rainbow Coin");
+    
+      if (roll < 20)
+        return forgeCoins.find(c => c.name === "Kingmaker Coin");
+    
+      if (roll < 60)
+        return forgeCoins.find(c => c.name === "Diamond Coin");
+    
+      if (roll < 120)
+        return forgeCoins.find(c => c.name === "Jackpot Booster");
+    
+      if (roll < 220)
+        return forgeCoins.find(c => c.name === "Anti Coin");
+    
+      if (roll < 800)
+        return forgeCoins.find(c => c.name === "Gold Coin");
+    
+      if (roll < 2200)
+        return forgeCoins.find(c => c.name === "Silver Coin");
+    
+      if (roll < 2800)
+        return forgeCoins.find(c => c.name === "Lucky Coin");
+    
+      if (roll < 5200)
+        return forgeCoins.find(c => c.name === "Wood Coin");
+    
+      return forgeCoins.find(c => c.name === "Bronze Coin");
+    }
+    
+    forgeButton.addEventListener("click", () => {
+    
+      forgeButton.disabled = true;
+    
+      simCoin.classList.add("spinning");
+    
+      forgeResult.innerText = "⚒️ Forging...";
+    
+      let spinCount = 0;
+    
+      const spinInterval = setInterval(() => {
+    
+        const randomCoin =
+          forgeCoins[Math.floor(Math.random() * forgeCoins.length)];
+    
+        simCoin.src = randomCoin.file;
+    
+        spinCount++;
+    
+      }, 75);
+    
+      setTimeout(() => {
+    
+        clearInterval(spinInterval);
+    
+        const finalCoin = weightedRoll();
+    
+        simCoin.src = finalCoin.file;
+    
+        simCoin.classList.remove("spinning");
+    
+        forgeResult.innerHTML =
+          `${finalCoin.rarity} • ${finalCoin.name}`;
+    
+        forgeButton.disabled = false;
+    
+      }, 2200);
+    
+    });
     </script>
 </body>
 </html>
