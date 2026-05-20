@@ -760,9 +760,7 @@
         object-fit: contain;
         image-rendering: pixelated;
         transform: translate(-50%, -50%);
-        filter:
-          drop-shadow(0 0 16px rgba(255,179,71,0.7))
-          drop-shadow(0 0 26px rgba(255,110,20,0.35));
+        filter: none;
         transition: transform 0.2s ease;
         z-index: 5;
       }
@@ -786,6 +784,7 @@
         transform: none;
         width: clamp(72px, 10vw, 140px);
         height: clamp(72px, 10vw, 140px);
+        background: transparent;
       }
       
       .slot-coin.spinning {
