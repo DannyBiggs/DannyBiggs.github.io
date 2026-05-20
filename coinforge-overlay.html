@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coin Forge Overlay</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@streamerbot/client/dist/streamerbot-client.js"></script>
+
+  <style>
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      color: #e8d7a2;
+      position: relative;
+    }
+
+    .overlay-root {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .embers {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .ember {
+      position: absolute;
+      bottom: -20px;
+      width: 4px;
+      height: 4px;
+      background: #ffb347;
+      border-radius: 50%;
+      opacity: 0.45;
+      box-shadow: 0 0 10px rgba(255,179,71,0.8);
+      animation: riseEmber linear infinite;
+    }
+
+    .ember:nth-child(1) { left: 8%; animation-duration: 9s; animation-delay: 0s; }
+    .ember:nth-child(2) { left: 20%; animation-duration: 13s; animation-delay: 2s; }
+    .ember:nth-child(3) { left: 36%; animation-duration: 11s; animation-delay: 5s; }
+    .ember:nth-child(4) { left: 52%; animation-duration: 15s; animation-delay: 1s; }
+    .ember:nth-child(5) { left: 68%; animation-duration: 10s; animation-delay: 4s; }
+    .ember:nth-child(6) { left: 86%; animation-duration: 14s; animation-delay: 3s; }
+
+    @keyframes riseEmber {
+      0% { transform: translateY(0) scale(0.7); opacity: 0; }
+      15% { opacity: 0.6; }
+      100% { transform: translateY(-110vh) scale(1.4); opacity: 0; }
+    }
+
+    .forge-simulator {
+      width: min(96vw, 1280px);
+      text-align: center;
+      pointer-events: none;
+    }
+
+    .forge-stage {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      margin: 0 auto;
+      overflow: hidden;
+      border-radius: 16px;
+      border: 2px solid rgba(58, 42, 24, 0.85);
+      background: rgba(5, 5, 5, 0.82);
+      box-shadow:
+        0 0 28px rgba(255,179,71,0.16),
+        inset 0 0 60px rgba(255,120,32,0.08);
+      opacity: 0;
+      transform: scale(0.96);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    .forge-stage.visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .forge-background {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      image-rendering: pixelated;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .forge-light-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 2;
+      opacity: 0.55;
+      background:
+        radial-gradient(circle at 50% 34%, rgba(255, 115, 20, 0.55), transparent 7%),
+        radial-gradient(circle at 50% 84%, rgba(255, 95, 20, 0.45), transparent 10%),
+        radial-gradient(circle at 16% 41%, rgba(255, 130, 25, 0.38), transparent 8%),
+        radial-gradient(circle at 84% 41%, rgba(255, 130, 25, 0.38), transparent 8%),
+        radial-gradient(circle at 61% 72%, rgba(255, 85, 15, 0.35), transparent 8%);
+      mix-blend-mode: screen;
+      filter: blur(8px);
+      animation: forgeLightWake 2.2s ease-in-out infinite alternate;
+    }
+
+    @keyframes forgeLightWake {
+      from { opacity: 0.35; transform: scale(0.99); }
+      to { opacity: 0.75; transform: scale(1.015); }
+    }
+
+    .forge-glow {
+      position: absolute;
+      left: 50%;
+      top: 31%;
+      width: 120px;
+      height: 120px;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background:
+        radial-gradient(circle,
+          rgba(255,140,40,0.60) 0%,
+          rgba(255,140,40,0.18) 45%,
+          transparent 75%);
+      filter: blur(12px);
+      animation: forgePulse 2s ease-in-out infinite alternate;
+      z-index: 3;
+    }
+
+    @keyframes forgePulse {
+      from { opacity: 0.55; transform: translate(-50%, -50%) scale(0.9); }
+      to { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
+    }
+
+    .slot-row {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 72%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: clamp(8px, 1.2vw, 18px);
+      z-index: 5;
+    }
+
+    .slot-wrap {
+      position: relative;
+      width: clamp(72px, 10vw, 150px);
+      height: clamp(72px, 10vw, 150px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .slot-wrap::before {
+      content: "";
+      position: absolute;
+      inset: -4%;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+      filter: blur(14px);
+      transform: scale(1.02);
+    }
+
+    .slot-wrap img {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      image-rendering: pixelated;
+      z-index: 1;
+    }
+
+    .sim-coin {
+      object-fit: contain;
+      image-rendering: pixelated;
+      filter: none;
+      transition: transform 0.2s ease;
+    }
+
+    .slot-coin.spinning {
+      animation: slotSpin 0.34s linear infinite;
+    }
+
+    @keyframes slotSpin {
+      from { transform: rotateY(0deg) scale(1); }
+      to { transform: rotateY(360deg) scale(1.08); }
+    }
+
+    .slot-coin.landed {
+      animation: slotLand 0.35s ease-out;
+    }
+
+    @keyframes slotLand {
+      0% { transform: scale(1.28); }
+      40% { transform: scale(0.92); }
+      70% { transform: scale(1.08); }
+      100% { transform: scale(1); }
+    }
+
+    .slot-coin.anticipating {
+      animation: slotAnticipation 0.42s ease-in-out infinite alternate;
+    }
+
+    @keyframes slotAnticipation {
+      from {
+        transform: scale(1);
+        filter: brightness(1.1) drop-shadow(0 0 14px rgba(255, 220, 120, 0.50));
+      }
+      to {
+        transform: scale(1.16);
+        filter: brightness(1.75) drop-shadow(0 0 30px rgba(255, 255, 255, 0.85));
+      }
+    }
+
+    .slot-coin.near-miss {
+      animation: slotNearMissFlash 0.18s ease-in-out infinite alternate;
+    }
+
+    @keyframes slotNearMissFlash {
+      from {
+        transform: scale(1);
+        filter: brightness(1) drop-shadow(0 0 12px rgba(255,180,60,0.45));
+      }
+      to {
+        transform: scale(1.12);
+        filter: brightness(1.45) drop-shadow(0 0 26px rgba(255,255,255,0.75));
+      }
+    }
+
+    .slot-wrap.landed-common::before {
+      opacity: 0.28;
+      background: radial-gradient(circle, rgba(220,220,220,0.36) 0%, rgba(220,220,220,0.22) 22%, rgba(220,220,220,0.12) 42%, rgba(220,220,220,0.04) 58%, transparent 70%);
+    }
+
+    .slot-wrap.landed-rare::before {
+      opacity: 0.62;
+      background: radial-gradient(circle, rgba(120,200,255,1.0) 0%, rgba(90,170,255,0.82) 18%, rgba(70,150,255,0.55) 36%, rgba(40,120,255,0.35) 50%, rgba(20,90,255,0.08) 62%, transparent 72%);
+    }
+
+    .slot-wrap.landed-epic::before {
+      opacity: 0.66;
+      background: radial-gradient(circle, rgba(220,140,255,1.0) 0%, rgba(190,110,255,0.84) 18%, rgba(170,80,255,0.58) 36%, rgba(140,50,255,0.36) 50%, rgba(120,20,255,0.08) 62%, transparent 72%);
+    }
+
+    .slot-wrap.landed-legendary::before {
+      opacity: 0.76;
+      background: radial-gradient(circle, rgba(255,235,120,1.0) 0%, rgba(255,210,100,0.82) 18%, rgba(255,180,50,0.55) 36%, rgba(255,160,20,0.35) 50%, rgba(255,140,0,0.08) 62%, transparent 72%);
+    }
+
+    .slot-wrap.landed-mythic::before {
+      opacity: 0.82;
+      background: radial-gradient(circle, rgba(255,255,180,1.0) 0%, rgba(255,180,80,0.88) 18%, rgba(255,90,40,0.62) 36%, rgba(255,40,20,0.40) 50%, rgba(255,0,0,0.10) 62%, transparent 74%);
+    }
+
+    .slot-wrap.landed-cursed::before {
+      opacity: 0.82;
+      background: radial-gradient(circle, rgba(180,240,255,1.0) 0%, rgba(90,180,255,0.88) 18%, rgba(40,120,255,0.62) 36%, rgba(20,70,255,0.40) 50%, rgba(0,30,255,0.10) 62%, transparent 74%);
+    }
+
+    .forge-stage.impact {
+      animation: stageImpact 0.28s ease-out !important;
+    }
+
+    @keyframes stageImpact {
+      0% { transform: translateX(0px); }
+      20% { transform: translateX(-5px); }
+      40% { transform: translateX(5px); }
+      60% { transform: translateX(-3px); }
+      80% { transform: translateX(3px); }
+      100% { transform: translateX(0px); }
+    }
+
+    .forge-impact-flash,
+    .forge-corruption-wave,
+    .forge-bloom {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0;
+      z-index: 3;
+    }
+
+    .forge-impact-flash.active {
+      animation: forgeImpactFlash 420ms ease-out;
+    }
+
+    @keyframes forgeImpactFlash {
+      0% {
+        opacity: 0;
+        background: radial-gradient(circle, rgba(255, 235, 170, 0.70), transparent 52%);
+      }
+      30% { opacity: 1; }
+      100% {
+        opacity: 0;
+        background: radial-gradient(circle, rgba(255, 170, 40, 0.15), transparent 70%);
+      }
+    }
+
+    .forge-bloom.mythic {
+      animation: forgeMythicBloom 1.15s ease-out;
+    }
+
+    @keyframes forgeMythicBloom {
+      0% { opacity: 0; box-shadow: inset 0 0 0 rgba(255, 180, 40, 0); }
+      35% {
+        opacity: 1;
+        box-shadow:
+          inset 0 0 90px rgba(255, 190, 60, 0.50),
+          inset 0 0 150px rgba(255, 110, 20, 0.25);
+      }
+      100% { opacity: 0; box-shadow: inset 0 0 20px rgba(255, 120, 20, 0); }
+    }
+
+    .forge-corruption-wave.active {
+      animation: forgeCorruptionWave 900ms ease-out;
+    }
+
+    @keyframes forgeCorruptionWave {
+      0% {
+        opacity: 0;
+        transform: scale(0.65);
+        background: radial-gradient(circle, rgba(255, 0, 0, 0.50), transparent 28%);
+      }
+      35% { opacity: 1; }
+      100% {
+        opacity: 0;
+        transform: scale(1.25);
+        background: radial-gradient(circle, rgba(90, 0, 0, 0.30), transparent 72%);
+      }
+    }
+
+    .slot-aura {
+      position: absolute;
+      width: 230px;
+      height: 230px;
+      border-radius: 50%;
+      pointer-events: none;
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.85);
+      z-index: 4;
+    }
+
+    .slot-aura.active {
+      animation: slotAuraLinger 1.35s ease-out forwards;
+    }
+
+    .slot-aura.gold {
+      background: radial-gradient(circle, rgba(255, 200, 70, 0.55), transparent 70%);
+    }
+
+    .slot-aura.diamond {
+      background: radial-gradient(circle, rgba(120, 240, 255, 0.55), transparent 70%);
+    }
+
+    .slot-aura.lucky {
+      background: radial-gradient(circle, rgba(120, 255, 90, 0.55), rgba(255, 220, 80, 0.25), transparent 70%);
+    }
+
+    .slot-aura.jackpot {
+      background: radial-gradient(circle, rgba(255, 45, 45, 0.60), rgba(80, 0, 0, 0.35), transparent 70%);
+    }
+
+    .slot-aura.kingmaker {
+      background: radial-gradient(circle, rgba(255, 190, 60, 0.45) 0%, rgba(255, 120, 25, 0.22) 32%, rgba(255, 90, 20, 0.08) 52%, transparent 72%);
+    }
+
+    .slot-aura.anti {
+      background: radial-gradient(circle, rgba(90, 185, 255, 0.65), rgba(20, 90, 255, 0.30), transparent 70%);
+    }
+
+    @keyframes slotAuraLinger {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.65); }
+      25% { opacity: 0.9; transform: translate(-50%, -50%) scale(1.05); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(1.45); }
+    }
+
+    .cinematic-burst {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 180px;
+      height: 180px;
+      transform: translate(-50%, -50%) scale(0.2);
+      border-radius: 50%;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 4;
+    }
+
+    .cinematic-burst.active {
+      animation: burstPop 0.75s ease-out;
+    }
+
+    .cinematic-burst.lucky {
+      background: radial-gradient(circle, rgba(150, 255, 90, 0.88) 0%, rgba(60, 210, 55, 0.58) 34%, rgba(255, 215, 90, 0.30) 58%, transparent 76%);
+    }
+
+    .cinematic-burst.jackpot {
+      background: radial-gradient(circle, rgba(255, 45, 45, 0.95) 0%, rgba(170, 0, 0, 0.65) 34%, rgba(20, 0, 0, 0.42) 58%, transparent 76%);
+    }
+
+    .cinematic-burst.cursed {
+      background: radial-gradient(circle, rgba(90, 185, 255, 0.95) 0%, rgba(35, 110, 255, 0.60) 36%, rgba(0, 35, 110, 0.40) 62%, transparent 76%);
+    }
+
+    .cinematic-burst.rainbow {
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.08) 16%, transparent 34%),
+        conic-gradient(from 0deg, rgba(255,70,70,0.52), rgba(255,180,70,0.50), rgba(255,255,90,0.48), rgba(80,255,120,0.48), rgba(80,220,255,0.50), rgba(120,140,255,0.50), rgba(190,90,255,0.52), rgba(255,70,200,0.50), rgba(255,70,70,0.52));
+      filter: blur(20px) saturate(1.35) brightness(1.18);
+      mix-blend-mode: screen;
+      opacity: 0.52;
+    }
+
+    .cinematic-burst.mythic {
+      background: conic-gradient(from 0deg, rgba(255, 220, 90, 0.90), rgba(255, 160, 30, 0.85), rgba(255, 110, 10, 0.75), rgba(255, 200, 55, 0.90), rgba(255, 145, 20, 0.85), rgba(255, 220, 90, 0.90));
+      filter: blur(10px);
+    }
+
+    .cinematic-burst.legendary {
+      background: radial-gradient(circle, rgba(180, 255, 255, 0.85) 0%, rgba(80, 220, 255, 0.45) 35%, transparent 70%);
+    }
+
+    @keyframes burstPop {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.25) rotate(0deg); }
+      30% { opacity: 0.78; transform: translate(-50%, -50%) scale(1.05) rotate(12deg); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(2.1) rotate(26deg); }
+    }
+
+    .forge-stage.cinematic-jackpot {
+      animation: jackpotOverload 0.9s ease-in-out;
+    }
+
+    @keyframes jackpotOverload {
+      0% { filter: brightness(1); }
+      25% { filter: brightness(1.6) saturate(1.5); }
+      50% { filter: brightness(0.85) saturate(1.2); }
+      75% { filter: brightness(1.4) saturate(1.6); }
+      100% { filter: brightness(1); }
+    }
+
+    .forge-stage.cinematic-cursed {
+      animation: cursedGlitch 0.9s ease-in-out;
+    }
+
+    @keyframes cursedGlitch {
+      0% { filter: brightness(1); transform: translateX(0); }
+      15% { filter: brightness(0.65) saturate(1.8); transform: translateX(-4px); }
+      30% { filter: brightness(1.15) saturate(1.4); transform: translateX(4px); }
+      45% { filter: brightness(0.75) saturate(2); transform: translateX(-3px); }
+      60% { filter: brightness(1.25) saturate(1.5); transform: translateX(3px); }
+      100% { filter: brightness(1); transform: translateX(0); }
+    }
+
+    .forge-stage.cinematic-mythic {
+      animation: mythicBloom 1.1s ease-in-out;
+    }
+
+    @keyframes mythicBloom {
+      0% { filter: brightness(1) saturate(1); }
+      30% { filter: brightness(1.7) saturate(2); }
+      60% { filter: brightness(1.2) saturate(1.6); }
+      100% { filter: brightness(1) saturate(1); }
+    }
+
+    .forge-stage.cinematic-legendary {
+      animation: legendaryBurst 0.85s ease-in-out;
+    }
+
+    @keyframes legendaryBurst {
+      0% { filter: brightness(1); }
+      35% { filter: brightness(1.45) saturate(1.4); }
+      100% { filter: brightness(1); }
+    }
+
+    .forge-stage.reveal-common {
+      box-shadow: 0 0 20px rgba(180,180,180,0.10), inset 0 0 50px rgba(255,255,255,0.03);
+    }
+
+    .forge-stage.reveal-rare {
+      box-shadow: 0 0 28px rgba(80,120,255,0.28), inset 0 0 70px rgba(80,120,255,0.08);
+    }
+
+    .forge-stage.reveal-epic {
+      box-shadow: 0 0 34px rgba(168,85,247,0.34), inset 0 0 80px rgba(168,85,247,0.10);
+    }
+
+    .forge-stage.reveal-legendary {
+      box-shadow: 0 0 42px rgba(255,179,71,0.45), inset 0 0 100px rgba(255,179,71,0.14);
+    }
+
+    .forge-stage.reveal-mythic {
+      animation: mythicPulse 1.4s ease-in-out infinite alternate;
+      box-shadow: 0 0 48px rgba(255,70,210,0.45), 0 0 90px rgba(120,80,255,0.25), inset 0 0 120px rgba(255,255,255,0.08);
+    }
+
+    @keyframes mythicPulse {
+      from { filter: saturate(1); }
+      to { filter: saturate(1.4) brightness(1.12); }
+    }
+
+    .forge-stage.reveal-cursed {
+      animation: cursedReveal 0.7s ease-in-out infinite alternate;
+      box-shadow: 0 0 40px rgba(255,0,0,0.38), inset 0 0 100px rgba(255,0,0,0.12);
+    }
+
+    @keyframes cursedReveal {
+      from { filter: brightness(0.95) saturate(1); }
+      to { filter: brightness(1.12) saturate(1.4); }
+    }
+
+    .forge-result {
+      position: absolute;
+      left: 50%;
+      bottom: 5%;
+      transform: translateX(-50%);
+      background: linear-gradient(180deg, rgba(18,18,18,0.92), rgba(6,6,6,0.96));
+      border: 2px solid rgba(255, 190, 90, 0.75);
+      border-radius: 10px;
+      padding: 10px 16px;
+      backdrop-filter: blur(6px);
+      letter-spacing: 0.02em;
+      color: #fff;
+      font-weight: bold;
+      font-size: clamp(14px, 1.7vw, 20px);
+      min-width: 260px;
+      max-width: 90%;
+      text-align: center;
+      box-shadow: 0 0 14px rgba(255,179,71,0.18);
+      z-index: 10;
+    }
+
+    .forge-result.cinematic-text {
+      animation: cinematicTextPop 0.45s ease-out;
+    }
+
+    @keyframes cinematicTextPop {
+      0% { transform: translateX(-50%) scale(0.9); opacity: 0.65; }
+      70% { transform: translateX(-50%) scale(1.08); opacity: 1; }
+      100% { transform: translateX(-50%) scale(1); opacity: 1; }
+    }
+
+    .forge-result.final-panel {
+      animation: finalPanelReveal 0.55s ease-out;
+      border-color: #ffd36a;
+      box-shadow: 0 0 22px rgba(255,179,71,0.35), inset 0 0 18px rgba(255,179,71,0.12);
+    }
+
+    .forge-result.final-common { border-color: rgba(190, 190, 190, 0.75); }
+    .forge-result.final-rare { border-color: rgba(80, 150, 255, 0.85); box-shadow: 0 0 22px rgba(80, 150, 255, 0.35); }
+    .forge-result.final-epic { border-color: rgba(180, 80, 255, 0.85); box-shadow: 0 0 24px rgba(180, 80, 255, 0.38); }
+    .forge-result.final-legendary { border-color: rgba(255, 210, 90, 0.90); box-shadow: 0 0 26px rgba(255, 190, 80, 0.42); }
+    .forge-result.final-mythic { border-color: rgba(255, 100, 220, 0.95); box-shadow: 0 0 28px rgba(255, 100, 220, 0.42), 0 0 42px rgba(120, 90, 255, 0.24); }
+    .forge-result.final-cursed { border-color: rgba(90, 185, 255, 0.95); box-shadow: 0 0 28px rgba(90, 185, 255, 0.45), 0 0 42px rgba(20, 90, 255, 0.22); }
+
+    @keyframes finalPanelReveal {
+      0% { opacity: 0; transform: translateX(-50%) scale(0.88); }
+      65% { opacity: 1; transform: translateX(-50%) scale(1.06); }
+      100% { opacity: 1; transform: translateX(-50%) scale(1); }
+    }
+
+    .connection-status {
+      position: fixed;
+      left: 16px;
+      bottom: 16px;
+      z-index: 50;
+      font-size: 13px;
+      color: rgba(255, 211, 106, 0.85);
+      background: rgba(8, 8, 8, 0.55);
+      border: 1px solid rgba(198, 132, 47, 0.4);
+      border-radius: 999px;
+      padding: 6px 10px;
+      opacity: 0.55;
+    }
+
+    body.hide-status .connection-status {
+      display: none;
+    }
+  </style>
+</head>
+
+<body class="hide-status">
+  <div class="embers" aria-hidden="true">
+    <span class="ember"></span>
+    <span class="ember"></span>
+    <span class="ember"></span>
+    <span class="ember"></span>
+    <span class="ember"></span>
+    <span class="ember"></span>
+  </div>
+
+  <div class="overlay-root">
+    <div class="forge-simulator">
+      <div class="forge-stage" id="forgeStage">
+        <img class="forge-background" src="images/ui/forge_background.png" alt="Coin Forge">
+        <div class="forge-light-overlay"></div>
+        <div class="forge-glow"></div>
+        <div id="forgeImpactFlash" class="forge-impact-flash"></div>
+        <div id="forgeCorruptionWave" class="forge-corruption-wave"></div>
+        <div id="forgeBloom" class="forge-bloom"></div>
+        <div id="cinematicBurst" class="cinematic-burst"></div>
+
+        <div class="slot-row" id="slotRow"></div>
+
+        <div id="forgeResult" class="forge-result">
+          Waiting for the Coin Forge...
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="connectionStatus" class="connection-status">Connecting to Streamer.bot...</div>
+
+  <script>
+    const forgeResult = document.getElementById("forgeResult");
+    const forgeStage = document.getElementById("forgeStage");
+    const slotRow = document.getElementById("slotRow");
+    const cinematicBurst = document.getElementById("cinematicBurst");
+    const forgeImpactFlash = document.getElementById("forgeImpactFlash");
+    const forgeCorruptionWave = document.getElementById("forgeCorruptionWave");
+    const forgeBloom = document.getElementById("forgeBloom");
+    const connectionStatus = document.getElementById("connectionStatus");
+
+    const slotLandSound = new Audio("sounds/slot-land.m4a");
+    slotLandSound.volume = 0.08;
+
+    const forgeCoins = [
+      { key: "Wood", name: "Wood Coin", file: "images/coins/wood.gif", rarity: "Common", className: "common" },
+      { key: "Bronze", name: "Bronze Coin", file: "images/coins/bronze.gif", rarity: "Common", className: "common" },
+      { key: "Silver", name: "Silver Coin", file: "images/coins/silver.gif", rarity: "Rare", className: "rare" },
+      { key: "Gold", name: "Gold Coin", file: "images/coins/gold.gif", rarity: "Epic", className: "epic" },
+      { key: "Diamond", name: "Diamond Coin", file: "images/coins/diamond.gif", rarity: "Legendary", className: "legendary" },
+      { key: "Rainbow", name: "Rainbow Coin", file: "images/coins/rainbow.gif", rarity: "Mythic", className: "mythic" },
+      { key: "Anti", name: "Anti Coin", file: "images/coins/anti.gif", rarity: "Cursed", className: "cursed" },
+      { key: "Lucky", name: "Lucky Coin", file: "images/coins/lucky.gif", rarity: "Rare", className: "rare" },
+      { key: "Jackpot Booster", name: "Jackpot Booster", file: "images/coins/jackpot.gif", rarity: "Legendary", className: "legendary" },
+      { key: "JackpotBooster", name: "Jackpot Booster", file: "images/coins/jackpot.gif", rarity: "Legendary", className: "legendary" },
+      { key: "Kingmaker", name: "Kingmaker Coin", file: "images/coins/kingmaker.gif", rarity: "Mythic", className: "mythic" }
+    ];
+
+    const shortNameMap = {
+      "Wood Coin": "🔥 Wood",
+      "Bronze Coin": "🟤 Bronze",
+      "Silver Coin": "⚪ Silver",
+      "Gold Coin": "🟡 Gold",
+      "Diamond Coin": "💎 Diamond",
+      "Rainbow Coin": "🌈 Rainbow",
+      "Anti Coin": "💀 Anti",
+      "Lucky Coin": "🍀 Lucky",
+      "Jackpot Booster": "🎰 Jackpot",
+      "Kingmaker Coin": "👑 Kingmaker"
+    };
+
+    const forgeEventQueue = [];
+    let forgeEventPlaying = false;
+
+    function wait(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    function playSlotLandSound() {
+      slotLandSound.currentTime = 0;
+      slotLandSound.play().catch(() => {});
+    }
+
+    function normalizeCoinName(name) {
+      if (!name) return "Bronze Coin";
+
+      const clean = String(name).trim();
+
+      if (clean.endsWith(" Coin") || clean === "Jackpot Booster") {
+        return clean;
+      }
+
+      if (clean === "JackpotBooster") return "Jackpot Booster";
+
+      return `${clean} Coin`;
+    }
+
+    function getCoinDefinition(rawCoin) {
+      const normalizedName = normalizeCoinName(rawCoin && rawCoin.name ? rawCoin.name : rawCoin);
+      const found = forgeCoins.find(coin =>
+        coin.name.toLowerCase() === normalizedName.toLowerCase() ||
+        coin.key.toLowerCase() === String(rawCoin && rawCoin.name ? rawCoin.name : rawCoin).toLowerCase()
+      );
+
+      if (found) {
+        return { ...found, raw: rawCoin || {} };
+      }
+
+      return { ...forgeCoins.find(c => c.name === "Bronze Coin"), raw: rawCoin || {} };
+    }
+
+    function randomCycleCoin() {
+      return forgeCoins[Math.floor(Math.random() * forgeCoins.length)];
+    }
+
+    function coinFileForSlot(coin, index) {
+      return `${coin.file}?slot=${index}&t=${Date.now()}-${Math.random()}`;
+    }
+
+    function restartClassAnimation(element, className) {
+      if (!element) return;
+      element.classList.remove(className);
+      void element.offsetWidth;
+      element.classList.add(className);
+    }
+
+    function triggerImpactFlash() {
+      restartClassAnimation(forgeImpactFlash, "active");
+    }
+
+    function triggerCorruptionWave() {
+      restartClassAnimation(forgeCorruptionWave, "active");
+    }
+
+    function triggerMythicBloom() {
+      restartClassAnimation(forgeBloom, "mythic");
+    }
+
+    function clearSlotLandedClasses(slot) {
+      const slotWrap = slot.closest(".slot-wrap");
+      if (!slotWrap) return;
+
+      slotWrap.classList.remove(
+        "landed-common",
+        "landed-rare",
+        "landed-epic",
+        "landed-legendary",
+        "landed-mythic",
+        "landed-cursed"
+      );
+    }
+
+    function clearCinematicStageClasses() {
+      forgeStage.classList.remove(
+        "cinematic-jackpot",
+        "cinematic-cursed",
+        "cinematic-mythic",
+        "cinematic-legendary"
+      );
+    }
+
+    function clearRevealClasses() {
+      forgeStage.classList.remove(
+        "reveal-common",
+        "reveal-rare",
+        "reveal-epic",
+        "reveal-legendary",
+        "reveal-mythic",
+        "reveal-cursed",
+        "impact",
+        "cinematic-jackpot",
+        "cinematic-cursed",
+        "cinematic-mythic",
+        "cinematic-legendary"
+      );
+
+      forgeResult.classList.remove(
+        "cinematic-text",
+        "final-panel",
+        "final-common",
+        "final-rare",
+        "final-epic",
+        "final-legendary",
+        "final-mythic",
+        "final-cursed"
+      );
+
+      cinematicBurst.className = "cinematic-burst";
+      forgeImpactFlash.className = "forge-impact-flash";
+      forgeCorruptionWave.className = "forge-corruption-wave";
+      forgeBloom.className = "forge-bloom";
+    }
+
+    function getAuraType(coin) {
+      if (coin.name === "Gold Coin") return "gold";
+      if (coin.name === "Diamond Coin") return "diamond";
+      if (coin.name === "Rainbow Coin") return "";
+      if (coin.name === "Lucky Coin") return "lucky";
+      if (coin.name === "Jackpot Booster") return "jackpot";
+      if (coin.name === "Kingmaker Coin") return "kingmaker";
+      if (coin.name === "Anti Coin") return "anti";
+      return "";
+    }
+
+    function triggerSlotAura(coin, slot) {
+      const auraType = getAuraType(coin);
+      if (!auraType) return;
+
+      const stageRect = forgeStage.getBoundingClientRect();
+      const slotRect = slot.getBoundingClientRect();
+
+      const aura = document.createElement("div");
+      aura.className = `slot-aura ${auraType}`;
+
+      aura.style.left = `${slotRect.left + slotRect.width / 2 - stageRect.left}px`;
+      aura.style.top = `${slotRect.top + slotRect.height / 2 - stageRect.top}px`;
+
+      forgeStage.appendChild(aura);
+
+      void aura.offsetWidth;
+      aura.classList.add("active");
+
+      setTimeout(() => aura.remove(), 1500);
+    }
+
+    function triggerBurst(type, slot) {
+      const stageRect = forgeStage.getBoundingClientRect();
+      const slotRect = slot.getBoundingClientRect();
+
+      const x = slotRect.left + slotRect.width / 2 - stageRect.left;
+      const y = slotRect.top + slotRect.height / 2 - stageRect.top;
+
+      cinematicBurst.style.left = `${x}px`;
+      cinematicBurst.style.top = `${y}px`;
+
+      cinematicBurst.className = `cinematic-burst ${type}`;
+      void cinematicBurst.offsetWidth;
+      cinematicBurst.classList.add("active");
+    }
+
+    async function playFinalCinematic(coin, slot) {
+      forgeResult.classList.remove("cinematic-text");
+
+      if (coin.raw && coin.raw.devoured) {
+        forgeStage.classList.add("cinematic-cursed");
+        triggerBurst("cursed", slot);
+        forgeResult.innerHTML = `💀 ${coin.name} was devoured!`;
+        forgeResult.classList.add("cinematic-text");
+        await wait(550);
+        return;
+      }
+
+      if (coin.raw && coin.raw.omenCorrupted) {
+        forgeStage.classList.add("cinematic-cursed");
+        triggerCorruptionWave();
+        triggerBurst("cursed", slot);
+        forgeResult.innerHTML = `👁️ ${coin.name} was corrupted!`;
+        forgeResult.classList.add("cinematic-text");
+        await wait(550);
+        return;
+      }
+
+      if (coin.name === "Lucky Coin") {
+        triggerBurst("lucky", slot);
+        forgeResult.innerHTML = "🍀 LUCKY COIN!";
+        forgeResult.classList.add("cinematic-text");
+        await wait(450);
+        return;
+      }
+
+      if (coin.name === "Jackpot Booster") {
+        forgeStage.classList.add("cinematic-jackpot");
+        triggerBurst("jackpot", slot);
+        forgeResult.innerHTML = "💰 JACKPOT BOOSTER!";
+        forgeResult.classList.add("cinematic-text");
+        await wait(550);
+        return;
+      }
+
+      if (coin.name === "Anti Coin") {
+        forgeStage.classList.add("cinematic-cursed");
+        triggerBurst("cursed", slot);
+        forgeResult.innerHTML = "💀 The forge rejects the offering...";
+        forgeResult.classList.add("cinematic-text");
+        await wait(550);
+        return;
+      }
+
+      if (coin.name === "Rainbow Coin") {
+        triggerBurst("rainbow", slot);
+        forgeResult.innerHTML = "🌈 RAINBOW COIN!";
+        forgeResult.classList.add("cinematic-text");
+        await wait(650);
+        return;
+      }
+
+      if (coin.name === "Kingmaker Coin") {
+        forgeStage.classList.add("cinematic-mythic");
+        triggerBurst("mythic", slot);
+        forgeResult.innerHTML = "👑 KINGMAKER COIN!";
+        forgeResult.classList.add("cinematic-text");
+        await wait(650);
+        return;
+      }
+
+      if (coin.name === "Diamond Coin") {
+        forgeStage.classList.add("cinematic-legendary");
+        triggerBurst("legendary", slot);
+        forgeResult.innerHTML = `💎 LEGENDARY REVEAL — ${coin.name}!`;
+        forgeResult.classList.add("cinematic-text");
+        await wait(500);
+      }
+    }
+
+    function shouldAnticipateReveal(coin) {
+      return (
+        coin.name === "Diamond Coin" ||
+        coin.name === "Rainbow Coin" ||
+        coin.name === "Kingmaker Coin" ||
+        coin.name === "Jackpot Booster" ||
+        coin.name === "Anti Coin" ||
+        (coin.raw && (coin.raw.omenCorrupted || coin.raw.devoured))
+      );
+    }
+
+    function highestRarityClass(results) {
+      const priority = {
+        common: 1,
+        rare: 2,
+        epic: 3,
+        legendary: 4,
+        mythic: 5,
+        cursed: 6
+      };
+
+      let highest = "common";
+
+      results.forEach(coin => {
+        if (priority[coin.className] > priority[highest]) {
+          highest = coin.className;
+        }
+      });
+
+      return highest;
+    }
+
+    function createSlots(count) {
+      slotRow.innerHTML = "";
+
+      for (let i = 0; i < count; i++) {
+        const slotWrap = document.createElement("div");
+        slotWrap.className = "slot-wrap";
+
+        const img = document.createElement("img");
+        img.className = "sim-coin slot-coin";
+        img.src = `images/coins/bronze.gif?slot=${i}&t=${Date.now()}-${Math.random()}`;
+        img.alt = "Forged Coin";
+
+        slotWrap.appendChild(img);
+        slotRow.appendChild(slotWrap);
+      }
+    }
+
+    async function spinSlot(slot, finalCoin, index, shouldLock) {
+      if (!shouldLock) {
+        const coin = randomCycleCoin();
+        slot.src = coinFileForSlot(coin, index);
+        return;
+      }
+
+      slot.classList.remove("near-miss", "anticipating");
+      clearSlotLandedClasses(slot);
+      slot.classList.add("spinning");
+
+      const nearMissPool = [
+        forgeCoins.find(c => c.name === "Diamond Coin"),
+        forgeCoins.find(c => c.name === "Rainbow Coin"),
+        forgeCoins.find(c => c.name === "Anti Coin"),
+        forgeCoins.find(c => c.name === "Jackpot Booster")
+      ];
+
+      const nearMiss = nearMissPool[Math.floor(Math.random() * nearMissPool.length)];
+
+      slot.src = coinFileForSlot(nearMiss, index);
+      slot.classList.add("near-miss");
+
+      forgeResult.innerText = `Slot ${index + 1} sparks violently...`;
+
+      await wait(180);
+
+      slot.classList.remove("near-miss");
+
+      if (shouldAnticipateReveal(finalCoin)) {
+        slot.classList.add("anticipating");
+        forgeResult.innerText = "The forge hesitates...";
+        await wait(360);
+        slot.classList.remove("anticipating");
+      } else {
+        await wait(80);
+      }
+
+      slot.src = coinFileForSlot(finalCoin, index);
+      slot.classList.remove("spinning");
+      clearSlotLandedClasses(slot);
+      slot.classList.add("landed");
+
+      playSlotLandSound();
+
+      const slotWrap = slot.closest(".slot-wrap");
+      if (slotWrap) {
+        slotWrap.classList.add(`landed-${finalCoin.className}`);
+      }
+
+      clearCinematicStageClasses();
+
+      forgeStage.classList.remove("impact");
+      void forgeStage.offsetWidth;
+
+      forgeStage.classList.add(`reveal-${finalCoin.className}`, "impact");
+
+      triggerImpactFlash();
+      triggerSlotAura(finalCoin, slot);
+
+      if (finalCoin.name === "Anti Coin" || (finalCoin.raw && finalCoin.raw.omenCorrupted)) {
+        triggerCorruptionWave();
+      }
+
+      if (finalCoin.name === "Kingmaker Coin") {
+        triggerMythicBloom();
+      }
+
+      const cinematicPromise = playFinalCinematic(finalCoin, slot);
+
+      await wait(300);
+
+      forgeStage.classList.remove("impact");
+
+      await cinematicPromise;
+
+      clearCinematicStageClasses();
+    }
+
+    function formatFinalResults(results, event) {
+      const coinText = results
+        .map(coin => shortNameMap[coin.name] || coin.name)
+        .join(" &nbsp; ✦ &nbsp; ");
+
+      const extras = [];
+
+      if (event.jackpotHit) {
+        extras.push(`💰 JACKPOT +${event.jackpotPayout || 0}`);
+      }
+
+      if (event.forgeIgnited) {
+        extras.push("🔥 FORGE IGNITED");
+      }
+
+      if (event.comboCount && event.comboCount >= 2) {
+        extras.push(`🔥 Combo x${event.comboCount}`);
+      }
+
+      return extras.length > 0
+        ? `${coinText}<br><span style="font-size:0.82em;color:#ffd36a">${extras.join(" &nbsp; | &nbsp; ")}</span>`
+        : coinText;
+    }
+
+    async function runForgeRevealExternal(event) {
+      clearRevealClasses();
+
+      const rawCoins = Array.isArray(event.coins) ? event.coins : [];
+      const results = rawCoins.map(getCoinDefinition);
+      const pullCount = Math.max(1, Math.min(5, Number(event.pullCount || results.length || 1)));
+
+      if (results.length === 0) return;
+
+      forgeStage.classList.add("visible");
+      createSlots(pullCount);
+
+      const slots = Array.from(document.querySelectorAll(".slot-coin"));
+
+      forgeResult.innerText =
+        pullCount === 1
+          ? `⚒️ ${event.user || "Someone"} calls to the Coin Forge...`
+          : `⚒️ ${event.user || "Someone"} prepares ${pullCount} coins...`;
+
+      for (let cycle = 0; cycle < 16; cycle++) {
+        slots.forEach((slot, index) => {
+          slot.classList.add("spinning");
+          spinSlot(slot, null, index, false);
+        });
+
+        await wait(cycle < 10 ? 55 : cycle < 14 ? 80 : 115);
+      }
+
+      const lockedSlots = new Set();
+
+      const continuedCycle = setInterval(() => {
+        slots.forEach((slot, index) => {
+          if (!lockedSlots.has(index)) {
+            const coin = randomCycleCoin();
+            slot.src = coinFileForSlot(coin, index);
+          }
+        });
+      }, 90);
+
+      for (let i = 0; i < slots.length; i++) {
+        lockedSlots.add(i);
+        await spinSlot(slots[i], results[i] || results[results.length - 1], i, true);
+        await wait(120);
+      }
+
+      clearInterval(continuedCycle);
+
+      const highestClass = highestRarityClass(results);
+
+      forgeStage.classList.add(`reveal-${highestClass}`);
+
+      forgeResult.innerHTML = formatFinalResults(results, event);
+
+      forgeResult.classList.remove(
+        "final-panel",
+        "final-common",
+        "final-rare",
+        "final-epic",
+        "final-legendary",
+        "final-mythic",
+        "final-cursed"
+      );
+
+      void forgeResult.offsetWidth;
+
+      forgeResult.classList.add("final-panel", `final-${highestClass}`);
+
+      await wait(event.displayMs || 2200);
+
+      forgeStage.classList.remove(
+        "reveal-common",
+        "reveal-rare",
+        "reveal-epic",
+        "reveal-legendary",
+        "reveal-mythic",
+        "reveal-cursed"
+      );
+
+      forgeStage.classList.remove("visible");
+
+      await wait(350);
+    }
+
+    async function processForgeQueue() {
+      if (forgeEventPlaying) return;
+
+      forgeEventPlaying = true;
+
+      while (forgeEventQueue.length > 0) {
+        const event = forgeEventQueue.shift();
+        await runForgeRevealExternal(event);
+      }
+
+      forgeEventPlaying = false;
+    }
+
+    function enqueueForgeEvent(event) {
+      forgeEventQueue.push(event);
+      processForgeQueue();
+    }
+
+    function handleStreamerbotMessage(message) {
+      const data = message && message.data ? message.data : message;
+
+      if (!data || data.type !== "coinForgePull") return;
+
+      enqueueForgeEvent(data);
+    }
+
+    function setupStreamerbotClient() {
+      if (typeof StreamerbotClient === "undefined") {
+        connectionStatus.textContent = "Streamer.bot client library not loaded.";
+        document.body.classList.remove("hide-status");
+        return;
+      }
+
+      const client = new StreamerbotClient({
+        host: "127.0.0.1",
+        port: 8080
+      });
+
+      client.on("General.Custom", handleStreamerbotMessage);
+
+      client.on("connected", () => {
+        connectionStatus.textContent = "Connected to Streamer.bot";
+      });
+
+      client.on("disconnected", () => {
+        connectionStatus.textContent = "Disconnected from Streamer.bot";
+        document.body.classList.remove("hide-status");
+      });
+    }
+
+    createSlots(1);
+    setupStreamerbotClient();
+
+    // Manual browser-console test:
+    // enqueueForgeEvent({
+    //   type: "coinForgePull",
+    //   user: "TestUser",
+    //   pullCount: 3,
+    //   coins: [
+    //     { name: "Bronze", finalValue: 25, rarity: "common", omenCorrupted: false, devoured: false },
+    //     { name: "Diamond", finalValue: 500, rarity: "legendary", omenCorrupted: false, devoured: false },
+    //     { name: "Anti", finalValue: -500, rarity: "cursed", omenCorrupted: false, devoured: false }
+    //   ],
+    //   jackpotHit: false,
+    //   jackpotPayout: 0,
+    //   jackpotPool: 0,
+    //   comboCount: 0,
+    //   forgeIgnited: false
+    // });
+  </script>
+</body>
+</html>
