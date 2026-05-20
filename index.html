@@ -2370,19 +2370,28 @@ forgeResult.classList.remove("cinematic-text");
 cinematicBurst.className = "cinematic-burst";
   }
 
-  function triggerBurst(type) {
+  function triggerBurst(type, slot) {
+    const stageRect = forgeStage.getBoundingClientRect();
+    const slotRect = slot.getBoundingClientRect();
+  
+    const x = slotRect.left + slotRect.width / 2 - stageRect.left;
+    const y = slotRect.top + slotRect.height / 2 - stageRect.top;
+  
+    cinematicBurst.style.left = `${x}px`;
+    cinematicBurst.style.top = `${y}px`;
+  
     cinematicBurst.className = `cinematic-burst ${type}`;
     void cinematicBurst.offsetWidth;
     cinematicBurst.classList.add("active");
   }
   
-  async function playFinalCinematic(coin) {
+  async function playFinalCinematic(coin, slot) {
     forgeResult.classList.remove("cinematic-text");
 
   
     if (coin.name === "Jackpot Booster") {
       forgeStage.classList.add("cinematic-jackpot");
-      triggerBurst("jackpot");
+      triggerBurst("jackpot", slot);
       forgeResult.innerHTML = "💰 JACKPOT BOOSTER!";
       forgeResult.classList.add("cinematic-text");
       await wait(550);
@@ -2391,7 +2400,7 @@ cinematicBurst.className = "cinematic-burst";
   
     if (coin.name === "Anti Coin") {
       forgeStage.classList.add("cinematic-cursed");
-      triggerBurst("cursed");
+      triggerBurst("cursed", slot);
       forgeResult.innerHTML = "💀 The forge rejects the offering...";
       forgeResult.classList.add("cinematic-text");
       await wait(550);
@@ -2400,7 +2409,7 @@ cinematicBurst.className = "cinematic-burst";
   
     if (coin.name === "Rainbow Coin" || coin.name === "Kingmaker Coin") {
       forgeStage.classList.add("cinematic-mythic");
-      triggerBurst("mythic");
+      triggerBurst("mythic", slot);
       forgeResult.innerHTML = `🌈 MYTHIC REVEAL — ${coin.name}!`;
       forgeResult.classList.add("cinematic-text");
       await wait(650);
@@ -2409,7 +2418,7 @@ cinematicBurst.className = "cinematic-burst";
   
     if (coin.name === "Diamond Coin") {
       forgeStage.classList.add("cinematic-legendary");
-      triggerBurst("legendary");
+      triggerBurst("legendary", slot);
       forgeResult.innerHTML = `💎 LEGENDARY REVEAL — ${coin.name}!`;
       forgeResult.classList.add("cinematic-text");
       await wait(500);
@@ -2483,7 +2492,7 @@ cinematicBurst.className = "cinematic-burst";
   slot.classList.remove("spinning");
   slot.classList.add("landed");
     
-  await playFinalCinematic(finalCoin);
+  await playFinalCinematic(finalCoin, slot);
 
   forgeStage.classList.add(`reveal-${finalCoin.className}`, "impact");
 
