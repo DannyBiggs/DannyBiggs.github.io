@@ -2337,8 +2337,8 @@
     }, 90);
     
     for (let i = 0; i < slots.length; i++) {
-      await spinSlot(slots[i], results[i], i, true);
       lockedSlots.add(i);
+      await spinSlot(slots[i], results[i], i, true);
       await wait(120);
     }
     
