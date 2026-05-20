@@ -275,7 +275,38 @@
       font-weight: bold;
       margin-bottom: 6px;
     }
+    .search-wrap {
+      background: #161616;
+      border: 1px solid #3a2a18;
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 24px;
+      position: sticky;
+      top: 58px;
+      z-index: 900;
+    }
 
+    #codexSearch {
+      width: 100%;
+      box-sizing: border-box;
+      background: #0b0b0d;
+      color: #ffffff;
+      border: 2px solid #3a2a18;
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 16px;
+    }
+
+    #codexSearch:focus {
+      outline: none;
+      border-color: #ffb347;
+      box-shadow: 0 0 12px rgba(255,179,71,0.35);
+    }
+
+    .is-hidden {
+      display: none !important;
+    }
+    
     footer {
       text-align: center;
       color: #777;
@@ -299,7 +330,15 @@
   </nav>
 
   <main class="container">
-
+    
+    <section class="search-wrap">
+      <input
+        type="text"
+        id="codexSearch"
+        placeholder="Search achievements, badges, nameplates, commands, bosses..."
+      />
+    </section>
+    
     <section class="section">
       <h2>✨ Rarity Legend</h2>
 
@@ -1034,9 +1073,30 @@
     </section>
 
   </main>
-
+  
   <footer>
     Coin Forge © DannyBiggs
   </footer>
+   <script>
+    const searchInput = document.getElementById("codexSearch");
+
+    searchInput.addEventListener("input", function () {
+      const searchTerm = searchInput.value.toLowerCase().trim();
+
+      const searchableCards = document.querySelectorAll(
+        ".achievement, .badge-card, .command-card"
+      );
+
+      searchableCards.forEach(function (card) {
+        const cardText = card.innerText.toLowerCase();
+
+        if (cardText.includes(searchTerm)) {
+          card.classList.remove("is-hidden");
+        } else {
+          card.classList.add("is-hidden");
+        }
+      });
+    });
+  </script>
 </body>
 </html>
