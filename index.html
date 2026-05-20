@@ -691,6 +691,35 @@
         pointer-events: none;
         z-index: 1;
       }
+
+      .forge-light-overlay {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 2;
+        opacity: 0.55;
+        background:
+          radial-gradient(circle at 50% 34%, rgba(255, 115, 20, 0.55), transparent 7%),
+          radial-gradient(circle at 50% 84%, rgba(255, 95, 20, 0.45), transparent 10%),
+          radial-gradient(circle at 16% 41%, rgba(255, 130, 25, 0.38), transparent 8%),
+          radial-gradient(circle at 84% 41%, rgba(255, 130, 25, 0.38), transparent 8%),
+          radial-gradient(circle at 61% 72%, rgba(255, 85, 15, 0.35), transparent 8%);
+        mix-blend-mode: screen;
+        filter: blur(8px);
+        animation: forgeLightWake 2.2s ease-in-out infinite alternate;
+      }
+      
+      @keyframes forgeLightWake {
+        from {
+          opacity: 0.35;
+          transform: scale(0.99);
+        }
+      
+        to {
+          opacity: 0.75;
+          transform: scale(1.015);
+        }
+      }
       
       .forge-glow {
         position: absolute;
@@ -707,7 +736,7 @@
             transparent 75%);
         filter: blur(12px);
         animation: forgePulse 2s ease-in-out infinite alternate;
-        z-index: 2;
+        z-index: 3;
       }
       
       @keyframes forgePulse {
@@ -878,7 +907,7 @@
         inset: 0;
         pointer-events: none;
         opacity: 0;
-        z-index: 4;
+        z-index: 3;
       }
       
       .forge-impact-flash.active {
@@ -1331,7 +1360,8 @@
             src="images/ui/forge_background.png"
             alt="Coin Forge"
           >
-    
+          
+          <div class="forge-light-overlay"></div>
           <div class="forge-glow"></div>
           <div id="forgeImpactFlash" class="forge-impact-flash"></div>
           <div id="forgeCorruptionWave" class="forge-corruption-wave"></div>
