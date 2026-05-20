@@ -1026,6 +1026,74 @@
           background: radial-gradient(circle, rgba(90, 0, 0, 0.30), transparent 72%);
         }
       }
+
+      .slot-aura {
+        position: absolute;
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        pointer-events: none;
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.85);
+        z-index: 4;
+        filter: blur(12px);
+      }
+      
+      .slot-aura.active {
+        animation: slotAuraLinger 1.35s ease-out forwards;
+      }
+      
+      .slot-aura.gold {
+        background: radial-gradient(circle, rgba(255, 200, 70, 0.55), transparent 70%);
+      }
+      
+      .slot-aura.diamond {
+        background: radial-gradient(circle, rgba(120, 240, 255, 0.55), transparent 70%);
+      }
+      
+      .slot-aura.rainbow {
+        background: conic-gradient(
+          rgba(255, 70, 70, 0.55),
+          rgba(255, 220, 70, 0.55),
+          rgba(80, 255, 120, 0.55),
+          rgba(80, 220, 255, 0.55),
+          rgba(180, 90, 255, 0.55),
+          rgba(255, 70, 70, 0.55)
+        );
+      }
+      
+      .slot-aura.lucky {
+        background: radial-gradient(circle, rgba(120, 255, 90, 0.55), rgba(255, 220, 80, 0.25), transparent 70%);
+      }
+      
+      .slot-aura.jackpot {
+        background: radial-gradient(circle, rgba(255, 45, 45, 0.60), rgba(80, 0, 0, 0.35), transparent 70%);
+      }
+      
+      .slot-aura.kingmaker {
+        background: radial-gradient(circle, rgba(255, 190, 60, 0.65), rgba(255, 90, 20, 0.30), transparent 70%);
+      }
+      
+      .slot-aura.anti {
+        background: radial-gradient(circle, rgba(90, 185, 255, 0.65), rgba(20, 90, 255, 0.30), transparent 70%);
+      }
+      
+      @keyframes slotAuraLinger {
+        0% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(0.65);
+        }
+      
+        25% {
+          opacity: 0.9;
+          transform: translate(-50%, -50%) scale(1.05);
+        }
+      
+        100% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(1.45);
+        }
+      }
     
       .cinematic-burst {
         position: absolute;
@@ -2686,6 +2754,41 @@ forgeCorruptionWave.className = "forge-corruption-wave";
 forgeBloom.className = "forge-bloom";
   }
 
+  function getAuraType(coin) {
+    if (coin.name === "Gold Coin") return "gold";
+    if (coin.name === "Diamond Coin") return "diamond";
+    if (coin.name === "Rainbow Coin") return "rainbow";
+    if (coin.name === "Lucky Coin") return "lucky";
+    if (coin.name === "Jackpot Booster") return "jackpot";
+    if (coin.name === "Kingmaker Coin") return "kingmaker";
+    if (coin.name === "Anti Coin") return "anti";
+  
+    return "";
+  }
+  
+  function triggerSlotAura(coin, slot) {
+    const auraType = getAuraType(coin);
+    if (!auraType) return;
+  
+    const stageRect = forgeStage.getBoundingClientRect();
+    const slotRect = slot.getBoundingClientRect();
+  
+    const aura = document.createElement("div");
+    aura.className = `slot-aura ${auraType}`;
+  
+    aura.style.left = `${slotRect.left + slotRect.width / 2 - stageRect.left}px`;
+    aura.style.top = `${slotRect.top + slotRect.height / 2 - stageRect.top}px`;
+  
+    forgeStage.appendChild(aura);
+  
+    void aura.offsetWidth;
+    aura.classList.add("active");
+  
+    setTimeout(() => {
+      aura.remove();
+    }, 1500);
+  }
+    
   function triggerBurst(type, slot) {
     const stageRect = forgeStage.getBoundingClientRect();
     const slotRect = slot.getBoundingClientRect();
@@ -2851,6 +2954,8 @@ forgeBloom.className = "forge-bloom";
   forgeStage.classList.add(`reveal-${finalCoin.className}`, "impact");
 
   triggerImpactFlash();
+    
+  triggerSlotAura(finalCoin, slot);
 
   if (finalCoin.name === "Anti Coin") {
     triggerCorruptionWave();
