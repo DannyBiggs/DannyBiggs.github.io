@@ -2295,7 +2295,9 @@
 
   forgeStage.classList.remove("impact");
 }
-    clearRevealClasses();
+
+    async function runForgeReveal() {
+      clearRevealClasses();
   
     forgeButton.disabled = true;
     pullCountButtons.forEach(button => button.disabled = true);
