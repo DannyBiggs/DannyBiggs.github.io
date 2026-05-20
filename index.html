@@ -2350,7 +2350,16 @@
   
     return forgeCoins.find(c => c.name === "Bronze Coin");
   }
-  
+
+  function clearCinematicStageClasses() {
+    forgeStage.classList.remove(
+      "cinematic-jackpot",
+      "cinematic-cursed",
+      "cinematic-mythic",
+      "cinematic-legendary"
+    );
+  }
+    
   function clearRevealClasses() {
     forgeStage.classList.remove(
       "reveal-common",
@@ -2494,6 +2503,11 @@ cinematicBurst.className = "cinematic-burst";
     
   await playFinalCinematic(finalCoin, slot);
 
+  clearCinematicStageClasses();
+  
+  forgeStage.classList.remove("impact");
+  void forgeStage.offsetWidth;
+  
   forgeStage.classList.add(`reveal-${finalCoin.className}`, "impact");
 
   await wait(180);
