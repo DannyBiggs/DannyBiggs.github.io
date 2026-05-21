@@ -1266,9 +1266,6 @@
       slot.classList.remove("near-miss", "anticipating");
 
       const slotWrap = slot.closest(".slot-wrap");
-      if (slotWrap) {
-        slotWrap.classList.remove("forging-in");
-      }
       clearSlotLandedClasses(slot);
       slot.classList.add("spinning");
 
@@ -1458,6 +1455,13 @@
       forgeStage.classList.remove("charging");
       forgeStage.classList.add("charged");
       forgeResult.classList.remove("hidden");
+      
+      const slotEntranceMs = 600 + ((pullCount - 1) * 130);
+      await wait(slotEntranceMs);
+      
+      document.querySelectorAll(".slot-wrap.forging-in").forEach(slotWrap => {
+        slotWrap.classList.remove("forging-in");
+      });
 
       const slots = Array.from(document.querySelectorAll(".slot-coin"));
 
