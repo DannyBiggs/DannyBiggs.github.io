@@ -583,9 +583,9 @@
     .player-identity-layer {
       position: absolute;
       left: 50%;
-      bottom: 15%;
-      width: min(520px, 62%);
-      height: 92px;
+      bottom: 13%;
+      width: min(720px, 76%);
+      height: 118px;
       transform: translateX(-50%) translateY(10px) scale(0.96);
       opacity: 0;
       pointer-events: none;
@@ -600,47 +600,62 @@
     
     .player-nameplate-bg {
       position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
+      left: 50%;
+      top: 16px;
+      width: 560px;
+      max-width: 100%;
+      height: 72px;
+      transform: translateX(-50%);
       object-fit: contain;
       image-rendering: pixelated;
-      filter: drop-shadow(0 0 16px rgba(255, 179, 71, 0.4));
+      filter: drop-shadow(0 0 18px rgba(255, 179, 71, 0.5));
     }
     
     .player-name-text {
       position: absolute;
-      left: 24%;
-      right: 12%;
-      top: 50%;
-      transform: translateY(-50%);
+      left: 50%;
+      top: 50px;
+      width: 430px;
+      max-width: 70%;
+      transform: translate(-50%, -50%);
       text-align: center;
+      z-index: 3;
     }
     
     .player-username {
       color: #fff4c2;
       font-weight: 900;
-      font-size: clamp(18px, 2vw, 26px);
+      font-size: clamp(24px, 2.6vw, 38px);
       line-height: 1;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.03em;
       text-shadow:
-        0 2px 0 rgba(0,0,0,0.9),
-        0 0 12px rgba(255, 190, 80, 0.65);
+        0 3px 0 rgba(0,0,0,0.95),
+        0 0 14px rgba(255, 190, 80, 0.75);
+    
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
     
     .player-title {
-      margin-top: 5px;
+      position: absolute;
+      left: 50%;
+      top: 78px;
+      width: 430px;
+      max-width: 70%;
+      transform: translateX(-50%);
+    
       color: #ffcf6a;
-      font-weight: 800;
-      font-size: clamp(10px, 1vw, 13px);
-      letter-spacing: 0.13em;
+      font-weight: 900;
+      font-size: clamp(11px, 1.2vw, 16px);
+      letter-spacing: 0.16em;
       text-transform: uppercase;
+      text-align: center;
+    
       text-shadow:
-        0 2px 0 rgba(0,0,0,0.9),
-        0 0 10px rgba(255, 150, 40, 0.5);
+        0 2px 0 rgba(0,0,0,0.95),
+        0 0 12px rgba(255, 150, 40, 0.65);
+    
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -648,23 +663,28 @@
     
     .player-badge-strip {
       position: absolute;
-      left: 7%;
-      top: 50%;
+      left: 10%;
+      top: 48px;
       transform: translateY(-50%);
+    
       display: flex;
       align-items: center;
-      gap: 4px;
-      z-index: 2;
+      gap: 5px;
+    
+      z-index: 4;
     }
     
     .player-badge {
-      width: 28px;
-      height: 28px;
+      width: 34px;
+      height: 34px;
       object-fit: contain;
       image-rendering: pixelated;
+    
       filter: drop-shadow(0 0 8px rgba(255, 210, 120, 0.5));
+    
       opacity: 0;
       transform: translateY(5px) scale(0.85);
+    
       animation: badgePop 0.32s ease-out forwards;
     }
     
