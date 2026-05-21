@@ -620,8 +620,8 @@
       position: absolute;
       left: 50%;
       top: 50px;
-      width: 430px;
-      max-width: 70%;
+      width: 500px;
+      max-width: 78%;
       transform: translate(-50%, -50%);
       text-align: center;
       z-index: 3;
@@ -631,7 +631,7 @@
       color: #fff4c2;
       font-family: "CoinForgeName", Arial, sans-serif;
       font-weight: 900;
-      font-size: clamp(24px, 2.6vw, 38px);
+      font-size: var(--name-font-size, 38px);
       line-height: 1;
       letter-spacing: 0.03em;
       text-shadow:
@@ -1272,6 +1272,17 @@
         : coinText;
     }
 
+    function getUsernameFontSize(name) {
+      const length = String(name || "").length;
+    
+      if (length <= 10) return "38px";
+      if (length <= 14) return "32px";
+      if (length <= 18) return "26px";
+      if (length <= 22) return "22px";
+    
+      return "18px";
+    }
+    
     function clearPlayerIdentity() {
       playerIdentityLayer.className = "player-identity-layer";
       playerNameplate.src = "";
@@ -1289,6 +1300,8 @@
       const badges = Array.isArray(event.badges) ? event.badges : [];
     
       playerUsername.innerText = displayName;
+      playerUsername.style.setProperty("--name-font-size", getUsernameFontSize(displayName));
+      
       playerTitle.innerText = title;
     
       playerNameplate.src = nameplatePath;
