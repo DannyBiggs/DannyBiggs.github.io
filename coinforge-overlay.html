@@ -1280,12 +1280,15 @@
       if (length <= 16) return 16;
       if (length <= 20) return 13;
       if (length <= 24) return 11;
+      if (length <= 28) return 9;
+      if (length <= 32) return 8;
+      if (length <= 36) return 7;
     
-      return 10;
+      return 6;
     }
     
     function fitUsernameToPlate() {
-      const minSize = 8;
+      const minSize = 6;
       let size = getUsernameFontSize(playerUsername.innerText);
     
       playerUsername.style.setProperty("--name-font-size", `${size}px`);
