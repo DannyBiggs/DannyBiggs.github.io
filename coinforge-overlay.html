@@ -267,6 +267,10 @@
       z-index: 4;
       opacity: 0;
       overflow: visible;
+      
+      background: transparent !important;
+      mix-blend-mode: screen;
+      isolation: isolate;
     }
     
     .forge-beam-layer.active {
@@ -274,10 +278,12 @@
     }
     
     .forge-beam-glow {
+      fill: none;
       stroke: rgba(255, 120, 20, 0.52);
       stroke-width: 18;
       stroke-linecap: round;
-      filter: blur(8px);
+      filter: blur(4px);
+
     }
 
     .forge-beam-flare {
@@ -307,6 +313,7 @@
     }
     
     .forge-beam-core {
+      fill: none;
       stroke: rgba(255, 238, 170, 0.95);
       stroke-width: 5;
       stroke-linecap: round;
