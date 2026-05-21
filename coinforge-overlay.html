@@ -779,6 +779,16 @@
       background: radial-gradient(circle, rgba(180,240,255,1.0) 0%, rgba(90,180,255,0.88) 18%, rgba(40,120,255,0.62) 36%, rgba(20,70,255,0.40) 50%, rgba(0,30,255,0.10) 62%, transparent 74%);
     }
 
+    .slot-wrap.landed-common::before,
+    .slot-wrap.landed-rare::before,
+    .slot-wrap.landed-epic::before,
+    .slot-wrap.landed-legendary::before,
+    .slot-wrap.landed-mythic::before,
+    .slot-wrap.landed-rainbow::before,
+    .slot-wrap.landed-cursed::before {
+      opacity: 0;
+    }
+    
     .forge-stage.impact {
       animation: stageImpact 0.28s ease-out !important;
     }
