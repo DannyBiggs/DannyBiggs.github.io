@@ -276,6 +276,22 @@
     .forge-beam-image.active {
       animation: forgeBeamImageFade 0.34s ease-out;
     }
+
+    .forge-beam-image.collapsing {
+      animation: forgeBeamCollapse 0.16s ease-in forwards;
+    }
+    
+    @keyframes forgeBeamCollapse {
+      0% {
+        opacity: 0.95;
+        transform: var(--beam-transform) scaleY(1);
+      }
+    
+      100% {
+        opacity: 0;
+        transform: var(--beam-transform) scaleY(0.08);
+      }
+    }
     
     .forge-beam-image.beam-cursed {
       filter: brightness(1.15) saturate(1.25);
@@ -531,6 +547,30 @@
     .slot-coin {
       opacity: 0;
     }
+
+    .slot-coin.materializing {
+      opacity: 1;
+      animation: coinMaterialize 0.14s ease-out forwards;
+    }
+    
+    @keyframes coinMaterialize {
+      0% {
+        transform: translate(var(--forge-start-x), var(--forge-start-y)) scale(0.02);
+        opacity: 0;
+        filter: brightness(3) blur(3px);
+      }
+    
+      70% {
+        opacity: 1;
+        filter: brightness(2.4) blur(1px);
+      }
+    
+      100% {
+        transform: translate(var(--forge-start-x), var(--forge-start-y)) scale(0.16);
+        opacity: 1;
+        filter: brightness(2);
+      }
+    }
     
     .slot-coin.forming-from-forge {
       opacity: 1;
@@ -539,16 +579,12 @@
     
     @keyframes coinFormFromForge {
       0% {
-        transform: translate(var(--forge-start-x), var(--forge-start-y)) scale(0.12) rotateY(0deg);
-        opacity: 0;
+        transform: translate(var(--forge-start-x), var(--forge-start-y)) scale(0.16) rotateY(0deg);
+        opacity: 1;
         filter: brightness(2.1) blur(1px);
       }
     
-      20% {
-        opacity: 1;
-      }
-    
-      72% {
+      68% {
         transform: translate(0, 0) scale(1.08) rotateY(360deg);
         filter: brightness(1.45) blur(0);
       }
@@ -1305,7 +1341,7 @@
       // Approximate center of the flame/circle in the forge background.
       // Adjust these if the spawn point needs nudging.
       const forgeCenterX = stageRect.width * 0.50;
-      const forgeCenterY = stageRect.height * 0.285;
+      const forgeCenterY = stageRect.height * 0.265;
     
       let slotCenterX = slotRect.left + slotRect.width / 2 - stageRect.left;
       let slotCenterY = slotRect.top + slotRect.height / 2 - stageRect.top;
@@ -1319,13 +1355,20 @@
       setActiveSlotFocus(slot);
       showForgeImageBeamToSlot(slot, finalCoin);
       
-      slot.classList.remove("forming-from-forge");
+      slot.classList.remove("materializing", "forming-from-forge");
       void slot.offsetWidth;
+      
+      slot.classList.add("materializing");
+      await wait(140);
+      
+      slot.classList.remove("materializing");
+      void slot.offsetWidth;
+      
       slot.classList.add("forming-from-forge");
       
-      await wait(340);
+      await wait(300);
       
-      hideForgeImageBeam();
+      await hideForgeImageBeam();
     }
     
     function restartClassAnimation(element, className) {
@@ -1366,7 +1409,7 @@
       const slotRect = slot.getBoundingClientRect();
     
       const forgeCenterX = stageRect.width * 0.50;
-      const forgeCenterY = stageRect.height * 0.285;
+      const forgeCenterY = stageRect.height * 0.265;
     
       let slotCenterX = slotRect.left + slotRect.width / 2 - stageRect.left;
       let slotCenterY = slotRect.top + slotRect.height / 2 - stageRect.top;
@@ -1397,18 +1440,31 @@
         forgeBeamImage.classList.add("beam-molten");
       }
     
-      forgeBeamImage.style.left = `${forgeCenterX - 55}px`;
+      const baseBeamWidth = 110;
+      const distanceScale = Math.max(0.72, Math.min(1, 520 / finalLength));
+      const beamWidth = baseBeamWidth * distanceScale;
+      
+      forgeBeamImage.style.width = `${beamWidth}px`;
+      forgeBeamImage.style.left = `${forgeCenterX - beamWidth / 2}px`;
       forgeBeamImage.style.top = `${forgeCenterY}px`;
       forgeBeamImage.style.height = `${finalLength}px`;
-      forgeBeamImage.style.transform = `rotate(${angleDeg}deg)`;
+      const beamTransform = `rotate(${angleDeg}deg)`;
+      forgeBeamImage.style.transform = beamTransform;
+      forgeBeamImage.style.setProperty("--beam-transform", beamTransform);
     
       void forgeBeamImage.offsetWidth;
       forgeBeamImage.classList.add("active");
     }
     
-    function hideForgeImageBeam() {
+    async function hideForgeImageBeam() {
       if (!forgeBeamImage) return;
+    
       forgeBeamImage.classList.remove("active");
+      forgeBeamImage.classList.add("collapsing");
+    
+      await wait(160);
+    
+      forgeBeamImage.classList.remove("collapsing");
     }
     
     function showForgeBeamToSlot(slot, coin) {
