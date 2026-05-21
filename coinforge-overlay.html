@@ -379,6 +379,39 @@
       transition: transform 0.2s ease;
     }
 
+    .slot-coin {
+      opacity: 0;
+    }
+    
+    .slot-coin.forming-from-forge {
+      opacity: 1;
+      animation: coinFormFromForge 0.58s ease-out forwards;
+    }
+    
+    @keyframes coinFormFromForge {
+      0% {
+        transform: translate(var(--forge-start-x), var(--forge-start-y)) scale(0.05);
+        opacity: 0;
+        filter: brightness(2.2) blur(2px);
+      }
+    
+      35% {
+        opacity: 1;
+        filter: brightness(1.8) blur(0);
+      }
+    
+      72% {
+        transform: translate(0, 0) scale(1.12);
+        filter: brightness(1.35);
+      }
+    
+      100% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+        filter: brightness(1);
+      }
+    }
+    
     .slot-coin.spinning {
       animation: slotSpin 0.34s linear infinite;
     }
@@ -1103,6 +1136,31 @@
       return `${coin.file}?slot=${index}&t=${Date.now()}-${Math.random()}`;
     }
 
+    async function animateCoinFromForge(slot) {
+      const stageRect = forgeStage.getBoundingClientRect();
+      const slotRect = slot.getBoundingClientRect();
+    
+      // Approximate center of the flame/circle in the forge background.
+      // Adjust these if the spawn point needs nudging.
+      const forgeCenterX = stageRect.width * 0.50;
+      const forgeCenterY = stageRect.height * 0.34;
+    
+      const slotCenterX = slotRect.left + slotRect.width / 2 - stageRect.left;
+      const slotCenterY = slotRect.top + slotRect.height / 2 - stageRect.top;
+    
+      const startX = forgeCenterX - slotCenterX;
+      const startY = forgeCenterY - slotCenterY;
+    
+      slot.style.setProperty("--forge-start-x", `${startX}px`);
+      slot.style.setProperty("--forge-start-y", `${startY}px`);
+    
+      slot.classList.remove("forming-from-forge");
+      void slot.offsetWidth;
+      slot.classList.add("forming-from-forge");
+    
+      await wait(580);
+    }
+    
     function restartClassAnimation(element, className) {
       if (!element) return;
       element.classList.remove(className);
@@ -1407,8 +1465,7 @@
 
       for (let i = 0; i < count; i++) {
         const slotWrap = document.createElement("div");
-        slotWrap.className = "slot-wrap forging-in";
-        slotWrap.style.animationDelay = `${i * 130}ms`;
+        slotWrap.className = "slot-wrap";
 
         const img = document.createElement("img");
         img.className = "sim-coin slot-coin";
@@ -1432,6 +1489,7 @@
       }
 
       slot.classList.remove("near-miss", "anticipating");
+      await animateCoinFromForge(slot);
 
       const slotWrap = slot.closest(".slot-wrap");
       clearSlotLandedClasses(slot);
@@ -1639,33 +1697,20 @@
           ? `⚒️ ${event.user || "Someone"} calls to the Coin Forge...`
           : `⚒️ ${event.user || "Someone"} prepares ${pullCount} coins...`;
 
-      for (let cycle = 0; cycle < 16; cycle++) {
-        slots.forEach((slot, index) => {
-          slot.classList.add("spinning");
-          spinSlot(slot, null, index, false);
-        });
-
-        await wait(cycle < 10 ? 55 : cycle < 14 ? 80 : 115);
-      }
-
       const lockedSlots = new Set();
-
-      const continuedCycle = setInterval(() => {
-        slots.forEach((slot, index) => {
-          if (!lockedSlots.has(index)) {
-            const coin = randomCycleCoin();
-            slot.src = coinFileForSlot(coin, index);
-          }
-        });
-      }, 90);
 
       for (let i = 0; i < slots.length; i++) {
         lockedSlots.add(i);
+      
+        forgeResult.innerText =
+          pullCount === 1
+            ? "The forge shapes the coin..."
+            : `The forge shapes coin ${i + 1} of ${pullCount}...`;
+      
         await spinSlot(slots[i], results[i] || results[results.length - 1], i, true);
-        await wait(120);
+      
+        await wait(140);
       }
-
-      clearInterval(continuedCycle);
 
       forgeStage.classList.add(`reveal-${highestClass}`);
       
