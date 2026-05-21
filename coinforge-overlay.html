@@ -385,7 +385,7 @@
     
     .slot-coin.forming-from-forge {
       opacity: 1;
-      animation: coinFormFromForge 0.46s ease-out forwards;
+      animation: coinFormFromForge 0.34s ease-out forwards;
     }
     
     @keyframes coinFormFromForge {
@@ -1157,7 +1157,7 @@
       void slot.offsetWidth;
       slot.classList.add("forming-from-forge");
     
-      await wait(460);
+      await wait(340);
     }
     
     function restartClassAnimation(element, className) {
@@ -1356,7 +1356,7 @@
         triggerBurst("cursed", slot);
         forgeResult.innerHTML = `💀 ${coin.name} was devoured!`;
         forgeResult.classList.add("cinematic-text");
-        await wait(550);
+        await wait(380);
         return;
       }
 
@@ -1367,7 +1367,7 @@
         triggerBurst("cursed", slot);
         forgeResult.innerHTML = `👁️ ${coin.name} was corrupted!`;
         forgeResult.classList.add("cinematic-text");
-        await wait(550);
+        await wait(380);
         return;
       }
 
@@ -1375,7 +1375,7 @@
         triggerBurst("lucky", slot);
         forgeResult.innerHTML = "🍀 LUCKY COIN!";
         forgeResult.classList.add("cinematic-text");
-        await wait(450);
+        await wait(320);
         return;
       }
 
@@ -1385,7 +1385,7 @@
         triggerBurst("jackpot", slot);
         forgeResult.innerHTML = "💰 JACKPOT BOOSTER!";
         forgeResult.classList.add("cinematic-text");
-        await wait(550);
+        await wait(380);
         return;
       }
 
@@ -1395,7 +1395,7 @@
         triggerBurst("cursed", slot);
         forgeResult.innerHTML = "💀 The forge rejects the offering...";
         forgeResult.classList.add("cinematic-text");
-        await wait(550);
+        await wait(380);
         return;
       }
 
@@ -1403,7 +1403,7 @@
         triggerBurst("rainbow", slot);
         forgeResult.innerHTML = "🌈 RAINBOW COIN!";
         forgeResult.classList.add("cinematic-text");
-        await wait(650);
+        await wait(420);
         return;
       }
 
@@ -1413,7 +1413,7 @@
         triggerBurst("mythic", slot);
         forgeResult.innerHTML = "👑 KINGMAKER COIN!";
         forgeResult.classList.add("cinematic-text");
-        await wait(650);
+        await wait(420);
         return;
       }
 
@@ -1422,7 +1422,7 @@
         triggerBurst("legendary", slot);
         forgeResult.innerHTML = `💎 LEGENDARY REVEAL — ${coin.name}!`;
         forgeResult.classList.add("cinematic-text");
-        await wait(500);
+        await wait(360);
       }
     }
 
@@ -1488,7 +1488,7 @@
       while (Date.now() - start < durationMs) {
         const coin = randomCycleCoin();
         slot.src = coinFileForSlot(coin, index);
-        await wait(70);
+        await wait(55);
       }
     }
     
@@ -1503,7 +1503,7 @@
       await animateCoinFromForge(slot);
 
       forgeResult.innerText = `Slot ${index + 1} begins to spin...`;
-      await spinCoinInSlot(slot, index, shouldAnticipateReveal(finalCoin) ? 820 : 680);
+      await spinCoinInSlot(slot, index, shouldAnticipateReveal(finalCoin) ? 560 : 420);
 
       const slotWrap = slot.closest(".slot-wrap");
       clearSlotLandedClasses(slot);
@@ -1529,10 +1529,10 @@
       if (shouldAnticipateReveal(finalCoin)) {
         slot.classList.add("anticipating");
         forgeResult.innerText = "The forge hesitates...";
-        await wait(finalCoin.name === "Rainbow Coin" || finalCoin.name === "Kingmaker Coin" ? 460 : 360);
+        await wait(finalCoin.name === "Rainbow Coin" || finalCoin.name === "Kingmaker Coin" ? 280 : 180);
         slot.classList.remove("anticipating");
       } else {
-        await wait(80);
+        await wait(40);
       }
 
       slot.src = coinFileForSlot(finalCoin, index);
@@ -1578,10 +1578,10 @@
 
       const cinematicPromise = playFinalCinematic(finalCoin, slot);
 
-      await wait(300);
+      await wait(160);
 
       forgeStage.classList.remove("impact");
-
+      
       await cinematicPromise;
 
       clearCinematicStageClasses();
@@ -1710,10 +1710,7 @@
           ? `⚒️ ${event.user || "Someone"} calls to the Coin Forge...`
           : `⚒️ ${event.user || "Someone"} prepares ${pullCount} coins...`;
 
-      const lockedSlots = new Set();
-
       for (let i = 0; i < slots.length; i++) {
-        lockedSlots.add(i);
       
         forgeResult.innerText =
           pullCount === 1
@@ -1722,13 +1719,13 @@
       
         await spinSlot(slots[i], results[i] || results[results.length - 1], i, true);
       
-        await wait(140);
+        await wait(60);
       }
 
       forgeStage.classList.add(`reveal-${highestClass}`);
       
       triggerFinalSlotPulse();
-      await wait(260);
+      await wait(180);
       
       forgeResult.innerHTML = formatFinalResults(results, event);
 
@@ -1747,7 +1744,7 @@
 
       forgeResult.classList.add("final-panel", `final-${highestClass}`);
 
-      await wait(event.displayMs || 2200);
+      await wait(event.displayMs || 1500);
 
       forgeStage.classList.remove(
         "reveal-common",
