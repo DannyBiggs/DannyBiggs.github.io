@@ -308,7 +308,7 @@
     
     .forge-beam-core {
       stroke: rgba(255, 238, 170, 0.95);
-      stroke-width: 4;
+      stroke-width: 5;
       stroke-linecap: round;
       stroke-dasharray: 26 18;
       animation: forgeBeamFlow 0.18s linear infinite;
@@ -1320,19 +1320,32 @@
       const slotCenterX = slotRect.left + slotRect.width / 2 - stageRect.left;
       const slotCenterY = slotRect.top + slotRect.height / 2 - stageRect.top;
     
-      const midX = (forgeCenterX + slotCenterX) / 2;
-      const midY = (forgeCenterY + slotCenterY) / 2;
+      const segments = 7;
+      const dx = slotCenterX - forgeCenterX;
+      const dy = slotCenterY - forgeCenterY;
+      const length = Math.sqrt(dx * dx + dy * dy) || 1;
       
-      const offsetSeed = slotCenterX < forgeCenterX ? -1 : 1;
-      const jag1X = midX - 80 * offsetSeed;
-      const jag1Y = midY - 34;
-      const jag2X = midX + 52 * offsetSeed;
-      const jag2Y = midY + 28;
+      const normalX = -dy / length;
+      const normalY = dx / length;
       
-      const beamPath = `
-        M ${forgeCenterX} ${forgeCenterY}
-        C ${jag1X} ${jag1Y}, ${jag2X} ${jag2Y}, ${slotCenterX} ${slotCenterY}
-      `;
+      let beamPath = `M ${forgeCenterX} ${forgeCenterY}`;
+      
+      for (let i = 1; i < segments; i++) {
+        const t = i / segments;
+      
+        const baseX = forgeCenterX + dx * t;
+        const baseY = forgeCenterY + dy * t;
+      
+        const zigzag = i % 2 === 0 ? 1 : -1;
+        const intensity = 26 + Math.sin(i * 1.7) * 10;
+      
+        const pointX = baseX + normalX * zigzag * intensity;
+        const pointY = baseY + normalY * zigzag * intensity;
+      
+        beamPath += ` L ${pointX} ${pointY}`;
+      }
+      
+      beamPath += ` L ${slotCenterX} ${slotCenterY}`;
       
       forgeBeamGlow.setAttribute("d", beamPath);
       forgeBeamCore.setAttribute("d", beamPath);
