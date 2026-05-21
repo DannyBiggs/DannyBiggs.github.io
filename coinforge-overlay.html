@@ -903,6 +903,18 @@
     const forgeEventQueue = [];
     let forgeEventPlaying = false;
 
+    function preloadImage(src) {
+      const img = new Image();
+      img.src = src;
+    }
+    
+    function preloadCoinForgeAssets() {
+      forgeCoins.forEach(coin => preloadImage(coin.file));
+    
+      preloadImage("images/ui/forge_background.png");
+      preloadImage("images/nameplates/default_cropped.png");
+    }
+
     function wait(ms) {
       return new Promise(resolve => setTimeout(resolve, ms));
     }
@@ -1392,7 +1404,7 @@
 
       forgeStage.classList.add("visible");
 
-      await wait(200);
+      await wait(75);
       
       createSlots(pullCount);
 
@@ -1538,6 +1550,7 @@
       });
     }
 
+    preloadCoinForgeAssets();
     createSlots(1);
     setupStreamerbotClient();
 
