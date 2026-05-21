@@ -148,8 +148,8 @@
       position: absolute;
       left: 50%;
       top: 31%;
-      width: 120px;
-      height: 120px;
+      width: 170px;
+      height: 170px;
       transform: translate(-50%, -50%);
       border-radius: 50%;
       background:
@@ -170,24 +170,26 @@
     .slot-row {
       position: absolute;
       left: 50%;
-      top: 42%;
+      top: 46%;
       width: 72%;
       transform: translate(-50%, -50%);
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: clamp(4px, 0.8vw, 10px);
+      gap: 0px;
       z-index: 5;
     }
 
     .slot-wrap {
       position: relative;
-      width: 190px;
-      height: 190px;
+      width: 240px;
+      height: 240px;
     
       display: flex;
       align-items: center;
       justify-content: center;
+    
+      flex-shrink: 0;
     }
 
     .slot-wrap::before {
@@ -383,8 +385,8 @@
 
     .slot-aura {
       position: absolute;
-      width: 230px;
-      height: 230px;
+      width: 320px;
+      height: 320px;
       border-radius: 50%;
       pointer-events: none;
       opacity: 0;
