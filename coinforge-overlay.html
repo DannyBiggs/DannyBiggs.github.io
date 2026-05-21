@@ -1383,7 +1383,7 @@
       const finalDx = slotCenterX - forgeCenterX;
       const finalDy = slotCenterY - forgeCenterY;
       const finalLength = Math.sqrt(finalDx * finalDx + finalDy * finalDy) || 1;
-      const angleDeg = Math.atan2(finalDy, finalDx) * 180 / Math.PI + 90;
+      const angleDeg = Math.atan2(finalDy, finalDx) * 180 / Math.PI - 90;
     
       forgeBeamImage.className = "forge-beam-image";
     
