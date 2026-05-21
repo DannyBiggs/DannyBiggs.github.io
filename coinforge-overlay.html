@@ -637,9 +637,9 @@
         0 2px 0 rgba(0,0,0,0.95),
         0 0 12px rgba(255, 190, 80, 0.75);
       white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      padding-right: 6px;
+      overflow: visible;
+      text-overflow: clip;
+      padding-right: 0px;
     }
     
     .player-title {
@@ -840,6 +840,7 @@
     const playerNameplate = document.getElementById("playerNameplate");
     const playerBadges = document.getElementById("playerBadges");
     const playerUsername = document.getElementById("playerUsername");
+    const playerNameText = document.querySelector(".player-name-text");
     const playerTitle = document.getElementById("playerTitle");
     
     const slotLandSound = new Audio("sounds/slot-land.m4a");
@@ -1274,13 +1275,28 @@
     function getUsernameFontSize(name) {
       const length = String(name || "").length;
     
-      if (length <= 8) return "24px";
-      if (length <= 12) return "20px";
-      if (length <= 16) return "16px";
-      if (length <= 20) return "13px";
-      if (length <= 24) return "11px";
+      if (length <= 8) return 24;
+      if (length <= 12) return 20;
+      if (length <= 16) return 16;
+      if (length <= 20) return 13;
+      if (length <= 24) return 11;
     
-      return "10px";
+      return 10;
+    }
+    
+    function fitUsernameToPlate() {
+      const minSize = 8;
+      let size = getUsernameFontSize(playerUsername.innerText);
+    
+      playerUsername.style.setProperty("--name-font-size", `${size}px`);
+    
+      while (
+        playerUsername.scrollWidth > playerNameText.clientWidth &&
+        size > minSize
+      ) {
+        size -= 1;
+        playerUsername.style.setProperty("--name-font-size", `${size}px`);
+      }
     }
     
     function clearPlayerIdentity() {
@@ -1300,7 +1316,7 @@
       const badges = Array.isArray(event.badges) ? event.badges : [];
     
       playerUsername.innerText = displayName;
-      playerUsername.style.setProperty("--name-font-size", getUsernameFontSize(displayName));
+      fitUsernameToPlate();
       
       playerTitle.innerText = title;
     
