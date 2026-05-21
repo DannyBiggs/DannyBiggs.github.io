@@ -233,6 +233,8 @@
     }
 
     .slot-wrap.forging-in {
+      opacity: 0;
+      transform: translateY(72px) scale(0.05);
       transform-origin: center center;
       animation: slotGrowIntoPlace 0.6s ease-out forwards;
     }
@@ -1570,6 +1572,7 @@
     
       if (data.type === "coinForgePrepare") {
         clearRevealClasses();
+        slotRow.innerHTML = "";
         forgeStage.classList.add("visible", "charging");
         document.body.classList.add("forge-active");
         forgeResult.classList.add("hidden");
