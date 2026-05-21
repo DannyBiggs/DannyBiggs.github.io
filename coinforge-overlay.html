@@ -201,6 +201,11 @@
         filter: brightness(1.5);
       }
     }
+
+    .forge-stage.charged .forge-background-glow {
+      opacity: 0.85;
+      filter: brightness(1.35);
+    }
     
     .slot-row {
       position: absolute;
@@ -1444,6 +1449,7 @@
       
       createSlots(pullCount);
       forgeStage.classList.remove("charging");
+      forgeStage.classList.add("charged");
 
       const slots = Array.from(document.querySelectorAll(".slot-coin"));
 
@@ -1522,7 +1528,7 @@
         "final-cursed"
       );
       
-      forgeStage.classList.remove("visible");
+      forgeStage.classList.remove("visible", "charged");
       document.body.classList.remove("forge-active");
       clearPlayerIdentity();
       
