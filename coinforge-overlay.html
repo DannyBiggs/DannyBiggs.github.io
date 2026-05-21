@@ -1404,7 +1404,7 @@
 
       forgeStage.classList.add("visible");
 
-      await wait(75);
+      await wait(0);
       
       createSlots(pullCount);
 
@@ -1516,9 +1516,24 @@
 
     function handleStreamerbotMessage(message) {
       const data = message && message.data ? message.data : message;
-
-      if (!data || data.type !== "coinForgePull") return;
-
+    
+      if (!data || !data.type) return;
+    
+      if (data.type === "coinForgePrepare") {
+        clearRevealClasses();
+        forgeStage.classList.add("visible");
+        document.body.classList.add("forge-active");
+    
+        forgeResult.innerText =
+          data.pullCount && Number(data.pullCount) > 1
+            ? `⚒️ ${data.user || "Someone"} prepares ${data.pullCount} coins...`
+            : `⚒️ ${data.user || "Someone"} calls to the Coin Forge...`;
+    
+        return;
+      }
+    
+      if (data.type !== "coinForgePull") return;
+    
       enqueueForgeEvent(data);
     }
 
