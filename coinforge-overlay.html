@@ -619,6 +619,61 @@
       transform: scale(1.02);
     }
 
+    .anvil-summon-fx {
+      position: absolute;
+      inset: 8%;
+      pointer-events: none;
+      z-index: 2;
+      opacity: 0;
+    }
+    
+    .anvil-summon-fx::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: -14%;
+      width: 54%;
+      height: 54%;
+      transform: translate(-50%, -40%) scale(0.72);
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 210, 120, 0.38), rgba(255, 120, 35, 0.12), transparent 68%);
+      filter: blur(4px);
+    }
+    
+    .anvil-summon-fx::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 52%;
+      width: 72%;
+      height: 14%;
+      transform: translate(-50%, -50%) scaleX(0.2);
+      border-radius: 999px;
+      background: radial-gradient(ellipse, rgba(255, 210, 105, 0.58), rgba(255, 120, 35, 0.18), transparent 72%);
+    }
+    
+    .anvil-summon-fx.active {
+      animation: anvilSummonFx 0.34s ease-out;
+    }
+    
+    @keyframes anvilSummonFx {
+      0% { opacity: 0; transform: translateY(-18px) scale(0.96); }
+      28% { opacity: 0.85; transform: translateY(0) scale(1.02); }
+      48% { opacity: 1; transform: translateY(3px) scale(1); }
+      100% { opacity: 0; transform: translateY(0) scale(1.08); }
+    }
+    
+    .slot-wrap.anvil-impact {
+      animation: anvilSlotImpact 0.28s ease-out;
+    }
+    
+    @keyframes anvilSlotImpact {
+      0% { transform: translateY(0) scale(1); }
+      28% { transform: translateY(4px) scale(0.97); }
+      58% { transform: translateY(-2px) scale(1.025); }
+      100% { transform: translateY(0) scale(1); }
+    }
+    
     .slot-wrap img {
       position: relative;
       width: 100%;
@@ -1454,7 +1509,7 @@
       slot.style.setProperty("--forge-start-y", `${startY}px`);
     
       setActiveSlotFocus(slot);
-      showForgeImageBeamToSlot(slot, null);
+      triggerAnvilSummon(slot, finalCoin);
       
       slot.classList.remove("materializing", "forming-from-forge");
       void slot.offsetWidth;
@@ -1469,7 +1524,7 @@
 
       await wait(300);
       
-      await hideForgeImageBeam();
+      // Beam removed for restrained anvil-impact summon.
     }
     
     function restartClassAnimation(element, className) {
@@ -1685,6 +1740,35 @@
       ring.className = `slot-socket-ring ${finalCoin.className}`;
       void ring.offsetWidth;
       ring.classList.add("active");
+    }
+
+    function triggerAnvilSummon(slot, finalCoin) {
+      const slotWrap = slot.closest(".slot-wrap");
+      if (!slotWrap) return;
+    
+      let fx = slotWrap.querySelector(".anvil-summon-fx");
+    
+      if (!fx) {
+        fx = document.createElement("div");
+        fx.className = "anvil-summon-fx";
+        slotWrap.insertBefore(fx, slotWrap.firstChild);
+      }
+    
+      fx.classList.remove("active");
+      slotWrap.classList.remove("anvil-impact");
+    
+      void fx.offsetWidth;
+    
+      fx.classList.add("active");
+      slotWrap.classList.add("anvil-impact");
+    
+      forgeStage.classList.remove("impact");
+      void forgeStage.offsetWidth;
+      forgeStage.classList.add("impact");
+    
+      setTimeout(() => {
+        forgeStage.classList.remove("impact");
+      }, 180);
     }
     
     function triggerSlotImpact(slot, finalCoin) {
@@ -2054,7 +2138,7 @@
       playSlotLandSound();
       triggerSocketRing(slot, finalCoin);
       triggerSlotImpact(slot, finalCoin);
-      triggerRarityBeamSurge(slot, finalCoin);
+      // Rarity beam removed for restrained anvil-impact style.
 
       const currentSlotWrap = slot.closest(".slot-wrap");
       if (currentSlotWrap) {
