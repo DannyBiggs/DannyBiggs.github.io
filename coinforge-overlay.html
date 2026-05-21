@@ -239,7 +239,7 @@
     
     @keyframes slotGrowIntoPlace {
       0% {
-        transform: scale(0.05);
+        transform: translateY(72px) scale(0.05);
         opacity: 0;
         filter: brightness(2) blur(2px);
       }
@@ -250,7 +250,7 @@
       }
     
       100% {
-        transform: scale(1);
+        transform: translateY(0) scale(1);
         opacity: 1;
         filter: brightness(1);
       }
@@ -1238,6 +1238,7 @@
       for (let i = 0; i < count; i++) {
         const slotWrap = document.createElement("div");
         slotWrap.className = "slot-wrap forging-in";
+        slotWrap.style.animationDelay = `${i * 90}ms`;
 
         const img = document.createElement("img");
         img.className = "sim-coin slot-coin";
