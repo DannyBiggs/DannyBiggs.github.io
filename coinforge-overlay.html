@@ -558,7 +558,7 @@
       pointer-events: none;
       z-index: 0;
       opacity: 0;
-      background: radial-gradient(circle, rgba(255, 235, 170, 0.62) 0%, rgba(255, 170, 60, 0.24) 34%, transparent 72%);
+      background: radial-gradient(circle, rgba(255, 190, 95, 0.48) 0%, rgba(255, 105, 35, 0.22) 34%, transparent 72%);
       transform: scale(0.45);
     }
     
@@ -661,6 +661,50 @@
         transform: translateX(-50%) scaleY(0.25);
       }
     }
+
+    .anvil-sparks {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 1px;
+      height: 1px;
+      pointer-events: none;
+      z-index: 4;
+      opacity: 0;
+    }
+    
+    .anvil-sparks.active {
+      opacity: 1;
+    }
+    
+    .anvil-spark {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 4px;
+      height: 2px;
+      border-radius: 999px;
+      background: rgba(255, 170, 65, 0.9);
+      box-shadow: 0 0 5px rgba(255, 120, 35, 0.55);
+      transform: rotate(var(--spark-rot)) translate(0, 0) scaleX(1);
+      animation: anvilSparkBurst 0.22s ease-out forwards;
+    }
+    
+    @keyframes anvilSparkBurst {
+      0% {
+        opacity: 0;
+        transform: rotate(var(--spark-rot)) translate(0, 0) scaleX(0.5);
+      }
+    
+      20% {
+        opacity: 0.9;
+      }
+    
+      100% {
+        opacity: 0;
+        transform: rotate(var(--spark-rot)) translate(var(--spark-x), var(--spark-y)) scaleX(0.2);
+      }
+    }
     
     .anvil-summon-fx {
       position: absolute;
@@ -746,19 +790,19 @@
       0% {
         transform: scale(0.18) translateY(-3px);
         opacity: 0;
-        filter: brightness(1.9) blur(1.5px);
+        filter: brightness(1.45) sepia(0.18) saturate(1.25) blur(1.2px);
       }
     
       70% {
-        opacity: 0.85;
+        opacity: 0.78;
         transform: scale(0.28) translateY(-2px);
-        filter: brightness(1.55) blur(0.5px);
+        filter: brightness(1.28) sepia(0.22) saturate(1.35) blur(0.4px);
       }
     
       100% {
         transform: scale(0.32) translateY(0);
         opacity: 1;
-        filter: brightness(1.35);
+        filter: brightness(1.12) sepia(0.12) saturate(1.15);
       }
     }
     
@@ -1785,6 +1829,40 @@
       ring.classList.add("active");
     }
 
+    function triggerAnvilSparks(slotWrap) {
+      let sparks = slotWrap.querySelector(".anvil-sparks");
+    
+      if (!sparks) {
+        sparks = document.createElement("div");
+        sparks.className = "anvil-sparks";
+        slotWrap.insertBefore(sparks, slotWrap.firstChild);
+      }
+    
+      sparks.innerHTML = "";
+    
+      const sparkData = [
+        { x: "-34px", y: "-8px", rot: "205deg" },
+        { x: "-24px", y: "10px", rot: "155deg" },
+        { x: "28px", y: "-10px", rot: "-25deg" },
+        { x: "36px", y: "8px", rot: "28deg" },
+        { x: "-12px", y: "22px", rot: "110deg" },
+        { x: "14px", y: "24px", rot: "70deg" }
+      ];
+    
+      sparkData.forEach(data => {
+        const spark = document.createElement("span");
+        spark.className = "anvil-spark";
+        spark.style.setProperty("--spark-x", data.x);
+        spark.style.setProperty("--spark-y", data.y);
+        spark.style.setProperty("--spark-rot", data.rot);
+        sparks.appendChild(spark);
+      });
+    
+      sparks.classList.remove("active");
+      void sparks.offsetWidth;
+      sparks.classList.add("active");
+    }
+    
     function triggerAnvilSummon(slot, finalCoin) {
       const slotWrap = slot.closest(".slot-wrap");
       if (!slotWrap) return;
@@ -1816,7 +1894,8 @@
       
       setTimeout(() => {
         playHammerStrikeSound();
-      
+        triggerAnvilSparks(slotWrap);
+        
         slotWrap.classList.add("anvil-impact");
       
         forgeStage.classList.remove("impact");
