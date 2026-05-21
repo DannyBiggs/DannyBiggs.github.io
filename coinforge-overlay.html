@@ -606,21 +606,21 @@
     .player-nameplate-bg {
       position: absolute;
       left: 50%;
-      top: 22px;
-      width: 620px;
+      top: 34px;
+      width: 420px;
       height: auto;
       transform: translateX(-50%);
       object-fit: contain;
       image-rendering: pixelated;
-      filter: drop-shadow(0 0 18px rgba(255, 179, 71, 0.5));
+      filter: drop-shadow(0 0 14px rgba(255, 179, 71, 0.45));
     }
     
     .player-name-text {
       position: absolute;
       left: 50%;
-      top: 50px;
-      width: 520px;
-      height: 34px;
+      top: 58px;
+      width: 250px;
+      height: 26px;
       transform: translate(-50%, -50%);
       text-align: center;
       z-index: 3;
@@ -631,7 +631,7 @@
       font-family: "CoinForgeName", Arial, sans-serif;
       font-weight: 900;
       font-size: var(--name-font-size, 18px);
-      line-height: 34px;
+      line-height: 26px;
       letter-spacing: 0.02em;
       text-shadow:
         0 2px 0 rgba(0,0,0,0.95),
@@ -1273,13 +1273,13 @@
     function getUsernameFontSize(name) {
       const length = String(name || "").length;
     
-      if (length <= 8) return "22px";
-      if (length <= 12) return "18px";
-      if (length <= 16) return "15px";
-      if (length <= 20) return "12px";
-      if (length <= 24) return "10px";
+      if (length <= 8) return "18px";
+      if (length <= 12) return "15px";
+      if (length <= 16) return "12px";
+      if (length <= 20) return "10px";
+      if (length <= 24) return "9px";
     
-      return "9px";
+      return "8px";
     }
     
     function clearPlayerIdentity() {
