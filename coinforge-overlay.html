@@ -109,6 +109,27 @@
     .forge-stage.visible {
       opacity: 1;
       transform: scale(1);
+      animation: forgeSummonIn 0.55s ease-out;
+    }
+    
+    @keyframes forgeSummonIn {
+      0% {
+        opacity: 0;
+        transform: scale(0.82) translateY(18px);
+        filter: brightness(0.7) blur(2px);
+      }
+    
+      55% {
+        opacity: 1;
+        transform: scale(1.035) translateY(-4px);
+        filter: brightness(1.35) blur(0);
+      }
+    
+      100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+        filter: brightness(1);
+      }
     }
 
     .forge-background {
@@ -221,6 +242,31 @@
 
     .slot-coin.spinning {
       animation: slotSpin 0.34s linear infinite;
+    }
+    
+    .slot-coin.forging-in {
+      animation:
+        coinForgeGrowIn 0.55s ease-out forwards,
+        slotSpin 0.34s linear infinite;
+    }
+    
+    @keyframes coinForgeGrowIn {
+      0% {
+        transform: scale(0.05) rotateY(0deg);
+        opacity: 0;
+        filter: brightness(2) blur(2px);
+      }
+    
+      45% {
+        opacity: 1;
+        filter: brightness(1.6) blur(0);
+      }
+    
+      100% {
+        transform: scale(1) rotateY(360deg);
+        opacity: 1;
+        filter: brightness(1);
+      }
     }
 
     @keyframes slotSpin {
@@ -1163,7 +1209,7 @@
         slotWrap.className = "slot-wrap";
 
         const img = document.createElement("img");
-        img.className = "sim-coin slot-coin";
+        img.className = "sim-coin slot-coin forging-in";
         img.src = `images/coins/bronze.gif?slot=${i}&t=${Date.now()}-${Math.random()}`;
         img.alt = "Forged Coin";
 
@@ -1179,7 +1225,7 @@
         return;
       }
 
-      slot.classList.remove("near-miss", "anticipating");
+      slot.classList.remove("near-miss", "anticipating", "forging-in");
       clearSlotLandedClasses(slot);
       slot.classList.add("spinning");
 
