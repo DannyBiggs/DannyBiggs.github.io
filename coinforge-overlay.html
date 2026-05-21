@@ -109,15 +109,7 @@
     .forge-stage.visible {
       opacity: 1;
       transform: scale(1);
-      animation: forgeSummonIn 0.55s ease-out;
     }
-    
-    @keyframes forgeSummonIn {
-      0% {
-        opacity: 0;
-        transform: scale(0.82) translateY(18px);
-        filter: brightness(0.7) blur(2px);
-      }
     
       55% {
         opacity: 1;
@@ -211,6 +203,29 @@
       justify-content: center;
     
       flex-shrink: 0;
+    }
+
+    .slot-wrap.forging-in {
+      animation: slotGrowIntoPlace 0.55s ease-out forwards;
+    }
+    
+    @keyframes slotGrowIntoPlace {
+      0% {
+        transform: scale(0.05);
+        opacity: 0;
+        filter: brightness(2) blur(2px);
+      }
+    
+      55% {
+        opacity: 1;
+        filter: brightness(1.5) blur(0);
+      }
+    
+      100% {
+        transform: scale(1);
+        opacity: 1;
+        filter: brightness(1);
+      }
     }
 
     .slot-wrap::before {
@@ -1206,10 +1221,10 @@
 
       for (let i = 0; i < count; i++) {
         const slotWrap = document.createElement("div");
-        slotWrap.className = "slot-wrap";
+        slotWrap.className = "slot-wrap forging-in";
 
         const img = document.createElement("img");
-        img.className = "sim-coin slot-coin forging-in";
+        img.className = "sim-coin slot-coin";
         img.src = `images/coins/bronze.gif?slot=${i}&t=${Date.now()}-${Math.random()}`;
         img.alt = "Forged Coin";
 
@@ -1225,7 +1240,12 @@
         return;
       }
 
-      slot.classList.remove("near-miss", "anticipating", "forging-in");
+      slot.classList.remove("near-miss", "anticipating");
+
+      const slotWrap = slot.closest(".slot-wrap");
+      if (slotWrap) {
+        slotWrap.classList.remove("forging-in");
+      }
       clearSlotLandedClasses(slot);
       slot.classList.add("spinning");
 
@@ -1263,7 +1283,10 @@
 
       playSlotLandSound();
 
-      const slotWrap = slot.closest(".slot-wrap");
+      const currentSlotWrap = slot.closest(".slot-wrap");
+      if (currentSlotWrap) {
+        currentSlotWrap.classList.remove("forging-in");
+      }
       if (slotWrap) {
         slotWrap.classList.add(`landed-${finalCoin.className}`);
       }
@@ -1405,6 +1428,10 @@
       renderPlayerIdentity(event, highestClass);
 
       forgeStage.classList.add("visible");
+
+      await wait(700);
+      
+      createSlots(pullCount);
       createSlots(pullCount);
 
       const slots = Array.from(document.querySelectorAll(".slot-coin"));
