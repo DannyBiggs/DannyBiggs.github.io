@@ -1415,13 +1415,13 @@
           ? `⚒️ ${event.user || "Someone"} calls to the Coin Forge...`
           : `⚒️ ${event.user || "Someone"} prepares ${pullCount} coins...`;
 
-      for (let cycle = 0; cycle < 9; cycle++) {
+      for (let cycle = 0; cycle < 16; cycle++) {
         slots.forEach((slot, index) => {
           slot.classList.add("spinning");
           spinSlot(slot, null, index, false);
         });
 
-        await wait(cycle < 5 ? 35 : cycle < 8 ? 55 : 75);
+        await wait(cycle < 10 ? 55 : cycle < 14 ? 80 : 115);
       }
 
       const lockedSlots = new Set();
@@ -1438,7 +1438,7 @@
       for (let i = 0; i < slots.length; i++) {
         lockedSlots.add(i);
         await spinSlot(slots[i], results[i] || results[results.length - 1], i, true);
-        await wait(60);
+        await wait(120);
       }
 
       clearInterval(continuedCycle);
@@ -1520,9 +1520,11 @@
       if (!data || !data.type) return;
     
       if (data.type === "coinForgePrepare") {
-        clearRevealClasses();
-        forgeStage.classList.add("visible");
-        document.body.classList.add("forge-active");
+        setTimeout(() => {
+          clearRevealClasses();
+          forgeStage.classList.add("visible");
+          document.body.classList.add("forge-active");
+        }, 1300);
     
         forgeResult.innerText =
           data.pullCount && Number(data.pullCount) > 1
