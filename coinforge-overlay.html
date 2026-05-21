@@ -1431,7 +1431,14 @@
 
       forgeStage.classList.add(`reveal-${finalCoin.className}`, "impact");
 
-      triggerImpactFlash();
+      if (
+        finalCoin.name === "Rainbow Coin" ||
+        finalCoin.name === "Kingmaker Coin" ||
+        finalCoin.name === "Jackpot Booster"
+      ) {
+        triggerImpactFlash();
+      }
+      
       triggerSlotAura(finalCoin, slot);
 
       if (finalCoin.name === "Anti Coin" || (finalCoin.raw && finalCoin.raw.omenCorrupted)) {
