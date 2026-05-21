@@ -606,8 +606,8 @@
     .player-nameplate-bg {
       position: absolute;
       left: 50%;
-      top: -330px;
-      width: 1040px;
+      top: 22px;
+      width: 620px;
       height: auto;
       transform: translateX(-50%);
       object-fit: contain;
@@ -1295,7 +1295,7 @@
     
       const displayName = event.displayUser || event.user || "Someone";
       const title = event.equippedTitle || event.title || "";
-      const nameplatePath = event.nameplate || event.nameplatePath || "images/nameplates/default.png";
+      const nameplatePath = event.nameplate || event.nameplatePath || "images/nameplates/default_cropped.png";
       const badges = Array.isArray(event.badges) ? event.badges : [];
     
       playerUsername.innerText = displayName;
