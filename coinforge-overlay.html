@@ -1454,6 +1454,8 @@
     
     const slotLandSound = new Audio("sounds/slot-land.m4a");
     slotLandSound.volume = 0.08;
+    const hammerStrikeSound = new Audio("sounds/hammer_strike.m4a");
+    hammerStrikeSound.volume = 0.16;
 
     const forgeCoins = [
       { key: "Wood", name: "Wood Coin", file: "images/coins/wood.gif", rarity: "Common", className: "common" },
@@ -1504,6 +1506,11 @@
     function playSlotLandSound() {
       slotLandSound.currentTime = 0;
       slotLandSound.play().catch(() => {});
+    }
+
+    function playHammerStrikeSound() {
+      hammerStrikeSound.currentTime = 0;
+      hammerStrikeSound.play().catch(() => {});
     }
 
     function normalizeCoinName(name) {
@@ -1806,11 +1813,17 @@
     
       fx.classList.add("active");
       strike.classList.add("active");
-      slotWrap.classList.add("anvil-impact");
-    
-      forgeStage.classList.remove("impact");
-      void forgeStage.offsetWidth;
-      forgeStage.classList.add("impact");
+      
+      setTimeout(() => {
+        playHammerStrikeSound();
+      
+        slotWrap.classList.add("anvil-impact");
+      
+        forgeStage.classList.remove("impact");
+        void forgeStage.offsetWidth;
+        forgeStage.classList.add("impact");
+      
+      }, 42);
     
       setTimeout(() => {
         forgeStage.classList.remove("impact");
