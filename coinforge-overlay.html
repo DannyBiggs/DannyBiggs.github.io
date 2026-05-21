@@ -102,8 +102,8 @@
         inset 0 0 60px rgba(255,120,32,0.08);
       */
       opacity: 0;
-      transform: scale(0.96);
-      transition: opacity 0.12s ease, transform 0.12s ease;
+      transform: scale(0.985);
+      transition: opacity 1.15s ease, transform 1.15s ease;
     }
 
     .forge-stage.visible {
@@ -1520,11 +1520,9 @@
       if (!data || !data.type) return;
     
       if (data.type === "coinForgePrepare") {
-        setTimeout(() => {
-          clearRevealClasses();
-          forgeStage.classList.add("visible");
-          document.body.classList.add("forge-active");
-        }, 1000);
+        clearRevealClasses();
+        forgeStage.classList.add("visible");
+        document.body.classList.add("forge-active");
     
         forgeResult.innerText =
           data.pullCount && Number(data.pullCount) > 1
