@@ -258,6 +258,48 @@
       filter: brightness(1.08) saturate(0.82) hue-rotate(155deg);
     }
 
+    .forge-beam-image {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 110px;
+      height: 613px;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 4;
+      transform-origin: 50% 0%;
+      image-rendering: pixelated;
+      mix-blend-mode: screen;
+      filter: brightness(1.15) saturate(1.2);
+    }
+    
+    .forge-beam-image.active {
+      animation: forgeBeamImageFade 0.34s ease-out;
+    }
+    
+    .forge-beam-image.beam-cursed {
+      filter: brightness(1.15) saturate(1.25);
+    }
+    
+    .forge-beam-image.beam-mythic {
+      filter: hue-rotate(135deg) saturate(1.35) brightness(1.25);
+    }
+    
+    .forge-beam-image.beam-rainbow {
+      filter: hue-rotate(80deg) saturate(1.7) brightness(1.2);
+    }
+    
+    .forge-beam-image.beam-molten {
+      filter: hue-rotate(165deg) saturate(1.6) brightness(1.15);
+    }
+    
+    @keyframes forgeBeamImageFade {
+      0% { opacity: 0; }
+      18% { opacity: 1; }
+      82% { opacity: 0.95; }
+      100% { opacity: 0; }
+    }
+    
     .forge-beam-layer {
       position: absolute;
       inset: 0;
@@ -1114,6 +1156,7 @@
         <div id="forgeBloom" class="forge-bloom"></div>
         <div id="cinematicBurst" class="cinematic-burst"></div>
 
+        <img id="forgeBeamImage" class="forge-beam-image" src="images/vfx/forge_beam_blue.webp" alt="">
         <svg id="forgeBeamLayer" class="forge-beam-layer" viewBox="0 0 1280 720" preserveAspectRatio="none">
           <path id="forgeBeamGlow" class="forge-beam-glow" d=""></path>
           <path id="forgeBeamCore" class="forge-beam-core" d=""></path>
@@ -1148,6 +1191,7 @@
     const forgeStage = document.getElementById("forgeStage");
     const slotRow = document.getElementById("slotRow");
     const cinematicBurst = document.getElementById("cinematicBurst");
+    const forgeBeamImage = document.getElementById("forgeBeamImage");
     const forgeBeamLayer = document.getElementById("forgeBeamLayer");
     const forgeBeamGlow = document.getElementById("forgeBeamGlow");
     const forgeBeamCore = document.getElementById("forgeBeamCore");
@@ -1273,7 +1317,7 @@
       slot.style.setProperty("--forge-start-y", `${startY}px`);
     
       setActiveSlotFocus(slot);
-      showForgeBeamToSlot(slot, finalCoin);
+      showForgeImageBeamToSlot(slot, finalCoin);
       
       slot.classList.remove("forming-from-forge");
       void slot.offsetWidth;
@@ -1281,7 +1325,7 @@
       
       await wait(340);
       
-      hideForgeBeam();
+      hideForgeImageBeam();
     }
     
     function restartClassAnimation(element, className) {
@@ -1313,6 +1357,58 @@
       document.querySelectorAll(".slot-wrap").forEach(slotWrap => {
         slotWrap.classList.remove("active-slot", "inactive-slot");
       });
+    }
+
+    function showForgeImageBeamToSlot(slot, coin) {
+      if (!forgeBeamImage) return;
+    
+      const stageRect = forgeStage.getBoundingClientRect();
+      const slotRect = slot.getBoundingClientRect();
+    
+      const forgeCenterX = stageRect.width * 0.50;
+      const forgeCenterY = stageRect.height * 0.285;
+    
+      let slotCenterX = slotRect.left + slotRect.width / 2 - stageRect.left;
+      let slotCenterY = slotRect.top + slotRect.height / 2 - stageRect.top;
+    
+      const dx = slotCenterX - forgeCenterX;
+      const dy = slotCenterY - forgeCenterY;
+      const beamLength = Math.sqrt(dx * dx + dy * dy) || 1;
+    
+      const shortenAmount = 54;
+    
+      slotCenterX -= (dx / beamLength) * shortenAmount;
+      slotCenterY -= (dy / beamLength) * shortenAmount;
+    
+      const finalDx = slotCenterX - forgeCenterX;
+      const finalDy = slotCenterY - forgeCenterY;
+      const finalLength = Math.sqrt(finalDx * finalDx + finalDy * finalDy) || 1;
+      const angleDeg = Math.atan2(finalDy, finalDx) * 180 / Math.PI + 90;
+    
+      forgeBeamImage.className = "forge-beam-image";
+    
+      if (coin && (coin.name === "Anti Coin" || (coin.raw && (coin.raw.omenCorrupted || coin.raw.devoured)))) {
+        forgeBeamImage.classList.add("beam-cursed");
+      } else if (coin && coin.name === "Rainbow Coin") {
+        forgeBeamImage.classList.add("beam-rainbow");
+      } else if (coin && (coin.name === "Kingmaker Coin" || coin.name === "Jackpot Booster")) {
+        forgeBeamImage.classList.add("beam-mythic");
+      } else {
+        forgeBeamImage.classList.add("beam-molten");
+      }
+    
+      forgeBeamImage.style.left = `${forgeCenterX - 55}px`;
+      forgeBeamImage.style.top = `${forgeCenterY}px`;
+      forgeBeamImage.style.height = `${finalLength}px`;
+      forgeBeamImage.style.transform = `rotate(${angleDeg}deg)`;
+    
+      void forgeBeamImage.offsetWidth;
+      forgeBeamImage.classList.add("active");
+    }
+    
+    function hideForgeImageBeam() {
+      if (!forgeBeamImage) return;
+      forgeBeamImage.classList.remove("active");
     }
     
     function showForgeBeamToSlot(slot, coin) {
