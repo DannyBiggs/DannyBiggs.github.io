@@ -278,7 +278,7 @@
     }
 
     .forge-beam-image.collapsing {
-      animation: forgeBeamCollapse 0.16s ease-in forwards;
+      animation: forgeBeamCollapse 0.10s ease-in forwards;
     }
     
     @keyframes forgeBeamCollapse {
@@ -1359,14 +1359,14 @@
       void slot.offsetWidth;
       
       slot.classList.add("materializing");
-      await wait(140);
+      await wait(90);
       
       slot.classList.remove("materializing");
       void slot.offsetWidth;
       
       slot.classList.add("forming-from-forge");
       
-      await wait(300);
+      await wait(340);
       
       await hideForgeImageBeam();
     }
@@ -1462,7 +1462,7 @@
       forgeBeamImage.classList.remove("active");
       forgeBeamImage.classList.add("collapsing");
     
-      await wait(160);
+      await wait(100);
     
       forgeBeamImage.classList.remove("collapsing");
     }
@@ -1779,7 +1779,6 @@
 
       if (coin.name === "Kingmaker Coin") {
         triggerScreenBorder("mythic");
-        forgeStage.classList.add("cinematic-mythic");
         triggerBurst("mythic", slot);
         forgeResult.innerHTML = "👑 KINGMAKER COIN!";
         forgeResult.classList.add("cinematic-text");
@@ -1940,10 +1939,6 @@
 
       if (finalCoin.name === "Anti Coin" || (finalCoin.raw && finalCoin.raw.omenCorrupted)) {
         triggerCorruptionWave();
-      }
-
-      if (finalCoin.name === "Kingmaker Coin") {
-        triggerMythicBloom();
       }
 
       const cinematicPromise = playFinalCinematic(finalCoin, slot);
