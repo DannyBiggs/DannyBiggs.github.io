@@ -234,7 +234,7 @@
 
     .slot-wrap.forging-in {
       transform-origin: center center;
-      animation: slotGrowIntoPlace 0.28s ease-out forwards;
+      animation: slotGrowIntoPlace 0.6s ease-out forwards;
     }
     
     @keyframes slotGrowIntoPlace {
@@ -774,6 +774,10 @@
         transform: translateY(0) scale(1);
       }
     }
+
+    .forge-result.hidden {
+      opacity: 0;
+    }
     
     .forge-result {
       position: absolute;
@@ -1238,7 +1242,7 @@
       for (let i = 0; i < count; i++) {
         const slotWrap = document.createElement("div");
         slotWrap.className = "slot-wrap forging-in";
-        slotWrap.style.animationDelay = `${i * 90}ms`;
+        slotWrap.style.animationDelay = `${i * 130}ms`;
 
         const img = document.createElement("img");
         img.className = "sim-coin slot-coin";
@@ -1451,6 +1455,7 @@
       createSlots(pullCount);
       forgeStage.classList.remove("charging");
       forgeStage.classList.add("charged");
+      forgeResult.classList.remove("hidden");
 
       const slots = Array.from(document.querySelectorAll(".slot-coin"));
 
@@ -1567,6 +1572,7 @@
         clearRevealClasses();
         forgeStage.classList.add("visible", "charging");
         document.body.classList.add("forge-active");
+        forgeResult.classList.add("hidden");
     
         forgeResult.innerText =
           data.pullCount && Number(data.pullCount) > 1
