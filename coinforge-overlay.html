@@ -385,33 +385,27 @@
     
     .slot-coin.forming-from-forge {
       opacity: 1;
-      animation: coinFormFromForge 0.82s cubic-bezier(0.16, 0.86, 0.24, 1) forwards;
+      animation: coinFormFromForge 0.46s ease-out forwards;
     }
     
     @keyframes coinFormFromForge {
       0% {
-        transform: translate(var(--forge-start-x), var(--forge-start-y)) scale(0.04) rotateY(0deg);
+        transform: translate(var(--forge-start-x), var(--forge-start-y)) scale(0.12) rotateY(0deg);
         opacity: 0;
-        filter: brightness(2.4) blur(2px);
+        filter: brightness(2.1) blur(1px);
       }
     
-      24% {
+      20% {
         opacity: 1;
-        filter: brightness(2) blur(0);
       }
     
-      58% {
-        transform: translate(calc(var(--forge-start-x) * 0.28), calc(var(--forge-start-y) * 0.28)) scale(0.72) rotateY(720deg);
-        filter: brightness(1.65);
-      }
-    
-      82% {
-        transform: translate(0, 0) scale(1.12) rotateY(1080deg);
-        filter: brightness(1.35);
+      72% {
+        transform: translate(0, 0) scale(1.08) rotateY(360deg);
+        filter: brightness(1.45) blur(0);
       }
     
       100% {
-        transform: translate(0, 0) scale(1) rotateY(1260deg);
+        transform: translate(0, 0) scale(1) rotateY(540deg);
         opacity: 1;
         filter: brightness(1);
       }
@@ -1163,7 +1157,7 @@
       void slot.offsetWidth;
       slot.classList.add("forming-from-forge");
     
-      await wait(820);
+      await wait(460);
     }
     
     function restartClassAnimation(element, className) {
@@ -1509,7 +1503,7 @@
       await animateCoinFromForge(slot);
 
       forgeResult.innerText = `Slot ${index + 1} begins to spin...`;
-      await spinCoinInSlot(slot, index, shouldAnticipateReveal(finalCoin) ? 760 : 620);
+      await spinCoinInSlot(slot, index, shouldAnticipateReveal(finalCoin) ? 820 : 680);
 
       const slotWrap = slot.closest(".slot-wrap");
       clearSlotLandedClasses(slot);
