@@ -666,14 +666,10 @@
       position: absolute;
       left: 50%;
       top: 50%;
-      width: 1px;
-      height: 1px;
+      width: 0;
+      height: 0;
       pointer-events: none;
-      z-index: 20;
-      opacity: 0;
-    }
-    
-    .anvil-sparks.active {
+      z-index: 50;
       opacity: 1;
     }
     
@@ -681,31 +677,26 @@
       position: absolute;
       left: 0;
       top: 0;
-      width: 12px;
-      height: 4px;
+      width: 18px;
+      height: 5px;
       border-radius: 999px;
-      outline: 1px solid rgba(255, 235, 160, 0.65);
-      background: rgba(255, 170, 65, 0.9);
+      background: #ffd36a;
       box-shadow:
-        0 0 7px rgba(255, 140, 40, 0.75),
-        0 0 14px rgba(255, 90, 25, 0.28);
-      transform: rotate(var(--spark-rot)) translate(0, 0) scaleX(1);
-      animation: anvilSparkBurst 0.22s ease-out forwards;
+        0 0 8px rgba(255, 210, 90, 0.95),
+        0 0 18px rgba(255, 100, 25, 0.55);
+      transform-origin: center;
+      animation: anvilSparkBurst 0.42s ease-out forwards;
     }
     
     @keyframes anvilSparkBurst {
       0% {
-        opacity: 0;
-        transform: rotate(var(--spark-rot)) translate(0, 0) scaleX(0.5);
-      }
-    
-      20% {
-        opacity: 0.9;
+        opacity: 1;
+        transform: rotate(var(--spark-rot)) translate(0, 0) scaleX(1);
       }
     
       100% {
         opacity: 0;
-        transform: rotate(var(--spark-rot)) translate(var(--spark-x), var(--spark-y)) scaleX(0.2);
+        transform: rotate(var(--spark-rot)) translate(var(--spark-x), var(--spark-y)) scaleX(0.25);
       }
     }
     
@@ -1838,7 +1829,7 @@
       if (!sparks) {
         sparks = document.createElement("div");
         sparks.className = "anvil-sparks";
-        slotWrap.insertBefore(sparks, slotWrap.firstChild);
+        slotWrap.appendChild(sparks);
       }
     
       sparks.innerHTML = "";
@@ -1860,7 +1851,7 @@
       ];
     
       sparkData.forEach(data => {
-        const spark = document.createElement("span");
+        const spark = document.createElement("div");
         spark.className = "anvil-spark";
         spark.style.setProperty("--spark-x", data.x);
         spark.style.setProperty("--spark-y", data.y);
