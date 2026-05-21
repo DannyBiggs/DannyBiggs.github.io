@@ -1261,10 +1261,10 @@
       // Approximate center of the flame/circle in the forge background.
       // Adjust these if the spawn point needs nudging.
       const forgeCenterX = stageRect.width * 0.50;
-      const forgeCenterY = stageRect.height * 0.34;
+      const forgeCenterY = stageRect.height * 0.285;
     
-      const slotCenterX = slotRect.left + slotRect.width / 2 - stageRect.left;
-      const slotCenterY = slotRect.top + slotRect.height / 2 - stageRect.top;
+      let slotCenterX = slotRect.left + slotRect.width / 2 - stageRect.left;
+      let slotCenterY = slotRect.top + slotRect.height / 2 - stageRect.top;
     
       const startX = forgeCenterX - slotCenterX;
       const startY = forgeCenterY - slotCenterY;
@@ -1330,6 +1330,12 @@
       const segments = 7;
       const dx = slotCenterX - forgeCenterX;
       const dy = slotCenterY - forgeCenterY;
+      const beamLength = Math.sqrt(dx * dx + dy * dy) || 1;
+
+      const shortenAmount = 54;
+      
+      slotCenterX -= (dx / beamLength) * shortenAmount;
+      slotCenterY -= (dy / beamLength) * shortenAmount;
       const length = Math.sqrt(dx * dx + dy * dy) || 1;
       
       const normalX = -dy / length;
