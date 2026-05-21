@@ -103,7 +103,7 @@
       */
       opacity: 0;
       transform: scale(0.96);
-      transition: opacity 0.25s ease, transform 0.25s ease;
+      transition: opacity 0.12s ease, transform 0.12s ease;
     }
 
     .forge-stage.visible {
@@ -194,7 +194,7 @@
 
     .slot-wrap.forging-in {
       transform-origin: center center;
-      animation: slotGrowIntoPlace 0.55s ease-out forwards;
+      animation: slotGrowIntoPlace 0.35s ease-out forwards;
     }
     
     @keyframes slotGrowIntoPlace {
@@ -1392,7 +1392,7 @@
 
       forgeStage.classList.add("visible");
 
-      await wait(300);
+      await wait(200);
       
       createSlots(pullCount);
 
