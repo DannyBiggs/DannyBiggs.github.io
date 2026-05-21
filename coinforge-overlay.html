@@ -619,6 +619,49 @@
       transform: scale(1.02);
     }
 
+    .anvil-strike-line {
+      position: absolute;
+      left: 50%;
+      top: 8%;
+      width: 5px;
+      height: 42%;
+      transform: translateX(-50%) scaleY(0);
+      transform-origin: bottom center;
+      pointer-events: none;
+      z-index: 3;
+      opacity: 0;
+      border-radius: 999px;
+      background: linear-gradient(
+        to bottom,
+        transparent,
+        rgba(255, 230, 150, 0.85),
+        rgba(255, 130, 35, 0.45),
+        transparent
+      );
+      filter: blur(0.5px);
+    }
+    
+    .anvil-strike-line.active {
+      animation: anvilStrikeLine 0.16s ease-out;
+    }
+    
+    @keyframes anvilStrikeLine {
+      0% {
+        opacity: 0;
+        transform: translateX(-50%) scaleY(0);
+      }
+    
+      30% {
+        opacity: 0.9;
+        transform: translateX(-50%) scaleY(1);
+      }
+    
+      100% {
+        opacity: 0;
+        transform: translateX(-50%) scaleY(0.25);
+      }
+    }
+    
     .anvil-summon-fx {
       position: absolute;
       inset: 8%;
@@ -701,20 +744,21 @@
     
     @keyframes coinMaterialize {
       0% {
-        transform: scale(0.12);
+        transform: scale(0.18) translateY(-3px);
         opacity: 0;
-        filter: brightness(2.4) blur(2px);
+        filter: brightness(1.9) blur(1.5px);
       }
     
-      55% {
-        opacity: 1;
-        filter: brightness(1.9) blur(0.5px);
+      70% {
+        opacity: 0.85;
+        transform: scale(0.28) translateY(-2px);
+        filter: brightness(1.55) blur(0.5px);
       }
     
       100% {
-        transform: scale(0.24);
+        transform: scale(0.32) translateY(0);
         opacity: 1;
-        filter: brightness(1.4);
+        filter: brightness(1.35);
       }
     }
     
@@ -725,22 +769,27 @@
     
     @keyframes coinFormFromForge {
       0% {
-        transform: scale(0.24);
-        filter: brightness(1.8);
+        transform: scale(0.32) translateY(-8px);
+        filter: brightness(1.65);
       }
     
-      22% {
-        transform: scale(0.92) translateY(6px);
-        filter: brightness(2);
+      18% {
+        transform: scale(1.12, 0.82) translateY(8px);
+        filter: brightness(2.05);
       }
     
-      38% {
-        transform: scale(1.08) translateY(-2px);
-        filter: brightness(1.5);
+      42% {
+        transform: scale(0.94, 1.08) translateY(-3px);
+        filter: brightness(1.35);
+      }
+    
+      68% {
+        transform: scale(1.03, 0.98) translateY(1px);
+        filter: brightness(1.12);
       }
     
       100% {
-        transform: scale(1);
+        transform: scale(1) translateY(0);
         filter: brightness(1);
       }
     }
@@ -1734,19 +1783,29 @@
       if (!slotWrap) return;
     
       let fx = slotWrap.querySelector(".anvil-summon-fx");
-    
+      
       if (!fx) {
         fx = document.createElement("div");
         fx.className = "anvil-summon-fx";
         slotWrap.insertBefore(fx, slotWrap.firstChild);
       }
+      
+      let strike = slotWrap.querySelector(".anvil-strike-line");
+
+      if (!strike) {
+        strike = document.createElement("div");
+        strike.className = "anvil-strike-line";
+        slotWrap.insertBefore(strike, slotWrap.firstChild);
+      }
     
       fx.classList.remove("active");
+      strike.classList.remove("active");
       slotWrap.classList.remove("anvil-impact");
     
       void fx.offsetWidth;
     
       fx.classList.add("active");
+      strike.classList.add("active");
       slotWrap.classList.add("anvil-impact");
     
       forgeStage.classList.remove("impact");
