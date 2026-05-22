@@ -1619,7 +1619,7 @@
       return `${coin.file}?slot=${index}&t=${Date.now()}-${Math.random()}`;
     }
 
-   async function animateCoinFromForge(slot, finalCoin) {
+  async function animateCoinFromForge(slot, finalCoin) {
     setActiveSlotFocus(slot);
   
     slot.classList.remove(
@@ -1650,46 +1650,41 @@
       getCoinDefinition("Silver")
     ];
   
-    const fakeoutPool = [
+    const highTierFakeoutPool = [
       getCoinDefinition("Gold"),
       getCoinDefinition("Diamond"),
-      getCoinDefinition("Anti"),
       getCoinDefinition("Rainbow"),
-      getCoinDefinition("Silver"),
+      getCoinDefinition("Anti"),
       getCoinDefinition("Diamond")
     ];
   
-    // 1. Readable fakeout cycle. No spin. No hammer yet.
-    for (let i = 0; i < 7; i++) {
-      const pool = i < 4 ? normalPool : fakeoutPool;
+    // 1. Fast readable colored spinning fakeout.
+    for (let i = 0; i < 8; i++) {
+      const pool = i < 6 ? normalPool : highTierFakeoutPool;
       const fakeCoin = pool[Math.floor(Math.random() * pool.length)];
   
       slot.src = coinFileForSlot(fakeCoin, `fakeout-${i}`);
   
-      const heat = i / 6;
       slot.style.filter =
-        `grayscale(0.12) saturate(${0.82 + heat * 0.28}) brightness(${0.88 + heat * 0.18})`;
+        "grayscale(0) saturate(1.08) brightness(1.04)";
   
-      await wait(i < 4 ? 180 : 230);
+      await wait(i < 6 ? 105 : 145);
     }
   
-    // 2. Final coin locks in BEFORE hammer strike, already readable.
-    slot.src = coinFileForSlot(finalCoin, "final-before-strike");
-    
-    slot.style.transition = "filter 0.22s ease-out";
-    slot.style.filter =
-      "grayscale(0.05) saturate(0.95) brightness(0.92) drop-shadow(0 0 10px rgba(255, 170, 70, 0.22))";
-    
-    await wait(250);
-    
-    slot.style.filter =
-      "grayscale(0) saturate(1.08) brightness(1.08) drop-shadow(0 0 16px rgba(255, 190, 80, 0.36))";
-    
-    await wait(120);
+    // 2. Force the last visible pre-hammer fakeout to be high-tier.
+    const finalFakeout =
+      highTierFakeoutPool[Math.floor(Math.random() * highTierFakeoutPool.length)];
   
-    // 3. Hammer strike is the final action. No image or color changes after this.
+    slot.src = coinFileForSlot(finalFakeout, "last-fakeout-before-hammer");
+    slot.style.filter =
+      "grayscale(0) saturate(1.18) brightness(1.12) drop-shadow(0 0 16px rgba(255, 190, 80, 0.38))";
+  
+    await wait(260);
+  
+    // 3. Hammer strike reveals the actual final coin.
     slot.classList.remove("pre-forge-cycle");
-    slot.style.transition = "";
+    slot.src = coinFileForSlot(finalCoin, "final-on-hammer");
+    slot.style.filter = "";
   
     void slot.offsetWidth;
   
