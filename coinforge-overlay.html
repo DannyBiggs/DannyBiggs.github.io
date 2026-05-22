@@ -796,6 +796,45 @@
       animation: forgeImpactFlash 420ms ease-out;
     }
 
+    .spark-strike-gif {
+      position: absolute;
+    
+      left: 50%;
+      top: 58%;
+    
+      width: 620px;
+      height: auto;
+    
+      transform: translate(-50%, -50%);
+    
+      image-rendering: pixelated;
+      pointer-events: none;
+    
+      opacity: 0;
+    
+      z-index: 6;
+    }
+    
+    .spark-strike-gif.active {
+      animation: sparkStrikeGifPop 0.34s steps(4, end);
+    }
+    
+    @keyframes sparkStrikeGifPop {
+      0% {
+        opacity: 1;
+        transform:
+          translate(-50%, -50%)
+          scale(0.92);
+      }
+    
+      100% {
+        opacity: 0;
+        transform:
+          translate(-50%, -50%)
+          scale(1.04);
+      }
+    }
+    
     @keyframes forgeImpactFlash {
       0% {
         opacity: 0;
@@ -1269,6 +1308,7 @@
         <div class="forge-light-overlay"></div>
         <div class="forge-glow"></div>
         <div id="forgeImpactFlash" class="forge-impact-flash"></div>
+        <img id="sparkStrikeGif" class="spark-strike-gif" src="images/vfx/sparks_strike.gif" alt="">
         <div id="forgeCorruptionWave" class="forge-corruption-wave"></div>
         <div id="forgeBloom" class="forge-bloom"></div>
         <div id="cinematicBurst" class="cinematic-burst"></div>
@@ -1301,6 +1341,7 @@
     const slotRow = document.getElementById("slotRow");
     const cinematicBurst = document.getElementById("cinematicBurst");
     const forgeImpactFlash = document.getElementById("forgeImpactFlash");
+    const sparkStrikeGif = document.getElementById("sparkStrikeGif");
     const forgeCorruptionWave = document.getElementById("forgeCorruptionWave");
     const forgeBloom = document.getElementById("forgeBloom");
     const connectionStatus = document.getElementById("connectionStatus") || { textContent: "", style: {}, classList: { add() {}, remove() {} } };
@@ -1484,6 +1525,23 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       element.classList.add(className);
     }
 
+    function triggerSparkStrikeGif() {
+      if (!sparkStrikeGif) return;
+    
+      sparkStrikeGif.classList.remove("active");
+    
+      // Force GIF restart
+      sparkStrikeGif.src = `images/vfx/sparks_strike.gif?t=${Date.now()}`;
+    
+      void sparkStrikeGif.offsetWidth;
+    
+      sparkStrikeGif.classList.add("active");
+    
+      setTimeout(() => {
+        sparkStrikeGif.classList.remove("active");
+      }, 420);
+    }
+    
     function triggerImpactFlash() {
       restartClassAnimation(forgeImpactFlash, "active");
     }
@@ -2009,7 +2067,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         if (shouldPrePlayHammerSound && !slot.dataset.hammerSoundPlayed) {
           slot.dataset.hammerSoundPlayed = "true";
           playForgeHammerSound();
-          triggerPixelSparks(slot);
+          triggerSparkStrikeGif();
         }
           
         if (isFinalTeaseWindow && isThinCoinFrame) {
