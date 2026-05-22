@@ -780,6 +780,48 @@
       opacity: 0;
     }
 
+    .slot-coin.pre-forge-cycle {
+      opacity: 1;
+      animation: preForgeCycle 0.16s linear infinite;
+    }
+    
+    @keyframes preForgeCycle {
+      0% {
+        transform: scale(0.86) rotateY(0deg);
+      }
+    
+      100% {
+        transform: scale(0.94) rotateY(360deg);
+      }
+    }
+    
+    .slot-coin.stamped-final {
+      opacity: 1;
+      animation: stampedFinal 0.34s ease-out forwards;
+    }
+    
+    @keyframes stampedFinal {
+      0% {
+        transform: scale(1.12, 0.78) translateY(8px);
+        filter: brightness(1.55) saturate(1.2);
+      }
+    
+      42% {
+        transform: scale(0.94, 1.08) translateY(-3px);
+        filter: brightness(1.2);
+      }
+    
+      72% {
+        transform: scale(1.03, 0.98) translateY(1px);
+        filter: brightness(1.05);
+      }
+    
+      100% {
+        transform: scale(1) translateY(0);
+        filter: brightness(1);
+      }
+    }
+    
     .slot-coin.materializing {
       opacity: 1;
       animation: coinMaterialize 0.14s ease-out forwards;
@@ -1593,24 +1635,64 @@
     }
 
     async function animateCoinFromForge(slot, finalCoin) {
-    
       setActiveSlotFocus(slot);
+    
+      slot.classList.remove(
+        "materializing",
+        "forming-from-forge",
+        "pre-forge-cycle",
+        "stamped-final"
+      );
+    
+      void slot.offsetWidth;
+    
+      // 1. Start as an unfinished dark coin.
+      slot.classList.add("pre-forge-cycle");
+    
+      const cycleCoins = forgeCoins.filter(coin =>
+        coin.name !== "Jackpot Booster" &&
+        coin.name !== "Kingmaker Coin"
+      );
+    
+      const cycleStartedAt = Date.now();
+      const cycleDuration = 520;
+    
+      const cycleInterval = setInterval(() => {
+        const elapsed = Date.now() - cycleStartedAt;
+    
+        const randomCoin = cycleCoins[Math.floor(Math.random() * cycleCoins.length)];
+        slot.src = coinFileForSlot(randomCoin, "preforge");
+    
+        const heatAmount = Math.min(1, elapsed / cycleDuration);
+        const brightness = 0.75 + heatAmount * 1.75;
+        const saturation = 0.35 + heatAmount * 0.65;
+    
+        slot.style.filter =
+          `grayscale(1) sepia(0.25) saturate(${saturation}) brightness(${brightness}) drop-shadow(0 0 ${8 + heatAmount * 18}px rgba(255, 180, 70, ${0.25 + heatAmount * 0.45}))`;
+      }, 80);
+    
+      await wait(cycleDuration);
+    
+      clearInterval(cycleInterval);
+    
+      // 2. Lock the selected final coin image, still white-hot/darkened.
+      slot.src = coinFileForSlot(finalCoin, "finalstamp");
+      slot.style.filter =
+        "grayscale(1) sepia(0.25) saturate(0.8) brightness(2.35) drop-shadow(0 0 28px rgba(255, 210, 120, 0.75))";
+    
+      // 3. Hammer strike finalizes the coin.
       triggerAnvilSummon(slot, finalCoin);
-      
-      slot.classList.remove("materializing", "forming-from-forge");
+    
+      await wait(95);
+    
+      // 4. Reveal full-color stamped result.
+      slot.classList.remove("pre-forge-cycle");
+      slot.style.filter = "";
       void slot.offsetWidth;
-      
-      slot.classList.add("materializing");
-      await wait(60);
-      
-      slot.classList.remove("materializing");
-      void slot.offsetWidth;
-      
-      slot.classList.add("forming-from-forge");
-
-      await wait(300);
-      
-      // Beam removed for restrained anvil-impact summon.
+    
+      slot.classList.add("stamped-final");
+    
+      await wait(340);
     }
     
     function restartClassAnimation(element, className) {
