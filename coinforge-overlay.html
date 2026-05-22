@@ -1655,11 +1655,11 @@
       );
     
       const cycleStartedAt = Date.now();
-      const cycleDuration = 1250;
+      const cycleDuration = 1850;
     
       const cycleInterval = setInterval(() => {
       const elapsed = Date.now() - cycleStartedAt;
-      const nearEnd = elapsed > cycleDuration - 420;
+      const nearEnd = elapsed > cycleDuration - 650;
         
         let fakeoutPool = cycleCoins;
         
@@ -1686,22 +1686,40 @@ slot.src = coinFileForSlot(randomCoin, "preforge");
     
         slot.style.filter =
           `grayscale(1) sepia(0.25) saturate(${saturation}) brightness(${brightness}) drop-shadow(0 0 ${8 + heatAmount * 18}px rgba(255, 180, 70, ${0.25 + heatAmount * 0.45}))`;
-      }, 150);
+      }, 220);
     
       await wait(cycleDuration);
     
       clearInterval(cycleInterval);
     
-      // 2. Final coin appears white-hot BEFORE the hammer strike.
+      // 2. Final selected coin locks in BEFORE the strike.
       slot.src = coinFileForSlot(finalCoin, "finalstamp");
       
+      slot.style.transition =
+        "filter 0.42s ease-out, transform 0.42s ease-out";
+      
       slot.style.filter =
-        "grayscale(0.15) sepia(0.32) saturate(1.4) brightness(2.75) drop-shadow(0 0 34px rgba(255, 230, 150, 0.95))";
-    
+        "grayscale(0.7) saturate(0.45) brightness(0.78)";
+
+      await wait(120);
+
+      slot.style.filter =
+        "grayscale(0.45) saturate(0.75) brightness(0.95) drop-shadow(0 0 10px rgba(255, 160, 60, 0.22))";
+      
+      await wait(120);
+      
+      slot.style.filter =
+        "grayscale(0.18) saturate(1.05) brightness(1.08) drop-shadow(0 0 18px rgba(255, 180, 70, 0.42))";
+      
+      await wait(120);
+      
+      slot.style.filter =
+        "grayscale(0) saturate(1.22) brightness(1.18) drop-shadow(0 0 26px rgba(255, 200, 90, 0.68))";
+          
       // 3. Hammer strike finalizes the coin.
       triggerAnvilSummon(slot, finalCoin);
     
-      await wait(95);
+      await wait(42);
     
       // 4. Hammer strike stamps the already-selected coin into place.
       slot.classList.remove("pre-forge-cycle");
