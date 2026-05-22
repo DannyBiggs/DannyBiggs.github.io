@@ -1289,8 +1289,13 @@
     
     function coinFramePath(coinKey, frameNumber) {
       const folderName = coinFrameConfig[coinKey] || "bronze";
-      const paddedFrame = String(frameNumber).padStart(2, "0");
-      return `images/coins/frames/${folderName}_${paddedFrame}.png`;
+    
+      const frameName =
+        folderName === "bronze"
+          ? String(frameNumber)
+          : String(frameNumber).padStart(2, "0");
+    
+      return `images/coins/frames/${folderName}_${frameName}.png`;
     }
     
     function getProofCoinKey(currentKey) {
@@ -1720,8 +1725,8 @@
       const growAnim = slotWrap.animate(
         [
           { transform: "scale(0.16)", filter: "brightness(2.1) blur(1px)" },
-          { transform: "scale(0.34)", filter: "brightness(1.9) blur(0)" },
-          { transform: "scale(0.72)", filter: "brightness(1.6)" },
+          { transform: "scale(0.48)", filter: "brightness(1.85) blur(0)" },
+          { transform: "scale(0.82)", filter: "brightness(1.55)" },
           { transform: "scale(1.08)", filter: "brightness(1.35)" },
           { transform: "scale(1.22)", filter: "brightness(1.18)" }
         ],
@@ -1733,7 +1738,7 @@
       );
     
       const frameDelay = 12;
-      const totalFrames = 155;
+      const totalFrames = 132;
     
       for (let i = 0; i < totalFrames; i++) {
         frame++;
