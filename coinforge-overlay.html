@@ -1834,27 +1834,33 @@
   
     await wait(360);
   
-    // 3. Final coin grows in from tiny size.
+    // 3. Hammer commits the final coin.
     forgeStage.classList.remove("charging");
     
     slot.classList.remove(
       "pre-forge-cycle",
       "final-reveal-grow",
-      "stamped-final"
+      "final-reveal-primed",
+      "stamped-final",
+      "spinning",
+      "landed",
+      "anticipating",
+      "near-miss"
     );
     
-    slot.classList.add("final-reveal-primed");
+    slot.getAnimations().forEach(anim => anim.cancel());
     
-    slot.style.transition = "";
+    slot.style.transition = "none";
+    slot.style.animation = "none";
+    slot.style.opacity = "1";
     slot.style.filter = "";
-    slot.style.transform = "";
+    slot.style.transformOrigin = "center center";
+    slot.style.transform = "scale(0.04)";
     
     void slot.offsetWidth;
     
-    // Load the final coin while it is still hidden/tiny.
     slot.src = coinFileForSlot(finalCoin, "final-reveal");
     
-    // Wait until the browser has decoded the image before starting the grow.
     if (slot.decode) {
       try {
         await slot.decode();
@@ -1864,27 +1870,50 @@
     } else {
       await wait(80);
     }
-    // TEMP TEST: prove the tiny primed state is visible
-    await wait(900);
-    // Now start the grow only after the image is ready.
-    slot.classList.remove("final-reveal-primed");
     
-    void slot.offsetWidth;
-    
-    slot.classList.add("final-reveal-grow");
-    
-    await wait(460);
-    
-    slot.classList.remove("final-reveal-grow");
-    void slot.offsetWidth;
+    // Give the browser two frames to actually paint the tiny state.
+    await new Promise(requestAnimationFrame);
+    await new Promise(requestAnimationFrame);
     
     triggerImpactFreeze();
     triggerHammerPayoff();
     triggerImpactFlash();
     triggerAnvilSummon(slot, finalCoin);
-    slot.classList.add("stamped-final");
+    playHammerStrikeSound();
     
-    await wait(420);
+    const growAnim = slot.animate(
+      [
+        { transform: "scale(0.04)", opacity: 1, offset: 0 },
+        { transform: "scale(0.42)", opacity: 1, offset: 0.22 },
+        { transform: "scale(1.28)", opacity: 1, offset: 0.72 },
+        { transform: "scale(1.16)", opacity: 1, offset: 1 }
+      ],
+      {
+        duration: 460,
+        easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+        fill: "forwards"
+      }
+    );
+    
+    await growAnim.finished.catch(() => {});
+    slot.style.transform = "scale(1.16)";
+    
+    const stampAnim = slot.animate(
+      [
+        { transform: "scale(1.16)", offset: 0 },
+        { transform: "scale(0.94)", offset: 0.38 },
+        { transform: "scale(1.04)", offset: 0.72 },
+        { transform: "scale(1)", offset: 1 }
+      ],
+      {
+        duration: 420,
+        easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+        fill: "forwards"
+      }
+    );
+    
+    await stampAnim.finished.catch(() => {});
+    slot.style.transform = "scale(1)";
   }
     
     function restartClassAnimation(element, className) {
