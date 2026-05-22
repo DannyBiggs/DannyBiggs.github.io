@@ -229,11 +229,36 @@
 
     .forge-stage.charging .forge-background-glow {
       opacity: var(--forge-pressure-opacity, 0.22);
+    
       filter:
-        brightness(var(--forge-pressure-brightness, 1.12))
+        brightness(
+          calc(
+            var(--forge-pressure-brightness, 1.12)
+            * var(--forge-breath-brightness, 1)
+          )
+        )
         saturate(var(--forge-pressure-saturation, 1))
         hue-rotate(var(--forge-pressure-hue, 0deg));
-      transition: opacity 90ms linear, filter 90ms linear;
+    
+      transition:
+        opacity 120ms linear,
+        filter 120ms linear;
+    
+      animation: forgeBreathing 2.6s ease-in-out infinite;
+    }
+
+    @keyframes forgeBreathing {
+      0% {
+        --forge-breath-brightness: 0.92;
+      }
+    
+      50% {
+        --forge-breath-brightness: 1.08;
+      }
+    
+      100% {
+        --forge-breath-brightness: 0.92;
+      }
     }
     
     .forge-stage.charging .forge-glow {
@@ -2058,7 +2083,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       const latePressure = progress > 0.68 ? (progress - 0.68) / 0.32 : 0;
     
-      let opacity = 0.22 + latePressure * 0.22;
+      let opacity = 0.12 + latePressure * 0.18;
       let brightness = 1.1 + latePressure * 0.18;
       let saturation = 1.0 + latePressure * 0.08;
       let coreOpacity = 0.65 + latePressure * 0.18;
@@ -2085,7 +2110,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
         case "Rainbow":
         case "Kingmaker":
-          opacity += 0.26;
+          opacity += 0.16;
           brightness += 0.28;
           saturation += 0.22;
           coreOpacity += 0.12;
