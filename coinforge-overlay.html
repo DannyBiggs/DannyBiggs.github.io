@@ -1783,7 +1783,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         const isThinCoinFrame = frame === 8 || frame === 9;
         
         if (isFinalTeaseWindow && isThinCoinFrame) {
-          adjustedDelay += 55;
+          adjustedDelay += 25;
         }
         
         await wait(adjustedDelay);
@@ -1830,17 +1830,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       
       await playFrameCoinSequence(slot, slotWrap, finalCoin);
 
-      // Tiny forge tension before impact.
-      await wait(45);
-      
-      // HAMMER STRIKE MOMENT
-      forgeStage.classList.remove("impact");
-      void forgeStage.offsetWidth;
-      forgeStage.classList.add("impact");
-
-      playForgeHammerSound();
-      triggerImpactFlash();
-      
       if (slotWrap) {
         slotWrap.style.transform = "";
         slotWrap.style.filter = "";
@@ -1850,8 +1839,16 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       slot.classList.remove("landed");
       void slot.offsetWidth;
       
+      // FINAL LOCK + HAMMER STRIKE HAPPEN TOGETHER
       slot.src = coinFileForSlot(finalCoin, index);
       slot.classList.add("landed");
+      
+      forgeStage.classList.remove("impact");
+      void forgeStage.offsetWidth;
+      forgeStage.classList.add("impact");
+      
+      playForgeHammerSound();
+      triggerImpactFlash();
     
       playSlotLandSound();
       triggerSocketRing(slot, finalCoin);
