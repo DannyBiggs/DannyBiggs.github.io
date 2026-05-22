@@ -1779,7 +1779,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         // Tiny pre-lock hold near the end of the animation.
         // This creates suspense without adding a second animation phase.
         const progress = i / totalFrames;
-        const isFinalTeaseWindow = progress > 0.82;
+        const isFinalTeaseWindow = progress > 0.72;
         const isThinCoinFrame = frame === 7 || frame === 8;
           
         if (isFinalTeaseWindow && isThinCoinFrame) {
