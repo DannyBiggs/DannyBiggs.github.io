@@ -813,6 +813,9 @@
       opacity: 0;
     
       z-index: 6;
+      mix-blend-mode: screen;
+      opacity: 0;
+      filter: brightness(1.1);
     }
     
     .spark-strike-gif.active {
@@ -1529,6 +1532,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       if (!sparkStrikeGif) return;
     
       sparkStrikeGif.classList.remove("active");
+      const randomRotation = (-4 + Math.random() * 8);
+
+      sparkStrikeGif.style.transform =
+        `translate(-50%, -50%) rotate(${randomRotation}deg)`;
     
       // Force GIF restart
       sparkStrikeGif.src = `images/vfx/sparks_strike.gif?t=${Date.now()}`;
@@ -1539,7 +1546,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       setTimeout(() => {
         sparkStrikeGif.classList.remove("active");
-      }, 420);
+      }, 300);
     }
     
     function triggerImpactFlash() {
