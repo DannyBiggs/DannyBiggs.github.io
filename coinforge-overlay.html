@@ -1667,17 +1667,30 @@
       getCoinDefinition("Diamond")
     ];
   
-    // 1. Fast readable colored spinning fakeout.
-    for (let i = 0; i < 8; i++) {
-      const pool = i < 6 ? normalPool : highTierFakeoutPool;
-      const fakeCoin = pool[Math.floor(Math.random() * pool.length)];
-  
+    // 1. Spinning fakeout with slowdown/deceleration.
+    const fakeoutTimings = [
+      72,
+      78,
+      84,
+      96,
+      112,
+      136,
+      172,
+      240
+    ];
+    
+    for (let i = 0; i < fakeoutTimings.length; i++) {
+      const pool = i < 5 ? normalPool : highTierFakeoutPool;
+    
+      const fakeCoin =
+        pool[Math.floor(Math.random() * pool.length)];
+    
       slot.src = coinFileForSlot(fakeCoin, `fakeout-${i}`);
-  
+    
       slot.style.filter =
         "grayscale(0) saturate(1.08) brightness(1.04)";
-  
-      await wait(i < 6 ? 105 : 145);
+    
+      await wait(fakeoutTimings[i]);
     }
   
     // 2. Force the last visible pre-hammer fakeout to be high-tier.
@@ -1688,7 +1701,7 @@
     slot.style.filter =
       "grayscale(0) saturate(1.18) brightness(1.12) drop-shadow(0 0 16px rgba(255, 190, 80, 0.38))";
   
-    await wait(260);
+    await wait(360);
   
     // 3. Hammer strike reveals the actual final coin.
     slot.classList.remove("pre-forge-cycle");
