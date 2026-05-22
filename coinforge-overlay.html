@@ -788,7 +788,7 @@
       object-fit: contain;
       image-rendering: pixelated;
       filter: none;
-      transition: transform 0.2s ease;
+      transition: none;
     }
 
     .slot-coin {
@@ -1710,7 +1710,7 @@
       "near-miss"
     );
   
-    slot.style.transition = "";
+    slot.style.transition = "none";
     slot.style.filter = "";
     slot.style.transform = "";
   
@@ -1852,7 +1852,7 @@
     void slot.offsetWidth;
     
     // Load the final coin while it is still hidden/tiny.
-    slot.src = finalCoin.file;
+    slot.src = coinFileForSlot(finalCoin, "final-reveal");
     
     // Wait until the browser has decoded the image before starting the grow.
     if (slot.decode) {
