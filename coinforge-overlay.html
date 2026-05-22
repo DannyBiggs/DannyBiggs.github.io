@@ -1837,7 +1837,12 @@
     // 3. Final coin grows in from tiny size.
     forgeStage.classList.remove("charging");
     
-    slot.classList.remove("pre-forge-cycle", "final-reveal-grow", "stamped-final");
+    slot.classList.remove(
+      "pre-forge-cycle",
+      "final-reveal-grow",
+      "stamped-final"
+    );
+    
     slot.classList.add("final-reveal-primed");
     
     slot.style.transition = "";
@@ -1846,10 +1851,21 @@
     
     void slot.offsetWidth;
     
+    // Load the final coin while it is still hidden/tiny.
     slot.src = finalCoin.file;
     
-    await wait(40);
+    // Wait until the browser has decoded the image before starting the grow.
+    if (slot.decode) {
+      try {
+        await slot.decode();
+      } catch (e) {
+        await wait(80);
+      }
+    } else {
+      await wait(80);
+    }
     
+    // Now start the grow only after the image is ready.
     slot.classList.remove("final-reveal-primed");
     
     void slot.offsetWidth;
