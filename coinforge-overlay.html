@@ -508,7 +508,7 @@
     
     .slot-coin.forming-from-forge {
       opacity: 1;
-      animation: coinFormFromForge 0.52s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation: coinFormFromForge 0.82s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
     
     @keyframes coinFormFromForge {
@@ -518,17 +518,22 @@
         filter: brightness(2.1) blur(1px);
       }
     
-      72% {
-        transform: translate(0, 0) scale(1.16) rotateY(360deg);
-        filter: brightness(1.45) blur(0);
+      45% {
+        transform: translate(0, 0) scale(0.82) rotateY(720deg);
+        filter: brightness(1.65) blur(0);
       }
     
-      100% {
-        transform: translate(0, 0) scale(1.20) rotateY(540deg);
-        opacity: 1;
-        filter: brightness(1.15);
+      78% {
+        transform: translate(0, 0) scale(1.14) rotateY(1260deg);
+        filter: brightness(1.45) blur(0);
       }
-    }
+
+  100% {
+    transform: translate(0, 0) scale(1.22) rotateY(1620deg);
+    opacity: 1;
+    filter: brightness(1.18);
+  }
+}
     
     .slot-coin.spinning {
       animation: slotSpin 0.34s linear infinite;
@@ -1703,7 +1708,7 @@
         getCoinDefinition("Gold")
       ];
     
-      const fakeoutTimings = [70, 78, 88, 102, 126, 170];
+      const fakeoutTimings = [88, 96, 108, 124, 152, 205];
     
       for (let i = 0; i < fakeoutTimings.length; i++) {
         const pool = i < 4 ? normalFakeoutPool : highTierFakeoutPool;
@@ -1739,24 +1744,10 @@
       slot.classList.remove("near-miss", "anticipating");
       forgeResult.innerText = `Slot ${index + 1} is being forged...`;
       await growAndFakeoutSlot(slot, finalCoin, index);
-
+      
       const slotWrap = slot.closest(".slot-wrap");
-      clearSlotLandedClasses(slot);
-
-      slot.src = coinFileForSlot(finalCoin, index);
-      slot.classList.remove("spinning");
-      clearSlotLandedClasses(slot);
-      slot.classList.add("landed");
-
-      playSlotLandSound();
-      triggerSocketRing(slot, finalCoin);
-      triggerSlotImpact(slot, finalCoin);
-
-      const currentSlotWrap = slot.closest(".slot-wrap");
-      if (currentSlotWrap) {
-        currentSlotWrap.classList.remove("forging-in");
-      }
       if (slotWrap) {
+        slotWrap.classList.remove("forging-in");
         slotWrap.classList.add(`landed-${finalCoin.className}`);
       }
 
