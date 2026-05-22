@@ -677,13 +677,18 @@
       position: absolute;
       left: 0;
       top: 0;
-      width: 18px;
-      height: 5px;
+      width: 26px;
+      height: 7px;
       border-radius: 999px;
-      background: #ffd36a;
+      background: linear-gradient(
+        to right,
+        rgba(255,255,220,1),
+        rgba(255,210,90,1),
+        rgba(255,120,35,0.92)
+      );
       box-shadow:
-        0 0 8px rgba(255, 210, 90, 0.95),
-        0 0 18px rgba(255, 100, 25, 0.55);
+        0 0 10px rgba(255, 220, 120, 1),
+        0 0 22px rgba(255, 110, 30, 0.65);
       transform-origin: center;
       animation: anvilSparkBurst 0.42s ease-out forwards;
     }
@@ -1835,19 +1840,19 @@
       sparks.innerHTML = "";
     
       const sparkData = [
-        { x: "-52px", y: "-18px", rot: "210deg" },
-        { x: "-44px", y: "4px", rot: "188deg" },
-        { x: "-28px", y: "24px", rot: "142deg" },
+        { x: "-92px", y: "-34px", rot: "214deg" },
+        { x: "-82px", y: "-4px", rot: "194deg" },
+        { x: "-58px", y: "34px", rot: "148deg" },
       
-        { x: "52px", y: "-18px", rot: "-28deg" },
-        { x: "44px", y: "6px", rot: "12deg" },
-        { x: "30px", y: "24px", rot: "48deg" },
+        { x: "92px", y: "-34px", rot: "-34deg" },
+        { x: "82px", y: "-2px", rot: "16deg" },
+        { x: "58px", y: "36px", rot: "52deg" },
       
-        { x: "-16px", y: "42px", rot: "104deg" },
-        { x: "18px", y: "44px", rot: "74deg" },
+        { x: "-28px", y: "72px", rot: "108deg" },
+        { x: "30px", y: "76px", rot: "72deg" },
       
-        { x: "-12px", y: "-42px", rot: "255deg" },
-        { x: "14px", y: "-40px", rot: "-255deg" }
+        { x: "-24px", y: "-72px", rot: "252deg" },
+        { x: "26px", y: "-70px", rot: "-252deg" }
       ];
     
       sparkData.forEach(data => {
