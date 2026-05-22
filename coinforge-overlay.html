@@ -988,6 +988,20 @@
       100% { transform: translateX(0px); }
     }
 
+    .forge-stage.impact-freeze {
+      animation: impactFreeze 0.12s steps(2, end);
+    }
+    
+    @keyframes impactFreeze {
+      0% {
+        filter: brightness(1.22) contrast(1.08);
+      }
+    
+      100% {
+        filter: brightness(1) contrast(1);
+      }
+    }
+    
     .forge-impact-flash,
     .forge-corruption-wave,
     .forge-bloom {
@@ -1710,6 +1724,7 @@
   
     void slot.offsetWidth;
   
+    triggerImpactFreeze();
     triggerAnvilSummon(slot, finalCoin);
     slot.classList.add("stamped-final");
   
@@ -1727,6 +1742,18 @@
       restartClassAnimation(forgeImpactFlash, "active");
     }
 
+    function triggerImpactFreeze() {
+      forgeStage.classList.remove("impact-freeze");
+    
+      void forgeStage.offsetWidth;
+    
+      forgeStage.classList.add("impact-freeze");
+    
+      setTimeout(() => {
+        forgeStage.classList.remove("impact-freeze");
+      }, 140);
+    }
+    
     function setActiveSlotFocus(activeSlot) {
       const allSlots = document.querySelectorAll(".slot-wrap");
     
