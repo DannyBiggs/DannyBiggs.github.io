@@ -516,9 +516,6 @@
     }
     
     @keyframes coinGrowSpin {
-      0% {
-        transform: scale(0.16) rotateY(0deg);
-        filter: brightness(2.1) blur(1px);
       }
     
       32% {
@@ -1716,6 +1713,32 @@
       }
     }
 
+    async function growCoinSmoothly(slotWrap) {
+      if (!slotWrap) return;
+    
+      slotWrap.getAnimations().forEach(anim => anim.cancel());
+    
+      const growAnim = slotWrap.animate(
+        [
+          { transform: "scale(0.16) rotateY(0deg)", filter: "brightness(2.1) blur(1px)" },
+          { transform: "scale(0.50) rotateY(540deg)", filter: "brightness(1.85) blur(0)" },
+          { transform: "scale(0.92) rotateY(1080deg)", filter: "brightness(1.55)" },
+          { transform: "scale(1.14) rotateY(1440deg)", filter: "brightness(1.35)" },
+          { transform: "scale(1.22) rotateY(1800deg)", filter: "brightness(1.18)" }
+        ],
+        {
+          duration: 950,
+          easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+          fill: "forwards"
+        }
+      );
+    
+      await growAnim.finished.catch(() => {});
+      slotWrap.style.transform = "scale(1.22) rotateY(1800deg)";
+      slotWrap.style.filter = "brightness(1.18)";
+      growAnim.cancel();
+    }
+    
     async function growAndFakeoutSlot(slot, finalCoin, index) {
       const slotWrap = slot.closest(".slot-wrap");
     
@@ -1736,8 +1759,8 @@
       slot.style.filter = "";
       slot.style.opacity = "1";
     
-      // Phase 1: one still PNG grows and rotates smoothly.
-      slot.src = coinFacePng(getCoinDefinition("Bronze"));
+      // Phase 1: one GIF grows and rotates smoothly without changing src during growth.
+      slot.src = coinFileCached(getCoinDefinition("Bronze"));
     
       void slot.offsetWidth;
     
@@ -1749,14 +1772,7 @@
     
       slot.classList.add("forming-from-forge");
     
-      if (slotWrap) {
-        slotWrap.classList.remove("coin-growing");
-        void slotWrap.offsetWidth;
-        slotWrap.classList.add("coin-growing");
-      }
-    
-      // Let the one-coin growth finish before any fakeout swaps begin.
-      await wait(950);
+      await growCoinSmoothly(slotWrap);
     
       // Phase 2: cycle fakeout PNGs while already large and rotating.
       if (slotWrap) {
@@ -1801,8 +1817,10 @@
       // Phase 4: hammer commits the actual final result.
       if (slotWrap) {
         slotWrap.classList.remove("coin-cycling");
+        slotWrap.style.transform = "";
+        slotWrap.style.filter = "";
       }
-    
+      
       slot.classList.remove("forming-from-forge");
       void slot.offsetWidth;
     
