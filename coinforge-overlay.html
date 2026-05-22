@@ -795,6 +795,19 @@
       opacity: 0;
     }
 
+    .fresh-reveal-coin {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      image-rendering: pixelated;
+      z-index: 2;
+      opacity: 1;
+      pointer-events: none;
+      transform-origin: center center;
+    }
+
     .slot-coin.pre-forge-cycle {
       opacity: 1;
       animation: preForgeSpin 0.42s linear infinite;
@@ -1694,228 +1707,218 @@
       return `${coin.file}?slot=${index}&t=${Date.now()}-${Math.random()}`;
     }
 
-  async function animateCoinFromForge(slot, finalCoin) {
-    setActiveSlotFocus(slot);
-  
-    slot.classList.remove(
-      "materializing",
-      "forming-from-forge",
-      "pre-forge-cycle",
-      "stamped-final",
-      "final-reveal-grow",
-      "final-reveal-primed",
-      "spinning",
-      "landed",
-      "anticipating",
-      "near-miss"
-    );
-  
-    slot.style.transition = "none";
-    slot.style.filter = "";
-    slot.style.transform = "";
-  
-    void slot.offsetWidth;
-  
-    slot.classList.add("pre-forge-cycle");
-    forgeStage.classList.add("charging");
-  
-    const normalPool = [
-      getCoinDefinition("Bronze"),
-      getCoinDefinition("Silver"),
-      getCoinDefinition("Bronze"),
-      getCoinDefinition("Gold"),
-      getCoinDefinition("Wood"),
-      getCoinDefinition("Silver")
-    ];
-  
-    let highTierFakeoutPool;
-
-    switch (finalCoin.name) {
-      case "Bronze Coin":
-        highTierFakeoutPool = [
-          getCoinDefinition("Silver"),
-          getCoinDefinition("Gold"),
-          getCoinDefinition("Silver"),
-          getCoinDefinition("Bronze")
-        ];
-        break;
+    async function animateCoinFromForge(slot, finalCoin) {
+      setActiveSlotFocus(slot);
     
-      case "Silver Coin":
-        highTierFakeoutPool = [
-          getCoinDefinition("Gold"),
-          getCoinDefinition("Silver"),
-          getCoinDefinition("Gold"),
-          getCoinDefinition("Diamond")
-        ];
-        break;
+      slot.classList.remove(
+        "materializing",
+        "forming-from-forge",
+        "pre-forge-cycle",
+        "stamped-final",
+        "final-reveal-grow",
+        "final-reveal-primed",
+        "spinning",
+        "landed",
+        "anticipating",
+        "near-miss"
+      );
     
-      case "Gold Coin":
-        highTierFakeoutPool = [
-          getCoinDefinition("Gold"),
-          getCoinDefinition("Diamond"),
-          getCoinDefinition("Gold"),
-          getCoinDefinition("Diamond"),
-          getCoinDefinition("Rainbow")
-        ];
-        break;
+      slot.style.transition = "none";
+      slot.style.animation = "";
+      slot.style.opacity = "1";
+      slot.style.filter = "";
+      slot.style.transform = "";
     
-      case "Diamond Coin":
-        highTierFakeoutPool = [
-          getCoinDefinition("Diamond"),
-          getCoinDefinition("Rainbow"),
-          getCoinDefinition("Gold"),
-          getCoinDefinition("Anti"),
-          getCoinDefinition("Diamond")
-        ];
-        break;
+      const slotWrap = slot.closest(".slot-wrap");
+      if (!slotWrap) return;
     
-      case "Rainbow Coin":
-        highTierFakeoutPool = [
-          getCoinDefinition("Rainbow"),
-          getCoinDefinition("Diamond"),
-          getCoinDefinition("Anti"),
-          getCoinDefinition("Rainbow"),
-          getCoinDefinition("Gold")
-        ];
-        break;
+      slotWrap.querySelectorAll(".fresh-reveal-coin").forEach(el => el.remove());
     
-      case "Anti Coin":
-        highTierFakeoutPool = [
-          getCoinDefinition("Diamond"),
-          getCoinDefinition("Gold"),
-          getCoinDefinition("Rainbow"),
-          getCoinDefinition("Anti"),
-          getCoinDefinition("Diamond")
-        ];
-        break;
+      void slot.offsetWidth;
     
-      default:
-        highTierFakeoutPool = [
-          getCoinDefinition("Gold"),
-          getCoinDefinition("Diamond"),
-          getCoinDefinition("Rainbow"),
-          getCoinDefinition("Anti")
-        ];
-    }
-  
-    // 1. Spinning fakeout with slowdown/deceleration.
-    const fakeoutTimings = [
-      72,
-      78,
-      84,
-      96,
-      112,
-      136,
-      172,
-      240
-    ];
+      slot.classList.add("pre-forge-cycle");
+      forgeStage.classList.add("charging");
     
-    for (let i = 0; i < fakeoutTimings.length; i++) {
-      const pool = i < 5 ? normalPool : highTierFakeoutPool;
+      const normalPool = [
+        getCoinDefinition("Bronze"),
+        getCoinDefinition("Silver"),
+        getCoinDefinition("Bronze"),
+        getCoinDefinition("Gold"),
+        getCoinDefinition("Wood"),
+        getCoinDefinition("Silver")
+      ];
     
-      const fakeCoin =
-        pool[Math.floor(Math.random() * pool.length)];
+      let highTierFakeoutPool;
     
-      slot.src = coinFileForSlot(fakeCoin, `fakeout-${i}`);
+      switch (finalCoin.name) {
+        case "Bronze Coin":
+          highTierFakeoutPool = [
+            getCoinDefinition("Silver"),
+            getCoinDefinition("Gold"),
+            getCoinDefinition("Silver"),
+            getCoinDefinition("Bronze")
+          ];
+          break;
     
+        case "Silver Coin":
+          highTierFakeoutPool = [
+            getCoinDefinition("Gold"),
+            getCoinDefinition("Silver"),
+            getCoinDefinition("Gold"),
+            getCoinDefinition("Diamond")
+          ];
+          break;
+    
+        case "Gold Coin":
+          highTierFakeoutPool = [
+            getCoinDefinition("Gold"),
+            getCoinDefinition("Diamond"),
+            getCoinDefinition("Gold"),
+            getCoinDefinition("Diamond"),
+            getCoinDefinition("Rainbow")
+          ];
+          break;
+    
+        case "Diamond Coin":
+          highTierFakeoutPool = [
+            getCoinDefinition("Diamond"),
+            getCoinDefinition("Rainbow"),
+            getCoinDefinition("Gold"),
+            getCoinDefinition("Anti"),
+            getCoinDefinition("Diamond")
+          ];
+          break;
+    
+        case "Rainbow Coin":
+          highTierFakeoutPool = [
+            getCoinDefinition("Rainbow"),
+            getCoinDefinition("Diamond"),
+            getCoinDefinition("Anti"),
+            getCoinDefinition("Rainbow"),
+            getCoinDefinition("Gold")
+          ];
+          break;
+    
+        case "Anti Coin":
+          highTierFakeoutPool = [
+            getCoinDefinition("Diamond"),
+            getCoinDefinition("Gold"),
+            getCoinDefinition("Rainbow"),
+            getCoinDefinition("Anti"),
+            getCoinDefinition("Diamond")
+          ];
+          break;
+    
+        default:
+          highTierFakeoutPool = [
+            getCoinDefinition("Gold"),
+            getCoinDefinition("Diamond"),
+            getCoinDefinition("Rainbow"),
+            getCoinDefinition("Anti")
+          ];
+      }
+    
+      const fakeoutTimings = [72, 78, 84, 96, 112, 136, 172, 240];
+    
+      for (let i = 0; i < fakeoutTimings.length; i++) {
+        const pool = i < 5 ? normalPool : highTierFakeoutPool;
+        const fakeCoin = pool[Math.floor(Math.random() * pool.length)];
+    
+        slot.src = coinFileForSlot(fakeCoin, `fakeout-${i}`);
+        slot.style.filter = "grayscale(0) saturate(1.08) brightness(1.04)";
+    
+        await wait(fakeoutTimings[i]);
+      }
+    
+      const finalFakeout =
+        highTierFakeoutPool[Math.floor(Math.random() * highTierFakeoutPool.length)];
+    
+      slot.src = coinFileForSlot(finalFakeout, "last-fakeout-before-hammer");
       slot.style.filter =
-        "grayscale(0) saturate(1.08) brightness(1.04)";
+        "grayscale(0) saturate(1.18) brightness(1.12) drop-shadow(0 0 16px rgba(255, 190, 80, 0.38))";
     
-      await wait(fakeoutTimings[i]);
-    }
-  
-    // 2. Force the last visible pre-hammer fakeout to be high-tier.
-    const finalFakeout =
-      highTierFakeoutPool[Math.floor(Math.random() * highTierFakeoutPool.length)];
-  
-    slot.src = coinFileForSlot(finalFakeout, "last-fakeout-before-hammer");
-    slot.style.filter =
-      "grayscale(0) saturate(1.18) brightness(1.12) drop-shadow(0 0 16px rgba(255, 190, 80, 0.38))";
-  
-    await wait(360);
-  
-    // 3. Hammer commits the final coin.
-    forgeStage.classList.remove("charging");
+      await wait(360);
     
-    slot.classList.remove(
-      "pre-forge-cycle",
-      "final-reveal-grow",
-      "final-reveal-primed",
-      "stamped-final",
-      "spinning",
-      "landed",
-      "anticipating",
-      "near-miss"
-    );
+      forgeStage.classList.remove("charging");
     
-    slot.getAnimations().forEach(anim => anim.cancel());
+      slot.classList.remove("pre-forge-cycle");
+      slot.getAnimations().forEach(anim => anim.cancel());
+      slot.style.animation = "none";
+      slot.style.opacity = "0";
     
-    slot.style.transition = "none";
-    slot.style.animation = "none";
-    slot.style.opacity = "1";
-    slot.style.filter = "";
-    slot.style.transformOrigin = "center center";
-    slot.style.transform = "scale(0.04)";
+      const revealCoin = document.createElement("img");
+      revealCoin.className = "fresh-reveal-coin";
+      revealCoin.src = coinFileForSlot(finalCoin, "fresh-final-reveal");
+      revealCoin.alt = "Forged Coin";
+      revealCoin.style.transform = "scale(0.04)";
+      revealCoin.style.opacity = "1";
+      revealCoin.style.filter =
+        "brightness(1.65) drop-shadow(0 0 18px rgba(255, 220, 140, 0.65))";
     
-    void slot.offsetWidth;
+      slotWrap.appendChild(revealCoin);
     
-    slot.src = coinFileForSlot(finalCoin, "final-reveal");
-    
-    if (slot.decode) {
-      try {
-        await slot.decode();
-      } catch (e) {
+      if (revealCoin.decode) {
+        try {
+          await revealCoin.decode();
+        } catch (e) {
+          await wait(80);
+        }
+      } else {
         await wait(80);
       }
-    } else {
-      await wait(80);
+    
+      await new Promise(requestAnimationFrame);
+      await new Promise(requestAnimationFrame);
+    
+      const growAnim = revealCoin.animate(
+        [
+          { transform: "scale(0.04)", opacity: 1, offset: 0 },
+          { transform: "scale(0.42)", opacity: 1, offset: 0.20 },
+          { transform: "scale(1.32)", opacity: 1, offset: 0.78 },
+          { transform: "scale(1.24)", opacity: 1, offset: 1 }
+        ],
+        {
+          duration: 380,
+          easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+          fill: "forwards"
+        }
+      );
+    
+      await growAnim.finished.catch(() => {});
+      revealCoin.style.transform = "scale(1.24)";
+    
+      triggerImpactFreeze();
+      triggerHammerPayoff();
+      triggerImpactFlash();
+      triggerAnvilSummon(revealCoin, finalCoin);
+    
+      const stampAnim = revealCoin.animate(
+        [
+          { transform: "scale(1.24)", offset: 0 },
+          { transform: "scale(0.90)", offset: 0.34 },
+          { transform: "scale(1.06)", offset: 0.70 },
+          { transform: "scale(1)", offset: 1 }
+        ],
+        {
+          duration: 420,
+          easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+          fill: "forwards"
+        }
+      );
+    
+      await stampAnim.finished.catch(() => {});
+      revealCoin.style.transform = "scale(1)";
+      revealCoin.style.filter = "";
+    
+      slot.src = coinFileForSlot(finalCoin, "final-static");
+      slot.style.opacity = "1";
+      slot.style.transform = "scale(1)";
+      slot.style.animation = "";
+      slot.style.filter = "";
+    
+      revealCoin.remove();
     }
-    
-    // Give the browser two frames to actually paint the tiny state.
-    await new Promise(requestAnimationFrame);
-    await new Promise(requestAnimationFrame);
-    
-    triggerImpactFreeze();
-    triggerHammerPayoff();
-    triggerImpactFlash();
-    triggerAnvilSummon(slot, finalCoin);
-    playHammerStrikeSound();
-    
-    const growAnim = slot.animate(
-      [
-        { transform: "scale(0.04)", opacity: 1, offset: 0 },
-        { transform: "scale(0.42)", opacity: 1, offset: 0.22 },
-        { transform: "scale(1.28)", opacity: 1, offset: 0.72 },
-        { transform: "scale(1.16)", opacity: 1, offset: 1 }
-      ],
-      {
-        duration: 460,
-        easing: "cubic-bezier(0.16, 1, 0.3, 1)",
-        fill: "forwards"
-      }
-    );
-    
-    await growAnim.finished.catch(() => {});
-    slot.style.transform = "scale(1.16)";
-    
-    const stampAnim = slot.animate(
-      [
-        { transform: "scale(1.16)", offset: 0 },
-        { transform: "scale(0.94)", offset: 0.38 },
-        { transform: "scale(1.04)", offset: 0.72 },
-        { transform: "scale(1)", offset: 1 }
-      ],
-      {
-        duration: 420,
-        easing: "cubic-bezier(0.16, 1, 0.3, 1)",
-        fill: "forwards"
-      }
-    );
-    
-    await stampAnim.finished.catch(() => {});
-    slot.style.transform = "scale(1)";
-  }
-    
+ 
     function restartClassAnimation(element, className) {
       if (!element) return;
       element.classList.remove(className);
