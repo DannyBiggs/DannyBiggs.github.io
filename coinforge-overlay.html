@@ -1745,7 +1745,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         if (frame === 9) {
           const progress = i / totalFrames;
     
-          if (progress > 0.72) {
+          if (progress > 0.75) {
             currentCoinKey = teaseCoins[Math.floor(Math.random() * teaseCoins.length)];
           } else {
             currentCoinKey = getProofCoinKey(currentCoinKey);
@@ -1763,7 +1763,17 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         if (frame >= 7 && frame <= 10) {
           adjustedDelay = frameDelay + 4;
         }
-    
+        
+        // Tiny pre-lock hold near the end of the animation.
+        // This creates suspense without adding a second animation phase.
+        const progress = i / totalFrames;
+        const isFinalTeaseWindow = progress > 0.88;
+        const isThinCoinFrame = frame === 8 || frame === 9;
+        
+        if (isFinalTeaseWindow && isThinCoinFrame) {
+          adjustedDelay += 55;
+        }
+        
         await wait(adjustedDelay);
       }
     
