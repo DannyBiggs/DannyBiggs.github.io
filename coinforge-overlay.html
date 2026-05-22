@@ -782,7 +782,7 @@
 
     .slot-coin.pre-forge-cycle {
       opacity: 1;
-      animation: preForgeCycle 0.16s linear infinite;
+      animation: preForgeCycle 0.85s linear infinite;
     }
     
     @keyframes preForgeCycle {
@@ -802,23 +802,19 @@
     
     @keyframes stampedFinal {
       0% {
-        transform: scale(1.12, 0.78) translateY(8px);
-        filter: brightness(1.55) saturate(1.2);
+        transform: scale(1.12, 0.76) translateY(9px);
       }
     
       42% {
         transform: scale(0.94, 1.08) translateY(-3px);
-        filter: brightness(1.2);
       }
     
       72% {
         transform: scale(1.03, 0.98) translateY(1px);
-        filter: brightness(1.05);
       }
     
       100% {
         transform: scale(1) translateY(0);
-        filter: brightness(1);
       }
     }
     
@@ -1692,44 +1688,41 @@ slot.src = coinFileForSlot(randomCoin, "preforge");
     
       clearInterval(cycleInterval);
     
-      // 2. Final selected coin locks in BEFORE the strike.
+      // 2. Final selected coin locks in BEFORE the strike, still dim.
       slot.src = coinFileForSlot(finalCoin, "finalstamp");
       
-      slot.style.transition =
-        "filter 0.42s ease-out, transform 0.42s ease-out";
+      slot.style.transition = "filter 0.55s ease-out";
+      slot.style.filter =
+        "grayscale(0.75) saturate(0.35) brightness(0.72)";
+      
+      await wait(160);
+      
+      // 3. The selected coin gains color BEFORE the hammer strike.
+      slot.style.filter =
+        "grayscale(0.45) saturate(0.75) brightness(0.92) drop-shadow(0 0 8px rgba(255, 160, 60, 0.18))";
+      
+      await wait(160);
       
       slot.style.filter =
-        "grayscale(0.7) saturate(0.45) brightness(0.78)";
-
+        "grayscale(0.18) saturate(1.02) brightness(1.05) drop-shadow(0 0 14px rgba(255, 180, 70, 0.32))";
+      
+      await wait(160);
+      
+      slot.style.filter =
+        "grayscale(0) saturate(1.18) brightness(1.12) drop-shadow(0 0 20px rgba(255, 200, 90, 0.46))";
+      
       await wait(120);
-
-      slot.style.filter =
-        "grayscale(0.45) saturate(0.75) brightness(0.95) drop-shadow(0 0 10px rgba(255, 160, 60, 0.22))";
       
-      await wait(120);
-      
-      slot.style.filter =
-        "grayscale(0.18) saturate(1.05) brightness(1.08) drop-shadow(0 0 18px rgba(255, 180, 70, 0.42))";
-      
-      await wait(120);
-      
-      slot.style.filter =
-        "grayscale(0) saturate(1.22) brightness(1.18) drop-shadow(0 0 26px rgba(255, 200, 90, 0.68))";
-          
-      // 3. Hammer strike finalizes the coin.
-      triggerAnvilSummon(slot, finalCoin);
-    
-      await wait(42);
-    
-      // 4. Hammer strike stamps the already-selected coin into place.
+      // 4. Hammer strike is the final action: same coin, same color, stamped down.
       slot.classList.remove("pre-forge-cycle");
       
-      slot.style.filter = "";
+      slot.style.transition = "";
       
       void slot.offsetWidth;
       
+      triggerAnvilSummon(slot, finalCoin);
       slot.classList.add("stamped-final");
-    
+      
       await wait(340);
     }
     
