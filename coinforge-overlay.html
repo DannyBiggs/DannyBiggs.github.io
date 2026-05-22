@@ -510,35 +510,6 @@
       opacity: 1;
     }
     
-    .slot-wrap.coin-growing {
-      transform-origin: center center;
-      animation: coinGrowSpin 0.95s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-    
-    @keyframes coinGrowSpin {
-      }
-    
-      32% {
-        transform: scale(0.50) rotateY(540deg);
-        filter: brightness(1.85) blur(0);
-      }
-    
-      62% {
-        transform: scale(0.92) rotateY(1080deg);
-        filter: brightness(1.55);
-      }
-    
-      82% {
-        transform: scale(1.14) rotateY(1440deg);
-        filter: brightness(1.35);
-      }
-    
-      100% {
-        transform: scale(1.22) rotateY(1800deg);
-        filter: brightness(1.18);
-      }
-    }
-    
     .slot-wrap.coin-cycling {
       transform-origin: center center;
       animation: coinCycleSpin 0.42s linear infinite;
@@ -1305,6 +1276,23 @@
     function coinFacePng(coin) {
       return coin.file.replace(".gif", ".png");
     }
+
+    const coinFrameConfig = {
+      Bronze: "bronze",
+      Silver: "silver"
+    };
+    
+    const coinFrameCount = 15;
+    
+    function coinFramePath(coinKey, frameNumber) {
+      const folderName = coinFrameConfig[coinKey] || "bronze";
+      const paddedFrame = String(frameNumber).padStart(2, "0");
+      return `images/coins/frames/${folderName}_${paddedFrame}.png`;
+    }
+    
+    function getProofCoinKey(currentKey) {
+      return currentKey === "Bronze" ? "Silver" : "Bronze";
+    }
     
     async function animateCoinFromForge(slot, finalCoin) {
       const stageRect = forgeStage.getBoundingClientRect();
@@ -1713,6 +1701,62 @@
       }
     }
 
+    async function playFrameCoinSequence(slot, slotWrap) {
+      if (!slot || !slotWrap) return;
+    
+      slotWrap.getAnimations().forEach(anim => anim.cancel());
+    
+      let frame = 1;
+      let currentCoinKey = "Bronze";
+    
+      slot.src = coinFramePath(currentCoinKey, frame);
+      slot.style.opacity = "1";
+    
+      const growAnim = slotWrap.animate(
+        [
+          { transform: "scale(0.16)", filter: "brightness(2.1) blur(1px)" },
+          { transform: "scale(0.48)", filter: "brightness(1.85) blur(0)" },
+          { transform: "scale(0.82)", filter: "brightness(1.55)" },
+          { transform: "scale(1.08)", filter: "brightness(1.35)" },
+          { transform: "scale(1.22)", filter: "brightness(1.18)" }
+        ],
+        {
+          duration: 950,
+          easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+          fill: "forwards"
+        }
+      );
+    
+      const frameDelay = 55;
+      const totalFrames = 42;
+    
+      for (let i = 0; i < totalFrames; i++) {
+        frame++;
+    
+        if (frame > coinFrameCount) {
+          frame = 1;
+        }
+    
+        if (frame === 9) {
+          currentCoinKey = getProofCoinKey(currentCoinKey);
+        }
+    
+        slot.src = coinFramePath(currentCoinKey, frame);
+        await wait(frameDelay);
+      }
+    
+      await growAnim.finished.catch(() => {});
+      growAnim.cancel();
+    
+      slotWrap.style.transform = "scale(1.22)";
+      slotWrap.style.filter = "brightness(1.18)";
+    
+      return {
+        frame,
+        currentCoinKey
+      };
+    }
+    
     async function growCoinSmoothly(slotWrap) {
       if (!slotWrap) return;
     
@@ -1753,14 +1797,13 @@
     
       if (slotWrap) {
         slotWrap.classList.remove("coin-growing", "coin-cycling", "lock-impact");
+        slotWrap.style.transform = "";
+        slotWrap.style.filter = "";
       }
     
       slot.style.transform = "";
       slot.style.filter = "";
       slot.style.opacity = "1";
-    
-      // Phase 1: one GIF grows and rotates smoothly without changing src during growth.
-      slot.src = coinFileCached(getCoinDefinition("Bronze"));
     
       void slot.offsetWidth;
     
@@ -1772,55 +1815,15 @@
     
       slot.classList.add("forming-from-forge");
     
-      await growCoinSmoothly(slotWrap);
+      await playFrameCoinSequence(slot, slotWrap);
     
-      // Phase 2: cycle fakeout PNGs while already large and rotating.
+      await wait(180);
+    
       if (slotWrap) {
-        slotWrap.classList.remove("coin-growing", "coin-cycling");
-        void slotWrap.offsetWidth;
-        slotWrap.classList.add("coin-cycling");
-      }
-    
-      const highTierFakeoutPool = [
-        getCoinDefinition("Gold"),
-        getCoinDefinition("Diamond"),
-        getCoinDefinition("Rainbow"),
-        getCoinDefinition("Anti"),
-        getCoinDefinition("Jackpot Booster")
-      ];
-    
-      const normalFakeoutPool = [
-        getCoinDefinition("Bronze"),
-        getCoinDefinition("Silver"),
-        getCoinDefinition("Wood"),
-        getCoinDefinition("Gold")
-      ];
-    
-      const cycleTimings = [90, 90, 100, 110, 125, 145, 170, 200, 240];
-    
-      for (let i = 0; i < cycleTimings.length; i++) {
-        const pool = i < 5 ? normalFakeoutPool : highTierFakeoutPool;
-        const fakeCoin = pool[Math.floor(Math.random() * pool.length)];
-    
-        slot.src = coinFacePng(fakeCoin);
-        await wait(cycleTimings[i]);
-      }
-    
-      // Phase 3: final high-tier tease before hammer.
-      const finalFakeout =
-        highTierFakeoutPool[Math.floor(Math.random() * highTierFakeoutPool.length)];
-    
-      slot.src = coinFacePng(finalFakeout);
-    
-      await wait(260);
-    
-      // Phase 4: hammer commits the actual final result.
-      if (slotWrap) {
-        slotWrap.classList.remove("coin-cycling");
         slotWrap.style.transform = "";
         slotWrap.style.filter = "";
       }
-      
+    
       slot.classList.remove("forming-from-forge");
       void slot.offsetWidth;
     
