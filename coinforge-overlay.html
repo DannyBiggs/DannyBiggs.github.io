@@ -782,7 +782,8 @@
 
     .slot-coin.pre-forge-cycle {
       opacity: 1;
-      animation: preForgeCycle 0.85s linear infinite;
+      animation: none;
+      transform: scale(0.94);
     }
     
     @keyframes preForgeCycle {
@@ -801,21 +802,9 @@
     }
     
     @keyframes stampedFinal {
-      0% {
-        transform: scale(1.12, 0.76) translateY(9px);
-      }
-    
-      42% {
-        transform: scale(0.94, 1.08) translateY(-3px);
-      }
-    
-      72% {
-        transform: scale(1.03, 0.98) translateY(1px);
-      }
-    
-      100% {
-        transform: scale(1) translateY(0);
-      }
+      0% { transform: scale(1.12, 0.76) translateY(9px); }
+      45% { transform: scale(0.95, 1.06) translateY(-3px); }
+      100% { transform: scale(1) translateY(0); }
     }
     
     .slot-coin.materializing {
@@ -1630,101 +1619,95 @@
       return `${coin.file}?slot=${index}&t=${Date.now()}-${Math.random()}`;
     }
 
-    async function animateCoinFromForge(slot, finalCoin) {
-      setActiveSlotFocus(slot);
-    
-      slot.classList.remove(
-        "materializing",
-        "forming-from-forge",
-        "pre-forge-cycle",
-        "stamped-final"
-      );
-    
-      void slot.offsetWidth;
-    
-      // 1. Start as an unfinished dark coin.
-      slot.classList.add("pre-forge-cycle");
-    
-      const cycleCoins = forgeCoins.filter(coin =>
-        coin.name !== "Jackpot Booster" &&
-        coin.name !== "Kingmaker Coin"
-      );
-    
-      const cycleStartedAt = Date.now();
-      const cycleDuration = 1850;
-    
-      const cycleInterval = setInterval(() => {
-      const elapsed = Date.now() - cycleStartedAt;
-      const nearEnd = elapsed > cycleDuration - 650;
-        
-        let fakeoutPool = cycleCoins;
-        
-        if (nearEnd) {
-          fakeoutPool = [
-            getCoinDefinition("Gold"),
-            getCoinDefinition("Diamond"),
-            getCoinDefinition("Rainbow"),
-            getCoinDefinition("Anti"),
-            getCoinDefinition("Silver"),
-            getCoinDefinition("Gold"),
-            getCoinDefinition("Diamond")
-          ];
-        }
-
-const randomCoin =
-  fakeoutPool[Math.floor(Math.random() * fakeoutPool.length)];
-
-slot.src = coinFileForSlot(randomCoin, "preforge");
-    
-        const heatAmount = Math.min(1, elapsed / cycleDuration);
-        const brightness = 0.75 + heatAmount * 1.75;
-        const saturation = 0.35 + heatAmount * 0.65;
-    
-        slot.style.filter =
-          `grayscale(1) sepia(0.25) saturate(${saturation}) brightness(${brightness}) drop-shadow(0 0 ${8 + heatAmount * 18}px rgba(255, 180, 70, ${0.25 + heatAmount * 0.45}))`;
-      }, 220);
-    
-      await wait(cycleDuration);
-    
-      clearInterval(cycleInterval);
-    
-      // 2. Final selected coin locks in BEFORE the strike, still dim.
-      slot.src = coinFileForSlot(finalCoin, "finalstamp");
-      
-      slot.style.transition = "filter 0.55s ease-out";
+   async function animateCoinFromForge(slot, finalCoin) {
+    setActiveSlotFocus(slot);
+  
+    slot.classList.remove(
+      "materializing",
+      "forming-from-forge",
+      "pre-forge-cycle",
+      "stamped-final",
+      "spinning",
+      "landed",
+      "anticipating",
+      "near-miss"
+    );
+  
+    slot.style.transition = "";
+    slot.style.filter = "";
+    slot.style.transform = "";
+  
+    void slot.offsetWidth;
+  
+    slot.classList.add("pre-forge-cycle");
+  
+    const normalPool = [
+      getCoinDefinition("Bronze"),
+      getCoinDefinition("Silver"),
+      getCoinDefinition("Bronze"),
+      getCoinDefinition("Gold"),
+      getCoinDefinition("Wood"),
+      getCoinDefinition("Silver")
+    ];
+  
+    const fakeoutPool = [
+      getCoinDefinition("Gold"),
+      getCoinDefinition("Diamond"),
+      getCoinDefinition("Anti"),
+      getCoinDefinition("Rainbow"),
+      getCoinDefinition("Silver"),
+      getCoinDefinition("Diamond")
+    ];
+  
+    // 1. Readable fakeout cycle. No spin. No hammer yet.
+    for (let i = 0; i < 7; i++) {
+      const pool = i < 4 ? normalPool : fakeoutPool;
+      const fakeCoin = pool[Math.floor(Math.random() * pool.length)];
+  
+      slot.src = coinFileForSlot(fakeCoin, `fakeout-${i}`);
+  
+      const heat = i / 6;
       slot.style.filter =
-        "grayscale(0.75) saturate(0.35) brightness(0.72)";
-      
-      await wait(160);
-      
-      // 3. The selected coin gains color BEFORE the hammer strike.
-      slot.style.filter =
-        "grayscale(0.45) saturate(0.75) brightness(0.92) drop-shadow(0 0 8px rgba(255, 160, 60, 0.18))";
-      
-      await wait(160);
-      
-      slot.style.filter =
-        "grayscale(0.18) saturate(1.02) brightness(1.05) drop-shadow(0 0 14px rgba(255, 180, 70, 0.32))";
-      
-      await wait(160);
-      
-      slot.style.filter =
-        "grayscale(0) saturate(1.18) brightness(1.12) drop-shadow(0 0 20px rgba(255, 200, 90, 0.46))";
-      
-      await wait(120);
-      
-      // 4. Hammer strike is the final action: same coin, same color, stamped down.
-      slot.classList.remove("pre-forge-cycle");
-      
-      slot.style.transition = "";
-      
-      void slot.offsetWidth;
-      
-      triggerAnvilSummon(slot, finalCoin);
-      slot.classList.add("stamped-final");
-      
-      await wait(340);
+        `grayscale(${0.85 - heat * 0.45}) saturate(${0.45 + heat * 0.55}) brightness(${0.78 + heat * 0.35})`;
+  
+      await wait(i < 4 ? 180 : 230);
     }
+  
+    // 2. Final coin locks in BEFORE hammer strike.
+    slot.src = coinFileForSlot(finalCoin, "final-before-strike");
+  
+    slot.style.transition = "filter 0.5s ease-out";
+    slot.style.filter =
+      "grayscale(0.6) saturate(0.55) brightness(0.82)";
+  
+    await wait(180);
+  
+    slot.style.filter =
+      "grayscale(0.35) saturate(0.85) brightness(0.98) drop-shadow(0 0 10px rgba(255, 165, 60, 0.22))";
+  
+    await wait(180);
+  
+    slot.style.filter =
+      "grayscale(0.12) saturate(1.05) brightness(1.08) drop-shadow(0 0 16px rgba(255, 185, 70, 0.34))";
+  
+    await wait(180);
+  
+    slot.style.filter =
+      "grayscale(0) saturate(1.12) brightness(1.12) drop-shadow(0 0 20px rgba(255, 200, 90, 0.42))";
+  
+    await wait(120);
+  
+    // 3. Hammer strike is the final action. No image or color changes after this.
+    slot.classList.remove("pre-forge-cycle");
+    slot.style.transition = "";
+  
+    void slot.offsetWidth;
+  
+    triggerAnvilSummon(slot, finalCoin);
+    slot.classList.add("stamped-final");
+  
+    await wait(360);
+  }
     
     function restartClassAnimation(element, className) {
       if (!element) return;
