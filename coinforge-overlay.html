@@ -1658,10 +1658,8 @@
       const cycleDuration = 1250;
     
       const cycleInterval = setInterval(() => {
-        const elapsed = Date.now() - cycleStartedAt;
-    
-        const elapsed = Date.now() - cycleStartedAt;
-        const nearEnd = elapsed > cycleDuration - 420;
+      const elapsed = Date.now() - cycleStartedAt;
+      const nearEnd = elapsed > cycleDuration - 420;
         
         let fakeoutPool = cycleCoins;
         
