@@ -228,36 +228,32 @@
     }
 
     .forge-stage.charging .forge-background-glow {
-      opacity: var(--forge-pressure-opacity, 0.22);
-    
+      opacity: var(--forge-pressure-opacity, 0);
       filter:
-        brightness(
-          calc(
-            var(--forge-pressure-brightness, 1.12)
-            * var(--forge-breath-brightness, 1)
-          )
-        )
+        brightness(var(--forge-pressure-brightness, 1))
         saturate(var(--forge-pressure-saturation, 1))
         hue-rotate(var(--forge-pressure-hue, 0deg));
     
       transition:
-        opacity 120ms linear,
-        filter 120ms linear;
-    
-      animation: forgeBreathing 2.6s ease-in-out infinite;
+        opacity 260ms ease-out,
+        filter 260ms ease-out;
     }
-
-    @keyframes forgeBreathing {
+    
+    .forge-stage.pressure-pulse .forge-background-glow {
+      animation: forgePressurePulse 0.72s ease-out;
+    }
+    
+    @keyframes forgePressurePulse {
       0% {
-        --forge-breath-brightness: 0.92;
+        opacity: 0;
       }
     
-      50% {
-        --forge-breath-brightness: 1.08;
+      22% {
+        opacity: var(--forge-pressure-peak-opacity, 0.28);
       }
     
       100% {
-        --forge-breath-brightness: 0.92;
+        opacity: var(--forge-pressure-opacity, 0.04);
       }
     }
     
@@ -2083,7 +2079,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       const latePressure = progress > 0.68 ? (progress - 0.68) / 0.32 : 0;
     
-      let opacity = 0.12 + latePressure * 0.18;
+      let opacity = 0.02 + latePressure * 0.08;
+      let peakOpacity = 0.10 + latePressure * 0.14;
       let brightness = 1.1 + latePressure * 0.18;
       let saturation = 1.0 + latePressure * 0.08;
       let coreOpacity = 0.65 + latePressure * 0.18;
@@ -2093,36 +2090,40 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       switch (coinKey) {
         case "Gold":
-          opacity += 0.10;
-          brightness += 0.10;
-          saturation += 0.08;
-          coreScale += 0.03;
+          opacity += 0.03;
+          peakOpacity += 0.08;
+          brightness += 0.08;
+          saturation += 0.06;
+          coreScale += 0.02;
           break;
     
         case "Diamond":
         case "JackpotBooster":
-          opacity += 0.18;
-          brightness += 0.20;
-          saturation += 0.14;
-          coreOpacity += 0.08;
-          coreScale += 0.07;
+          opacity += 0.05;
+          peakOpacity += 0.16;
+          brightness += 0.14;
+          saturation += 0.10;
+          coreOpacity += 0.05;
+          coreScale += 0.04;
           break;
     
         case "Rainbow":
         case "Kingmaker":
-          opacity += 0.16;
-          brightness += 0.28;
-          saturation += 0.22;
-          coreOpacity += 0.12;
-          coreScale += 0.10;
+          opacity += 0.07;
+          peakOpacity += 0.22;
+          brightness += 0.20;
+          saturation += 0.16;
+          coreOpacity += 0.08;
+          coreScale += 0.06;
           break;
     
         case "Anti":
-          opacity += 0.18;
-          brightness += 0.04;
-          saturation -= 0.16;
-          coreOpacity += 0.06;
-          coreScale += 0.05;
+          opacity += 0.05;
+          peakOpacity += 0.16;
+          brightness += 0.02;
+          saturation -= 0.12;
+          coreOpacity += 0.04;
+          coreScale += 0.03;
           hue = "155deg";
           cursed = true;
           break;
@@ -2130,7 +2131,12 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       forgeStage.classList.toggle("pressure-cursed", cursed);
     
-      forgeStage.style.setProperty("--forge-pressure-opacity", Math.min(opacity, 0.92).toFixed(2));
+      forgeStage.style.setProperty("--forge-pressure-opacity", Math.min(opacity, 0.18).toFixed(2));
+      forgeStage.style.setProperty("--forge-pressure-peak-opacity", Math.min(peakOpacity, 0.36).toFixed(2));
+      
+      forgeStage.classList.remove("pressure-pulse");
+      void forgeStage.offsetWidth;
+      forgeStage.classList.add("pressure-pulse");
       forgeStage.style.setProperty("--forge-pressure-brightness", Math.min(brightness, 1.58).toFixed(2));
       forgeStage.style.setProperty("--forge-pressure-saturation", Math.max(0.75, Math.min(saturation, 1.38)).toFixed(2));
       forgeStage.style.setProperty("--forge-pressure-hue", hue);
@@ -2141,7 +2147,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     function clearForgePressure() {
       if (!forgeStage) return;
     
-      forgeStage.classList.remove("pressure-cursed");
+      forgeStage.classList.remove("pressure-cursed", "pressure-pulse");
     
       forgeStage.style.removeProperty("--forge-pressure-opacity");
       forgeStage.style.removeProperty("--forge-pressure-brightness");
@@ -2149,6 +2155,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       forgeStage.style.removeProperty("--forge-pressure-hue");
       forgeStage.style.removeProperty("--forge-core-opacity");
       forgeStage.style.removeProperty("--forge-core-scale");
+      forgeStage.style.removeProperty("--forge-pressure-peak-opacity");
     }
     
     async function playFrameCoinSequence(slot, slotWrap, finalCoin) {
