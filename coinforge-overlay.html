@@ -1771,7 +1771,17 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         }
     
         slot.src = coinFramePath(currentCoinKey, frame);
-        await wait(frameDelay);
+        let adjustedDelay = frameDelay;
+
+        if (frame <= 3 || frame >= 14) {
+          adjustedDelay = Math.max(8, frameDelay - 4);
+        }
+        
+        if (frame >= 7 && frame <= 10) {
+          adjustedDelay = frameDelay + 4;
+        }
+        
+        await wait(adjustedDelay);
       }
     
       await growAnim.finished.catch(() => {});
