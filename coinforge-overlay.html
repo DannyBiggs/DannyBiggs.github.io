@@ -240,20 +240,20 @@
     }
     
     .forge-stage.pressure-pulse .forge-background-glow {
-      animation: forgePressurePulse 0.72s ease-out;
+      animation: forgePressurePulse 0.9s ease-in-out;
     }
     
     @keyframes forgePressurePulse {
       0% {
-        opacity: 0;
+        opacity: var(--forge-pressure-opacity, 0.02);
       }
     
-      22% {
-        opacity: var(--forge-pressure-peak-opacity, 0.28);
+      45% {
+        opacity: var(--forge-pressure-peak-opacity, 0.18);
       }
     
       100% {
-        opacity: var(--forge-pressure-opacity, 0.04);
+        opacity: var(--forge-pressure-opacity, 0.02);
       }
     }
     
