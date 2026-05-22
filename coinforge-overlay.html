@@ -1991,6 +1991,15 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       }
     }
 
+    function getFinalFrameCoinKey(finalCoin) {
+      if (!finalCoin) return "Bronze";
+    
+      if (finalCoin.key === "Jackpot Booster") return "JackpotBooster";
+      if (finalCoin.key === "JackpotBooster") return "JackpotBooster";
+    
+      return finalCoin.key || "Bronze";
+    }
+    
     function getTeaseCoinPool(finalCoin) {
       if (!finalCoin) {
         return ["Gold", "Diamond", "Anti"];
@@ -2060,7 +2069,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       const frameDelay = 16;
       const totalFrames = 165;
       const teaseCoins = getTeaseCoinPool(finalCoin);
-    
+      const finalFrameCoinKey = getFinalFrameCoinKey(finalCoin);
+          
       for (let i = 0; i < totalFrames; i++) {
         frame++;
     
@@ -2095,16 +2105,18 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         const progress = i / totalFrames;
         const isFinalTeaseWindow = progress > 0.88;
         const isThinCoinFrame = frame === 8 || frame === 9;
-        const shouldPrePlayHammerSound = progress > 0.84 && frame === 6;
         
-        if (shouldPrePlayHammerSound && !slot.dataset.hammerSoundPlayed) {
-          slot.dataset.hammerSoundPlayed = "true";
-          playForgeHammerSound();
-          triggerSparkStrikeGif();
-          triggerSocketCompression(slot);
-        }
-          
         if (isFinalTeaseWindow && isThinCoinFrame) {
+          currentCoinKey = finalFrameCoinKey;
+          slot.src = getCachedCoinFrame(finalFrameCoinKey, frame);
+        
+          if (!slot.dataset.hammerSoundPlayed) {
+            slot.dataset.hammerSoundPlayed = "true";
+            playForgeHammerSound();
+            triggerSparkStrikeGif();
+            triggerSocketCompression(slot);
+          }
+        
           await wait(15);
           break;
         }
