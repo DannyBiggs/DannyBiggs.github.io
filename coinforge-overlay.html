@@ -1209,15 +1209,34 @@
     const forgeEventQueue = [];
     let forgeEventPlaying = false;
 
+    const coinFrameCache = {};
+
     function preloadImage(src) {
       const img = new Image();
       img.src = src;
+      return img;
     }
+
+function getCachedCoinFrame(coinKey, frameNumber) {
+  const src = coinFramePath(coinKey, frameNumber);
+
+  if (!coinFrameCache[src]) {
+    coinFrameCache[src] = preloadImage(src);
+  }
+
+  return coinFrameCache[src].src;
+}
     
     function preloadCoinForgeAssets() {
       forgeCoins.forEach(coin => {
         preloadImage(coin.file);
         preloadImage(coinFacePng(coin));
+      });
+    
+      Object.keys(coinFrameConfig).forEach(coinKey => {
+        for (let frame = 1; frame <= coinFrameCount; frame++) {
+          getCachedCoinFrame(coinKey, frame);
+        }
       });
     
       preloadImage("images/ui/forge_background.png");
@@ -1719,7 +1738,7 @@
       let frame = 1;
       let currentCoinKey = "Bronze";
     
-      slot.src = coinFramePath(currentCoinKey, frame);
+      slot.src = getCachedCoinFrame(currentCoinKey, frame);
       slot.style.opacity = "1";
     
       const growAnim = slotWrap.animate(
