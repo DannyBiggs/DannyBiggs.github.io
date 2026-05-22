@@ -1739,6 +1739,57 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         currentCoinKey
       };
     }
+
+    async function playSuspenseTease(slot, finalCoin, startFrame = 8) {
+      if (!slot || !finalCoin) return;
+    
+      let frame = startFrame;
+    
+      const finalKey = finalCoin.key === "Jackpot Booster"
+        ? "JackpotBooster"
+        : finalCoin.key;
+    
+      let teaseCoins = ["Gold", "Diamond", "Anti"];
+    
+      if (finalCoin.name === "Gold Coin") {
+        teaseCoins = ["Silver", "Diamond", "Anti"];
+      }
+    
+      if (finalCoin.name === "Diamond Coin") {
+        teaseCoins = ["Gold", "Rainbow", "Kingmaker", "Anti"];
+      }
+    
+      if (finalCoin.name === "Rainbow Coin" || finalCoin.name === "Kingmaker Coin") {
+        teaseCoins = ["Diamond", "Rainbow", "Kingmaker", "Anti"];
+      }
+    
+      if (finalCoin.name === "Anti Coin") {
+        teaseCoins = ["Gold", "Diamond", "Rainbow", "Anti"];
+      }
+    
+      // Keep the suspense short: 5 flashes around the thin side of the coin.
+      for (let i = 0; i < 5; i++) {
+        frame++;
+    
+        if (frame > coinFrameCount) {
+          frame = 1;
+        }
+    
+        const teaseKey = teaseCoins[i % teaseCoins.length];
+    
+        slot.src = getCachedCoinFrame(teaseKey, frame);
+    
+        if (frame >= 7 && frame <= 10) {
+          await wait(115);
+        } else {
+          await wait(85);
+        }
+      }
+    
+      // Briefly show the final coin's thin-side frame before the hammer locks it.
+      slot.src = getCachedCoinFrame(finalKey, 8);
+      await wait(120);
+    }
     
     async function growAndFakeoutSlot(slot, finalCoin, index) {
       const slotWrap = slot.closest(".slot-wrap");
@@ -1767,7 +1818,9 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       
       slot.classList.add("forming-from-forge");
       
-      await playFrameCoinSequence(slot, slotWrap);
+      const sequenceResult = await playFrameCoinSequence(slot, slotWrap);
+
+      await playSuspenseTease(slot, finalCoin, sequenceResult?.frame || 8);
 
       if (slotWrap) {
         slotWrap.style.transform = "";
