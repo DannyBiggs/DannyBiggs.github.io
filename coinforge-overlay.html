@@ -1292,6 +1292,10 @@
       return `${coin.file}?slot=${index}&t=${Date.now()}-${Math.random()}`;
     }
 
+    function coinFileCached(coin) {
+      return coin.file;
+    }
+
     async function animateCoinFromForge(slot, finalCoin) {
       const stageRect = forgeStage.getBoundingClientRect();
       const slotRect = slot.getBoundingClientRect();
@@ -1744,12 +1748,12 @@
         const pool = i < 4 ? normalFakeoutPool : highTierFakeoutPool;
         const fakeCoin = pool[Math.floor(Math.random() * pool.length)];
     
-        slot.src = coinFileForSlot(fakeCoin, `grow-fakeout-${index}-${i}`);
+        slot.src = coinFileCached(fakeCoin);
         await wait(fakeoutTimings[i]);
       }
     
       const finalFakeout = highTierFakeoutPool[Math.floor(Math.random() * highTierFakeoutPool.length)];
-      slot.src = coinFileForSlot(finalFakeout, `last-high-tease-${index}`);
+      slot.src = coinFileCached(finalFakeout);
     
       await wait(120);
     
