@@ -303,6 +303,18 @@
       100% { transform: scale(1); }
     }
 
+    .slot-wrap.socket-compress {
+      animation: socketCompress 0.36s steps(5, end) forwards;
+    }
+    
+    @keyframes socketCompress {
+      0% { transform: translateY(0px) scale(1); filter: brightness(1); }
+      22% { transform: translateY(10px) scaleX(1.08) scaleY(0.86); filter: brightness(1.28); }
+      48% { transform: translateY(-4px) scaleX(0.96) scaleY(1.08); filter: brightness(1.12); }
+      72% { transform: translateY(2px) scaleX(1.02) scaleY(0.97); filter: brightness(1.04); }
+      100% { transform: translateY(0px) scale(1); filter: brightness(1); }
+    }
+
     .slot-socket-ring {
       position: absolute;
       inset: 13%;
@@ -1530,6 +1542,19 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       element.classList.add(className);
     }
 
+    function triggerSocketCompression(slot) {
+      const slotWrap = slot.closest(".slot-wrap");
+      if (!slotWrap) return;
+    
+      slotWrap.classList.remove("socket-compress");
+      void slotWrap.offsetWidth;
+      slotWrap.classList.add("socket-compress");
+    
+      setTimeout(() => {
+        slotWrap.classList.remove("socket-compress");
+      }, 420);
+    }
+      
     function triggerSparkStrikeGif() {
       if (!sparkStrikeGif) return;
     
@@ -2076,6 +2101,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           slot.dataset.hammerSoundPlayed = "true";
           playForgeHammerSound();
           triggerSparkStrikeGif();
+          triggerSocketCompression(slot);
         }
           
         if (isFinalTeaseWindow && isThinCoinFrame) {
