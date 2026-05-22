@@ -820,11 +820,14 @@
       }
     }
 
+    .slot-coin.final-reveal-primed {
+      opacity: 0;
+      transform: scale(0.08) !important;
+      animation: none !important;
+    }
+    
     .slot-coin.final-reveal-grow {
       opacity: 1;
-    
-      transform: scale(0.08);
-    
       animation: finalRevealGrow 0.46s ease-out forwards;
     }
     
@@ -1700,6 +1703,7 @@
       "pre-forge-cycle",
       "stamped-final",
       "final-reveal-grow",
+      "final-reveal-primed",
       "spinning",
       "landed",
       "anticipating",
@@ -1833,22 +1837,26 @@
     // 3. Final coin grows in from tiny size.
     forgeStage.classList.remove("charging");
     
-    slot.classList.remove("pre-forge-cycle");
+    slot.classList.remove("pre-forge-cycle", "final-reveal-grow", "stamped-final");
+    slot.classList.add("final-reveal-primed");
     
-    slot.classList.add("final-reveal-grow");
-    
-    slot.style.transform = "scale(0.08)";
-    
-    slot.src = finalCoin.file;
+    slot.style.transition = "";
     slot.style.filter = "";
+    slot.style.transform = "";
     
     void slot.offsetWidth;
     
-    await wait(20);
+    slot.src = finalCoin.file;
     
-    slot.style.transform = "";
+    await wait(40);
     
-    await wait(420);
+    slot.classList.remove("final-reveal-primed");
+    
+    void slot.offsetWidth;
+    
+    slot.classList.add("final-reveal-grow");
+    
+    await wait(460);
     
     slot.classList.remove("final-reveal-grow");
     void slot.offsetWidth;
