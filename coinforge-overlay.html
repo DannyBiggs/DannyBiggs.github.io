@@ -420,7 +420,7 @@
     .pixel-spark {
       position: absolute;
       left: 50%;
-      top: 50%;
+      top: 58%;
       opacity: 0;
       image-rendering: pixelated;
       transform: translate(-50%, -50%);
@@ -490,6 +490,52 @@
           rotate(var(--spark-angle))
           translate(calc(var(--spark-x) * 1px), calc(var(--spark-y) * 1px))
           scaleX(1.35);
+      }
+    }
+
+    .pixel-ember {
+      position: absolute;
+    
+      width: 10px;
+      height: 10px;
+    
+      background: #ffb13b;
+    
+      image-rendering: pixelated;
+    
+      opacity: 0;
+    
+      box-shadow:
+        0 0 0 2px #b84a12,
+        0 0 0 4px rgba(40, 12, 4, 0.75);
+    
+      animation: fallingEmber 0.9s steps(7, end) forwards;
+    }
+    
+    @keyframes fallingEmber {
+      0% {
+        opacity: 1;
+    
+        transform:
+          translate(-50%, -50%)
+          translate(0px, 0px)
+          scale(1);
+      }
+    
+      35% {
+        opacity: 1;
+      }
+    
+      100% {
+        opacity: 0;
+    
+        transform:
+          translate(-50%, -50%)
+          translate(
+            calc(var(--ember-x) * 1px),
+            calc(var(--ember-y) * 1px)
+          )
+          scale(0.72);
       }
     }
     
@@ -1529,16 +1575,52 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         const spark = document.createElement("div");
         spark.className = `pixel-spark ${sparkData.type}`;
 
-        spark.style.setProperty("--spark-angle", `${sparkData.angle}deg`);
-        spark.style.setProperty("--spark-x", sparkData.x);
-        spark.style.setProperty("--spark-y", sparkData.y);
-        spark.style.animationDelay = `${index * 18}ms`;
+        const randomAngleOffset = (-6 + Math.random() * 12);
+        const randomDistanceOffset = (0.88 + Math.random() * 0.22);
+        
+        spark.style.setProperty(
+          "--spark-angle",
+          `${sparkData.angle + randomAngleOffset}deg`
+        );
+        
+        spark.style.setProperty(
+          "--spark-x",
+          (sparkData.x * randomDistanceOffset).toFixed(2)
+        );
+        
+        spark.style.setProperty(
+          "--spark-y",
+          (sparkData.y * randomDistanceOffset).toFixed(2)
+        );
+        
+        spark.style.animationDelay = `${index * (10 + Math.random() * 10)}ms`;
     
         sparkLayer.appendChild(spark);
     
         void spark.offsetWidth;
       });
+
+    const emberData = [
+      { x: -22, y: 88 },
+      { x: 26, y: 96 }
+    ];
     
+    emberData.forEach((ember, i) => {
+      const emberEl = document.createElement("div");
+    
+      emberEl.className = "pixel-ember";
+    
+      emberEl.style.left = "50%";
+      emberEl.style.top = "58%";
+    
+      emberEl.style.setProperty("--ember-x", ember.x);
+      emberEl.style.setProperty("--ember-y", ember.y);
+    
+      emberEl.style.animationDelay = `${140 + (i * 60)}ms`;
+    
+      sparkLayer.appendChild(emberEl);
+    });
+      
       setTimeout(() => {
         sparkLayer.innerHTML = "";
       }, 900);
