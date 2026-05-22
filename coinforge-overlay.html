@@ -1771,7 +1771,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         const isThinCoinFrame = frame === 8 || frame === 9;
         
         if (isFinalTeaseWindow && isThinCoinFrame) {
-          adjustedDelay += 55;
+          adjustedDelay += 75;
         }
         
         await wait(adjustedDelay);
