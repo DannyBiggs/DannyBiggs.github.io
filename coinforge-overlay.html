@@ -1740,12 +1740,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       };
     }
     
-      await growAnim.finished.catch(() => {});
-      slotWrap.style.transform = "scale(1.22) rotateY(1800deg)";
-      slotWrap.style.filter = "brightness(1.18)";
-      growAnim.cancel();
-    }
-    
     async function growAndFakeoutSlot(slot, finalCoin, index) {
       const slotWrap = slot.closest(".slot-wrap");
     
