@@ -782,8 +782,17 @@
 
     .slot-coin.pre-forge-cycle {
       opacity: 1;
-      animation: none;
-      transform: scale(0.94);
+      animation: preForgeSpin 0.42s linear infinite;
+    }
+
+    @keyframes preForgeSpin {
+      0% {
+        transform: scale(0.94) rotateY(0deg);
+      }
+    
+      100% {
+        transform: scale(0.98) rotateY(360deg);
+      }
     }
     
     @keyframes preForgeCycle {
