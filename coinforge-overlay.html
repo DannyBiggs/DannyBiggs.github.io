@@ -516,43 +516,43 @@
     
     @keyframes coinFormFromForge {
       0% {
-        transform: translate(0, 0) scale(0.16) rotateY(0deg);
+        transform: translate(0, 0) scale(0.16);
         opacity: 1;
         filter: brightness(2.1) blur(1px);
       }
     
       18% {
-        transform: translate(0, 0) scale(0.34) rotateY(240deg);
+        transform: translate(0, 0) scale(0.34);
         filter: brightness(1.95);
       }
     
       36% {
-        transform: translate(0, 0) scale(0.58) rotateY(520deg);
+        transform: translate(0, 0) scale(0.58);
         filter: brightness(1.75);
       }
     
       52% {
-        transform: translate(0, 0) scale(0.82) rotateY(820deg);
+        transform: translate(0, 0) scale(0.82);
         filter: brightness(1.6);
       }
     
       68% {
-        transform: translate(0, 0) scale(1.02) rotateY(1120deg);
+        transform: translate(0, 0) scale(1.02);
         filter: brightness(1.48);
       }
     
       82% {
-        transform: translate(0, 0) scale(1.14) rotateY(1420deg);
+        transform: translate(0, 0) scale(1.14);
         filter: brightness(1.36);
       }
     
       92% {
-        transform: translate(0, 0) scale(1.20) rotateY(1620deg);
+        transform: translate(0, 0) scale(1.20);
         filter: brightness(1.26);
       }
     
       100% {
-        transform: translate(0, 0) scale(1.22) rotateY(1760deg);
+        transform: translate(0, 0) scale(1.22);
         opacity: 1;
         filter: brightness(1.18);
       }
@@ -1713,7 +1713,10 @@
       slot.style.transform = "";
       slot.style.filter = "";
       slot.style.opacity = "1";
-    
+      
+      // Start the growth phase on a still PNG, not a GIF.
+      slot.src = coinFacePng(getCoinDefinition("Bronze"));
+      
       void slot.offsetWidth;
     
       slot.classList.add("materializing");
