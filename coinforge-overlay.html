@@ -258,6 +258,14 @@
       filter: brightness(1.08) saturate(0.82) hue-rotate(155deg);
     }
     
+    .slot-wrap.active-slot {
+      filter: brightness(1.18) drop-shadow(0 0 18px rgba(255, 185, 80, 0.55));
+    }
+    
+    .slot-wrap.inactive-slot {
+      filter: brightness(0.72) saturate(0.85);
+    }
+    
     .slot-row {
       position: absolute;
       left: 50%;
@@ -294,7 +302,98 @@
       78% { transform: scale(1.025) translateY(0); }
       100% { transform: scale(1); }
     }
+
+    .slot-socket-ring {
+      position: absolute;
+      inset: 13%;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0;
+      border: 3px solid rgba(255, 235, 170, 0.95);
+      box-shadow:
+        0 0 8px rgba(255, 210, 120, 0.45),
+        inset 0 0 8px rgba(255, 150, 40, 0.25);
+      transform: scale(0.55);
+    }
     
+    .slot-socket-ring.active {
+      animation: socketRingLock 0.42s ease-out;
+    }
+    
+    .slot-socket-ring.common {
+      border-color: rgba(220, 220, 220, 0.7);
+      box-shadow: 0 0 10px rgba(220, 220, 220, 0.35);
+    }
+    
+    .slot-socket-ring.rare {
+      border-color: rgba(100, 180, 255, 0.9);
+      box-shadow:
+        0 0 16px rgba(100, 180, 255, 0.65),
+        inset 0 0 18px rgba(80, 150, 255, 0.35);
+    }
+    
+    .slot-socket-ring.epic {
+      border-color: rgba(195, 95, 255, 0.9);
+      box-shadow:
+        0 0 18px rgba(195, 95, 255, 0.7),
+        inset 0 0 18px rgba(160, 70, 255, 0.35);
+    }
+    
+    .slot-socket-ring.legendary {
+      border-color: rgba(255, 220, 95, 0.95);
+      box-shadow:
+        0 0 22px rgba(255, 190, 70, 0.8),
+        inset 0 0 20px rgba(255, 150, 40, 0.45);
+    }
+    
+    .slot-socket-ring.mythic {
+      border-color: rgba(255, 245, 180, 1);
+      box-shadow:
+        0 0 34px rgba(255, 230, 120, 1),
+        0 0 62px rgba(255, 120, 30, 0.55),
+        inset 0 0 30px rgba(255, 180, 50, 0.65);
+    }
+    
+    .slot-socket-ring.rainbow {
+      border-color: rgba(255, 255, 255, 1);
+      box-shadow:
+        0 0 30px rgba(255, 255, 255, 0.95),
+        0 0 58px rgba(255, 80, 220, 0.65),
+        0 0 76px rgba(80, 220, 255, 0.55);
+    }
+    
+    .slot-socket-ring.cursed {
+      border-color: rgba(90, 190, 255, 0.95);
+      box-shadow:
+        0 0 32px rgba(90, 190, 255, 0.95),
+        0 0 62px rgba(30, 80, 255, 0.55),
+        inset 0 0 30px rgba(20, 80, 255, 0.6);
+    }
+    
+    @keyframes socketRingLock {
+      0% {
+        opacity: 0;
+        transform: scale(0.72) rotate(0deg);
+      }
+    
+      18% {
+        opacity: 1;
+        transform: scale(1.02) rotate(8deg);
+      }
+    
+      58% {
+        opacity: 0.85;
+        transform: scale(0.96) rotate(-3deg);
+      }
+    
+      100% {
+        opacity: 0;
+        transform: scale(1.12) rotate(0deg);
+      }
+    }
+  
+      
     .slot-impact-flash {
       position: absolute;
       inset: 16%;
@@ -382,6 +481,30 @@
     .slot-coin {
       opacity: 0;
     }
+
+    .slot-coin.materializing {
+      opacity: 1;
+      animation: coinMaterialize 0.14s ease-out forwards;
+    }
+    
+    @keyframes coinMaterialize {
+      0% {
+        transform: translate(var(--forge-start-x), var(--forge-start-y)) scale(0.02);
+        opacity: 0;
+        filter: brightness(3) blur(3px);
+      }
+    
+      70% {
+        opacity: 1;
+        filter: brightness(2.4) blur(1px);
+      }
+    
+      100% {
+        transform: translate(var(--forge-start-x), var(--forge-start-y)) scale(0.16);
+        opacity: 1;
+        filter: brightness(2);
+      }
+    }
     
     .slot-coin.forming-from-forge {
       opacity: 1;
@@ -390,16 +513,12 @@
     
     @keyframes coinFormFromForge {
       0% {
-        transform: translate(var(--forge-start-x), var(--forge-start-y)) scale(0.12) rotateY(0deg);
-        opacity: 0;
+        transform: translate(var(--forge-start-x), var(--forge-start-y)) scale(0.16) rotateY(0deg);
+        opacity: 1;
         filter: brightness(2.1) blur(1px);
       }
     
-      20% {
-        opacity: 1;
-      }
-    
-      72% {
+      68% {
         transform: translate(0, 0) scale(1.08) rotateY(360deg);
         filter: brightness(1.45) blur(0);
       }
@@ -425,10 +544,10 @@
     }
 
     @keyframes slotLand {
-      0% { transform: scale(1.28); }
-      40% { transform: scale(0.92); }
-      70% { transform: scale(1.08); }
-      100% { transform: scale(1); }
+      0% { transform: scale(1.34); filter: brightness(1.35); }
+      34% { transform: scale(0.9); filter: brightness(1.15); }
+      66% { transform: scale(1.08); filter: brightness(1.05); }
+      100% { transform: scale(1); filter: brightness(1); }
     }
 
     .slot-coin.anticipating {
@@ -503,6 +622,16 @@
       background: radial-gradient(circle, rgba(180,240,255,1.0) 0%, rgba(90,180,255,0.88) 18%, rgba(40,120,255,0.62) 36%, rgba(20,70,255,0.40) 50%, rgba(0,30,255,0.10) 62%, transparent 74%);
     }
 
+    .slot-wrap.landed-common::before,
+    .slot-wrap.landed-rare::before,
+    .slot-wrap.landed-epic::before,
+    .slot-wrap.landed-legendary::before,
+    .slot-wrap.landed-mythic::before,
+    .slot-wrap.landed-rainbow::before,
+    .slot-wrap.landed-cursed::before {
+      opacity: 0;
+    }
+    
     .forge-stage.impact {
       animation: stageImpact 0.28s ease-out !important;
     }
@@ -1006,7 +1135,7 @@
         <div id="forgeCorruptionWave" class="forge-corruption-wave"></div>
         <div id="forgeBloom" class="forge-bloom"></div>
         <div id="cinematicBurst" class="cinematic-burst"></div>
-
+        
         <div class="slot-row" id="slotRow"></div>
         <div id="playerIdentityLayer" class="player-identity-layer">
           <img id="playerNameplate" class="player-nameplate-bg" src="" alt="">
@@ -1135,17 +1264,17 @@
       return `${coin.file}?slot=${index}&t=${Date.now()}-${Math.random()}`;
     }
 
-    async function animateCoinFromForge(slot) {
+    async function animateCoinFromForge(slot, finalCoin) {
       const stageRect = forgeStage.getBoundingClientRect();
       const slotRect = slot.getBoundingClientRect();
     
       // Approximate center of the flame/circle in the forge background.
       // Adjust these if the spawn point needs nudging.
       const forgeCenterX = stageRect.width * 0.50;
-      const forgeCenterY = stageRect.height * 0.34;
+      const forgeCenterY = stageRect.height * 0.312;
     
-      const slotCenterX = slotRect.left + slotRect.width / 2 - stageRect.left;
-      const slotCenterY = slotRect.top + slotRect.height / 2 - stageRect.top;
+      let slotCenterX = slotRect.left + slotRect.width / 2 - stageRect.left;
+      let slotCenterY = slotRect.top + slotRect.height / 2 - stageRect.top;
     
       const startX = forgeCenterX - slotCenterX;
       const startY = forgeCenterY - slotCenterY;
@@ -1153,11 +1282,21 @@
       slot.style.setProperty("--forge-start-x", `${startX}px`);
       slot.style.setProperty("--forge-start-y", `${startY}px`);
     
-      slot.classList.remove("forming-from-forge");
+      setActiveSlotFocus(slot);
+      
+      slot.classList.remove("materializing", "forming-from-forge");
       void slot.offsetWidth;
+      
+      slot.classList.add("materializing");
+      await wait(60);
+      
+      slot.classList.remove("materializing");
+      void slot.offsetWidth;
+      
       slot.classList.add("forming-from-forge");
-    
-      await wait(340);
+
+      await wait(300);
+      
     }
     
     function restartClassAnimation(element, className) {
@@ -1171,6 +1310,26 @@
       restartClassAnimation(forgeImpactFlash, "active");
     }
 
+    function setActiveSlotFocus(activeSlot) {
+      const allSlots = document.querySelectorAll(".slot-wrap");
+    
+      allSlots.forEach(slotWrap => {
+        slotWrap.classList.remove("active-slot", "inactive-slot");
+    
+        if (activeSlot && slotWrap === activeSlot.closest(".slot-wrap")) {
+          slotWrap.classList.add("active-slot");
+        } else if (activeSlot) {
+          slotWrap.classList.add("inactive-slot");
+        }
+      });
+    }
+    
+    function clearActiveSlotFocus() {
+      document.querySelectorAll(".slot-wrap").forEach(slotWrap => {
+        slotWrap.classList.remove("active-slot", "inactive-slot");
+      });
+    }
+    
     function triggerScreenBorder(type) {
       if (!screenBorderFX) return;
     
@@ -1179,6 +1338,23 @@
       screenBorderFX.classList.add(type);
     }
 
+    function triggerSocketRing(slot, finalCoin) {
+      const slotWrap = slot.closest(".slot-wrap");
+      if (!slotWrap || !finalCoin) return;
+    
+      let ring = slotWrap.querySelector(".slot-socket-ring");
+    
+      if (!ring) {
+        ring = document.createElement("div");
+        ring.className = "slot-socket-ring";
+        slotWrap.insertBefore(ring, slotWrap.firstChild);
+      }
+    
+      ring.className = `slot-socket-ring ${finalCoin.className}`;
+      void ring.offsetWidth;
+      ring.classList.add("active");
+    }
+    
     function triggerSlotImpact(slot, finalCoin) {
       const slotWrap = slot.closest(".slot-wrap");
       if (!slotWrap) return;
@@ -1409,7 +1585,6 @@
 
       if (coin.name === "Kingmaker Coin") {
         triggerScreenBorder("mythic");
-        forgeStage.classList.add("cinematic-mythic");
         triggerBurst("mythic", slot);
         forgeResult.innerHTML = "👑 KINGMAKER COIN!";
         forgeResult.classList.add("cinematic-text");
@@ -1471,9 +1646,13 @@
         img.src = `images/coins/bronze.gif?slot=${i}&t=${Date.now()}-${Math.random()}`;
         img.alt = "Forged Coin";
 
+        const socketRing = document.createElement("div");
+        socketRing.className = "slot-socket-ring";
+        
         const impactFlash = document.createElement("div");
         impactFlash.className = "slot-impact-flash";
         
+        slotWrap.appendChild(socketRing);
         slotWrap.appendChild(impactFlash);
         slotWrap.appendChild(img);
         slotRow.appendChild(slotWrap);
@@ -1500,7 +1679,7 @@
       }
 
       slot.classList.remove("near-miss", "anticipating");
-      await animateCoinFromForge(slot);
+      await animateCoinFromForge(slot, finalCoin);
 
       forgeResult.innerText = `Slot ${index + 1} begins to spin...`;
       await spinCoinInSlot(slot, index, shouldAnticipateReveal(finalCoin) ? 560 : 420);
@@ -1541,6 +1720,7 @@
       slot.classList.add("landed");
 
       playSlotLandSound();
+      triggerSocketRing(slot, finalCoin);
       triggerSlotImpact(slot, finalCoin);
 
       const currentSlotWrap = slot.closest(".slot-wrap");
@@ -1572,10 +1752,6 @@
         triggerCorruptionWave();
       }
 
-      if (finalCoin.name === "Kingmaker Coin") {
-        triggerMythicBloom();
-      }
-
       const cinematicPromise = playFinalCinematic(finalCoin, slot);
 
       await wait(160);
@@ -1584,6 +1760,7 @@
       
       await cinematicPromise;
 
+      clearActiveSlotFocus();
       clearCinematicStageClasses();
     }
 
