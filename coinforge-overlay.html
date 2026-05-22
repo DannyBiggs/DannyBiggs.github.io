@@ -1853,16 +1853,15 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       slot.style.filter = "";
       slot.style.opacity = "0";
     
+      if (slotWrap) {
+        slotWrap.style.transform = "scale(0.08)";
+        slotWrap.style.filter = "brightness(2.3) blur(2px)";
+      }
+      
       void slot.offsetWidth;
-    
-      slot.classList.add("materializing");
-      await wait(60);
-    
-      slot.classList.remove("materializing");
-      void slot.offsetWidth;
-    
+      
       slot.classList.add("forming-from-forge");
-    
+      
       await playFrameCoinSequence(slot, slotWrap);
     
       await wait(180);
