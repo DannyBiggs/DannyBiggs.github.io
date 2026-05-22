@@ -1737,7 +1737,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       let frame = 1;
       let currentCoinKey = "Bronze";
-    
+      
+      slotWrap.style.transform = "scale(0.08)";
+      slotWrap.style.filter = "brightness(2.3) blur(2px)";
+      
       slot.src = getCachedCoinFrame(currentCoinKey, frame);
       slot.style.opacity = "1";
     
@@ -1848,7 +1851,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       slot.style.transform = "";
       slot.style.filter = "";
-      slot.style.opacity = "1";
+      slot.style.opacity = "0";
     
       void slot.offsetWidth;
     
