@@ -1183,6 +1183,8 @@
     
     const slotLandSound = new Audio("sounds/slot-land.m4a");
     slotLandSound.volume = 0.08;
+    const forgeHammerSound = new Audio("sounds/forge-hammer.m4a");
+    forgeHammerSound.volume = 0.16;
 
     const forgeCoins = [
       { key: "Wood", name: "Wood Coin", file: "images/coins/wood.gif", rarity: "Common", className: "common" },
@@ -1255,6 +1257,11 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     function playSlotLandSound() {
       slotLandSound.currentTime = 0;
       slotLandSound.play().catch(() => {});
+    }
+
+    function playForgeHammerSound() {
+      forgeHammerSound.currentTime = 0;
+      forgeHammerSound.play().catch(() => {});
     }
 
     function normalizeCoinName(name) {
@@ -1830,7 +1837,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       forgeStage.classList.remove("impact");
       void forgeStage.offsetWidth;
       forgeStage.classList.add("impact");
-      
+
+      playForgeHammerSound();
       triggerImpactFlash();
       
       if (slotWrap) {
