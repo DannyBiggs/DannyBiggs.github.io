@@ -508,7 +508,10 @@
     
     .slot-coin.forming-from-forge {
       opacity: 1;
-      animation: coinFormFromForge 0.82s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    
+    .slot-wrap.coin-growing {
+      animation: coinFormFromForge 0.92s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
     
     @keyframes coinFormFromForge {
@@ -1712,6 +1715,13 @@
       void slot.offsetWidth;
     
       slot.classList.add("forming-from-forge");
+
+      const slotWrap = slot.closest(".slot-wrap");
+      if (slotWrap) {
+        slotWrap.classList.remove("coin-growing");
+        void slotWrap.offsetWidth;
+        slotWrap.classList.add("coin-growing");
+      }
     
       const highTierFakeoutPool = [
         getCoinDefinition("Gold"),
@@ -1744,6 +1754,10 @@
       await wait(120);
     
       slot.classList.remove("forming-from-forge");
+
+      if (slotWrap) {
+        slotWrap.classList.remove("coin-growing");
+      }
       void slot.offsetWidth;
     
       slot.src = coinFileForSlot(finalCoin, index);
