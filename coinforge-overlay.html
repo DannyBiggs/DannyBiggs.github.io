@@ -822,12 +822,13 @@
 
     .slot-coin.final-reveal-grow {
       opacity: 1;
-      animation: finalRevealGrow 0.28s ease-out forwards;
+      animation: finalRevealGrow 0.46s ease-out forwards;
     }
     
     @keyframes finalRevealGrow {
-      0% { transform: scale(0); opacity: 0; }
-      58% { transform: scale(1.22); opacity: 1; }
+      0% { transform: scale(0.08); opacity: 0; }
+      30% { transform: scale(0.55); opacity: 1; }
+      70% { transform: scale(1.28); opacity: 1; }
       100% { transform: scale(1.16); opacity: 1; }
     }
     
@@ -1829,7 +1830,7 @@
     // 3. Final coin grows in, then the hammer stamps it to normal size.
     forgeStage.classList.remove("charging");
     slot.classList.remove("pre-forge-cycle");
-    slot.src = coinFileForSlot(finalCoin, "final-on-hammer");
+    slot.src = finalCoin.file;
     slot.style.filter = "";
     
     void slot.offsetWidth;
