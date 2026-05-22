@@ -1863,17 +1863,16 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       slot.classList.add("forming-from-forge");
       
       await playFrameCoinSequence(slot, slotWrap);
-    
-      await wait(180);
-    
+
       if (slotWrap) {
         slotWrap.style.transform = "";
         slotWrap.style.filter = "";
       }
-    
+      
       slot.classList.remove("forming-from-forge");
+      slot.classList.remove("landed");
       void slot.offsetWidth;
-    
+      
       slot.src = coinFileForSlot(finalCoin, index);
       slot.classList.add("landed");
     
