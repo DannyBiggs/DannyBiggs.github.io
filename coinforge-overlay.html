@@ -827,6 +827,7 @@
         opacity: 1;
         transform:
           translate(-50%, -50%)
+          rotate(var(--gif-rotation, 0deg))
           scale(0.92);
       }
     
@@ -834,6 +835,7 @@
         opacity: 0;
         transform:
           translate(-50%, -50%)
+          rotate(var(--gif-rotation, 0deg))
           scale(1.04);
       }
     }
@@ -1534,8 +1536,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       sparkStrikeGif.classList.remove("active");
       const randomRotation = (-4 + Math.random() * 8);
 
-      sparkStrikeGif.style.transform =
-        `translate(-50%, -50%) rotate(${randomRotation}deg)`;
+      sparkStrikeGif.style.setProperty("--gif-rotation", `${randomRotation}deg`);
     
       // Force GIF restart
       sparkStrikeGif.src = `images/vfx/sparks_strike.gif?t=${Date.now()}`;
