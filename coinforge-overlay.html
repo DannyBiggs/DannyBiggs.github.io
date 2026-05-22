@@ -1668,33 +1668,23 @@
   
       const heat = i / 6;
       slot.style.filter =
-        `grayscale(${0.85 - heat * 0.45}) saturate(${0.45 + heat * 0.55}) brightness(${0.78 + heat * 0.35})`;
+        `grayscale(0.12) saturate(${0.82 + heat * 0.28}) brightness(${0.88 + heat * 0.18})`;
   
       await wait(i < 4 ? 180 : 230);
     }
   
-    // 2. Final coin locks in BEFORE hammer strike.
+    // 2. Final coin locks in BEFORE hammer strike, already readable.
     slot.src = coinFileForSlot(finalCoin, "final-before-strike");
-  
-    slot.style.transition = "filter 0.5s ease-out";
+    
+    slot.style.transition = "filter 0.22s ease-out";
     slot.style.filter =
-      "grayscale(0.6) saturate(0.55) brightness(0.82)";
-  
-    await wait(180);
-  
+      "grayscale(0.05) saturate(0.95) brightness(0.92) drop-shadow(0 0 10px rgba(255, 170, 70, 0.22))";
+    
+    await wait(250);
+    
     slot.style.filter =
-      "grayscale(0.35) saturate(0.85) brightness(0.98) drop-shadow(0 0 10px rgba(255, 165, 60, 0.22))";
-  
-    await wait(180);
-  
-    slot.style.filter =
-      "grayscale(0.12) saturate(1.05) brightness(1.08) drop-shadow(0 0 16px rgba(255, 185, 70, 0.34))";
-  
-    await wait(180);
-  
-    slot.style.filter =
-      "grayscale(0) saturate(1.12) brightness(1.12) drop-shadow(0 0 20px rgba(255, 200, 90, 0.42))";
-  
+      "grayscale(0) saturate(1.08) brightness(1.08) drop-shadow(0 0 16px rgba(255, 190, 80, 0.36))";
+    
     await wait(120);
   
     // 3. Hammer strike is the final action. No image or color changes after this.
