@@ -677,31 +677,46 @@
       position: absolute;
       left: 0;
       top: 0;
-      width: 26px;
-      height: 7px;
+      width: 42px;
+      height: 10px;
       border-radius: 999px;
+    
       background: linear-gradient(
         to right,
-        rgba(255,255,220,1),
-        rgba(255,210,90,1),
-        rgba(255,120,35,0.92)
+        rgba(255,255,255,1),
+        rgba(255,225,120,1),
+        rgba(255,140,35,0.96)
       );
+    
       box-shadow:
-        0 0 10px rgba(255, 220, 120, 1),
-        0 0 22px rgba(255, 110, 30, 0.65);
+        0 0 14px rgba(255, 235, 160, 1),
+        0 0 34px rgba(255, 130, 30, 0.78);
+    
       transform-origin: center;
-      animation: anvilSparkBurst 0.42s ease-out forwards;
+    
+      animation: anvilSparkBurst 0.52s ease-out forwards;
     }
     
     @keyframes anvilSparkBurst {
       0% {
         opacity: 1;
-        transform: rotate(var(--spark-rot)) translate(0, 0) scaleX(1);
+        transform:
+          rotate(var(--spark-rot))
+          translate(0, 0)
+          scaleX(1.1);
+      }
+    
+      35% {
+        opacity: 1;
       }
     
       100% {
         opacity: 0;
-        transform: rotate(var(--spark-rot)) translate(var(--spark-x), var(--spark-y)) scaleX(0.25);
+        transform:
+          rotate(var(--spark-rot))
+          translate(var(--spark-x), var(--spark-y))
+          scaleX(0.18)
+          scaleY(0.72);
       }
     }
     
@@ -2033,19 +2048,19 @@
       sparks.innerHTML = "";
     
       const sparkData = [
-        { x: "-92px", y: "-34px", rot: "214deg" },
-        { x: "-82px", y: "-4px", rot: "194deg" },
-        { x: "-58px", y: "34px", rot: "148deg" },
+        { x: "-120px", y: "-38px", rot: "214deg" },
+        { x: "-108px", y: "-4px", rot: "192deg" },
+        { x: "-88px", y: "34px", rot: "148deg" },
       
-        { x: "92px", y: "-34px", rot: "-34deg" },
-        { x: "82px", y: "-2px", rot: "16deg" },
-        { x: "58px", y: "36px", rot: "52deg" },
+        { x: "120px", y: "-38px", rot: "-24deg" },
+        { x: "108px", y: "-2px", rot: "14deg" },
+        { x: "88px", y: "34px", rot: "44deg" },
       
-        { x: "-28px", y: "72px", rot: "108deg" },
-        { x: "30px", y: "76px", rot: "72deg" },
+        { x: "-42px", y: "84px", rot: "104deg" },
+        { x: "42px", y: "84px", rot: "74deg" },
       
-        { x: "-24px", y: "-72px", rot: "252deg" },
-        { x: "26px", y: "-70px", rot: "-252deg" }
+        { x: "-34px", y: "-88px", rot: "252deg" },
+        { x: "34px", y: "-88px", rot: "-252deg" }
       ];
     
       sparkData.forEach(data => {
