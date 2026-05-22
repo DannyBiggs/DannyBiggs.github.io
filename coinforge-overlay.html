@@ -1665,32 +1665,63 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       }
     }
 
-    async function playFrameCoinSequence(slot, slotWrap) {
+    function getTeaseCoinPool(finalCoin) {
+      if (!finalCoin) {
+        return ["Gold", "Diamond", "Anti"];
+      }
+    
+      if (finalCoin.name === "Bronze Coin" || finalCoin.name === "Silver Coin") {
+        return ["Gold", "Diamond", "Anti"];
+      }
+    
+      if (finalCoin.name === "Gold Coin") {
+        return ["Gold", "Diamond", "Anti"];
+      }
+    
+      if (finalCoin.name === "Diamond Coin") {
+        return ["Gold", "Diamond", "Rainbow", "Kingmaker", "Anti"];
+      }
+    
+      if (finalCoin.name === "Rainbow Coin" || finalCoin.name === "Kingmaker Coin") {
+        return ["Diamond", "Rainbow", "Kingmaker"];
+      }
+    
+      if (finalCoin.name === "Anti Coin") {
+        return ["Gold", "Diamond", "Rainbow", "Anti"];
+      }
+    
+      if (finalCoin.name === "Lucky Coin") {
+        return ["Silver", "Gold", "Lucky", "Diamond"];
+      }
+    
+      if (finalCoin.name === "Jackpot Booster") {
+        return ["Gold", "Diamond", "JackpotBooster", "Kingmaker"];
+      }
+    
+      return ["Gold", "Diamond", "Anti"];
+    }
+    
+    async function playFrameCoinSequence(slot, slotWrap, finalCoin) {
       if (!slot || !slotWrap) return;
     
       slotWrap.getAnimations().forEach(anim => anim.cancel());
     
       let frame = 1;
       let currentCoinKey = "Bronze";
-      
+    
       slotWrap.style.transform = "scale(0.08)";
       slotWrap.style.filter = "brightness(2.3) blur(2px)";
-      
+    
       slot.src = getCachedCoinFrame(currentCoinKey, frame);
       slot.style.opacity = "1";
     
       const growAnim = slotWrap.animate(
         [
           { transform: "scale(0.08)", filter: "brightness(2.3) blur(2px)" },
-        
           { transform: "scale(0.14)", filter: "brightness(2.1) blur(1px)", offset: 0.18 },
-        
           { transform: "scale(0.26)", filter: "brightness(1.95) blur(0.5px)", offset: 0.38 },
-        
           { transform: "scale(0.52)", filter: "brightness(1.7)", offset: 0.60 },
-        
           { transform: "scale(0.88)", filter: "brightness(1.45)", offset: 0.82 },
-        
           { transform: "scale(1.22)", filter: "brightness(1.18)", offset: 1 }
         ],
         {
@@ -1702,6 +1733,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       const frameDelay = 16;
       const totalFrames = 165;
+      const teaseCoins = getTeaseCoinPool(finalCoin);
     
       for (let i = 0; i < totalFrames; i++) {
         frame++;
@@ -1711,20 +1743,27 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         }
     
         if (frame === 9) {
-          currentCoinKey = getProofCoinKey(currentCoinKey);
+          const progress = i / totalFrames;
+    
+          if (progress > 0.62) {
+            currentCoinKey = teaseCoins[Math.floor(Math.random() * teaseCoins.length)];
+          } else {
+            currentCoinKey = getProofCoinKey(currentCoinKey);
+          }
         }
     
         slot.src = getCachedCoinFrame(currentCoinKey, frame);
+    
         let adjustedDelay = frameDelay;
-
+    
         if (frame <= 3 || frame >= 14) {
           adjustedDelay = Math.max(8, frameDelay - 4);
         }
-        
+    
         if (frame >= 7 && frame <= 10) {
           adjustedDelay = frameDelay + 4;
         }
-        
+    
         await wait(adjustedDelay);
       }
     
@@ -1738,57 +1777,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         frame,
         currentCoinKey
       };
-    }
-
-    async function playSuspenseTease(slot, finalCoin, startFrame = 8) {
-      if (!slot || !finalCoin) return;
-    
-      let frame = startFrame;
-    
-      const finalKey = finalCoin.key === "Jackpot Booster"
-        ? "JackpotBooster"
-        : finalCoin.key;
-    
-      let teaseCoins = ["Gold", "Diamond", "Anti"];
-    
-      if (finalCoin.name === "Gold Coin") {
-        teaseCoins = ["Silver", "Diamond", "Anti"];
-      }
-    
-      if (finalCoin.name === "Diamond Coin") {
-        teaseCoins = ["Gold", "Rainbow", "Kingmaker", "Anti"];
-      }
-    
-      if (finalCoin.name === "Rainbow Coin" || finalCoin.name === "Kingmaker Coin") {
-        teaseCoins = ["Diamond", "Rainbow", "Kingmaker", "Anti"];
-      }
-    
-      if (finalCoin.name === "Anti Coin") {
-        teaseCoins = ["Gold", "Diamond", "Rainbow", "Anti"];
-      }
-    
-      // Keep the suspense short: 5 flashes around the thin side of the coin.
-      for (let i = 0; i < 5; i++) {
-        frame++;
-    
-        if (frame > coinFrameCount) {
-          frame = 1;
-        }
-    
-        const teaseKey = teaseCoins[i % teaseCoins.length];
-    
-        slot.src = getCachedCoinFrame(teaseKey, frame);
-    
-        if (frame >= 7 && frame <= 10) {
-          await wait(115);
-        } else {
-          await wait(85);
-        }
-      }
-    
-      // Briefly show the final coin's thin-side frame before the hammer locks it.
-      slot.src = getCachedCoinFrame(finalKey, 8);
-      await wait(120);
     }
     
     async function growAndFakeoutSlot(slot, finalCoin, index) {
@@ -1818,9 +1806,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       
       slot.classList.add("forming-from-forge");
       
-      const sequenceResult = await playFrameCoinSequence(slot, slotWrap);
-
-      await playSuspenseTease(slot, finalCoin, sequenceResult?.frame || 8);
+      await playFrameCoinSequence(slot, slotWrap, finalCoin);
 
       if (slotWrap) {
         slotWrap.style.transform = "";
