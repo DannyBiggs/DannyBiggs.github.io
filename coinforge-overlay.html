@@ -1779,8 +1779,14 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         // Tiny pre-lock hold near the end of the animation.
         // This creates suspense without adding a second animation phase.
         const progress = i / totalFrames;
-        const isFinalTeaseWindow = progress > 0.82;
-        const isThinCoinFrame = frame === 7 || frame === 8;
+        const isFinalTeaseWindow = progress > 0.88;
+        const isThinCoinFrame = frame === 8 || frame === 9;
+        const shouldPrePlayHammerSound = progress > 0.84 && frame === 6;
+        
+        if (shouldPrePlayHammerSound && !slot.dataset.hammerSoundPlayed) {
+          slot.dataset.hammerSoundPlayed = "true";
+          playForgeHammerSound();
+        }
           
         if (isFinalTeaseWindow && isThinCoinFrame) {
           await wait(15);
@@ -1803,7 +1809,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
     async function growAndFakeoutSlot(slot, finalCoin, index) {
       const slotWrap = slot.closest(".slot-wrap");
-    
+      delete slot.dataset.hammerSoundPlayed;
+      
       slot.classList.remove(
         "forming-from-forge",
         "landed"
@@ -1840,10 +1847,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       void slot.offsetWidth;
       
       // FINAL LOCK + HAMMER STRIKE HAPPEN TOGETHER
-      playForgeHammerSound();
-
-      await wait(395);
-      
       slot.src = coinFileForSlot(finalCoin, index);
       slot.classList.add("landed");
       
