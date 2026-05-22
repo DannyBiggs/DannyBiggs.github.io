@@ -1670,6 +1670,64 @@
         await wait(55);
       }
     }
+
+    async function growAndFakeoutSlot(slot, finalCoin, index) {
+      slot.classList.remove("materializing", "forming-from-forge", "spinning", "near-miss", "anticipating", "landed");
+    
+      slot.style.transform = "";
+      slot.style.filter = "";
+      slot.style.opacity = "1";
+    
+      void slot.offsetWidth;
+    
+      slot.classList.add("materializing");
+      await wait(60);
+    
+      slot.classList.remove("materializing");
+      void slot.offsetWidth;
+    
+      slot.classList.add("forming-from-forge");
+    
+      const highTierFakeoutPool = [
+        getCoinDefinition("Gold"),
+        getCoinDefinition("Diamond"),
+        getCoinDefinition("Rainbow"),
+        getCoinDefinition("Anti"),
+        getCoinDefinition("Jackpot Booster")
+      ];
+    
+      const normalFakeoutPool = [
+        getCoinDefinition("Bronze"),
+        getCoinDefinition("Silver"),
+        getCoinDefinition("Wood"),
+        getCoinDefinition("Gold")
+      ];
+    
+      const fakeoutTimings = [55, 65, 80, 105, 140, 190];
+    
+      for (let i = 0; i < fakeoutTimings.length; i++) {
+        const pool = i < 4 ? normalFakeoutPool : highTierFakeoutPool;
+        const fakeCoin = pool[Math.floor(Math.random() * pool.length)];
+    
+        slot.src = coinFileForSlot(fakeCoin, `grow-fakeout-${index}-${i}`);
+        await wait(fakeoutTimings[i]);
+      }
+    
+      const finalFakeout = highTierFakeoutPool[Math.floor(Math.random() * highTierFakeoutPool.length)];
+      slot.src = coinFileForSlot(finalFakeout, `last-high-tease-${index}`);
+    
+      await wait(220);
+    
+      slot.classList.remove("forming-from-forge");
+      void slot.offsetWidth;
+    
+      slot.src = coinFileForSlot(finalCoin, index);
+      slot.classList.add("landed");
+    
+      playSlotLandSound();
+      triggerSocketRing(slot, finalCoin);
+      triggerSlotImpact(slot, finalCoin);
+    }
     
     async function spinSlot(slot, finalCoin, index, shouldLock) {
       if (!shouldLock) {
@@ -1679,40 +1737,11 @@
       }
 
       slot.classList.remove("near-miss", "anticipating");
-      await animateCoinFromForge(slot, finalCoin);
-
-      forgeResult.innerText = `Slot ${index + 1} begins to spin...`;
-      await spinCoinInSlot(slot, index, shouldAnticipateReveal(finalCoin) ? 560 : 420);
+      forgeResult.innerText = `Slot ${index + 1} is being forged...`;
+      await growAndFakeoutSlot(slot, finalCoin, index);
 
       const slotWrap = slot.closest(".slot-wrap");
       clearSlotLandedClasses(slot);
-
-      const nearMissPool = [
-        forgeCoins.find(c => c.name === "Diamond Coin"),
-        forgeCoins.find(c => c.name === "Rainbow Coin"),
-        forgeCoins.find(c => c.name === "Anti Coin"),
-        forgeCoins.find(c => c.name === "Jackpot Booster")
-      ];
-
-      const nearMiss = nearMissPool[Math.floor(Math.random() * nearMissPool.length)];
-
-      slot.src = coinFileForSlot(nearMiss, index);
-      slot.classList.add("near-miss");
-
-      forgeResult.innerText = `Slot ${index + 1} sparks violently...`;
-
-      await wait(180);
-
-      slot.classList.remove("near-miss");
-
-      if (shouldAnticipateReveal(finalCoin)) {
-        slot.classList.add("anticipating");
-        forgeResult.innerText = "The forge hesitates...";
-        await wait(finalCoin.name === "Rainbow Coin" || finalCoin.name === "Kingmaker Coin" ? 280 : 180);
-        slot.classList.remove("anticipating");
-      } else {
-        await wait(40);
-      }
 
       slot.src = coinFileForSlot(finalCoin, index);
       slot.classList.remove("spinning");
