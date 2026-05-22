@@ -508,7 +508,7 @@
     
     .slot-coin.forming-from-forge {
       opacity: 1;
-      animation: coinFormFromForge 0.34s ease-out forwards;
+      animation: coinFormFromForge 0.52s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
     
     @keyframes coinFormFromForge {
@@ -519,12 +519,12 @@
       }
     
       58% {
-        transform: translate(0, 0) scale(1.26) rotateY(360deg);
+        transform: translate(0, 0) scale(1.18) rotateY(360deg);
         filter: brightness(1.45) blur(0);
       }
     
       100% {
-        transform: translate(0, 0) scale(1.18) rotateY(540deg);
+        transform: translate(0, 0) scale(1.10) rotateY(540deg);
         opacity: 1;
         filter: brightness(1.15);
       }
@@ -545,7 +545,7 @@
 
     @keyframes slotLand {
       0% { transform: scale(1.18); filter: brightness(1.35); }
-      28% { transform: scale(0.88); filter: brightness(1.25); }
+      28% { transform: scale(0.80); filter: brightness(1.35); }
       62% { transform: scale(1.06); filter: brightness(1.08); }
       100% { transform: scale(1); filter: brightness(1); }
     }
@@ -1703,7 +1703,7 @@
         getCoinDefinition("Gold")
       ];
     
-      const fakeoutTimings = [55, 65, 80, 105, 140, 190];
+      const fakeoutTimings = [70, 78, 88, 102, 126, 170];
     
       for (let i = 0; i < fakeoutTimings.length; i++) {
         const pool = i < 4 ? normalFakeoutPool : highTierFakeoutPool;
@@ -1716,7 +1716,7 @@
       const finalFakeout = highTierFakeoutPool[Math.floor(Math.random() * highTierFakeoutPool.length)];
       slot.src = coinFileForSlot(finalFakeout, `last-high-tease-${index}`);
     
-      await wait(220);
+      await wait(120);
     
       slot.classList.remove("forming-from-forge");
       void slot.offsetWidth;
