@@ -802,11 +802,11 @@
 
     @keyframes preForgeSpin {
       0% {
-        transform: scale(0.94) rotateY(0deg);
+        transform: scale(1.04) rotateY(0deg);
       }
     
       100% {
-        transform: scale(0.98) rotateY(360deg);
+        transform: scale(1.12) rotateY(360deg);
       }
     }
     
@@ -989,6 +989,24 @@
     .slot-wrap.landed-rainbow::before,
     .slot-wrap.landed-cursed::before {
       opacity: 0;
+    }
+
+    .forge-stage.hammer-payoff {
+      animation: hammerPayoff 0.42s ease-out;
+    }
+    
+    @keyframes hammerPayoff {
+      0% {
+        filter: brightness(1.45) saturate(1.35) contrast(1.08);
+      }
+    
+      45% {
+        filter: brightness(1.18) saturate(1.18) contrast(1.04);
+      }
+    
+      100% {
+        filter: brightness(1) saturate(1) contrast(1);
+      }
     }
     
     .forge-stage.impact {
@@ -1679,6 +1697,7 @@
     void slot.offsetWidth;
   
     slot.classList.add("pre-forge-cycle");
+    forgeStage.classList.add("charging");
   
     const normalPool = [
       getCoinDefinition("Bronze"),
@@ -1796,6 +1815,7 @@
     await wait(360);
   
     // 3. Hammer strike reveals the actual final coin.
+    forgeStage.classList.remove("charging");
     slot.classList.remove("pre-forge-cycle");
     slot.src = coinFileForSlot(finalCoin, "final-on-hammer");
     slot.style.filter = "";
@@ -1803,6 +1823,8 @@
     void slot.offsetWidth;
   
     triggerImpactFreeze();
+    triggerHammerPayoff();
+    triggerImpactFlash();
     triggerAnvilSummon(slot, finalCoin);
     slot.classList.add("stamped-final");
   
@@ -1820,6 +1842,18 @@
       restartClassAnimation(forgeImpactFlash, "active");
     }
 
+    function triggerHammerPayoff() {
+      forgeStage.classList.remove("hammer-payoff");
+    
+      void forgeStage.offsetWidth;
+    
+      forgeStage.classList.add("hammer-payoff");
+    
+      setTimeout(() => {
+        forgeStage.classList.remove("hammer-payoff");
+      }, 460);
+    }
+    
     function triggerImpactFreeze() {
       forgeStage.classList.remove("impact-freeze");
     
