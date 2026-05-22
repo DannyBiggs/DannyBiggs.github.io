@@ -1779,7 +1779,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         // Tiny pre-lock hold near the end of the animation.
         // This creates suspense without adding a second animation phase.
         const progress = i / totalFrames;
-        const isFinalTeaseWindow = progress > 0.72;
+        const isFinalTeaseWindow = progress > 0.82;
         const isThinCoinFrame = frame === 7 || frame === 8;
           
         if (isFinalTeaseWindow && isThinCoinFrame) {
@@ -1840,6 +1840,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       void slot.offsetWidth;
       
       // FINAL LOCK + HAMMER STRIKE HAPPEN TOGETHER
+      playForgeHammerSound();
+
+      await wait(35);
+      
       slot.src = coinFileForSlot(finalCoin, index);
       slot.classList.add("landed");
       
@@ -1847,7 +1851,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       void forgeStage.offsetWidth;
       forgeStage.classList.add("impact");
       
-      playForgeHammerSound();
       triggerImpactFlash();
     
       playSlotLandSound();
