@@ -1296,6 +1296,10 @@
       return coin.file;
     }
 
+    function coinFacePng(coin) {
+      return coin.file.replace(".gif", ".png");
+    }
+    
     async function animateCoinFromForge(slot, finalCoin) {
       const stageRect = forgeStage.getBoundingClientRect();
       const slotRect = slot.getBoundingClientRect();
@@ -1748,12 +1752,12 @@
         const pool = i < 4 ? normalFakeoutPool : highTierFakeoutPool;
         const fakeCoin = pool[Math.floor(Math.random() * pool.length)];
     
-        slot.src = coinFileCached(fakeCoin);
+        slot.src = coinFacePng(fakeCoin);
         await wait(fakeoutTimings[i]);
       }
     
       const finalFakeout = highTierFakeoutPool[Math.floor(Math.random() * highTierFakeoutPool.length)];
-      slot.src = coinFileCached(finalFakeout);
+      slot.src = coinFacePng(finalFakeout);
     
       await wait(120);
     
