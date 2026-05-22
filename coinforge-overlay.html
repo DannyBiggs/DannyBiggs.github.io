@@ -1279,7 +1279,10 @@
 
     const coinFrameConfig = {
       Bronze: "bronze",
-      Silver: "silver"
+      Silver: "silver",
+      Gold: "gold",
+      Diamond: "diamond",
+      Anti: "anti"
     };
     
     const coinFrameCount = 15;
@@ -1291,7 +1294,9 @@
     }
     
     function getProofCoinKey(currentKey) {
-      return currentKey === "Bronze" ? "Silver" : "Bronze";
+      const availableCoins = ["Bronze", "Silver", "Gold", "Diamond", "Anti"];
+      const options = availableCoins.filter(key => key !== currentKey);
+      return options[Math.floor(Math.random() * options.length)];
     }
     
     async function animateCoinFromForge(slot, finalCoin) {
