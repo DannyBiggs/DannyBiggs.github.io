@@ -1288,10 +1288,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       return `${coin.file}?slot=${index}&t=${Date.now()}-${Math.random()}`;
     }
 
-    function coinFileCached(coin) {
-      return coin.file;
-    }
-
     function coinFacePng(coin) {
       return coin.file.replace(".gif", ".png");
     }
@@ -1337,41 +1333,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       const options = availableCoins.filter(key => key !== currentKey);
       return options[Math.floor(Math.random() * options.length)];
-    }
-    
-    async function animateCoinFromForge(slot, finalCoin) {
-      const stageRect = forgeStage.getBoundingClientRect();
-      const slotRect = slot.getBoundingClientRect();
-    
-      // Approximate center of the flame/circle in the forge background.
-      // Adjust these if the spawn point needs nudging.
-      let slotCenterX = slotRect.left + slotRect.width / 2 - stageRect.left;
-      let slotCenterY = slotRect.top + slotRect.height / 2 - stageRect.top;
-      
-      const forgeCenterX = slotCenterX;
-      const forgeCenterY = slotCenterY;
-    
-      const startX = forgeCenterX - slotCenterX;
-      const startY = forgeCenterY - slotCenterY;
-    
-      slot.style.setProperty("--forge-start-x", `${startX}px`);
-      slot.style.setProperty("--forge-start-y", `${startY}px`);
-    
-      setActiveSlotFocus(slot);
-      
-      slot.classList.remove("materializing", "forming-from-forge");
-      void slot.offsetWidth;
-      
-      slot.classList.add("materializing");
-      await wait(60);
-      
-      slot.classList.remove("materializing");
-      void slot.offsetWidth;
-      
-      slot.classList.add("forming-from-forge");
-
-      await wait(300);
-      
     }
     
     function restartClassAnimation(element, className) {
@@ -1485,25 +1446,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
     function triggerCorruptionWave() {
       restartClassAnimation(forgeCorruptionWave, "active");
-    }
-
-    function triggerMythicBloom() {
-      restartClassAnimation(forgeBloom, "mythic");
-    }
-
-    function clearSlotLandedClasses(slot) {
-      const slotWrap = slot.closest(".slot-wrap");
-      if (!slotWrap) return;
-
-      slotWrap.classList.remove(
-        "landed-common",
-        "landed-rare",
-        "landed-epic",
-        "landed-legendary",
-        "landed-mythic",
-        "landed-rainbow",
-        "landed-cursed"
-      );
     }
 
     function clearCinematicStageClasses() {
@@ -1676,17 +1618,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       }
     }
 
-    function shouldAnticipateReveal(coin) {
-      return (
-        coin.name === "Diamond Coin" ||
-        coin.name === "Rainbow Coin" ||
-        coin.name === "Kingmaker Coin" ||
-        coin.name === "Jackpot Booster" ||
-        coin.name === "Anti Coin" ||
-        (coin.raw && (coin.raw.omenCorrupted || coin.raw.devoured))
-      );
-    }
-
     function highestRarityClass(results) {
       const priority = {
         common: 1,
@@ -1731,18 +1662,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         slotWrap.appendChild(impactFlash);
         slotWrap.appendChild(img);
         slotRow.appendChild(slotWrap);
-      }
-    }
-
-    async function spinCoinInSlot(slot, index, durationMs = 620) {
-      const start = Date.now();
-    
-      slot.classList.add("spinning");
-    
-      while (Date.now() - start < durationMs) {
-        const coin = randomCycleCoin();
-        slot.src = coinFileForSlot(coin, index);
-        await wait(55);
       }
     }
 
@@ -1821,26 +1740,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       };
     }
     
-    async function growCoinSmoothly(slotWrap) {
-      if (!slotWrap) return;
-    
-      slotWrap.getAnimations().forEach(anim => anim.cancel());
-    
-      const growAnim = slotWrap.animate(
-        [
-          { transform: "scale(0.16) rotateY(0deg)", filter: "brightness(2.1) blur(1px)" },
-          { transform: "scale(0.50) rotateY(540deg)", filter: "brightness(1.85) blur(0)" },
-          { transform: "scale(0.92) rotateY(1080deg)", filter: "brightness(1.55)" },
-          { transform: "scale(1.14) rotateY(1440deg)", filter: "brightness(1.35)" },
-          { transform: "scale(1.22) rotateY(1800deg)", filter: "brightness(1.18)" }
-        ],
-        {
-          duration: 950,
-          easing: "cubic-bezier(0.16, 1, 0.3, 1)",
-          fill: "forwards"
-        }
-      );
-    
       await growAnim.finished.catch(() => {});
       slotWrap.style.transform = "scale(1.22) rotateY(1800deg)";
       slotWrap.style.filter = "brightness(1.18)";
@@ -1851,16 +1750,12 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       const slotWrap = slot.closest(".slot-wrap");
     
       slot.classList.remove(
-        "materializing",
         "forming-from-forge",
-        "spinning",
-        "near-miss",
-        "anticipating",
         "landed"
       );
     
       if (slotWrap) {
-        slotWrap.classList.remove("coin-growing", "coin-cycling", "lock-impact");
+        slotWrap.classList.remove("lock-impact");
         slotWrap.style.transform = "";
         slotWrap.style.filter = "";
       }
@@ -1904,13 +1799,11 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         return;
       }
 
-      slot.classList.remove("near-miss", "anticipating");
       forgeResult.innerText = `Slot ${index + 1} is being forged...`;
       await growAndFakeoutSlot(slot, finalCoin, index);
       
       const slotWrap = slot.closest(".slot-wrap");
       if (slotWrap) {
-        slotWrap.classList.remove("forging-in");
         slotWrap.classList.add(`landed-${finalCoin.className}`);
       }
 
