@@ -1743,21 +1743,27 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       const growAnim = slotWrap.animate(
         [
-          { transform: "scale(0.16)", filter: "brightness(2.1) blur(1px)" },
-          { transform: "scale(0.48)", filter: "brightness(1.85) blur(0)" },
-          { transform: "scale(0.82)", filter: "brightness(1.55)" },
-          { transform: "scale(1.08)", filter: "brightness(1.35)" },
-          { transform: "scale(1.22)", filter: "brightness(1.18)" }
-        ],
+          { transform: "scale(0.08)", filter: "brightness(2.3) blur(2px)" },
+        
+          { transform: "scale(0.14)", filter: "brightness(2.1) blur(1px)", offset: 0.18 },
+        
+          { transform: "scale(0.26)", filter: "brightness(1.95) blur(0.5px)", offset: 0.38 },
+        
+          { transform: "scale(0.52)", filter: "brightness(1.7)", offset: 0.60 },
+        
+          { transform: "scale(0.88)", filter: "brightness(1.45)", offset: 0.82 },
+        
+          { transform: "scale(1.22)", filter: "brightness(1.18)", offset: 1 }
+        ]
         {
-          duration: 1450,
+          duration: 2600,
           easing: "cubic-bezier(0.16, 1, 0.3, 1)",
           fill: "forwards"
         }
       );
     
       const frameDelay = 16;
-      const totalFrames = 90;
+      const totalFrames = 165;
     
       for (let i = 0; i < totalFrames; i++) {
         frame++;
