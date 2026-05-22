@@ -2326,99 +2326,40 @@
         await wait(55);
       }
     }
-    
+
     async function spinSlot(slot, finalCoin, index, shouldLock) {
       if (!shouldLock) {
         const coin = randomCycleCoin();
         slot.src = coinFileForSlot(coin, index);
         return;
       }
-
-      slot.classList.remove("near-miss", "anticipating");
-      await animateCoinFromForge(slot, finalCoin);
-
-      forgeResult.innerText = `Slot ${index + 1} begins to spin...`;
-      await spinCoinInSlot(slot, index, shouldAnticipateReveal(finalCoin) ? 560 : 420);
-
+    
+      slot.classList.remove(
+        "spinning",
+        "near-miss",
+        "anticipating",
+        "landed",
+        "materializing",
+        "forming-from-forge",
+        "pre-forge-cycle",
+        "stamped-final"
+      );
+    
       const slotWrap = slot.closest(".slot-wrap");
       clearSlotLandedClasses(slot);
-
-      const nearMissPool = [
-        forgeCoins.find(c => c.name === "Diamond Coin"),
-        forgeCoins.find(c => c.name === "Rainbow Coin"),
-        forgeCoins.find(c => c.name === "Anti Coin"),
-        forgeCoins.find(c => c.name === "Jackpot Booster")
-      ];
-
-      const nearMiss = nearMissPool[Math.floor(Math.random() * nearMissPool.length)];
-
-      slot.src = coinFileForSlot(nearMiss, index);
-      slot.classList.add("near-miss");
-
-      forgeResult.innerText = `Slot ${index + 1} sparks violently...`;
-
-      await wait(180);
-
-      slot.classList.remove("near-miss");
-
-      if (shouldAnticipateReveal(finalCoin)) {
-        slot.classList.add("anticipating");
-        forgeResult.innerText = "The forge hesitates...";
-        await wait(finalCoin.name === "Rainbow Coin" || finalCoin.name === "Kingmaker Coin" ? 280 : 180);
-        slot.classList.remove("anticipating");
-      } else {
-        await wait(40);
-      }
-
-      slot.src = coinFileForSlot(finalCoin, index);
-      slot.classList.remove("spinning");
-      clearSlotLandedClasses(slot);
-      slot.classList.add("landed");
-
-      playSlotLandSound();
-      triggerSocketRing(slot, finalCoin);
-      triggerSlotImpact(slot, finalCoin);
-      // Rarity beam removed for restrained anvil-impact style.
-
-      const currentSlotWrap = slot.closest(".slot-wrap");
-      if (currentSlotWrap) {
-        currentSlotWrap.classList.remove("forging-in");
-      }
+    
+      // This function now handles the full reveal.
+      await animateCoinFromForge(slot, finalCoin);
+    
+      // Mark final rarity state after the hammer stamp.
       if (slotWrap) {
         slotWrap.classList.add(`landed-${finalCoin.className}`);
+        slotWrap.classList.remove("forging-in");
       }
-
-      clearCinematicStageClasses();
-
-      forgeStage.classList.remove("impact");
-      void forgeStage.offsetWidth;
-
-      forgeStage.classList.add(`reveal-${finalCoin.className}`, "impact");
-
-      if (
-        finalCoin.name === "Rainbow Coin" ||
-        finalCoin.name === "Kingmaker Coin" ||
-        finalCoin.name === "Jackpot Booster"
-      ) {
-        triggerImpactFlash();
-      }
-      
-      triggerSlotAura(finalCoin, slot);
-
-      if (finalCoin.name === "Anti Coin" || (finalCoin.raw && finalCoin.raw.omenCorrupted)) {
-        triggerCorruptionWave();
-      }
-
-      const cinematicPromise = playFinalCinematic(finalCoin, slot);
-
-      await wait(160);
-
-      forgeStage.classList.remove("impact");
-      
-      await cinematicPromise;
-
+    
+      forgeStage.classList.add(`reveal-${finalCoin.className}`);
+    
       clearActiveSlotFocus();
-      clearCinematicStageClasses();
     }
 
     function formatFinalResults(results, event) {
