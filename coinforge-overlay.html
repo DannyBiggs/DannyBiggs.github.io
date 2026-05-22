@@ -1297,28 +1297,44 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     }
 
     const coinFrameConfig = {
-      Bronze: "bronze",
-      Silver: "silver",
-      Gold: "gold",
-      Diamond: "diamond",
-      Anti: "anti"
+      Wood: { prefix: "wood", pad: true },
+      Bronze: { prefix: "bronze", pad: false },
+      Silver: { prefix: "silver", pad: true },
+      Gold: { prefix: "gold", pad: true },
+      Diamond: { prefix: "diamond", pad: true },
+      Rainbow: { prefix: "rainbow", pad: true },
+      Anti: { prefix: "anti", pad: true },
+      Lucky: { prefix: "lucky", pad: true },
+      JackpotBooster: { prefix: "jackpot", pad: true },
+      Kingmaker: { prefix: "kingmaker", pad: true }
     };
     
     const coinFrameCount = 15;
     
     function coinFramePath(coinKey, frameNumber) {
-      const folderName = coinFrameConfig[coinKey] || "bronze";
+      const config = coinFrameConfig[coinKey] || coinFrameConfig.Bronze;
     
-      const frameName =
-        folderName === "bronze"
-          ? String(frameNumber)
-          : String(frameNumber).padStart(2, "0");
+      const frameName = config.pad
+        ? String(frameNumber).padStart(2, "0")
+        : String(frameNumber);
     
-      return `images/coins/frames/${folderName}_${frameName}.png`;
+      return `images/coins/frames/${config.prefix}_${frameName}.png`;
     }
     
     function getProofCoinKey(currentKey) {
-      const availableCoins = ["Bronze", "Silver", "Gold", "Diamond", "Anti"];
+      const availableCoins = [
+        "Wood",
+        "Bronze",
+        "Silver",
+        "Gold",
+        "Diamond",
+        "Rainbow",
+        "Anti",
+        "Lucky",
+        "JackpotBooster",
+        "Kingmaker"
+      ];
+    
       const options = availableCoins.filter(key => key !== currentKey);
       return options[Math.floor(Math.random() * options.length)];
     }
