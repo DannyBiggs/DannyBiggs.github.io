@@ -1674,13 +1674,75 @@
       getCoinDefinition("Silver")
     ];
   
-    const highTierFakeoutPool = [
-      getCoinDefinition("Gold"),
-      getCoinDefinition("Diamond"),
-      getCoinDefinition("Rainbow"),
-      getCoinDefinition("Anti"),
-      getCoinDefinition("Diamond")
-    ];
+    let highTierFakeoutPool;
+
+    switch (finalCoin.name) {
+      case "Bronze Coin":
+        highTierFakeoutPool = [
+          getCoinDefinition("Silver"),
+          getCoinDefinition("Gold"),
+          getCoinDefinition("Silver"),
+          getCoinDefinition("Bronze")
+        ];
+        break;
+    
+      case "Silver Coin":
+        highTierFakeoutPool = [
+          getCoinDefinition("Gold"),
+          getCoinDefinition("Silver"),
+          getCoinDefinition("Gold"),
+          getCoinDefinition("Diamond")
+        ];
+        break;
+    
+      case "Gold Coin":
+        highTierFakeoutPool = [
+          getCoinDefinition("Gold"),
+          getCoinDefinition("Diamond"),
+          getCoinDefinition("Gold"),
+          getCoinDefinition("Diamond"),
+          getCoinDefinition("Rainbow")
+        ];
+        break;
+    
+      case "Diamond Coin":
+        highTierFakeoutPool = [
+          getCoinDefinition("Diamond"),
+          getCoinDefinition("Rainbow"),
+          getCoinDefinition("Gold"),
+          getCoinDefinition("Anti"),
+          getCoinDefinition("Diamond")
+        ];
+        break;
+    
+      case "Rainbow Coin":
+        highTierFakeoutPool = [
+          getCoinDefinition("Rainbow"),
+          getCoinDefinition("Diamond"),
+          getCoinDefinition("Anti"),
+          getCoinDefinition("Rainbow"),
+          getCoinDefinition("Gold")
+        ];
+        break;
+    
+      case "Anti Coin":
+        highTierFakeoutPool = [
+          getCoinDefinition("Diamond"),
+          getCoinDefinition("Gold"),
+          getCoinDefinition("Rainbow"),
+          getCoinDefinition("Anti"),
+          getCoinDefinition("Diamond")
+        ];
+        break;
+    
+      default:
+        highTierFakeoutPool = [
+          getCoinDefinition("Gold"),
+          getCoinDefinition("Diamond"),
+          getCoinDefinition("Rainbow"),
+          getCoinDefinition("Anti")
+        ];
+    }
   
     // 1. Spinning fakeout with slowdown/deceleration.
     const fakeoutTimings = [
