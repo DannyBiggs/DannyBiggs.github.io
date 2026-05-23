@@ -1214,7 +1214,7 @@
       justify-content: center;
       gap: 2px;
     
-      width: 4300px;
+      width: 430px;
       z-index: 5;
     }
     
@@ -1462,6 +1462,8 @@
     slotLandSound.volume = 0.08;
     const forgeHammerSound = new Audio("sounds/hammer_strike.m4a");
     forgeHammerSound.volume = 0.16;
+    const achievementSound = new Audio("sounds/koiroylers-awesome-level-up-351714.mp3");
+    achievementSound.volume = 0.35;
 
     const forgeCoins = [
       { key: "Wood", name: "Wood Coin", file: "images/coins/wood.gif", rarity: "Common", className: "common" },
@@ -1541,6 +1543,11 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       forgeHammerSound.play().catch(() => {});
     }
 
+    function playAchievementSound() {
+      achievementSound.currentTime = 0;
+      achievementSound.play().catch(() => {});
+    }
+    
     function normalizeCoinName(name) {
       if (!name) return "Bronze Coin";
 
@@ -2552,6 +2559,20 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         ? `images/achievements/icons/${clean}.png`
         : "images/achievements/icons/common.png";
     }
+
+    function playAchievementSound() {
+      const audio = document.getElementById("achievementSound");
+
+      if (!audio) return;
+
+      try {
+        audio.currentTime = 0;
+        audio.volume = 0.45;
+        audio.play();
+      } catch (err) {
+        console.warn("Achievement sound failed:", err);
+      }
+    }
     
     function showAchievementPopup(data) {
       if (!achievementPopup) return;
@@ -2576,7 +2597,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       achievementRarity.innerText = rarity;
 
       achievementPopup.classList.add("visible");
-
+      playAchievementSound();
       achievementPopupTimeout = setTimeout(() => {
         achievementPopup.classList.remove("visible");
       }, Number(data.duration || 2000));
