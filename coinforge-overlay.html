@@ -1248,14 +1248,14 @@
     .achievement-popup {
       position: fixed;
       left: 50%;
-      bottom: 78px;
-      width: 460px;
-      height: 210px;
-      transform: translateX(-50%) translateY(24px) scale(0.96);
+      bottom: 54px;
+      width: 520px;
+      height: 230px;
+      transform: translateX(-50%) translateY(20px) scale(0.96);
       opacity: 0;
       pointer-events: none;
       z-index: 60;
-      transition: opacity 0.28s ease, transform 0.28s ease;
+      transition: opacity 0.22s ease, transform 0.22s ease;
     }
 
     .achievement-popup.visible {
@@ -1267,8 +1267,8 @@
       position: absolute;
       left: 50%;
       top: 0;
-      width: 360px;
-      height: 76px;
+      width: 440px;
+      height: 96px;
       transform: translateX(-50%);
       object-fit: contain;
       image-rendering: pixelated;
@@ -1278,7 +1278,7 @@
     .achievement-icon {
       position: absolute;
       left: 50%;
-      top: 148px;
+      top: 177px;
       width: 24px;
       height: 24px;
       transform: translateX(-72px);
@@ -1297,8 +1297,8 @@
     .achievement-user {
       position: absolute;
       left: 50%;
-      top: 84px;
-      width: 440px;
+      top: 108px;
+      width: 500px;
       transform: translateX(-50%);
       color: #ffcf6a;
       font-size: 11px;
@@ -1312,20 +1312,19 @@
     .achievement-title {
       position: absolute;
       left: 50%;
-      top: 104px;
-      width: 460px;
+      top: 128px;
+      width: 500px;
       transform: translateX(-50%);
       color: #fff4c2;
-      font-size: 16px;
+      font-size: 15px;
       text-align: center;
       font-weight: 900;
-      letter-spacing: 0.035em;
+      letter-spacing: 0.03em;
       text-transform: uppercase;
       white-space: nowrap;
       overflow: visible;
       text-overflow: clip;
       line-height: 1;
-      min-height: 38px;
       text-shadow:
         0 3px 0 rgba(0,0,0,0.95),
         0 0 14px rgba(255, 190, 80, 0.75);
@@ -1334,16 +1333,16 @@
     .achievement-desc {
       position: absolute;
       left: 50%;
-      top: 148px;
-      width: 440px;
+      top: 153px;
+      width: 500px;
       transform: translateX(-50%);
       color: #e8d7a2;
       font-size: 10px;
       text-align: center;
       font-weight: 700;
-      line-height: 1.05;
+      line-height: 1;
       text-shadow: 0 2px 0 rgba(0,0,0,0.95);
-      white-space: normal;
+      white-space: nowrap;
       overflow: visible;
       text-overflow: clip;
     }
@@ -1351,7 +1350,7 @@
     .achievement-rarity {
       position: absolute;
       left: 50%;
-      top: 170px;
+      top: 178px;
       transform: translateX(-34px);
       color: #ffd36a;
       font-size: 11px;
@@ -1366,7 +1365,7 @@
     }
 
     .achievement-popup.visible .achievement-icon {
-      animation: achievementIconPop 0.42s ease-out;
+      animation: achievementIconPop 0.35s ease-out;
     }
 
     @keyframes achievementIconPop {
@@ -2563,7 +2562,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       achievementPopupTimeout = setTimeout(() => {
         achievementPopup.classList.remove("visible");
-      }, Number(data.duration || 2800));
+      }, Number(data.duration || 2200));
     }
     
     async function runForgeRevealExternal(event) {
@@ -2635,7 +2634,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       if (Array.isArray(event.achievements) && event.achievements.length > 0) {
         for (const achievementId of event.achievements) {
           showAchievementPopup(buildAchievementPopupData(event, achievementId));
-          await wait(3000);
+          await wait(2400);
         }
       } else {
         await wait(event.displayMs || 1500);
