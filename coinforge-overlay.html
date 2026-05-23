@@ -2559,20 +2559,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         ? `images/achievements/icons/${clean}.png`
         : "images/achievements/icons/common.png";
     }
-
-    function playAchievementSound() {
-      const audio = document.getElementById("achievementSound");
-
-      if (!audio) return;
-
-      try {
-        audio.currentTime = 0;
-        audio.volume = 0.45;
-        audio.play();
-      } catch (err) {
-        console.warn("Achievement sound failed:", err);
-      }
-    }
     
     function showAchievementPopup(data) {
       if (!achievementPopup) return;
