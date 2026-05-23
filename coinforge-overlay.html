@@ -2755,7 +2755,27 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       while (comboDisplayQueue.length > 0) {
         const item = comboDisplayQueue.shift();
         showComboPopup(item.type, item.value);
-        await wait(item.type === "broken" ? 1250 : 1500);
+        if (item.type === "broken") {
+          await wait(1900);
+        } else {
+          switch (item.value) {
+            case 100:
+              await wait(3400);
+              break;
+        
+            case 75:
+              await wait(3000);
+              break;
+        
+            case 50:
+              await wait(2700);
+              break;
+        
+            default:
+              await wait(2400);
+              break;
+          }
+        }
       }
     
       comboDisplayActive = false;
