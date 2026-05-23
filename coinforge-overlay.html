@@ -2509,8 +2509,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     function renderPlayerIdentity(event, highestClass) {
       clearPlayerIdentity();
     
-      const displayName = event.displayUser || event.user || "Someone";
-      const title = event.equippedTitle || event.title || "";
+      const displayName = event.user || event.displayUser || "Someone";
+      const title = event.title || event.equippedTitle || "";
       const nameplatePath = event.nameplate || event.nameplatePath || "images/nameplates/default_cropped.png";
       const badges = Array.isArray(event.badges) ? event.badges : [];
     
