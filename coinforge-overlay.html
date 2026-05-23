@@ -228,7 +228,7 @@
     }
 
     .forge-stage.charging .forge-background-glow {
-      opacity: var(--forge-pressure-opacity, 0);
+      opacity: var(--forge-pressure-opacity, 0.045);
       filter:
         brightness(var(--forge-pressure-brightness, 1))
         saturate(var(--forge-pressure-saturation, 1))
@@ -1843,10 +1843,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       forgePressureLevel = Math.max(
         0,
-        Math.min(forgePressureLevel, 0.22)
+        Math.min(forgePressureLevel, 0.14)
       );
     
-      let opacity = forgePressureLevel;
+      let opacity = 0.045 + forgePressureLevel;
       let brightness = 1 + (forgePressureLevel * 0.55);
       let saturation = 1 + (forgePressureLevel * 0.18);
       let hue = "0deg";
@@ -1892,7 +1892,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       forgeStage.style.setProperty(
         "--forge-pressure-opacity",
-        "0"
+        "0.045"
       );
     
       forgeStage.style.setProperty(
