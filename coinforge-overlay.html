@@ -1245,67 +1245,6 @@
       }
     }
 
-    .forge-result.hidden {
-      opacity: 0;
-    }
-    
-    .forge-result {
-      position: absolute;
-      left: 50%;
-      bottom: 1.5%;
-      transform: translateX(-50%);
-      background: linear-gradient(180deg, rgba(18,18,18,0.92), rgba(6,6,6,0.96));
-      border: 2px solid rgba(255, 190, 90, 0.75);
-      border-radius: 10px;
-      padding: 10px 16px;
-      backdrop-filter: blur(6px);
-      letter-spacing: 0.02em;
-      color: #fff;
-      font-weight: bold;
-      font-size: clamp(14px, 1.7vw, 20px);
-      min-width: 260px;
-      max-width: 90%;
-      text-align: center;
-      box-shadow: 0 0 14px rgba(255,179,71,0.18);
-      z-index: 10;
-    }
-
-    .forge-result.cinematic-text {
-      animation: cinematicTextPop 0.45s ease-out;
-    }
-
-    @keyframes cinematicTextPop {
-      0% { transform: translateX(-50%) scale(0.9); opacity: 0.65; }
-      70% { transform: translateX(-50%) scale(1.08); opacity: 1; }
-      100% { transform: translateX(-50%) scale(1); opacity: 1; }
-    }
-
-    .forge-result.final-panel {
-      animation: finalPanelReveal 0.55s ease-out;
-      border-color: #ffd36a;
-      box-shadow: 0 0 22px rgba(255,179,71,0.35), inset 0 0 18px rgba(255,179,71,0.12);
-    }
-
-    .forge-result.final-common { border-color: rgba(190, 190, 190, 0.75); }
-    .forge-result.final-rare { border-color: rgba(80, 150, 255, 0.85); box-shadow: 0 0 22px rgba(80, 150, 255, 0.35); }
-    .forge-result.final-epic { border-color: rgba(180, 80, 255, 0.85); box-shadow: 0 0 24px rgba(180, 80, 255, 0.38); }
-    .forge-result.final-legendary { border-color: rgba(255, 210, 90, 0.90); box-shadow: 0 0 26px rgba(255, 190, 80, 0.42); }
-    .forge-result.final-mythic { border-color: rgba(255, 100, 220, 0.95); box-shadow: 0 0 28px rgba(255, 100, 220, 0.42), 0 0 42px rgba(120, 90, 255, 0.24); }
-    .forge-result.final-rainbow {
-      border-color: rgba(255, 255, 255, 0.95);
-      box-shadow:
-        0 0 28px rgba(255, 255, 255, 0.35),
-        0 0 42px rgba(255, 100, 220, 0.32),
-        0 0 56px rgba(80, 220, 255, 0.26);
-    }
-    .forge-result.final-cursed { border-color: rgba(90, 185, 255, 0.95); box-shadow: 0 0 28px rgba(90, 185, 255, 0.45), 0 0 42px rgba(20, 90, 255, 0.22); }
-
-    @keyframes finalPanelReveal {
-      0% { opacity: 0; transform: translateX(-50%) scale(0.88); }
-      65% { opacity: 1; transform: translateX(-50%) scale(1.06); }
-      100% { opacity: 1; transform: translateX(-50%) scale(1); }
-    }
-
     .connection-status {
       position: fixed;
       left: 16px;
@@ -1362,9 +1301,6 @@
           </div>
         </div>
         
-        <div id="forgeResult" class="forge-result">
-          Waiting for the Coin Forge...
-        </div>
       </div>
     </div>
   </div>
@@ -1373,7 +1309,6 @@
 
   <script>
     const screenBorderFX = document.getElementById("screenBorderFX");
-    const forgeResult = document.getElementById("forgeResult");
     const forgeStage = document.getElementById("forgeStage");
     const slotRow = document.getElementById("slotRow");
     const cinematicBurst = document.getElementById("cinematicBurst");
@@ -1937,18 +1872,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         "escalate-cursed"
       );
 
-      forgeResult.classList.remove(
-        "cinematic-text",
-        "final-panel",
-        "final-common",
-        "final-rare",
-        "final-epic",
-        "final-legendary",
-        "final-mythic",
-        "final-rainbow",
-        "final-cursed"
-      );
-
       cinematicBurst.className = "cinematic-burst";
       forgeImpactFlash.className = "forge-impact-flash";
       forgeCorruptionWave.className = "forge-corruption-wave";
@@ -2003,14 +1926,11 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     }
 
     async function playFinalCinematic(coin, slot) {
-      forgeResult.classList.remove("cinematic-text");
 
       if (coin.raw && coin.raw.devoured) {
       triggerScreenBorder("cursed");
       forgeStage.classList.add("cinematic-cursed");
         triggerBurst("cursed", slot);
-        forgeResult.innerHTML = `💀 ${coin.name} was devoured!`;
-        forgeResult.classList.add("cinematic-text");
         await wait(380);
         return;
       }
@@ -2020,16 +1940,12 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       forgeStage.classList.add("cinematic-cursed");
         triggerCorruptionWave();
         triggerBurst("cursed", slot);
-        forgeResult.innerHTML = `👁️ ${coin.name} was corrupted!`;
-        forgeResult.classList.add("cinematic-text");
         await wait(380);
         return;
       }
 
       if (coin.name === "Lucky Coin") {
         triggerBurst("lucky", slot);
-        forgeResult.innerHTML = "🍀 LUCKY COIN!";
-        forgeResult.classList.add("cinematic-text");
         await wait(320);
         return;
       }
@@ -2038,8 +1954,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         triggerScreenBorder("jackpot");
         forgeStage.classList.add("cinematic-jackpot");
         triggerBurst("jackpot", slot);
-        forgeResult.innerHTML = "💰 JACKPOT BOOSTER!";
-        forgeResult.classList.add("cinematic-text");
         await wait(380);
         return;
       }
@@ -2048,16 +1962,12 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       triggerScreenBorder("cursed");
       forgeStage.classList.add("cinematic-cursed");
         triggerBurst("cursed", slot);
-        forgeResult.innerHTML = "💀 The forge rejects the offering...";
-        forgeResult.classList.add("cinematic-text");
         await wait(380);
         return;
       }
 
       if (coin.name === "Rainbow Coin") {
         triggerBurst("rainbow", slot);
-        forgeResult.innerHTML = "🌈 RAINBOW COIN!";
-        forgeResult.classList.add("cinematic-text");
         await wait(420);
         return;
       }
@@ -2065,8 +1975,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       if (coin.name === "Kingmaker Coin") {
         triggerScreenBorder("mythic");
         triggerBurst("mythic", slot);
-        forgeResult.innerHTML = "👑 KINGMAKER COIN!";
-        forgeResult.classList.add("cinematic-text");
         await wait(420);
         return;
       }
@@ -2074,8 +1982,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       if (coin.name === "Diamond Coin") {
         forgeStage.classList.add("cinematic-legendary");
         triggerBurst("legendary", slot);
-        forgeResult.innerHTML = `💎 LEGENDARY REVEAL — ${coin.name}!`;
-        forgeResult.classList.add("cinematic-text");
         await wait(360);
       }
     }
@@ -2359,7 +2265,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         return;
       }
 
-      forgeResult.innerText = `Slot ${index + 1} is being forged...`;
       await growAndFakeoutSlot(slot, finalCoin, index);
       
       const slotWrap = slot.closest(".slot-wrap");
@@ -2398,30 +2303,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       clearActiveSlotFocus();
       clearCinematicStageClasses();
-    }
-
-    function formatFinalResults(results, event) {
-      const coinText = results
-        .map(coin => shortNameMap[coin.name] || coin.name)
-        .join(" &nbsp; ✦ &nbsp; ");
-
-      const extras = [];
-
-      if (event.jackpotHit) {
-        extras.push(`💰 JACKPOT +${event.jackpotPayout || 0}`);
-      }
-
-      if (event.forgeIgnited) {
-        extras.push("🔥 FORGE IGNITED");
-      }
-
-      if (event.comboCount && event.comboCount >= 2) {
-        extras.push(`🔥 Combo x${event.comboCount}`);
-      }
-
-      return extras.length > 0
-        ? `${coinText}<br><span style="font-size:0.82em;color:#ffd36a">${extras.join(" &nbsp; | &nbsp; ")}</span>`
-        : coinText;
     }
 
     function getUsernameFontSize(name) {
@@ -2495,14 +2376,20 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     async function runForgeRevealExternal(event) {
       clearRevealClasses();
       
-      forgeStage.classList.add("visible");
-      document.body.classList.add("forge-active");
-      
-      const rawCoins = Array.isArray(event.coins) ? event.coins : [];
+     const rawCoins = Array.isArray(event.coins) ? event.coins : [];
       const results = rawCoins.map(getCoinDefinition);
       const pullCount = Math.max(1, Math.min(5, Number(event.pullCount || results.length || 1)));
-
-      if (results.length === 0) return;
+      
+      if (results.length === 0) {
+        forgeStage.classList.remove("visible", "charging", "charged");
+        document.body.classList.remove("forge-active");
+        clearPlayerIdentity();
+        slotRow.innerHTML = "";
+        return;
+      }
+      
+      forgeStage.classList.add("visible");
+      document.body.classList.add("forge-active");
       
       const highestClass = highestRarityClass(results);
       renderPlayerIdentity(event, highestClass);
@@ -2514,17 +2401,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       createSlots(pullCount);
       forgeStage.classList.remove("charging");
       forgeStage.classList.add("charged");
-      forgeResult.classList.remove("hidden");
 
       const slots = Array.from(document.querySelectorAll(".slot-coin"));
 
-      forgeResult.innerText =
-        pullCount === 1
-          ? `⚒️ ${event.user || "Someone"} calls to the Coin Forge...`
-          : `⚒️ ${event.user || "Someone"} prepares ${pullCount} coins...`;
-
       if (pullCount === 1) {
-        forgeResult.innerText = "The forge shapes the coin...";
       
         await spinSlot(
           slots[0],
@@ -2533,7 +2413,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           true
         );
       } else {
-        forgeResult.innerText = `The forge shapes ${pullCount} coins...`;
       
         const staggerDelay = Math.max(
           420,
@@ -2542,7 +2421,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       
         const spinPromises = slots.map((slot, i) => {
           return wait(i * staggerDelay).then(() => {
-            forgeResult.innerText = `Forging coin ${i + 1} of ${pullCount}...`;
       
             return spinSlot(
               slot,
@@ -2560,23 +2438,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       
       triggerFinalSlotPulse();
       await wait(180);
-      
-      forgeResult.innerHTML = formatFinalResults(results, event);
-
-      forgeResult.classList.remove(
-        "final-panel",
-        "final-common",
-        "final-rare",
-        "final-epic",
-        "final-legendary",
-        "final-mythic",
-        "final-rainbow",
-        "final-cursed"
-      );
-
-      void forgeResult.offsetWidth;
-
-      forgeResult.classList.add("final-panel", `final-${highestClass}`);
 
       await wait(event.displayMs || 1500);
 
@@ -2590,17 +2451,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         "reveal-cursed"
       );
       
-      forgeResult.classList.remove(
-        "final-panel",
-        "final-common",
-        "final-rare",
-        "final-epic",
-        "final-legendary",
-        "final-mythic",
-        "final-rainbow",
-        "final-cursed"
-      );
-      
       forgeStage.classList.remove("visible", "charged");
       document.body.classList.remove("forge-active");
       clearPlayerIdentity();
@@ -2609,7 +2459,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       
       slotRow.innerHTML = "";
       
-      forgeResult.innerHTML = "Waiting for the Coin Forge...";
     }
 
     async function processForgeQueue() {
@@ -2642,12 +2491,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         slotRow.innerHTML = "";
         forgeStage.classList.add("visible", "charging");
         document.body.classList.add("forge-active");
-        forgeResult.classList.add("hidden");
-    
-        forgeResult.innerText =
-          data.pullCount && Number(data.pullCount) > 1
-            ? `⚒️ ${data.user || "Someone"} prepares ${data.pullCount} coins...`
-            : `⚒️ ${data.user || "Someone"} calls to the Coin Forge...`;
     
         return;
       }
