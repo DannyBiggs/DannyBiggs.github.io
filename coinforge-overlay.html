@@ -2686,13 +2686,66 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
     function buildAchievementPopupData(event, achievementId) {
       const achievementMap = {
+
+        // COMMON
         first_pull: ["First Spark", "Pull your first coin.", "Common"],
         first_bronze: ["A Humble Beginning", "Pull your first Bronze coin.", "Common"],
+        coin_apprentice: ["Coin Apprentice", "Continue forging coins.", "Common"],
+        bronze_collector: ["Bronze Collector", "Collect Bronze coins.", "Common"],
+        first_wood: ["Wood Gatherer", "Pull your first Wood coin.", "Common"],
+      
+        // RARE
         first_silver: ["Silver Lining", "Pull your first Silver coin.", "Rare"],
+        first_gamble: ["Risk Taker", "Perform your first gamble pull.", "Rare"],
+        first_boss_damage: ["Boss Breaker", "Damage a world boss.", "Rare"],
+        forge_regular: ["Forge Regular", "Become a regular of the forge.", "Rare"],
+        jackpot_chaser: ["Jackpot Chaser", "Chase the jackpot.", "Rare"],
+        forge_silver_blessing: ["Silver Blessed", "Receive the Silver Blessing.", "Rare"],
+      
+        // EPIC
         first_gold: ["Golden Touch", "Pull your first Gold coin.", "Epic"],
+        gold_hunter: ["Gold Hunter", "Collect Gold coins.", "Epic"],
+        cursed_survivor: ["Cursed Survivor", "Survive the curse.", "Epic"],
+        forge_gold_blessing: ["Gold Blessed", "Receive the Gold Blessing.", "Epic"],
+        forge_veteran: ["Forge Veteran", "Reach veteran forge status.", "Epic"],
+        gold_hoarder: ["Gold Hoarder", "Accumulate great wealth.", "Epic"],
+        kindling_collector: ["Kindling Collector", "Collect Forge Kindling.", "Epic"],
+        jackpot_addict: ["Jackpot Addict", "Keep feeding the jackpot.", "Epic"],
+      
+        // LEGENDARY
         first_diamond: ["Shining Fortune", "Pull your first Diamond coin.", "Legendary"],
+        first_boss_kill: ["Boss Slayer", "Defeat your first world boss.", "Legendary"],
+        forge_ignited: ["Forge Ignited", "Ignite the forge.", "Legendary"],
+        forge_master: ["Forge Master", "Master the forge.", "Legendary"],
+        gold_tyrant: ["Gold Tyrant", "Dominate the gold economy.", "Legendary"],
+        diamond_collector: ["Diamond Collector", "Collect Diamonds.", "Legendary"],
+        curse_bearer: ["Curse Bearer", "Carry the curse.", "Legendary"],
+        forge_tender: ["Forge Tender", "Tend the forge flames.", "Legendary"],
+        jackpot_maniac: ["Jackpot Maniac", "Become consumed by jackpots.", "Legendary"],
+      
+        // MYTHIC
         first_rainbow: ["Impossible Fortune", "Pull your first Rainbow coin.", "Mythic"],
-        first_anti: ["Cursed Fate", "Pull your first Anti coin.", "Cursed"]
+        forge_legend: ["Forge Legend", "Become a living legend.", "Mythic"],
+        the_lustrious: ["The Lustrous", "Achieve impossible brilliance.", "Mythic"],
+        cursebound: ["Cursebound", "Bind yourself to the curse.", "Mythic"],
+        taste_the_rainbow: ["Taste The Rainbow", "Pull multiple Rainbow coins.", "Mythic"],
+        on_the_spectrum: ["On The Spectrum", "Pull 7 Rainbow coins.", "Mythic"],
+      
+        // CURSED
+        first_anti: ["Cursed Fate", "Pull your first Anti coin.", "Cursed"],
+      
+        // SECRET
+        genesis: ["Genesis", "A hidden beginning.", "Secret"],
+        omen_corrupted: ["Omen Corrupted", "Fall to corruption.", "Secret"],
+        coin_devoured: ["Coin Devoured", "Lose a coin to the void.", "Secret"],
+        gamble_bust: ["Gamble Bust", "Lose everything in a gamble.", "Secret"],
+        this_shit_is_rigged: ["This Shit Is Rigged", "Experience impossible odds.", "Secret"],
+        broke_the_house: ["Broke The House", "Win beyond expectation.", "Secret"],
+        avaros_hungers: ["Avaros Hungers", "Feed the endless hunger.", "Secret"],
+        all_eyes_on_me: ["All Eyes On Me", "Draw the gaze of the forge.", "Secret"],
+        i_dont_have_a_problem: ["I Don't Have A Problem", "Forge far too much.", "Secret"],
+        crowned_for_a_month: ["Crowned For A Month", "Rule the weekly leaderboard.", "Secret"]
+      
       };
 
       const fallback = ["Achievement Unlocked", "A Coin Forge achievement was unlocked.", "Secret"];
