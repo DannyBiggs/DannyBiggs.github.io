@@ -1205,24 +1205,26 @@
     
     .player-badge-strip {
       position: absolute;
-      left: 10%;
-      top: 48px;
-      transform: translateY(-50%);
+      left: 48.5%;
+      top: -4px;
+      transform: translateX(-50%);
     
       display: flex;
       align-items: center;
-      gap: 5px;
+      justify-content: center;
+      gap: 4px;
     
-      z-index: 4;
+      width: 4300px;
+      z-index: 5;
     }
     
     .player-badge {
-      width: 34px;
-      height: 34px;
+      width: 24px;
+      height: 24px;
       object-fit: contain;
       image-rendering: pixelated;
     
-      filter: drop-shadow(0 0 8px rgba(255, 210, 120, 0.5));
+      filter: drop-shadow(0 0 7px rgba(255, 210, 120, 0.55));
     
       opacity: 0;
       transform: translateY(5px) scale(0.85);
@@ -2466,6 +2468,22 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         playerUsername.style.setProperty("--name-font-size", `${size}px`);
       }
     }
+
+    function getBadgePath(badgeIdOrPath) {
+      const value = String(badgeIdOrPath || "").trim();
+
+      if (!value) return "";
+
+      if (
+        value.startsWith("images/") ||
+        value.startsWith("http://") ||
+        value.startsWith("https://")
+      ) {
+        return value;
+      }
+
+      return `images/badges/${value}.png`;
+    }
     
     function clearPlayerIdentity() {
       playerIdentityLayer.className = "player-identity-layer";
@@ -2490,11 +2508,21 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       playerNameplate.src = nameplatePath;
     
-      badges.slice(0, 3).forEach((badgePath, index) => {
+      badges.forEach((badgeIdOrPath, index) => {
+        const badgePath = getBadgePath(badgeIdOrPath);
+
+        if (!badgePath) return;
+
         const img = document.createElement("img");
         img.className = "player-badge";
         img.src = badgePath;
-        img.alt = `Badge ${index + 1}`;
+        img.alt = "";
+        img.onerror = () => {
+          console.warn("Missing badge image:", badgePath);
+          img.remove();
+        };
+        img.style.animationDelay = `${Math.min(index, 10) * 0.04}s`;
+
         playerBadges.appendChild(img);
       });
     
