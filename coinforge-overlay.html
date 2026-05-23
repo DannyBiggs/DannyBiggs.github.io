@@ -1245,6 +1245,113 @@
       }
     }
 
+    .achievement-popup {
+      position: fixed;
+      left: 50%;
+      top: 9%;
+      width: min(760px, 88vw);
+      height: 170px;
+      transform: translateX(-50%) translateY(-30px) scale(0.96);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 60;
+      transition: opacity 0.28s ease, transform 0.28s ease;
+    }
+
+    .achievement-popup.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0) scale(1);
+    }
+
+    .achievement-banner {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      image-rendering: pixelated;
+      filter: drop-shadow(0 0 18px rgba(255, 179, 71, 0.42));
+    }
+
+    .achievement-icon {
+      position: absolute;
+      left: 58px;
+      top: 50%;
+      width: 88px;
+      height: 88px;
+      transform: translateY(-50%);
+      object-fit: contain;
+      image-rendering: pixelated;
+      filter: drop-shadow(0 0 12px rgba(255, 220, 120, 0.65));
+    }
+
+    .achievement-user {
+      position: absolute;
+      left: 170px;
+      top: 36px;
+      width: 500px;
+      color: #ffcf6a;
+      font-size: 15px;
+      font-weight: 900;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      text-shadow: 0 2px 0 rgba(0,0,0,0.95);
+    }
+
+    .achievement-title {
+      position: absolute;
+      left: 170px;
+      top: 62px;
+      width: 500px;
+      color: #fff4c2;
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-shadow:
+        0 3px 0 rgba(0,0,0,0.95),
+        0 0 14px rgba(255, 190, 80, 0.75);
+    }
+
+    .achievement-desc {
+      position: absolute;
+      left: 170px;
+      top: 100px;
+      width: 500px;
+      color: #e8d7a2;
+      font-size: 16px;
+      font-weight: 700;
+      text-shadow: 0 2px 0 rgba(0,0,0,0.95);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .achievement-rarity {
+      position: absolute;
+      right: 62px;
+      bottom: 28px;
+      color: #ffd36a;
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      text-shadow: 0 2px 0 rgba(0,0,0,0.95);
+    }
+
+    .achievement-popup.visible .achievement-icon {
+      animation: achievementIconPop 0.42s ease-out;
+    }
+
+    @keyframes achievementIconPop {
+      0% { transform: translateY(-50%) scale(0.72); opacity: 0; }
+      65% { transform: translateY(-50%) scale(1.12); opacity: 1; }
+      100% { transform: translateY(-50%) scale(1); opacity: 1; }
+    }
+    
     .connection-status {
       position: fixed;
       left: 16px;
@@ -1304,7 +1411,14 @@
       </div>
     </div>
   </div>
-
+  <div id="achievementPopup" class="achievement-popup">
+    <img id="achievementBanner" class="achievement-banner" src="images/achievements/achievement_banner.png" alt="">
+    <img id="achievementIcon" class="achievement-icon" src="" alt="">
+    <div id="achievementUser" class="achievement-user"></div>
+    <div id="achievementTitle" class="achievement-title"></div>
+    <div id="achievementDesc" class="achievement-desc"></div>
+    <div id="achievementRarity" class="achievement-rarity"></div>
+  </div>  
   <!-- <div id="connectionStatus" class="connection-status">Connecting to Streamer.bot...</div> -->
 
   <script>
@@ -1323,6 +1437,13 @@
     const playerUsername = document.getElementById("playerUsername");
     const playerNameText = document.querySelector(".player-name-text");
     const playerTitle = document.getElementById("playerTitle");
+    const achievementPopup = document.getElementById("achievementPopup");
+    const achievementBanner = document.getElementById("achievementBanner");
+    const achievementIcon = document.getElementById("achievementIcon");
+    const achievementUser = document.getElementById("achievementUser");
+    const achievementTitle = document.getElementById("achievementTitle");
+    const achievementDesc = document.getElementById("achievementDesc");
+    const achievementRarity = document.getElementById("achievementRarity");
     
     const slotLandSound = new Audio("sounds/slot-land.m4a");
     slotLandSound.volume = 0.08;
@@ -2372,6 +2493,37 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         playerIdentityLayer.classList.add(`rarity-${highestClass}`);
       }
     }
+
+    let achievementPopupTimeout = null;
+
+    function showAchievementPopup(data) {
+      if (!achievementPopup) return;
+
+      clearTimeout(achievementPopupTimeout);
+
+      achievementPopup.classList.remove("visible");
+      void achievementPopup.offsetWidth;
+
+      const user = data.user || data.displayUser || "Someone";
+      const title = data.title || data.name || "Achievement Unlocked";
+      const description = data.description || data.desc || "";
+      const rarity = data.rarity || "Common";
+      const achievementId = data.achievementId || "unknown";
+
+      achievementBanner.src = data.banner || "images/achievements/achievement_banner.png";
+      achievementIcon.src = data.icon || `images/achievements/icons/${achievementId}.png`;
+
+      achievementUser.innerText = `${String(user).toUpperCase()} UNLOCKED:`;
+      achievementTitle.innerText = String(title).toUpperCase();
+      achievementDesc.innerText = description;
+      achievementRarity.innerText = rarity;
+
+      achievementPopup.classList.add("visible");
+
+      achievementPopupTimeout = setTimeout(() => {
+        achievementPopup.classList.remove("visible");
+      }, Number(data.duration || 4500));
+    }
     
     async function runForgeRevealExternal(event) {
       clearRevealClasses();
@@ -2495,6 +2647,11 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         return;
       }
     
+      if (data.type === "coinForgeAchievement") {
+        showAchievementPopup(data);
+        return;
+      }
+
       if (data.type !== "coinForgePull") return;
     
       enqueueForgeEvent(data);
