@@ -2496,6 +2496,24 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
     let achievementPopupTimeout = null;
 
+    function getAchievementRarityIcon(rarity) {
+      const clean = String(rarity || "common").trim().toLowerCase();
+
+      const allowed = [
+        "common",
+        "rare",
+        "epic",
+        "legendary",
+        "mythic",
+        "cursed",
+        "secret"
+      ];
+
+      return allowed.includes(clean)
+        ? `images/achievements/icons/${clean}.png`
+        : "images/achievements/icons/common.png";
+    }
+    
     function showAchievementPopup(data) {
       if (!achievementPopup) return;
 
@@ -2511,7 +2529,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       const achievementId = data.achievementId || "unknown";
 
       achievementBanner.src = data.banner || "images/achievements/achievement_banner.png";
-      achievementIcon.src = data.icon || `images/achievements/icons/${achievementId}.png`;
+      achievementIcon.src = data.icon || getAchievementRarityIcon(rarity);
 
       achievementUser.innerText = `${String(user).toUpperCase()} UNLOCKED:`;
       achievementTitle.innerText = String(title).toUpperCase();
@@ -2613,6 +2631,31 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       
     }
 
+    function buildAchievementPopupData(event, achievementId) {
+      const achievementMap = {
+        first_pull: ["First Spark", "Pull your first coin.", "Common"],
+        first_bronze: ["A Humble Beginning", "Pull your first Bronze coin.", "Common"],
+        first_silver: ["Silver Lining", "Pull your first Silver coin.", "Rare"],
+        first_gold: ["Golden Touch", "Pull your first Gold coin.", "Epic"],
+        first_diamond: ["Shining Fortune", "Pull your first Diamond coin.", "Legendary"],
+        first_rainbow: ["Impossible Fortune", "Pull your first Rainbow coin.", "Mythic"],
+        first_anti: ["Cursed Fate", "Pull your first Anti coin.", "Cursed"]
+      };
+
+      const fallback = ["Achievement Unlocked", "A Coin Forge achievement was unlocked.", "Secret"];
+      const entry = achievementMap[achievementId] || fallback;
+
+      return {
+        type: "coinForgeAchievement",
+        user: event.user || event.displayUser || "Someone",
+        displayUser: event.displayUser || event.user || "Someone",
+        achievementId,
+        title: entry[0],
+        description: entry[1],
+        rarity: entry[2]
+      };
+    }
+    
     async function processForgeQueue() {
       if (forgeEventPlaying) return;
 
@@ -2621,6 +2664,13 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       while (forgeEventQueue.length > 0) {
         const event = forgeEventQueue.shift();
         await runForgeRevealExternal(event);
+
+        if (Array.isArray(event.achievements) && event.achievements.length > 0) {
+          for (const achievementId of event.achievements) {
+            showAchievementPopup(buildAchievementPopupData(event, achievementId));
+            await wait(4700);
+          }
+        }
       }
 
       forgeEventPlaying = false;
