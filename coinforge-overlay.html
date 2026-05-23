@@ -1297,11 +1297,11 @@
     .achievement-user {
       position: absolute;
       left: 50%;
-      top: 82px;
+      top: 84px;
       width: 440px;
       transform: translateX(-50%);
       color: #ffcf6a;
-      font-size: 13px;
+      font-size: 11px;
       font-weight: 900;
       letter-spacing: 0.08em;
       text-transform: uppercase;
@@ -1313,18 +1313,19 @@
       position: absolute;
       left: 50%;
       top: 104px;
-      width: 440px;
+      width: 460px;
       transform: translateX(-50%);
       color: #fff4c2;
-      font-size: 22px;
+      font-size: 16px;
       text-align: center;
       font-weight: 900;
       letter-spacing: 0.035em;
       text-transform: uppercase;
-      white-space: normal;
+      white-space: nowrap;
       overflow: visible;
       text-overflow: clip;
-      line-height: 1.05;
+      line-height: 1;
+      min-height: 38px;
       text-shadow:
         0 3px 0 rgba(0,0,0,0.95),
         0 0 14px rgba(255, 190, 80, 0.75);
@@ -1333,11 +1334,11 @@
     .achievement-desc {
       position: absolute;
       left: 50%;
-      top: 134px;
+      top: 148px;
       width: 440px;
       transform: translateX(-50%);
       color: #e8d7a2;
-      font-size: 13px;
+      font-size: 10px;
       text-align: center;
       font-weight: 700;
       line-height: 1.05;
@@ -1350,10 +1351,10 @@
     .achievement-rarity {
       position: absolute;
       left: 50%;
-      top: 151px;
+      top: 170px;
       transform: translateX(-34px);
       color: #ffd36a;
-      font-size: 13px;
+      font-size: 11px;
       font-weight: 900;
       letter-spacing: 0.12em;
       text-transform: uppercase;
@@ -2562,7 +2563,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       achievementPopupTimeout = setTimeout(() => {
         achievementPopup.classList.remove("visible");
-      }, Number(data.duration || 4500));
+      }, Number(data.duration || 2800));
     }
     
     async function runForgeRevealExternal(event) {
@@ -2634,7 +2635,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       if (Array.isArray(event.achievements) && event.achievements.length > 0) {
         for (const achievementId of event.achievements) {
           showAchievementPopup(buildAchievementPopupData(event, achievementId));
-          await wait(4700);
+          await wait(3000);
         }
       } else {
         await wait(event.displayMs || 1500);
