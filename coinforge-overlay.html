@@ -1252,6 +1252,96 @@
       }
     }
 
+    .combo-popup {
+      position: fixed;
+      left: 50%;
+      top: 28%;
+      transform: translate(-50%, -50%) scale(0.9);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 58;
+    
+      font-family: "ComboFont", monospace;
+      font-size: 42px;
+      line-height: 1;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    
+      image-rendering: pixelated;
+    }
+    
+    .combo-popup.visible {
+      opacity: 1;
+    }
+    
+    .combo-popup.milestone {
+      animation: comboHeartbeat 1.45s steps(6, end) forwards;
+    }
+    
+    .combo-popup.broken {
+      animation: comboBrokenGlitch 1.2s steps(7, end) forwards;
+      color: #6ee8ff;
+      text-shadow:
+        4px 0 0 #1b2cff,
+        -4px 0 0 #111111,
+        0 0 14px rgba(90, 210, 255, 0.75);
+    }
+    
+    .combo-popup.x10 {
+      color: #40e6ff;
+      text-shadow:
+        3px 3px 0 #2937ff,
+        0 0 14px rgba(64, 230, 255, 0.8);
+    }
+    
+    .combo-popup.x25 {
+      color: #ff4fd8;
+      text-shadow:
+        3px 3px 0 #752cff,
+        0 0 16px rgba(255, 80, 220, 0.85);
+    }
+    
+    .combo-popup.x50 {
+      color: #ff8b2e;
+      text-shadow:
+        3px 3px 0 #6a2cff,
+        0 0 18px rgba(255, 140, 46, 0.9);
+    }
+    
+    .combo-popup.x75 {
+      color: #35f28c;
+      text-shadow:
+        3px 3px 0 #5c22ff,
+        0 0 18px rgba(53, 242, 140, 0.9);
+    }
+    
+    .combo-popup.x100 {
+      color: #ff4cc7;
+      text-shadow:
+        3px 0 0 #ffd36a,
+        -3px 0 0 #38e8ff,
+        0 0 22px rgba(255, 90, 220, 0.95);
+    }
+    
+    @keyframes comboHeartbeat {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.72); }
+      15% { opacity: 1; transform: translate(-50%, -50%) scale(1.12); }
+      28% { transform: translate(-50%, -50%) scale(0.96); }
+      42% { transform: translate(-50%, -50%) scale(1.08); }
+      62% { transform: translate(-50%, -50%) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(0.94); }
+    }
+    
+    @keyframes comboBrokenGlitch {
+      0% { opacity: 0; transform: translate(-50%, -50%) skewX(0deg); }
+      15% { opacity: 1; transform: translate(-52%, -50%) skewX(-8deg); }
+      30% { transform: translate(-48%, -50%) skewX(8deg); }
+      45% { transform: translate(-51%, -50%) skewX(-4deg); }
+      65% { transform: translate(-50%, -50%) skewX(0deg); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(0.96); }
+    }
+    
     .achievement-popup {
       position: fixed;
       left: 50%;
@@ -1430,6 +1520,7 @@
       </div>
     </div>
   </div>
+  <div id="comboPopup" class="combo-popup"></div>
   <div id="achievementPopup" class="achievement-popup">
     <img id="achievementBanner" class="achievement-banner" src="images/achievements/achievement_banner.png" alt="">
     <img id="achievementIcon" class="achievement-icon" src="" alt="">
@@ -1463,6 +1554,7 @@
     const achievementTitle = document.getElementById("achievementTitle");
     const achievementDesc = document.getElementById("achievementDesc");
     const achievementRarity = document.getElementById("achievementRarity");
+    const comboPopup = document.getElementById("comboPopup");
     
     const slotLandSound = new Audio("sounds/slot-land.m4a");
     slotLandSound.volume = 0.08;
@@ -1470,6 +1562,18 @@
     forgeHammerSound.volume = 0.16;
     const achievementSound = new Audio("sounds/koiroylers-awesome-level-up-351714.mp3");
     achievementSound.volume = 0.35;
+    const comboSounds = {
+      broken: new Audio("sounds/combo/combo-broken.mp3"),
+      10: new Audio("sounds/combo/combo-x10.m4a"),
+      25: new Audio("sounds/combo/combo-x25.m4a"),
+      50: new Audio("sounds/combo/combo-x50.m4a"),
+      75: new Audio("sounds/combo/combo-x75.m4a"),
+      100: new Audio("sounds/combo/combo-x100.m4a")
+    };
+    
+    Object.values(comboSounds).forEach(sound => {
+      sound.volume = 0.35;
+    });
 
     const forgeCoins = [
       { key: "Wood", name: "Wood Coin", file: "images/coins/wood.gif", rarity: "Common", className: "common" },
@@ -1503,6 +1607,9 @@
 
     const achievementDisplayQueue = [];
     let achievementDisplayActive = false;
+
+    const comboDisplayQueue = [];
+    let comboDisplayActive = false;
     
     const coinFrameCache = {};
 
@@ -2629,6 +2736,49 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       achievementDisplayActive = false;
     }
+
+    function queueComboDisplay(type, value = null) {
+      comboDisplayQueue.push({ type, value });
+      processComboDisplayQueue();
+    }
+    
+    async function processComboDisplayQueue() {
+      if (comboDisplayActive) return;
+    
+      comboDisplayActive = true;
+    
+      while (comboDisplayQueue.length > 0) {
+        const item = comboDisplayQueue.shift();
+        showComboPopup(item.type, item.value);
+        await wait(item.type === "broken" ? 1250 : 1500);
+      }
+    
+      comboDisplayActive = false;
+    }
+    
+    function showComboPopup(type, value = null) {
+      if (!comboPopup) return;
+    
+      comboPopup.className = "combo-popup";
+    
+      if (type === "broken") {
+        comboPopup.innerText = "COMBO BROKEN";
+        comboPopup.classList.add("broken", "visible");
+    
+        comboSounds.broken.currentTime = 0;
+        comboSounds.broken.play().catch(() => {});
+        return;
+      }
+    
+      comboPopup.innerText = `COMBO X${value}`;
+      comboPopup.classList.add("milestone", `x${value}`, "visible");
+    
+      const sound = comboSounds[value];
+      if (sound) {
+        sound.currentTime = 0;
+        sound.play().catch(() => {});
+      }
+    }
     
     async function runForgeRevealExternal(event) {
       clearRevealClasses();
@@ -2651,7 +2801,16 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       
       const highestClass = highestRarityClass(results);
       renderPlayerIdentity(event, highestClass);
-
+      if (event.comboBroken) {
+        queueComboDisplay("broken");
+      }
+      
+      if (Array.isArray(event.comboMilestones)) {
+        event.comboMilestones.forEach(milestone => {
+          queueComboDisplay("milestone", milestone);
+        });
+      }
+      
       forgeStage.classList.add("visible");
 
       await wait(0);
