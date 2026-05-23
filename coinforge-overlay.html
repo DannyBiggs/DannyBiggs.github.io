@@ -1575,15 +1575,23 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       }, 420);
     }
       
-    function triggerSparkStrikeGif() {
-      if (!sparkStrikeGif) return;
+    function triggerSparkStrikeGif(slot) {
+      if (!sparkStrikeGif || !slot || !forgeStage) return;
+    
+      const slotRect = slot.getBoundingClientRect();
+      const stageRect = forgeStage.getBoundingClientRect();
+    
+      const slotCenterX = slotRect.left + (slotRect.width / 2) - stageRect.left;
+      const slotCenterY = slotRect.top + (slotRect.height * 0.45) - stageRect.top;
     
       sparkStrikeGif.classList.remove("active");
+    
       const randomRotation = (-14 + Math.random() * 28);
-
+    
+      sparkStrikeGif.style.left = `${slotCenterX}px`;
+      sparkStrikeGif.style.top = `${slotCenterY}px`;
       sparkStrikeGif.style.setProperty("--gif-rotation", `${randomRotation}deg`);
     
-      // Force GIF restart
       sparkStrikeGif.src = `images/vfx/sparks_strike.gif?t=${Date.now()}`;
     
       void sparkStrikeGif.offsetWidth;
@@ -2243,7 +2251,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           if (!slot.dataset.hammerSoundPlayed) {
             slot.dataset.hammerSoundPlayed = "true";
             playForgeHammerSound();
-            triggerSparkStrikeGif();
+            triggerSparkStrikeGif(slot);
             triggerSocketCompression(slot);
           }
         
