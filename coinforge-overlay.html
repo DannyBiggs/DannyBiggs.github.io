@@ -2563,6 +2563,20 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       
       await cinematicPromise;
 
+      if (finalCoin.raw && finalCoin.raw.comboBroken) {
+        queueComboDisplay("broken");
+      }
+      
+      if (
+        finalCoin.raw &&
+        Array.isArray(finalCoin.raw.comboMilestones) &&
+        finalCoin.raw.comboMilestones.length > 0
+      ) {
+        finalCoin.raw.comboMilestones.forEach(milestone => {
+          queueComboDisplay("milestone", milestone);
+        });
+      }
+      
       if (
         finalCoin.raw &&
         Array.isArray(finalCoin.raw.achievements) &&
@@ -2826,15 +2840,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       
       const highestClass = highestRarityClass(results);
       renderPlayerIdentity(event, highestClass);
-      if (event.comboBroken) {
-        queueComboDisplay("broken");
-      }
-      
-      if (Array.isArray(event.comboMilestones)) {
-        event.comboMilestones.forEach(milestone => {
-          queueComboDisplay("milestone", milestone);
-        });
-      }
       
       forgeStage.classList.add("visible");
 
