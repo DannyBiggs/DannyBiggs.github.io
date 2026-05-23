@@ -2511,7 +2511,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       const displayName = event.user || event.displayUser || "Someone";
       const title = event.title || event.equippedTitle || "";
-      const nameplatePath = event.nameplate || event.nameplatePath || "images/nameplates/default_cropped.png";
+      const nameplatePath = event.nameplate || event.nameplatePath || "images/nameplates/default.png";
       const badges = Array.isArray(event.badges) ? event.badges : [];
     
       playerUsername.innerText = displayName;
