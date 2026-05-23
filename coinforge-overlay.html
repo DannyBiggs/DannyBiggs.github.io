@@ -1248,7 +1248,7 @@
     .achievement-popup {
       position: fixed;
       left: 50%;
-      bottom: 54px;
+      bottom: 64px;
       width: 520px;
       height: 230px;
       transform: translateX(-50%) translateY(20px) scale(0.96);
@@ -2551,7 +2551,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       achievementPopupTimeout = setTimeout(() => {
         achievementPopup.classList.remove("visible");
-      }, Number(data.duration || 2200));
+      }, Number(data.duration || 2000));
     }
     
     async function runForgeRevealExternal(event) {
@@ -2623,7 +2623,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       if (Array.isArray(event.achievements) && event.achievements.length > 0) {
         for (const achievementId of event.achievements) {
           showAchievementPopup(buildAchievementPopupData(event, achievementId));
-          await wait(2400);
+          await wait(2200);
         }
       } else {
         await wait(event.displayMs || 1500);
