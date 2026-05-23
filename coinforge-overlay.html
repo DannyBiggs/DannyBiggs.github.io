@@ -2510,7 +2510,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       clearPlayerIdentity();
     
       const displayName = event.user || event.displayUser || "Someone";
-      const title = event.title || event.equippedTitle || "";
+      const title = event.equippedTitle || event.title || event.rankTitle || event.nameplateTitle || "TEST TITLE";
       const nameplatePath = event.nameplate || event.nameplatePath || "images/nameplates/default_cropped.png";
       const badges = Array.isArray(event.badges) ? event.badges : [];
     
