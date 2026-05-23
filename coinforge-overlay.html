@@ -1260,7 +1260,7 @@
     .combo-popup {
       position: fixed;
       left: 50%;
-      top: 28%;
+      top: 34%;
       transform: translate(-50%, -50%) scale(0.9);
       opacity: 0;
       pointer-events: none;
@@ -1286,11 +1286,27 @@
     
     .combo-popup.broken {
       animation: comboBrokenGlitch 1.2s steps(7, end) forwards;
-      color: #6ee8ff;
+    
+      color: #86f1ff;
+    
       text-shadow:
-        4px 0 0 #1b2cff,
-        -4px 0 0 #111111,
-        0 0 14px rgba(90, 210, 255, 0.75);
+        4px 0 0 #263dff,
+        -4px 0 0 #07121a,
+        0 0 18px rgba(90, 210, 255, 0.95);
+    }
+
+    .combo-popup.x10,
+    .combo-popup.x25 {
+      font-size: 34px;
+    }
+    
+    .combo-popup.x50 {
+      font-size: 38px;
+    }
+    
+    .combo-popup.x75,
+    .combo-popup.x100 {
+      font-size: 42px;
     }
     
     .combo-popup.x10 {
