@@ -233,7 +233,7 @@
         brightness(var(--forge-pressure-brightness, 1))
         saturate(var(--forge-pressure-saturation, 1))
         hue-rotate(var(--forge-pressure-hue, 0deg));
-    
+      
       transition:
         opacity 420ms ease,
         filter 420ms ease;
@@ -1501,6 +1501,9 @@
     const forgeEventQueue = [];
     let forgeEventPlaying = false;
 
+    const achievementDisplayQueue = [];
+    let achievementDisplayActive = false;
+    
     const coinFrameCache = {};
 
     function preloadImage(src) {
@@ -2448,6 +2451,18 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       
       await cinematicPromise;
 
+      if (
+        finalCoin.raw &&
+        Array.isArray(finalCoin.raw.achievements) &&
+        finalCoin.raw.achievements.length > 0
+      ) {
+        for (const achievementId of finalCoin.raw.achievements) {
+          queueAchievementDisplay(
+            buildAchievementPopupData(window.currentForgeEvent || {}, achievementId)
+          );
+        }
+      }
+      
       clearActiveSlotFocus();
       clearCinematicStageClasses();
     }
@@ -2594,9 +2609,30 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         achievementPopup.classList.remove("visible");
       }, Number(data.duration || 2000));
     }
+
+    function queueAchievementDisplay(data) {
+      achievementDisplayQueue.push(data);
+      processAchievementDisplayQueue();
+    }
+    
+    async function processAchievementDisplayQueue() {
+      if (achievementDisplayActive) return;
+    
+      achievementDisplayActive = true;
+    
+      while (achievementDisplayQueue.length > 0) {
+        const data = achievementDisplayQueue.shift();
+        showAchievementPopup(data);
+    
+        await wait(Number(data.duration || 2000) + 250);
+      }
+    
+      achievementDisplayActive = false;
+    }
     
     async function runForgeRevealExternal(event) {
       clearRevealClasses();
+      window.currentForgeEvent = event;
       
      const rawCoins = Array.isArray(event.coins) ? event.coins : [];
       const results = rawCoins.map(getCoinDefinition);
@@ -2661,10 +2697,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       triggerFinalSlotPulse();
       await wait(180);
 
-      if (Array.isArray(event.achievements) && event.achievements.length > 0) {
-        for (const achievementId of event.achievements) {
-          showAchievementPopup(buildAchievementPopupData(event, achievementId));
-          await wait(2200);
+      await wait(event.displayMs || 1500);
         }
       } else {
         await wait(event.displayMs || 1500);
