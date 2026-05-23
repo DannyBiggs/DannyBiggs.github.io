@@ -2171,6 +2171,28 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       return ["Gold", "Diamond", "Anti"];
     }
+
+    function getForgeTimingProfile(pullCount) {
+      const count = Number(pullCount) || 1;
+    
+      if (count <= 1) {
+        return { growDuration: 2600, frameDelay: 16, totalFrames: 165 };
+      }
+    
+      if (count === 2) {
+        return { growDuration: 2200, frameDelay: 14, totalFrames: 135 };
+      }
+    
+      if (count === 3) {
+        return { growDuration: 1900, frameDelay: 13, totalFrames: 115 };
+      }
+    
+      if (count === 4) {
+        return { growDuration: 1650, frameDelay: 12, totalFrames: 100 };
+      }
+    
+      return { growDuration: 1450, frameDelay: 11, totalFrames: 88 };
+    }
     
     async function playFrameCoinSequence(slot, slotWrap, finalCoin) {
       if (!slot || !slotWrap) return;
