@@ -2523,16 +2523,37 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           ? `⚒️ ${event.user || "Someone"} calls to the Coin Forge...`
           : `⚒️ ${event.user || "Someone"} prepares ${pullCount} coins...`;
 
-      for (let i = 0; i < slots.length; i++) {
+      if (pullCount === 1) {
+        forgeResult.innerText = "The forge shapes the coin...";
       
-        forgeResult.innerText =
-          pullCount === 1
-            ? "The forge shapes the coin..."
-            : `The forge shapes coin ${i + 1} of ${pullCount}...`;
+        await spinSlot(
+          slots[0],
+          results[0] || results[results.length - 1],
+          0,
+          true
+        );
+      } else {
+        forgeResult.innerText = `The forge shapes ${pullCount} coins...`;
       
-        await spinSlot(slots[i], results[i] || results[results.length - 1], i, true);
+        const staggerDelay = Math.max(
+          420,
+          1050 - (pullCount * 120)
+        );
       
-        await wait(60);
+        const spinPromises = slots.map((slot, i) => {
+          return wait(i * staggerDelay).then(() => {
+            forgeResult.innerText = `Forging coin ${i + 1} of ${pullCount}...`;
+      
+            return spinSlot(
+              slot,
+              results[i] || results[results.length - 1],
+              i,
+              true
+            );
+          });
+        });
+      
+        await Promise.all(spinPromises);
       }
 
       forgeStage.classList.add(`reveal-${highestClass}`);
