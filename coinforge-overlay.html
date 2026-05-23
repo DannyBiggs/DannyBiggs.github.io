@@ -1181,16 +1181,19 @@
     
     .player-title {
       position: absolute;
-      left: 50%;
-      top: 92px;
+      left: 48.5%;
+      top: 98px;
       width: 430px;
-      max-width: 70%;
+    
       transform: translateX(-50%);
     
       color: #ffcf6a;
+    
+      font-family: "CoinForgeName", Arial, sans-serif;
       font-weight: 900;
-      font-size: clamp(11px, 1.2vw, 16px);
-      letter-spacing: 0.16em;
+      font-size: 13px;
+    
+      letter-spacing: 0.08em;
       text-transform: uppercase;
       text-align: center;
     
@@ -1199,8 +1202,10 @@
         0 0 12px rgba(255, 150, 40, 0.65);
     
       white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      overflow: visible;
+      text-overflow: clip;
+    
+      z-index: 4;
     }
     
     .player-badge-strip {
@@ -1417,8 +1422,9 @@
         
           <div class="player-name-text">
             <div id="playerUsername" class="player-username"></div>
-            <div id="playerTitle" class="player-title"></div>
           </div>
+          
+          <div id="playerTitle" class="player-title"></div>
         </div>
         
       </div>
