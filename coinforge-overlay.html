@@ -280,6 +280,63 @@
       opacity: 0.9;
       filter: brightness(1.48) saturate(1.18);
     }
+
+    .forge-stage.weekly-champion .forge-background-glow {
+      opacity: 1;
+      filter:
+        brightness(1.9)
+        saturate(1.8)
+        hue-rotate(-18deg);
+      mix-blend-mode: screen;
+      animation: weeklyForgeGlow 2.4s ease-in-out infinite alternate;
+    }
+    
+    @keyframes weeklyForgeGlow {
+      from {
+        filter:
+          brightness(1.55)
+          saturate(1.4)
+          hue-rotate(-12deg);
+      }
+    
+      to {
+        filter:
+          brightness(2.2)
+          saturate(2)
+          hue-rotate(-20deg);
+      }
+    }
+    
+    .forge-stage.weekly-champion::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 50% 38%,
+          rgba(255,235,140,0.18),
+          transparent 45%);
+      mix-blend-mode: screen;
+      animation: championForgeBloom 3s ease-in-out infinite;
+      z-index: 4;
+    }
+    
+    @keyframes championForgeBloom {
+      0% {
+        opacity: 0.2;
+        transform: scale(0.96);
+      }
+    
+      50% {
+        opacity: 0.75;
+        transform: scale(1.04);
+      }
+    
+      100% {
+        opacity: 0.2;
+        transform: scale(0.96);
+      }
+    }
     
     .forge-stage.escalate-cursed .forge-background-glow {
       opacity: 0.72;
@@ -1559,6 +1616,11 @@
   <script>
     const screenBorderFX = document.getElementById("screenBorderFX");
     const forgeStage = document.getElementById("forgeStage");
+    setTimeout(() => {
+      forgeStage.classList.add("visible");
+      forgeStage.classList.add("weekly-champion");
+      document.body.classList.add("forge-active");
+    }, 500);
     const slotRow = document.getElementById("slotRow");
     const cinematicBurst = document.getElementById("cinematicBurst");
     const forgeImpactFlash = document.getElementById("forgeImpactFlash");
