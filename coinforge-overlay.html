@@ -4181,12 +4181,44 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         clearRevealClasses();
         slotRow.innerHTML = "";
       
+        const preparePullCount = Math.max(
+          1,
+          Math.min(5, Number(data.pullCount || 1))
+        );
+      
         if (typeof data.forgePressure === "number") {
           updateForgePressureGauge(data.forgePressure);
         }
       
         forgeStage.classList.add("visible", "charging");
         document.body.classList.add("forge-active");
+      
+        createSlots(preparePullCount);
+      
+        const previewSlots = Array.from(document.querySelectorAll(".slot-coin"));
+      
+        previewSlots.forEach((slot, index) => {
+          const slotWrap = slot.closest(".slot-wrap");
+      
+          slot.src = getCachedCoinFrame("Bronze", 1);
+          slot.style.opacity = "1";
+          slot.style.transform = "scale(0.12)";
+          slot.style.filter = "brightness(2.1) blur(1px)";
+      
+          if (slotWrap) {
+            slotWrap.style.opacity = "0";
+            slotWrap.style.transform = "translateY(72px) scale(0.08)";
+            slotWrap.style.filter = "brightness(2.2) blur(2px)";
+      
+            setTimeout(() => {
+              slotWrap.style.transition =
+                "opacity 220ms ease, transform 420ms ease, filter 420ms ease";
+              slotWrap.style.opacity = "1";
+              slotWrap.style.transform = "translateY(0) scale(0.28)";
+              slotWrap.style.filter = "brightness(1.7) blur(0.5px)";
+            }, index * 90);
+          }
+        });
       
         return;
       }
