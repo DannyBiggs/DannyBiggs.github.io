@@ -1720,6 +1720,82 @@
     body.hide-status .connection-status {
       display: none;
     }
+    
+    .burn-meter {
+      position: absolute;
+      left: 50%;
+      top: 72%;
+      width: 420px;
+      transform: translateX(-50%);
+      z-index: 8;
+      opacity: 0;
+      transition: opacity 250ms ease, transform 250ms ease;
+      font-family: "ComboFont", monospace;
+      image-rendering: pixelated;
+    }
+    
+    .forge-stage.visible .burn-meter {
+      opacity: 1;
+    }
+    
+    .burn-meter-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: #ffe6a3;
+      text-shadow: 0 0 8px rgba(255, 120, 20, 0.9);
+      margin-bottom: 8px;
+    }
+    
+    .burn-meter-track {
+      position: relative;
+      height: 18px;
+      border: 2px solid rgba(255, 180, 80, 0.8);
+      background: rgba(35, 12, 4, 0.72);
+      box-shadow:
+        inset 0 0 10px rgba(0, 0, 0, 0.8),
+        0 0 14px rgba(255, 120, 30, 0.35);
+      overflow: hidden;
+    }
+    
+    .burn-meter-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(
+        90deg,
+        rgba(255, 90, 20, 0.85),
+        rgba(255, 180, 55, 0.95),
+        rgba(255, 235, 130, 1)
+      );
+      box-shadow: 0 0 16px rgba(255, 160, 35, 0.9);
+      transition: width 500ms ease;
+    }
+    
+    .burn-marker {
+      position: absolute;
+      top: -2px;
+      height: 22px;
+      width: 2px;
+      background: rgba(255, 240, 180, 0.8);
+      font-size: 8px;
+      color: #ffe6a3;
+      text-shadow: 0 0 5px black;
+    }
+    
+    .marker-10 { left: 28.57%; }
+    .marker-20 { left: 57.14%; }
+    .marker-35 { left: 96%; }
+    
+    .burn-meter.pulse {
+      animation: burnMeterPulse 650ms ease-out;
+    }
+    
+    @keyframes burnMeterPulse {
+      0% { transform: translateX(-50%) scale(1); }
+      35% { transform: translateX(-50%) scale(1.08); filter: brightness(1.5); }
+      100% { transform: translateX(-50%) scale(1); filter: brightness(1); }
+    }
+    
   </style>
 </head>
 
@@ -1749,6 +1825,20 @@
         <div id="cinematicBurst" class="cinematic-burst"></div>
         
         <div class="slot-row" id="slotRow"></div>
+        <div id="burnMeter" class="burn-meter">
+        <div class="burn-meter-label">
+          <span>🔥 BURN PILE</span>
+          <span id="burnMeterText">0 / 35</span>
+        </div>
+      
+        <div class="burn-meter-track">
+          <div id="burnMeterFill" class="burn-meter-fill"></div>
+      
+          <div class="burn-marker marker-10">10</div>
+          <div class="burn-marker marker-20">20</div>
+          <div class="burn-marker marker-35">35</div>
+        </div>
+      </div>
         <div id="playerIdentityLayer" class="player-identity-layer">
           <img id="playerNameplate" class="player-nameplate-bg" src="" alt="">
         
@@ -3073,6 +3163,31 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         sound.play().catch(() => {});
       }
     }
+
+    function updateBurnMeter(event) {
+      const burnMeter = document.getElementById("burnMeter");
+      const burnMeterFill = document.getElementById("burnMeterFill");
+      const burnMeterText = document.getElementById("burnMeterText");
+    
+      if (!burnMeter || !burnMeterFill || !burnMeterText) return;
+    
+      const burnPile = Math.max(0, Math.min(35, Number(event.burnPile || 0)));
+      const percent = (burnPile / 35) * 100;
+    
+      burnMeterFill.style.width = `${percent}%`;
+      burnMeterText.textContent = `${burnPile} / 35`;
+    
+      burnMeter.classList.remove("pulse");
+      void burnMeter.offsetWidth;
+    
+      if (
+        event.forgeSilverTriggered ||
+        event.forgeGoldBoostTriggered ||
+        event.forgeIgnited
+      ) {
+        burnMeter.classList.add("pulse");
+      }
+    }
     
     async function runForgeRevealExternal(event) {
       clearRevealClasses();
@@ -3092,6 +3207,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       
       forgeStage.classList.add("visible");
       document.body.classList.add("forge-active");
+      updateBurnMeter(event);
       
       const highestClass = highestRarityClass(results);
       renderPlayerIdentity(event, highestClass);
