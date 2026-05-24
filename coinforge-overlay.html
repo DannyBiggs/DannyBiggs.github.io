@@ -2158,7 +2158,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         void ignitionCast.offsetWidth;
         ignitionCast.classList.add("active");
         showForgeIgnitePopup();
-        playForgeIgnitionSound();
     
         setTimeout(() => {
           ignitionCast.classList.remove("active");
@@ -3068,6 +3067,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       }
     
       window.currentWoodBurnIndex = currentWoodIndex + 1;
+
+      if (remainingToIgnition === 0) {
+        playForgeIgnitionSound();
+      }
     
       slot.classList.add("wood-burn-prep");
       await wait(700);
