@@ -3359,19 +3359,29 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       triggerSocketRing(slot, finalCoin);
       triggerSlotImpact(slot, finalCoin);
       
-      if (typeof finalCoin.forgePressureAfter === "number") {
-
-        if (finalCoin.jackpotHit) {
+      const coinPressureAfter =
+        finalCoin.raw &&
+        typeof finalCoin.raw.forgePressureAfter === "number"
+          ? finalCoin.raw.forgePressureAfter
+          : null;
+      
+      const coinJackpotHit =
+        finalCoin.raw &&
+        finalCoin.raw.jackpotHit === true;
+      
+      if (coinPressureAfter !== null) {
+      
+        if (coinJackpotHit) {
       
           animateForgePressureGauge(37, 500);
       
           setTimeout(() => {
-            updateForgePressureGauge(finalCoin.forgePressureAfter);
+            updateForgePressureGauge(coinPressureAfter);
           }, 650);
       
         } else {
       
-          updateForgePressureGauge(finalCoin.forgePressureAfter);
+          updateForgePressureGauge(coinPressureAfter);
       
         }
       }
