@@ -1925,7 +1925,93 @@
         0 0 34px rgba(255, 160, 40, 0.72),
         0 0 58px rgba(255, 120, 30, 0.42);
     }
-        
+
+    .forge-ignited-marker {
+      position: absolute;
+    
+      left: 50%;
+      top: 17%;
+    
+      transform: translateX(-50%);
+    
+      opacity: 0;
+    
+      pointer-events: none;
+    
+      z-index: 12;
+    
+      font-family: "ComboFont", monospace;
+    
+      font-size: 16px;
+      letter-spacing: 0.08em;
+    
+      color: #fff2a6;
+    
+      text-shadow:
+        3px 3px 0 #5a2208,
+        0 0 14px rgba(255, 170, 40, 0.95),
+        0 0 30px rgba(255, 100, 20, 0.65);
+    
+      image-rendering: pixelated;
+    }
+
+    .forge-stage.forge-ignited-active .forge-ignited-marker {
+      opacity: 1;
+    
+      animation:
+        forgeIgnitedMarkerPulse
+        1.8s
+        ease-in-out
+        infinite
+        alternate;
+    }
+    
+    .forge-stage.forge-ignited-active .forge-background-glow {
+      opacity: 0.9;
+    
+      animation:
+        forgeIgnitedBackgroundBreath
+        2.6s
+        ease-in-out
+        infinite
+        alternate;
+    }
+    
+    @keyframes forgeIgnitedMarkerPulse {
+      from {
+        filter: brightness(1);
+    
+        transform:
+          translateX(-50%)
+          scale(1);
+      }
+    
+      to {
+        filter: brightness(1.45);
+    
+        transform:
+          translateX(-50%)
+          scale(1.04);
+      }
+    }
+    
+    @keyframes forgeIgnitedBackgroundBreath {
+      from {
+        filter:
+          brightness(1.55)
+          saturate(1.35)
+          hue-rotate(-6deg);
+      }
+    
+      to {
+        filter:
+          brightness(2.25)
+          saturate(1.9)
+          hue-rotate(-12deg)
+          drop-shadow(0 0 26px rgba(255, 170, 45, 0.72));
+      }
+}
+    
   </style>
 </head>
 
@@ -1960,7 +2046,10 @@
           src="images/vfx/FireCast_96x96.gif"
           alt=""
         >
-        
+
+        <div id="forgeIgnitedMarker" class="forge-ignited-marker">
+          FORGE IGNITED
+        </div>
         <div class="slot-row" id="slotRow"></div>
         <div id="playerIdentityLayer" class="player-identity-layer">
           <img id="playerNameplate" class="player-nameplate-bg" src="" alt="">
@@ -2168,14 +2257,14 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         window.forgeIgnitionCastPlaying = false;
       }
     
-      forgeStage.classList.remove("impact");
+      "impact");
       void forgeStage.offsetWidth;
       forgeStage.classList.add("impact");
     
       document.body.classList.add("forge-active");
     
       setTimeout(() => {
-        forgeStage.classList.remove("impact");
+        "impact");
       }, 420);
     }
     
@@ -2498,7 +2587,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         forgeStage.classList.add("escalate-cursed");
 
         setTimeout(() => {
-          forgeStage.classList.remove("escalate-cursed");
+          "escalate-cursed");
         }, 650);
       }
     }
@@ -2520,7 +2609,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     }
 
     function clearCinematicStageClasses() {
-      forgeStage.classList.remove(
+      
         "cinematic-jackpot",
         "cinematic-cursed",
         "cinematic-mythic",
@@ -2613,7 +2702,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       forgePressureLevel = 0;
     
-      forgeStage.classList.remove("pressure-cursed");
+      "pressure-cursed");
     
       forgeStage.style.setProperty(
         "--forge-pressure-opacity",
@@ -2637,7 +2726,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     }
     
     function clearRevealClasses() {
-      forgeStage.classList.remove(
+      
         "reveal-common",
         "reveal-rare",
         "reveal-epic",
@@ -3027,7 +3116,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       slot.src = coinFileForSlot(finalCoin, index);
       slot.classList.add("landed");
       
-      forgeStage.classList.remove("impact");
+      "impact");
       void forgeStage.offsetWidth;
       forgeStage.classList.add("impact");
       
@@ -3431,7 +3520,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       clearRevealClasses();
       window.currentForgeEvent = event;
 
-      if (event.forgeIgnitedActive) {
+      if (event.forgeIgnitedActive === true) {
         forgeStage.classList.add("forge-ignited-active");
       } else {
         forgeStage.classList.remove("forge-ignited-active");
@@ -3444,7 +3533,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       window.currentWoodBurnTotal = results.filter(coin => coin.name === "Wood Coin").length;
       
       if (results.length === 0) {
-        forgeStage.classList.remove("visible", "charging", "charged");
+        forgeStage.classList.remove("visible", "charging", "charged", "forge-ignited-active");
         document.body.classList.remove("forge-active");
         clearPlayerIdentity();
         slotRow.innerHTML = "";
@@ -3462,7 +3551,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       await wait(0);
       
       createSlots(pullCount);
-      forgeStage.classList.remove("charging");
+      "charging");
       forgeStage.classList.add("charged");
 
       const slots = Array.from(document.querySelectorAll(".slot-coin"));
@@ -3504,7 +3593,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       await wait(event.displayMs || 1500);
 
-      forgeStage.classList.remove(
+      
         "reveal-common",
         "reveal-rare",
         "reveal-epic",
@@ -3514,7 +3603,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         "reveal-cursed"
       );
       
-      forgeStage.classList.remove("visible", "charged");
+      "visible", "charged", "forge-ignited-active");
       document.body.classList.remove("forge-active");
       clearPlayerIdentity();
       
@@ -3669,8 +3758,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       weeklyCeremony.classList.remove("visible");
     
       await wait(700);
-      forgeStage.classList.remove("weekly-champion");
-      forgeStage.classList.remove("visible");
+      "weekly-champion");
+      "visible");
       
       weeklyWinnerMusic.pause();
       weeklyWinnerMusic.currentTime = 0;
