@@ -1724,13 +1724,12 @@
     .slot-coin.wood-burn-prep {
       animation: woodBurnPrepSpin 700ms linear forwards;
     }
-    }
     
     .wood-burn-burst {
       position: absolute;
-      width: 260px;
-      height: 260px;
-      transform: translate(-50%, -50%) scale(0.9);
+      width: 340px;
+      height: 340px;
+      transform: translate(-50%, -50%) scale(1);
       object-fit: contain;
       image-rendering: pixelated;
       pointer-events: none;
@@ -2902,7 +2901,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       const coinRect = slot.getBoundingClientRect();
     
       const coinCenterX = coinRect.left + coinRect.width / 2 - stageRect.left;
-      const coinCenterY = coinRect.top + coinRect.height / 2 - stageRect.top;
+      const coinCenterY = coinRect.top + coinRect.height / 2 - stageRect.top + 42;
     
       const fire = document.createElement("img");
       fire.className = "wood-burn-burst";
