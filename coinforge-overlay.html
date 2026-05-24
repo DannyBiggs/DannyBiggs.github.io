@@ -3359,12 +3359,22 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       triggerSocketRing(slot, finalCoin);
       triggerSlotImpact(slot, finalCoin);
       
-      const event = window.currentForgeEvent || {};
+      if (typeof finalCoin.forgePressureAfter === "number") {
+
+        if (finalCoin.jackpotHit) {
       
-      if (
-        typeof event.pendingForgePressure === "number" &&
-        index === Number(event.pullCount || 1) - 1
-      ) {
+          animateForgePressureGauge(37, 500);
+      
+          setTimeout(() => {
+            updateForgePressureGauge(finalCoin.forgePressureAfter);
+          }, 650);
+      
+        } else {
+      
+          updateForgePressureGauge(finalCoin.forgePressureAfter);
+      
+        }
+      }
         if (event.jackpotHit) {
           animateForgePressureGauge(37, 500);
       
@@ -4060,10 +4070,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       }
 
       if (data.type !== "coinForgePull") return;
-
-      if (typeof data.forgePressure === "number") {
-        data.pendingForgePressure = data.forgePressure;
-      }
             
       enqueueForgeEvent(data);
     }
