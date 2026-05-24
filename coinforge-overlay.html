@@ -1839,7 +1839,7 @@
     }
     
     .forge-ignition-cast.active {
-      animation: forgeIgnitionCastPop 1.35s ease-out forwards;
+      animation: forgeIgnitionCastPop 820ms ease-out forwards;
     }
     
     @keyframes forgeIgnitionCastPop {
@@ -2106,6 +2106,9 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     }
 
     function triggerForgeIgnitionVisuals() {
+      if (window.forgeIgnitionCastPlaying) return;
+      window.forgeIgnitionCastPlaying = true;
+    
       forgeStage.classList.add("forge-ignited");
     
       const ignitionCast =
@@ -2113,8 +2116,17 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       if (ignitionCast) {
         ignitionCast.classList.remove("active");
+        ignitionCast.style.display = "block";
         void ignitionCast.offsetWidth;
         ignitionCast.classList.add("active");
+    
+        setTimeout(() => {
+          ignitionCast.classList.remove("active");
+          ignitionCast.style.display = "none";
+          window.forgeIgnitionCastPlaying = false;
+        }, 880);
+      } else {
+        window.forgeIgnitionCastPlaying = false;
       }
     
       forgeStage.classList.remove("impact");
@@ -3039,16 +3051,16 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       forgeStage.appendChild(counter);
       
       playWoodBurnSound();
+      
+      if (remainingToIgnition === 0) {
+        triggerForgeIgnitionVisuals();
+      }
     
       await wait(320);
       slot.style.opacity = "0";
     
       await wait(180);
       counter.classList.add("visible");
-
-      if (remainingToIgnition === 0) {
-        triggerForgeIgnitionVisuals();
-      }
     
       await wait(120);
 
