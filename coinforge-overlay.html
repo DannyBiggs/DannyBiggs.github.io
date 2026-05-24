@@ -1809,7 +1809,87 @@
         transform: translate(-50%, -50%) scale(0.92);
       }
     }
+
+    .forge-ignition-cast {
+      position: absolute;
     
+      left: 50%;
+      top: 44%;
+    
+      width: 560px;
+      height: 560px;
+    
+      transform:
+        translate(-50%, -50%)
+        scale(0.72);
+    
+      opacity: 0;
+    
+      pointer-events: none;
+      image-rendering: pixelated;
+    
+      z-index: 4;
+    
+      mix-blend-mode: screen;
+    
+      filter:
+        brightness(1.2)
+        saturate(1.25);
+    }
+    
+    .forge-ignition-cast.active {
+      animation: forgeIgnitionCastPop 1.15s ease-out forwards;
+    }
+    
+    @keyframes forgeIgnitionCastPop {
+      0% {
+        opacity: 0;
+        transform:
+          translate(-50%, -50%)
+          scale(0.55);
+      }
+    
+      18% {
+        opacity: 1;
+        transform:
+          translate(-50%, -50%)
+          scale(0.95);
+      }
+    
+      70% {
+        opacity: 0.95;
+        transform:
+          translate(-50%, -50%)
+          scale(1.08);
+      }
+    
+      100% {
+        opacity: 0;
+        transform:
+          translate(-50%, -50%)
+          scale(1.22);
+      }
+    }
+    
+    .forge-stage.forge-ignited .forge-background-glow {
+      opacity: 1;
+    
+      filter:
+        brightness(2)
+        saturate(1.7)
+        hue-rotate(-8deg)
+        drop-shadow(0 0 18px rgba(255, 180, 50, 0.55));
+    }
+    
+    .forge-stage.forge-ignited .ember {
+      opacity: 1;
+    
+      box-shadow:
+        0 0 16px rgba(255, 220, 120, 1),
+        0 0 34px rgba(255, 160, 40, 0.72),
+        0 0 58px rgba(255, 120, 30, 0.42);
+    }
+        
   </style>
 </head>
 
@@ -1837,6 +1917,13 @@
         <div id="forgeCorruptionWave" class="forge-corruption-wave"></div>
         <div id="forgeBloom" class="forge-bloom"></div>
         <div id="cinematicBurst" class="cinematic-burst"></div>
+        
+        <img
+          id="forgeIgnitionCast"
+          class="forge-ignition-cast"
+          src="images/vfx/FireCast_96x96.gif"
+          alt=""
+        >
         
         <div class="slot-row" id="slotRow"></div>
         <div id="playerIdentityLayer" class="player-identity-layer">
@@ -2017,6 +2104,29 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       achievementSound.play().catch(() => {});
     }
 
+    function triggerForgeIgnitionVisuals() {
+      forgeStage.classList.add("forge-ignited");
+    
+      const ignitionCast =
+        document.getElementById("forgeIgnitionCast");
+    
+      if (ignitionCast) {
+        ignitionCast.classList.remove("active");
+        void ignitionCast.offsetWidth;
+        ignitionCast.classList.add("active");
+      }
+    
+      forgeStage.classList.remove("impact");
+      void forgeStage.offsetWidth;
+      forgeStage.classList.add("impact");
+    
+      document.body.classList.add("forge-active");
+    
+      setTimeout(() => {
+        forgeStage.classList.remove("impact");
+      }, 420);
+    }
+    
     function playWoodBurnSound() {
       woodBurnSound.currentTime = 0;
       woodBurnSound.play().catch(() => {});
@@ -2934,6 +3044,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       await wait(180);
       counter.classList.add("visible");
+
+      if (remainingToIgnition === 0) {
+        triggerForgeIgnitionVisuals();
+      }
     
       await wait(120);
 
