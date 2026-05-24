@@ -801,7 +801,7 @@
     
     .slot-wrap.instability-overcharged .forge-instability-badge {
       color: #ffe88a;
-      animation: forgeInstabilityBadge 0.95s ease-out;
+      animation: forgeInstabilityBadgeOvercharged 1.45s ease-out;
     }
 
     .slot-wrap.instability-overcharged .overcharge-duplicate-coin {
@@ -845,6 +845,28 @@
       animation: forgeInstabilityBadge 1.05s ease-out;
     }
 
+    @keyframes forgeInstabilityBadgeOvercharged {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.65);
+      }
+    
+      16% {
+        opacity: 1;
+        transform: translate(-50%, -80%) scale(1.04);
+      }
+    
+      62% {
+        opacity: 1;
+        transform: translate(-50%, -100%) scale(1);
+      }
+    
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -130%) scale(0.92);
+      }
+    }
+    
     @keyframes forgeInstabilityBadge {
       0% {
         opacity: 0;
