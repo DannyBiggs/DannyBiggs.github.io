@@ -3551,7 +3551,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       await wait(0);
       
       createSlots(pullCount);
-      "charging");
+      
+      forgeStage.classList.remove("charging");
       forgeStage.classList.add("charged");
 
       const slots = Array.from(document.querySelectorAll(".slot-coin"));
