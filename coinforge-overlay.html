@@ -268,6 +268,113 @@
     }
     /* ===== FORGE PRESSURE GAUGE TEST END ===== */
 
+    /* ===== FORGE ERUPTION FX START ===== */
+    .forge-eruption-flash {
+      position: absolute;
+      left: 50%;
+      top: 42%;
+      width: 520px;
+      height: 520px;
+      transform: translate(-50%, -50%) scale(0.7);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 3;
+      opacity: 0;
+      mix-blend-mode: screen;
+      background:
+        radial-gradient(circle,
+          rgba(255, 245, 185, 0.9) 0%,
+          rgba(255, 150, 45, 0.36) 28%,
+          rgba(255, 70, 20, 0.16) 52%,
+          transparent 74%);
+      filter: blur(10px);
+    }
+    
+    .forge-eruption-vent {
+      position: absolute;
+      top: 54%;
+      width: 110px;
+      height: 210px;
+      pointer-events: none;
+      z-index: 4;
+      opacity: 0;
+      mix-blend-mode: screen;
+      background:
+        linear-gradient(
+          to top,
+          rgba(255, 235, 170, 0.7),
+          rgba(255, 145, 40, 0.28) 42%,
+          rgba(120, 55, 20, 0) 100%
+        );
+      filter: blur(8px);
+    }
+    
+    .forge-eruption-vent.vent-left {
+      left: 31%;
+      transform: rotate(-18deg);
+    }
+    
+    .forge-eruption-vent.vent-right {
+      right: 31%;
+      transform: rotate(18deg);
+    }
+    
+    .forge-stage.forge-erupting {
+      animation: forgeEruptionRecoil 520ms steps(5, end);
+    }
+    
+    .forge-stage.forge-erupting .forge-background-glow {
+      opacity: 1;
+      animation: forgeEruptionGlow 1450ms steps(7, end);
+    }
+    
+    .forge-stage.forge-erupting .forge-pressure-fill {
+      filter:
+        brightness(1.85)
+        drop-shadow(0 0 14px rgba(255, 210, 95, 0.85))
+        drop-shadow(0 0 26px rgba(255, 90, 20, 0.45));
+    }
+    
+    .forge-stage.forge-erupting .forge-eruption-flash {
+      animation: forgeEruptionFlash 920ms ease-out;
+    }
+    
+    .forge-stage.forge-erupting .forge-eruption-vent {
+      animation: forgeEruptionVent 1250ms steps(8, end);
+    }
+    
+    @keyframes forgeEruptionRecoil {
+      0% { transform: scale(1); }
+      18% { transform: scale(1.012) translateY(-3px); }
+      42% { transform: scale(0.992) translateY(3px); }
+      68% { transform: scale(1.006) translateY(-1px); }
+      100% { transform: scale(1); }
+    }
+    
+    @keyframes forgeEruptionGlow {
+      0% { filter: brightness(1.2) saturate(1.1); }
+      18% { filter: brightness(2.25) saturate(1.9); }
+      34% { filter: brightness(1.45) saturate(1.25); }
+      48% { filter: brightness(2.05) saturate(1.75); }
+      70% { filter: brightness(1.65) saturate(1.35); }
+      100% { filter: brightness(1.15) saturate(1.05); }
+    }
+    
+    @keyframes forgeEruptionFlash {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.64); }
+      18% { opacity: 0.95; transform: translate(-50%, -50%) scale(0.98); }
+      52% { opacity: 0.34; transform: translate(-50%, -50%) scale(1.16); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(1.32); }
+    }
+    
+    @keyframes forgeEruptionVent {
+      0% { opacity: 0; height: 90px; }
+      18% { opacity: 0.85; height: 230px; }
+      46% { opacity: 0.55; height: 190px; }
+      100% { opacity: 0; height: 260px; }
+    }
+    /* ===== FORGE ERUPTION FX END ===== */
+    
     .forge-light-overlay {
       position: absolute;
       inset: 0;
@@ -2205,6 +2312,9 @@
       <div class="forge-stage" id="forgeStage">
         <div id="forgePressureFill" class="forge-pressure-fill"></div>
         <img class="forge-background" src="images/ui/forge_background_gauge.png" alt="Coin Forge">
+        <div class="forge-eruption-flash"></div>
+        <div class="forge-eruption-vent vent-left"></div>
+        <div class="forge-eruption-vent vent-right"></div>
         <!-- <img class="forge-background-glow" src="images/ui/forge_background_glowonly_red.png" alt=""> -->
         <img id="forgeGlowLayer" class="forge-background-glow" src="images/ui/forge_glow_01_dim.png" alt="">
         <div class="forge-light-overlay"></div>
@@ -2930,6 +3040,20 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       );
     }
 
+    function triggerForgeEruptionVisuals() {
+      if (!forgeStage) return;
+    
+      forgeStage.classList.remove("forge-erupting");
+      void forgeStage.offsetWidth;
+      forgeStage.classList.add("forge-erupting");
+    
+      playForgeHammerSound();
+    
+      setTimeout(() => {
+        forgeStage.classList.remove("forge-erupting");
+      }, 1900);
+    }
+    
     function clearForgePressure() {
       if (!forgeStage) return;
     
@@ -3373,11 +3497,13 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       
         if (coinJackpotHit) {
       
-          animateForgePressureGauge(37, 650);
+          triggerForgeEruptionVisuals();
 
+          animateForgePressureGauge(37, 520);
+          
           setTimeout(() => {
             updateForgePressureGauge(coinPressureAfter);
-          }, 1600);
+          }, 1900);
       
         } else {
       
