@@ -3604,7 +3604,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         "reveal-cursed"
       );
       
-      "visible", "charged", "forge-ignited-active");
+      forgeStage.classList.remove("visible", "charged", "forge-ignited-active");
       document.body.classList.remove("forge-active");
       clearPlayerIdentity();
       
