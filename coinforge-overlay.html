@@ -785,11 +785,12 @@
     }
 
     .slot-wrap.instability-overcharged {
-      animation: forgeInstabilityOvercharged 0.9s steps(6, end);
+      animation: forgeInstabilityOvercharged 0.72s steps(6, end);
       filter:
-        brightness(1.65)
-        drop-shadow(0 0 18px rgba(255, 220, 90, 0.95))
-        drop-shadow(0 0 34px rgba(255, 120, 30, 0.55));
+        brightness(1.95)
+        saturate(1.35)
+        drop-shadow(0 0 22px rgba(255, 235, 130, 1))
+        drop-shadow(0 0 42px rgba(255, 120, 30, 0.72));
     }
 
     .slot-wrap.instability-overcharged .forge-instability-badge {
@@ -805,7 +806,7 @@
         saturate(1.4)
         drop-shadow(0 0 14px rgba(255, 220, 120, 0.95));
 
-      animation: overchargeDuplicateSplit 0.9s ease-out forwards;
+      animation: overchargeDuplicateSplit 0.68s steps(6, end) forwards;
     }    
   
     .slot-wrap.instability-scorched {
@@ -860,50 +861,58 @@
       }
     }
 
-    @keyframes forgeInstabilityOvercharged {
-      0% { transform: scale(1); }
-      18% { transform: scale(1.13) translateY(-5px); }
-      38% { transform: scale(0.96) translateY(2px); }
-      64% { transform: scale(1.06) translateY(-2px); }
-      100% { transform: scale(1); }
-    }
-
-    @keyframes overchargeDuplicateSplit {
-      0% {
-        opacity: 0;
-        transform:
-          translate(-50%, -50%)
-          scale(1);
+       @keyframes forgeInstabilityOvercharged {
+        0% { transform: scale(1); }
+        10% { transform: scale(1.22) translateY(-7px); }
+        22% { transform: scale(0.9) translateY(4px); }
+        38% { transform: scale(1.12) translateY(-3px); }
+        62% { transform: scale(0.98) translateY(1px); }
+        100% { transform: scale(1); }
       }
-
-      18% {
-        opacity: 1;
-        transform:
-          translate(-18%, -56%)
-          scale(1.08);
+  
+      @keyframes overchargeDuplicateSplit {
+        0% {
+          opacity: 0;
+          transform:
+            translate(-50%, -50%)
+            scale(1);
+        }
+  
+        10% {
+          opacity: 1;
+          transform:
+            translate(-10%, -62%)
+            scale(1.12);
+        }
+  
+        24% {
+          opacity: 1;
+          transform:
+            translate(-88%, -38%)
+            scale(0.98);
+        }
+  
+        48% {
+          opacity: 0.95;
+          transform:
+            translate(-82%, -42%)
+            scale(0.98);
+        }
+  
+        72% {
+          opacity: 0.82;
+          transform:
+            translate(-50%, -50%)
+            scale(1.18);
+        }
+  
+        100% {
+          opacity: 0;
+          transform:
+            translate(-50%, -50%)
+            scale(0.96);
+        }
       }
-
-      42% {
-        opacity: 0.95;
-        transform:
-          translate(-82%, -44%)
-          scale(0.96);
-      }
-
-      72% {
-        opacity: 0.75;
-        transform:
-          translate(-50%, -50%)
-          scale(1.14);
-      }
-
-      100% {
-        opacity: 0;
-        transform:
-          translate(-50%, -50%)
-          scale(1);
-      }
-    }
     
     @keyframes forgeInstabilityScorched {
       0% { transform: scale(1); }
