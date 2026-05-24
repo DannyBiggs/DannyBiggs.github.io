@@ -785,7 +785,6 @@
     }
 
     .slot-wrap.instability-overcharged {
-      animation: forgeInstabilityOvercharged 0.72s steps(6, end);
       filter:
         brightness(1.95)
         saturate(1.35)
@@ -793,6 +792,11 @@
         drop-shadow(0 0 42px rgba(255, 120, 30, 0.72));
     }
 
+    .slot-wrap.instability-overcharged .slot-coin {
+      animation:
+        forgeInstabilityOvercharged 0.72s steps(6, end);
+    }
+    
     .slot-wrap.instability-overcharged .forge-instability-badge {
       color: #ffe88a;
       animation: forgeInstabilityBadge 0.95s ease-out;
