@@ -2351,6 +2351,9 @@
     const forgeEventQueue = [];
     let forgeEventPlaying = false;
 
+    let currentForgePressurePercent = 0;
+    let forgePressureAnimationFrame = null;
+
     const achievementDisplayQueue = [];
     let achievementDisplayActive = false;
 
@@ -2399,19 +2402,52 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     function setForgePressureGauge(percent) {
       if (!forgePressureFill) return;
     
-      const safePercent = Math.max(0, Math.min(100, Number(percent) || 0));
+      const safePercent = Math.max(0, Math.min(37, Number(percent) || 0));
       const degrees = safePercent * 3.6;
     
       forgePressureFill.style.setProperty("--pressure-deg", `${degrees}deg`);
+      currentForgePressurePercent = safePercent;
     }
-
+    
+    function animateForgePressureGauge(targetPercent, duration = 900) {
+      if (!forgePressureFill) return;
+    
+      const safeTarget = Math.max(0, Math.min(37, Number(targetPercent) || 0));
+      const startPercent = currentForgePressurePercent;
+      const change = safeTarget - startPercent;
+      const startTime = performance.now();
+    
+      if (forgePressureAnimationFrame) {
+        cancelAnimationFrame(forgePressureAnimationFrame);
+      }
+    
+      function step(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(1, elapsed / duration);
+    
+        // Smooth ease-out
+        const eased = 1 - Math.pow(1 - progress, 3);
+    
+        const nextPercent = startPercent + (change * eased);
+        setForgePressureGauge(nextPercent);
+    
+        if (progress < 1) {
+          forgePressureAnimationFrame = requestAnimationFrame(step);
+        } else {
+          forgePressureAnimationFrame = null;
+        }
+      }
+    
+      forgePressureAnimationFrame = requestAnimationFrame(step);
+    }
+    
     function updateForgePressureGauge(actualPressure) {
       const safePressure = Math.max(0, Math.min(100, Number(actualPressure) || 0));
     
       // Your visible gauge max is 37% of the full circle.
       const visiblePercent = (safePressure / 100) * 37;
     
-      setForgePressureGauge(visiblePercent);
+      animateForgePressureGauge(visiblePercent, 900);
     }
     
     function playSlotLandSound() {
@@ -4008,7 +4044,15 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       if (data.type !== "coinForgePull") return;
 
       if (typeof data.forgePressure === "number") {
-        updateForgePressureGauge(data.forgePressure);
+        if (data.jackpotHit) {
+          animateForgePressureGauge(37, 500);
+      
+          setTimeout(() => {
+            updateForgePressureGauge(data.forgePressure);
+          }, 650);
+        } else {
+          updateForgePressureGauge(data.forgePressure);
+        }
       }
       
       enqueueForgeEvent(data);
