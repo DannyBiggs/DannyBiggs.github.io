@@ -1722,34 +1722,21 @@
     }
 
     .slot-coin.wood-burn-prep {
-      animation: woodBurnPrepSpin 460ms linear forwards;
+      animation: woodBurnPrepSpin 700ms linear forwards;
     }
-    
-    @keyframes woodBurnPrepSpin {
-      from {
-        transform: rotateY(0deg) scale(1);
-        filter: brightness(1);
-      }
-    
-      to {
-        transform: rotateY(360deg) scale(1.04);
-        filter: brightness(1.2);
-      }
     }
     
     .wood-burn-burst {
       position: absolute;
-      left: 47%;
-      top: 49%;
-      width: 220px;
-      height: 220px;
+      width: 260px;
+      height: 260px;
       transform: translate(-50%, -50%) scale(0.9);
       object-fit: contain;
       image-rendering: pixelated;
       pointer-events: none;
-      z-index: 6;
+      z-index: 8;
       opacity: 0;
-      animation: woodBurnBurstPop 560ms steps(5, end) forwards;
+      animation: woodBurnBurstPop 620ms steps(5, end) forwards;
     }
     
     .wood-burn-count {
@@ -2885,9 +2872,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       if (slot.dataset.woodBurned === "true") return;
       slot.dataset.woodBurned = "true";
     
-      const slotWrap = slot.closest(".slot-wrap");
-      if (!slotWrap) return;
-    
       const event = window.currentForgeEvent || {};
       const finalBurnPile = Math.max(0, Math.min(35, Number(event.burnPile || 0)));
     
@@ -2910,26 +2894,36 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       window.currentWoodBurnIndex = currentWoodIndex + 1;
     
+      slot.classList.add("wood-burn-prep");
+      await wait(700);
+      slot.classList.remove("wood-burn-prep");
+    
+      const stageRect = forgeStage.getBoundingClientRect();
+      const coinRect = slot.getBoundingClientRect();
+    
+      const coinCenterX = coinRect.left + coinRect.width / 2 - stageRect.left;
+      const coinCenterY = coinRect.top + coinRect.height / 2 - stageRect.top;
+    
       const fire = document.createElement("img");
       fire.className = "wood-burn-burst";
-      fire.src = `images/vfx/FireBurst_64x64.gif?t=${Date.now()}-${Math.random()}`;
+      fire.src = "images/vfx/FireBurst_64x64.gif";
       fire.alt = "";
+      fire.style.left = `${coinCenterX}px`;
+      fire.style.top = `${coinCenterY}px`;
     
       const counter = document.createElement("div");
       counter.className = "wood-burn-count";
       counter.textContent = remainingToIgnition;
+      counter.style.left = `${coinCenterX}px`;
+      counter.style.top = `${coinCenterY}px`;
     
-      slot.classList.add("wood-burn-prep");
-      await wait(460);
-      slot.classList.remove("wood-burn-prep");
-      
-      slotWrap.appendChild(fire);
-      slotWrap.appendChild(counter);
-      
-      await wait(180);
+      forgeStage.appendChild(fire);
+      forgeStage.appendChild(counter);
+    
+      await wait(320);
       slot.style.opacity = "0";
-      
-      await wait(220);
+    
+      await wait(180);
       counter.classList.add("visible");
     
       await wait(760);
