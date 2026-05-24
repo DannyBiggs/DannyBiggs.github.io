@@ -744,6 +744,27 @@
     .slot-impact-flash.active {
       animation: slotImpactFlash 0.42s ease-out;
     }
+
+    .burned-away-gif {
+      position: absolute;
+    
+      left: 50%;
+      top: 50%;
+    
+      width: 125px;
+      height: 125px;
+    
+      object-fit: contain;
+      image-rendering: pixelated;
+    
+      pointer-events: none;
+    
+      opacity: 0;
+    
+      z-index: 5;
+    
+      transform: translate(-50%, -50%) scale(0.7);
+    }
     
     .slot-wrap .overcharge-duplicate-coin {
       position: absolute !important;
@@ -837,9 +858,13 @@
     }
 
     .slot-wrap.instability-burned-away .slot-coin {
-      animation: forgeCoinBurnedAway 1.05s steps(7, end) forwards;
+      opacity: 0 !important;
     }
 
+    .slot-wrap.instability-burned-away .burned-away-gif {
+      animation: burnedAwayGifPop 0.9s steps(6, end) forwards;
+    }
+        
     .slot-wrap.instability-burned-away .forge-instability-badge {
       color: #79d7ff;
       animation: forgeInstabilityBadge 1.05s ease-out;
@@ -958,23 +983,26 @@
       100% { transform: scale(0.92); }
     }
 
-    @keyframes forgeCoinBurnedAway {
+    @keyframes burnedAwayGifPop {
       0% {
+        opacity: 0;
+        transform:
+          translate(-50%, -50%)
+          scale(0.6);
+      }
+    
+      12% {
         opacity: 1;
-        transform: scale(1);
-        filter: brightness(1);
+        transform:
+          translate(-50%, -50%)
+          scale(1);
       }
-
-      35% {
-        opacity: 0.95;
-        transform: scale(1.08);
-        filter: brightness(1.8) saturate(0.6);
-      }
-
+    
       100% {
-        opacity: 0.28;
-        transform: scale(0.72);
-        filter: brightness(0.45) saturate(0.3) blur(1px);
+        opacity: 0;
+        transform:
+          translate(-50%, -50%)
+          scale(1.12);
       }
     }
     /* ===== FORGE INSTABILITY FX END ===== */
@@ -3499,11 +3527,16 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
         const overchargeDuplicate = document.createElement("img");
         overchargeDuplicate.className = "overcharge-duplicate-coin";
+
+        const burnedAwayGif = document.createElement("img");
+        burnedAwayGif.className = "burned-away-gif";
+        burnedAwayGif.src = "images/vfx/burned-away.gif";
         
         slotWrap.appendChild(socketRing);
         slotWrap.appendChild(impactFlash);
         slotWrap.appendChild(img);
         slotWrap.appendChild(overchargeDuplicate);
+        slotWrap.appendChild(burnedAwayGif);
         slotWrap.appendChild(instabilityBadge);
         slotRow.appendChild(slotWrap);
       }
