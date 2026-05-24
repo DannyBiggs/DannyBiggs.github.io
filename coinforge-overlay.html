@@ -3430,7 +3430,13 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     async function runForgeRevealExternal(event) {
       clearRevealClasses();
       window.currentForgeEvent = event;
-      
+
+      if (event.forgeIgnitedActive) {
+        forgeStage.classList.add("forge-ignited-active");
+      } else {
+        forgeStage.classList.remove("forge-ignited-active");
+      }
+            
      const rawCoins = Array.isArray(event.coins) ? event.coins : [];
       const results = rawCoins.map(getCoinDefinition);
       const pullCount = Math.max(1, Math.min(5, Number(event.pullCount || results.length || 1)));
