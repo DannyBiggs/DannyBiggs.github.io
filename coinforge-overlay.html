@@ -1720,6 +1720,93 @@
     body.hide-status .connection-status {
       display: none;
     }
+
+    .wood-burn-burst {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 150px;
+      height: 150px;
+      transform: translate(-50%, -50%) scale(0.9);
+      object-fit: contain;
+      image-rendering: pixelated;
+      pointer-events: none;
+      z-index: 6;
+      opacity: 0;
+      animation: woodBurnBurstPop 920ms steps(6, end) forwards;
+    }
+    
+    .wood-burn-count {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%) scale(0.8);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 7;
+    
+      font-family: "ComboFont", monospace;
+      font-size: 34px;
+      color: #fff2a6;
+      text-shadow:
+        3px 3px 0 rgba(65, 18, 2, 1),
+        0 0 14px rgba(255, 120, 20, 0.95),
+        0 0 28px rgba(255, 190, 70, 0.7);
+    
+      image-rendering: pixelated;
+    }
+    
+    .wood-burn-count.visible {
+      animation: woodBurnCountPop 700ms steps(5, end) forwards;
+    }
+    
+    @keyframes woodBurnBurstPop {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.7);
+        filter: brightness(1.2);
+      }
+    
+      18% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.15);
+        filter: brightness(1.8);
+      }
+    
+      68% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.05);
+        filter: brightness(1.35);
+      }
+    
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.22);
+        filter: brightness(1);
+      }
+    }
+    
+    @keyframes woodBurnCountPop {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.65);
+      }
+    
+      28% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.22);
+      }
+    
+      68% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+      }
+    
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.92);
+      }
+    }
     
   </style>
 </head>
@@ -2775,6 +2862,58 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         clearForgePressure();
       }, 420);
     }
+
+    async function playWoodBurnupIfNeeded(slot, finalCoin) {
+      if (!slot || !finalCoin || finalCoin.name !== "Wood Coin") return;
+    
+      const slotWrap = slot.closest(".slot-wrap");
+      if (!slotWrap) return;
+    
+      const event = window.currentForgeEvent || {};
+      const finalBurnPile = Math.max(0, Math.min(35, Number(event.burnPile || 0)));
+    
+      const currentWoodIndex = Number(window.currentWoodBurnIndex || 0);
+      const totalWoodThisPull = Math.max(1, Number(window.currentWoodBurnTotal || 1));
+    
+      let remainingToIgnition = 0;
+    
+      if (event.forgeIgnited) {
+        remainingToIgnition = Math.max(0, totalWoodThisPull - currentWoodIndex - 1);
+      } else {
+        const estimatedBurnPileForThisWood =
+          finalBurnPile - (totalWoodThisPull - currentWoodIndex - 1);
+    
+        remainingToIgnition = Math.max(
+          0,
+          35 - Math.max(0, estimatedBurnPileForThisWood)
+        );
+      }
+    
+      window.currentWoodBurnIndex = currentWoodIndex + 1;
+    
+      const fire = document.createElement("img");
+      fire.className = "wood-burn-burst";
+      fire.src = `images/vfx/FireBurst_64x64.gif?t=${Date.now()}-${Math.random()}`;
+      fire.alt = "";
+    
+      const counter = document.createElement("div");
+      counter.className = "wood-burn-count";
+      counter.textContent = remainingToIgnition;
+    
+      slotWrap.appendChild(fire);
+      slotWrap.appendChild(counter);
+    
+      await wait(120);
+      slot.style.opacity = "0";
+    
+      await wait(260);
+      counter.classList.add("visible");
+    
+      await wait(760);
+    
+      fire.remove();
+      counter.remove();
+    }
     
     async function spinSlot(slot, finalCoin, index, shouldLock) {
       if (!shouldLock) {
@@ -2818,6 +2957,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       forgeStage.classList.remove("impact");
       
       await cinematicPromise;
+      await playWoodBurnupIfNeeded(slot, finalCoin);
 
       if (finalCoin.raw && finalCoin.raw.comboBroken) {
         queueComboDisplay("broken");
@@ -3082,6 +3222,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
      const rawCoins = Array.isArray(event.coins) ? event.coins : [];
       const results = rawCoins.map(getCoinDefinition);
       const pullCount = Math.max(1, Math.min(5, Number(event.pullCount || results.length || 1)));
+      window.currentWoodBurnIndex = 0;
+      window.currentWoodBurnTotal = results.filter(coin => coin.name === "Wood Coin").length;
       
       if (results.length === 0) {
         forgeStage.classList.remove("visible", "charging", "charged");
