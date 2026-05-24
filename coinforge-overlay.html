@@ -1823,6 +1823,10 @@
     forgeHammerSound.volume = 0.16;
     const achievementSound = new Audio("sounds/koiroylers-awesome-level-up-351714.mp3");
     achievementSound.volume = 0.35;
+
+    const weeklyWinnerMusic = new Audio("sounds/weekly_winner/orchestral-win-331233.mp3");
+    weeklyWinnerMusic.volume = 0.42;
+    
     const comboSounds = {
       broken: new Audio("sounds/combo/combo-broken.mp3"),
       10: new Audio("sounds/combo/combo-x10.m4a"),
@@ -3261,6 +3265,9 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       forgeStage.classList.add("visible", "weekly-champion");
       document.body.classList.add("forge-active");
+
+      weeklyWinnerMusic.currentTime = 0;
+      weeklyWinnerMusic.play();
     
       weeklyFirst.classList.remove("visible");
       weeklySecond.classList.remove("visible");
@@ -3308,6 +3315,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       await wait(700);
       forgeStage.classList.remove("weekly-champion");
       forgeStage.classList.remove("visible");
+      
+      weeklyWinnerMusic.pause();
+      weeklyWinnerMusic.currentTime = 0;
+      
       document.body.classList.remove("forge-active");
     }
     
