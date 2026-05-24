@@ -1480,6 +1480,41 @@
         -3px 0 0 #38e8ff,
         0 0 22px rgba(255, 90, 220, 0.95);
     }
+
+    .combo-popup.forge-ignite {
+      font-size: 52px;
+    
+      color: #fff2a6;
+    
+      text-shadow:
+        4px 4px 0 #5a2208,
+        0 0 18px rgba(255, 170, 40, 0.95),
+        0 0 42px rgba(255, 120, 20, 0.72);
+    
+      animation: forgeIgnitePopup 2.2s ease-out forwards;
+    }
+    
+    @keyframes forgeIgnitePopup {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.55);
+      }
+    
+      18% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.12);
+      }
+    
+      42% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+      }
+    
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.94) translateY(-18px);
+      }
+    }
     
     @keyframes comboHeartbeat {
       0% { opacity: 0; transform: translate(-50%, -50%) scale(0.72); }
@@ -2119,6 +2154,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         ignitionCast.style.display = "block";
         void ignitionCast.offsetWidth;
         ignitionCast.classList.add("active");
+        showForgeIgnitePopup();
     
         setTimeout(() => {
           ignitionCast.classList.remove("active");
@@ -3346,6 +3382,13 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       }
     
       comboDisplayActive = false;
+    }
+
+    function showForgeIgnitePopup() {
+      if (!comboPopup) return;
+    
+      comboPopup.className = "combo-popup forge-ignite visible";
+      comboPopup.innerText = "THE FORGE IGNITES";
     }
     
     function showComboPopup(type, value = null) {
