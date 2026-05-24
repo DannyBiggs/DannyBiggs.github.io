@@ -2489,20 +2489,26 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 }
     
     function preloadCoinForgeAssets() {
-      forgeCoins.forEach(coin => {
-        preloadImage(coin.file);
-        preloadImage(coinFacePng(coin));
-      });
-    
-      Object.keys(coinFrameConfig).forEach(coinKey => {
-        for (let frame = 1; frame <= coinFrameCount; frame++) {
-          getCachedCoinFrame(coinKey, frame);
-        }
-      });
-    
+      // Only preload lightweight always-needed assets on page load.
+      // Do NOT preload every coin animation frame here; that delays first forge display in OBS.
       preloadImage("images/ui/forge_background.png");
       preloadImage("images/nameplates/default.png");
-      //setForgePressureGauge(37);
+    
+      forgeCoins.forEach(coin => {
+        preloadImage(coinFacePng(coin));
+      });
+    }
+    
+    function warmCoinFrameCache() {
+      // Warm animation frames after Streamer.bot is already connected.
+      // This avoids blocking the first visible forge/coin startup.
+      Object.keys(coinFrameConfig).forEach((coinKey, coinIndex) => {
+        setTimeout(() => {
+          for (let frame = 1; frame <= coinFrameCount; frame++) {
+            getCachedCoinFrame(coinKey, frame);
+          }
+        }, coinIndex * 120);
+      });
     }
 
     function wait(ms) {
@@ -4220,6 +4226,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           setTimeout(() => {
               document.body.classList.add("hide-status");
           }, 2000);
+      
+          setTimeout(() => {
+            warmCoinFrameCache();
+          }, 500);
       });
 
       client.on("disconnected", () => {
