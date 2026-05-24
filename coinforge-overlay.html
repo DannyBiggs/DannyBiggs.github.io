@@ -4006,7 +4006,11 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       }
 
       if (data.type !== "coinForgePull") return;
-    
+
+      if (typeof data.forgePressure === "number") {
+        updateForgePressureGauge(data.forgePressure);
+      }
+      
       enqueueForgeEvent(data);
     }
 
