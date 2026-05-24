@@ -1735,7 +1735,7 @@
       pointer-events: none;
       z-index: 8;
       opacity: 0;
-      animation: woodBurnBurstPop 620ms steps(5, end) forwards;
+      animation: woodBurnBurstPop 560ms steps(5, end) forwards;
     }
     
     .wood-burn-count {
@@ -2935,10 +2935,12 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       await wait(180);
       counter.classList.add("visible");
     
-      await wait(760);
-    
-      fire.style.display = "none";
       await wait(120);
+
+      fire.style.display = "none";
+      
+      await wait(640);
+      
       fire.remove();
       counter.remove();
     }
