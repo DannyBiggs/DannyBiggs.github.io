@@ -1721,19 +1721,35 @@
       display: none;
     }
 
+    .slot-coin.wood-burn-prep {
+      animation: woodBurnPrepSpin 460ms linear forwards;
+    }
+    
+    @keyframes woodBurnPrepSpin {
+      from {
+        transform: rotateY(0deg) scale(1);
+        filter: brightness(1);
+      }
+    
+      to {
+        transform: rotateY(360deg) scale(1.04);
+        filter: brightness(1.2);
+      }
+    }
+    
     .wood-burn-burst {
       position: absolute;
-      left: 50%;
-      top: 50%;
-      width: 150px;
-      height: 150px;
+      left: 47%;
+      top: 49%;
+      width: 220px;
+      height: 220px;
       transform: translate(-50%, -50%) scale(0.9);
       object-fit: contain;
       image-rendering: pixelated;
       pointer-events: none;
       z-index: 6;
       opacity: 0;
-      animation: woodBurnBurstPop 920ms steps(6, end) forwards;
+      animation: woodBurnBurstPop 560ms steps(5, end) forwards;
     }
     
     .wood-burn-count {
@@ -1763,20 +1779,20 @@
     @keyframes woodBurnBurstPop {
       0% {
         opacity: 0;
-        transform: translate(-50%, -50%) scale(0.7);
-        filter: brightness(1.2);
+        transform: translate(-50%, -50%) scale(0.85);
+        filter: brightness(1.3);
       }
     
       18% {
         opacity: 1;
-        transform: translate(-50%, -50%) scale(1.15);
-        filter: brightness(1.8);
+        transform: translate(-50%, -50%) scale(1.18);
+        filter: brightness(1.9);
       }
     
-      68% {
+      72% {
         opacity: 1;
-        transform: translate(-50%, -50%) scale(1.05);
-        filter: brightness(1.35);
+        transform: translate(-50%, -50%) scale(1.1);
+        filter: brightness(1.45);
       }
     
       100% {
@@ -2809,6 +2825,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     async function growAndFakeoutSlot(slot, finalCoin, index) {
       const slotWrap = slot.closest(".slot-wrap");
       delete slot.dataset.hammerSoundPlayed;
+      delete slot.dataset.woodBurned;
       
       slot.classList.remove(
         "forming-from-forge",
@@ -2865,6 +2882,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
     async function playWoodBurnupIfNeeded(slot, finalCoin) {
       if (!slot || !finalCoin || finalCoin.name !== "Wood Coin") return;
+      if (slot.dataset.woodBurned === "true") return;
+      slot.dataset.woodBurned = "true";
     
       const slotWrap = slot.closest(".slot-wrap");
       if (!slotWrap) return;
@@ -2900,13 +2919,17 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       counter.className = "wood-burn-count";
       counter.textContent = remainingToIgnition;
     
+      slot.classList.add("wood-burn-prep");
+      await wait(460);
+      slot.classList.remove("wood-burn-prep");
+      
       slotWrap.appendChild(fire);
       slotWrap.appendChild(counter);
-    
-      await wait(120);
+      
+      await wait(180);
       slot.style.opacity = "0";
-    
-      await wait(260);
+      
+      await wait(220);
       counter.classList.add("visible");
     
       await wait(760);
