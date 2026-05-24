@@ -1911,6 +1911,9 @@
 
     const weeklyWinnerMusic = new Audio("sounds/weekly_winner/orchestral-win-331233.mp3");
     weeklyWinnerMusic.volume = 0.15;
+
+    const woodBurnSound = new Audio("sounds/forge_ignited/soundreality-whoosh-fire-movement-243099.m4a");
+    woodBurnSound.volume = 0.12;
     
     const comboSounds = {
       broken: new Audio("sounds/combo/combo-broken.mp3"),
@@ -2012,6 +2015,11 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     function playAchievementSound() {
       achievementSound.currentTime = 0;
       achievementSound.play().catch(() => {});
+    }
+
+    function playWoodBurnSound() {
+      woodBurnSound.currentTime = 0;
+      woodBurnSound.play().catch(() => {});
     }
     
     function normalizeCoinName(name) {
@@ -2901,7 +2909,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       const coinRect = slot.getBoundingClientRect();
     
       const coinCenterX = coinRect.left + coinRect.width / 2 - stageRect.left;
-      const coinCenterY = coinRect.top + coinRect.height / 2 - stageRect.top + 42;
+      const coinCenterY = coinRect.top + coinRect.height / 2 - stageRect.top + 34;
     
       const fire = document.createElement("img");
       fire.className = "wood-burn-burst";
@@ -2918,6 +2926,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       forgeStage.appendChild(fire);
       forgeStage.appendChild(counter);
+      
+      playWoodBurnSound();
     
       await wait(320);
       slot.style.opacity = "0";
@@ -2927,6 +2937,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       await wait(760);
     
+      fire.style.display = "none";
+      await wait(120);
       fire.remove();
       counter.remove();
     }
