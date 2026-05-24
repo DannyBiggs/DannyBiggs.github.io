@@ -1616,6 +1616,92 @@
       65% { transform: translateX(-72px) scale(1.12); opacity: 1; }
       100% { transform: translateX(-72px) scale(1); opacity: 1; }
     }
+
+    .weekly-ceremony {
+      position: fixed;
+      left: 50%;
+      top: 47%;
+      width: 760px;
+      transform: translate(-50%, -50%) scale(0.96);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 70;
+      text-align: center;
+      font-family: "CoinForgeName", Arial, sans-serif;
+      transition: opacity 0.45s ease, transform 0.45s ease;
+    }
+    
+    .weekly-ceremony.visible {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+    
+    .weekly-ceremony-title {
+      color: #fff4c2;
+      font-size: 34px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-shadow:
+        0 4px 0 rgba(0,0,0,0.95),
+        0 0 18px rgba(255, 220, 110, 0.9),
+        0 0 36px rgba(255, 160, 40, 0.55);
+      margin-bottom: 26px;
+    }
+    
+    .weekly-winner-row {
+      opacity: 0;
+      transform: translateY(16px) scale(0.96);
+      margin: 10px auto;
+      padding: 10px 18px;
+      width: 560px;
+      color: #f3d98a;
+      font-size: 20px;
+      font-weight: 900;
+      background: rgba(18, 10, 4, 0.72);
+      border: 2px solid rgba(255, 205, 95, 0.55);
+      box-shadow:
+        0 0 18px rgba(255, 190, 80, 0.22),
+        inset 0 0 20px rgba(255, 160, 40, 0.08);
+      text-shadow:
+        0 3px 0 rgba(0,0,0,0.95),
+        0 0 12px rgba(255, 190, 80, 0.55);
+      transition: opacity 0.45s ease, transform 0.45s ease;
+    }
+    
+    .weekly-winner-row.visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    
+    .weekly-winner-row.first {
+      color: #fff2a6;
+      border-color: rgba(255, 235, 140, 0.95);
+      box-shadow:
+        0 0 24px rgba(255, 220, 110, 0.52),
+        inset 0 0 22px rgba(255, 190, 70, 0.16);
+    }
+    
+    .weekly-champion-callout {
+      opacity: 0;
+      transform: translateY(18px) scale(0.92);
+      margin-top: 26px;
+      color: #fff8d6;
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-shadow:
+        0 4px 0 rgba(0,0,0,0.95),
+        0 0 24px rgba(255, 230, 130, 0.95),
+        0 0 48px rgba(255, 170, 50, 0.75);
+      transition: opacity 0.55s ease, transform 0.55s ease;
+    }
+    
+    .weekly-champion-callout.visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
     
     .connection-status {
       position: fixed;
@@ -1686,7 +1772,14 @@
     <div id="achievementTitle" class="achievement-title"></div>
     <div id="achievementDesc" class="achievement-desc"></div>
     <div id="achievementRarity" class="achievement-rarity"></div>
-  </div>  
+  </div>
+    <div id="weeklyCeremony" class="weekly-ceremony">
+    <div class="weekly-ceremony-title">Weekly Forge Champions</div>
+    <div id="weeklyFirst" class="weekly-winner-row first"></div>
+    <div id="weeklySecond" class="weekly-winner-row second"></div>
+    <div id="weeklyThird" class="weekly-winner-row third"></div>
+    <div id="weeklyChampionCallout" class="weekly-champion-callout"></div>
+  </div>
   <!-- <div id="connectionStatus" class="connection-status">Connecting to Streamer.bot...</div> -->
 
   <script>
@@ -1717,6 +1810,11 @@
     const achievementTitle = document.getElementById("achievementTitle");
     const achievementDesc = document.getElementById("achievementDesc");
     const achievementRarity = document.getElementById("achievementRarity");
+    const weeklyCeremony = document.getElementById("weeklyCeremony");
+    const weeklyFirst = document.getElementById("weeklyFirst");
+    const weeklySecond = document.getElementById("weeklySecond");
+    const weeklyThird = document.getElementById("weeklyThird");
+    const weeklyChampionCallout = document.getElementById("weeklyChampionCallout");
     const comboPopup = document.getElementById("comboPopup");
     
     const slotLandSound = new Audio("sounds/slot-land.m4a");
@@ -3158,6 +3256,61 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       forgeEventPlaying = false;
     }
 
+    async function showWeeklyWinnerCeremony(data) {
+      if (!weeklyCeremony) return;
+    
+      forgeStage.classList.add("visible", "weekly-champion");
+      document.body.classList.add("forge-active");
+    
+      weeklyFirst.classList.remove("visible");
+      weeklySecond.classList.remove("visible");
+      weeklyThird.classList.remove("visible");
+      weeklyChampionCallout.classList.remove("visible");
+      weeklyCeremony.classList.remove("visible");
+    
+      weeklyFirst.textContent =
+        `🥇 ${data.firstName} — ${data.firstPoints} pts — +${data.firstReward}`;
+    
+      weeklySecond.textContent =
+        `🥈 ${data.secondName} — ${data.secondPoints} pts — +${data.secondReward}`;
+    
+      weeklyThird.textContent =
+        `🥉 ${data.thirdName} — ${data.thirdPoints} pts — +${data.thirdReward}`;
+    
+      weeklyChampionCallout.textContent =
+        `Champion of the Week: ${data.firstName}`;
+    
+      await wait(350);
+      weeklyCeremony.classList.add("visible");
+    
+      await wait(700);
+      weeklyFirst.classList.add("visible");
+    
+      await wait(850);
+      weeklySecond.classList.add("visible");
+    
+      await wait(850);
+      weeklyThird.classList.add("visible");
+    
+      await wait(900);
+      weeklyChampionCallout.classList.add("visible");
+    
+      await wait(6500);
+    
+      weeklyChampionCallout.classList.remove("visible");
+      weeklyThird.classList.remove("visible");
+      weeklySecond.classList.remove("visible");
+      weeklyFirst.classList.remove("visible");
+    
+      await wait(450);
+      weeklyCeremony.classList.remove("visible");
+    
+      await wait(700);
+      forgeStage.classList.remove("weekly-champion");
+      forgeStage.classList.remove("visible");
+      document.body.classList.remove("forge-active");
+    }
+    
     function enqueueForgeEvent(event) {
       forgeEventQueue.push(event);
       processForgeQueue();
@@ -3178,7 +3331,12 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
         return;
       }
-    
+
+      if (data.type === "coinForgeWeeklyWinners") {
+        showWeeklyWinnerCeremony(data);
+        return;
+      }
+      
       if (data.type === "coinForgeAchievement") {
         showAchievementPopup(data);
         return;
