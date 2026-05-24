@@ -745,35 +745,14 @@
       animation: slotImpactFlash 0.42s ease-out;
     }
 
-    .burned-away-gif {
-      position: absolute;
-    
-      left: 50%;
-      top: 50%;
-    
-      width: 125px;
-      height: 125px;
-    
-      object-fit: contain;
-      image-rendering: pixelated;
-    
-      pointer-events: none;
-    
-      opacity: 0;
-    
-      z-index: 5;
-    
-      transform: translate(-50%, -50%) scale(0.7);
-    }
-
     .slot-wrap .burned-away-gif {
       position: absolute !important;
     
       left: 50%;
       top: 50%;
     
-      width: 125px;
-      height: 125px;
+      width: 210px !important;
+      height: 210px !important;
     
       object-fit: contain;
       image-rendering: pixelated;
@@ -782,9 +761,9 @@
     
       opacity: 0;
     
-      z-index: 5;
+      z-index: 12 !important;
     
-      transform: translate(-50%, -50%) scale(0.7);
+      transform: translate(-50%, -50%) scale(0.85);
     
       flex: none;
     }
@@ -880,8 +859,10 @@
         drop-shadow(0 0 18px rgba(80, 170, 255, 0.45));
     }
 
-    .slot-wrap.instability-burned-away .slot-coin {
+    .slot-wrap.instability-burned-away .slot-coin,
+    .slot-wrap.burned-away-final .slot-coin {
       opacity: 0 !important;
+      visibility: hidden !important;
     }
 
     .slot-wrap.instability-burned-away .burned-away-gif {
@@ -1011,21 +992,28 @@
         opacity: 0;
         transform:
           translate(-50%, -50%)
-          scale(0.6);
+          scale(0.7);
       }
     
-      12% {
+      10% {
         opacity: 1;
         transform:
           translate(-50%, -50%)
-          scale(1);
+          scale(1.15);
+      }
+    
+      72% {
+        opacity: 1;
+        transform:
+          translate(-50%, -50%)
+          scale(1.25);
       }
     
       100% {
         opacity: 0;
         transform:
           translate(-50%, -50%)
-          scale(1.12);
+          scale(1.35);
       }
     }
     /* ===== FORGE INSTABILITY FX END ===== */
@@ -3744,7 +3732,14 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       );
     
       if (slotWrap) {
-        slotWrap.classList.remove("lock-impact");
+        slotWrap.classList.remove(
+          "lock-impact",
+          "burned-away-final",
+          "instability-overcharged",
+          "instability-scorched",
+          "instability-burned-away"
+        );
+      
         slotWrap.style.transform = "";
         slotWrap.style.filter = "";
       }
@@ -3933,6 +3928,9 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       } else if (effect === "BurnedAway") {
         label = "BURNED AWAY";
         className = "instability-burned-away";
+      
+        slotWrap.classList.add("burned-away-final");
+      
         triggerCorruptionWave();
         playForgeHammerSound();
       } else {
