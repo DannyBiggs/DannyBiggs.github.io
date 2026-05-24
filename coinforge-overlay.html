@@ -2037,6 +2037,8 @@
 
     const woodBurnSound = new Audio("sounds/forge_ignited/soundreality-whoosh-fire-movement-243099.m4a");
     woodBurnSound.volume = 0.12;
+    const forgeIgnitionSound = new Audio("sounds/forge_ignited/ForgeIgnited_Big.m4a");
+    forgeIgnitionSound.volume = 0.14;
     
     const comboSounds = {
       broken: new Audio("sounds/combo/combo-broken.mp3"),
@@ -2155,6 +2157,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         void ignitionCast.offsetWidth;
         ignitionCast.classList.add("active");
         showForgeIgnitePopup();
+        playForgeIgnitionSound();
     
         setTimeout(() => {
           ignitionCast.classList.remove("active");
@@ -2180,7 +2183,12 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       woodBurnSound.currentTime = 0;
       woodBurnSound.play().catch(() => {});
     }
-    
+
+    function playForgeIgnitionSound() {
+      forgeIgnitionSound.currentTime = 0;
+      forgeIgnitionSound.play().catch(() => {});
+    }
+        
     function normalizeCoinName(name) {
       if (!name) return "Bronze Coin";
 
