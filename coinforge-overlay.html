@@ -1955,6 +1955,25 @@
       image-rendering: pixelated;
     }
 
+    .forge-ignited-heat-halo {
+      position: absolute;
+      left: 50%;
+      top: 46%;
+      width: 760px;
+      height: 360px;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      opacity: 0;
+      z-index: 4;
+      mix-blend-mode: screen;
+      background:
+        radial-gradient(circle at 50% 50%,
+          rgba(255, 230, 135, 0.34) 0%,
+          rgba(255, 155, 45, 0.24) 28%,
+          rgba(255, 70, 10, 0.13) 48%,
+          transparent 72%);
+    }
+    
     .forge-stage.forge-ignited-active .forge-ignited-marker {
       opacity: 1;
     
@@ -1967,50 +1986,91 @@
     }
     
     .forge-stage.forge-ignited-active .forge-background-glow {
-      opacity: 0.9;
+      opacity: 1;
     
       animation:
         forgeIgnitedBackgroundBreath
-        2.6s
+        1.65s
         ease-in-out
         infinite
         alternate;
     }
     
-    @keyframes forgeIgnitedMarkerPulse {
-      from {
-        filter: brightness(1);
+    .forge-stage.forge-ignited-active .forge-light-overlay {
+      opacity: 0.92;
+      filter: blur(10px) brightness(1.45) saturate(1.35);
+      animation: forgeIgnitedLightBreath 1.35s ease-in-out infinite alternate;
+    }
     
-        transform:
-          translateX(-50%)
-          scale(1);
-      }
+    .forge-stage.forge-ignited-active .forge-ignited-heat-halo {
+      opacity: 1;
+      animation: forgeIgnitedHeatHalo 1.8s ease-in-out infinite alternate;
+    }
     
-      to {
-        filter: brightness(1.45);
+    body.forge-ignited-active .embers {
+      opacity: 1;
+    }
     
-        transform:
-          translateX(-50%)
-          scale(1.04);
-      }
+    body.forge-ignited-active .ember {
+      background: #fff0a8;
+      opacity: 1;
+      box-shadow:
+        0 0 18px rgba(255, 245, 180, 1),
+        0 0 42px rgba(255, 175, 45, 0.95),
+        0 0 76px rgba(255, 95, 20, 0.62);
+    }
+    
+    body.forge-ignited-active .ember:nth-child(odd) {
+      width: 8px;
+      height: 8px;
+    }
+    
+    body.forge-ignited-active .ember:nth-child(even) {
+      width: 6px;
+      height: 6px;
     }
     
     @keyframes forgeIgnitedBackgroundBreath {
       from {
         filter:
-          brightness(1.55)
-          saturate(1.35)
-          hue-rotate(-6deg);
+          brightness(2.05)
+          saturate(1.9)
+          hue-rotate(-10deg)
+          drop-shadow(0 0 26px rgba(255, 140, 35, 0.72));
       }
     
       to {
         filter:
-          brightness(2.25)
-          saturate(1.9)
-          hue-rotate(-12deg)
-          drop-shadow(0 0 26px rgba(255, 170, 45, 0.72));
+          brightness(2.85)
+          saturate(2.55)
+          hue-rotate(-18deg)
+          drop-shadow(0 0 46px rgba(255, 210, 95, 0.95));
       }
-}
+    }
+    
+    @keyframes forgeIgnitedLightBreath {
+      from {
+        opacity: 0.62;
+        transform: scale(1);
+      }
+    
+      to {
+        opacity: 1;
+        transform: scale(1.035);
+      }
+    }
+    
+    @keyframes forgeIgnitedHeatHalo {
+      from {
+        transform: translate(-50%, -50%) scale(0.94);
+        filter: blur(18px) brightness(1.25);
+      }
+    
+      to {
+        transform: translate(-50%, -50%) scale(1.08);
+        filter: blur(24px) brightness(1.65);
+      }
+    }
     
   </style>
 </head>
@@ -2032,6 +2092,8 @@
         <img class="forge-background" src="images/ui/forge_background.png" alt="Coin Forge">
         <!-- <img class="forge-background-glow" src="images/ui/forge_background_glowonly_red.png" alt=""> -->
         <img id="forgeGlowLayer" class="forge-background-glow" src="images/ui/forge_glow_01_dim.png" alt="">
+        <div class="forge-light-overlay"></div>
+        <div class="forge-ignited-heat-halo"></div>
         <!-- <div class="forge-light-overlay"></div> -->
         <!-- <div class="forge-glow"></div> -->
         <div id="forgeImpactFlash" class="forge-impact-flash"></div>
@@ -3522,8 +3584,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       if (event.forgeIgnitedActive === true) {
         forgeStage.classList.add("forge-ignited-active");
+        document.body.classList.add("forge-ignited-active");
       } else {
         forgeStage.classList.remove("forge-ignited-active");
+        document.body.classList.remove("forge-ignited-active");
       }
             
      const rawCoins = Array.isArray(event.coins) ? event.coins : [];
@@ -3534,6 +3598,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       
       if (results.length === 0) {
         forgeStage.classList.remove("visible", "charging", "charged", "forge-ignited-active");
+        document.body.classList.remove("forge-ignited-active");
         document.body.classList.remove("forge-active");
         clearPlayerIdentity();
         slotRow.innerHTML = "";
@@ -3605,6 +3670,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       );
       
       forgeStage.classList.remove("visible", "charged", "forge-ignited-active");
+      document.body.classList.remove("forge-ignited-active");
       document.body.classList.remove("forge-active");
       clearPlayerIdentity();
       
