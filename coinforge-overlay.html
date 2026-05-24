@@ -2257,14 +2257,14 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         window.forgeIgnitionCastPlaying = false;
       }
     
-      "impact");
+      forgeStage.classList.remove("impact");
       void forgeStage.offsetWidth;
       forgeStage.classList.add("impact");
     
       document.body.classList.add("forge-active");
     
       setTimeout(() => {
-        "impact");
+        forgeStage.classList.remove("impact");
       }, 420);
     }
     
@@ -2587,7 +2587,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         forgeStage.classList.add("escalate-cursed");
 
         setTimeout(() => {
-          "escalate-cursed");
+          forgeStage.classList.remove("escalate-cursed");
         }, 650);
       }
     }
@@ -2609,7 +2609,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     }
 
     function clearCinematicStageClasses() {
-      
+      forgeStage.classList.remove(
         "cinematic-jackpot",
         "cinematic-cursed",
         "cinematic-mythic",
@@ -2702,7 +2702,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       forgePressureLevel = 0;
     
-      "pressure-cursed");
+      forgeStage.classList.remove("pressure-cursed");
     
       forgeStage.style.setProperty(
         "--forge-pressure-opacity",
@@ -2726,7 +2726,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     }
     
     function clearRevealClasses() {
-      
+      forgeStage.classList.remove(
         "reveal-common",
         "reveal-rare",
         "reveal-epic",
@@ -3116,7 +3116,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       slot.src = coinFileForSlot(finalCoin, index);
       slot.classList.add("landed");
       
-      "impact");
+      forgeStage.classList.remove("impact");
       void forgeStage.offsetWidth;
       forgeStage.classList.add("impact");
       
@@ -3594,7 +3594,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       await wait(event.displayMs || 1500);
 
-      
+      forgeStage.classList.remove(
         "reveal-common",
         "reveal-rare",
         "reveal-epic",
@@ -3759,8 +3759,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       weeklyCeremony.classList.remove("visible");
     
       await wait(700);
-      "weekly-champion");
-      "visible");
+      forgeStage.classList.remove("weekly-champion");
+      forgeStage.classList.remove("visible");
       
       weeklyWinnerMusic.pause();
       weeklyWinnerMusic.currentTime = 0;
