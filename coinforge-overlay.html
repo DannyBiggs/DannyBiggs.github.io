@@ -1814,31 +1814,32 @@
       position: absolute;
     
       left: 50%;
-      top: 44%;
+      top: 45%;
     
-      width: 560px;
-      height: 560px;
+      width: 880px;
+      height: 880px;
     
       transform:
         translate(-50%, -50%)
-        scale(0.72);
+        scale(0.78);
     
       opacity: 0;
     
       pointer-events: none;
       image-rendering: pixelated;
     
-      z-index: 4;
+      z-index: 9;
     
       mix-blend-mode: screen;
     
       filter:
-        brightness(1.2)
-        saturate(1.25);
+        brightness(1.45)
+        saturate(1.5)
+        drop-shadow(0 0 22px rgba(255, 180, 50, 0.55));
     }
     
     .forge-ignition-cast.active {
-      animation: forgeIgnitionCastPop 1.15s ease-out forwards;
+      animation: forgeIgnitionCastPop 1.35s ease-out forwards;
     }
     
     @keyframes forgeIgnitionCastPop {
@@ -1853,14 +1854,14 @@
         opacity: 1;
         transform:
           translate(-50%, -50%)
-          scale(0.95);
+          scale(1.08);
       }
     
       70% {
         opacity: 0.95;
         transform:
           translate(-50%, -50%)
-          scale(1.08);
+          scale(1.2);
       }
     
       100% {
