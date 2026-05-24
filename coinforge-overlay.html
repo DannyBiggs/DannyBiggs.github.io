@@ -216,6 +216,54 @@
       transform: translateY(36px);
     }
 
+    /* ===== FORGE PRESSURE GAUGE TEST START ===== */
+    .forge-pressure-fill {
+      position: absolute;
+    
+      left: 50%;
+      top: 34.5%;
+    
+      width: 330px;
+      height: 330px;
+    
+      transform: translate(-50%, -50%) translateY(36px);
+    
+      border-radius: 50%;
+    
+      pointer-events: none;
+    
+      z-index: 0;
+    
+      opacity: 0.95;
+    
+      background: conic-gradient(
+        from -90deg,
+        rgba(255, 85, 18, 0.95) 0deg,
+        rgba(255, 190, 55, 0.95) var(--pressure-deg, 180deg),
+        transparent var(--pressure-deg, 180deg),
+        transparent 360deg
+      );
+    
+      mask: radial-gradient(
+        circle,
+        transparent 0 40%,
+        black 41% 49%,
+        transparent 50% 100%
+      );
+    
+      -webkit-mask: radial-gradient(
+        circle,
+        transparent 0 40%,
+        black 41% 49%,
+        transparent 50% 100%
+      );
+    
+      filter:
+        brightness(1.25)
+        drop-shadow(0 0 10px rgba(255, 135, 35, 0.75));
+    }
+    /* ===== FORGE PRESSURE GAUGE TEST END ===== */
+
     .forge-light-overlay {
       position: absolute;
       inset: 0;
@@ -2151,6 +2199,7 @@
   <div class="overlay-root">
     <div class="forge-simulator">
       <div class="forge-stage" id="forgeStage">
+        <div id="forgePressureFill" class="forge-pressure-fill"></div>
         <img class="forge-background" src="images/ui/forge_background.png" alt="Coin Forge">
         <!-- <img class="forge-background-glow" src="images/ui/forge_background_glowonly_red.png" alt=""> -->
         <img id="forgeGlowLayer" class="forge-background-glow" src="images/ui/forge_glow_01_dim.png" alt="">
@@ -2211,6 +2260,7 @@
   <script>
     const screenBorderFX = document.getElementById("screenBorderFX");
     const forgeStage = document.getElementById("forgeStage");
+    const forgePressureFill = document.getElementById("forgePressureFill");
     const slotRow = document.getElementById("slotRow");
     const cinematicBurst = document.getElementById("cinematicBurst");
     const forgeImpactFlash = document.getElementById("forgeImpactFlash");
@@ -2335,12 +2385,22 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       preloadImage("images/ui/forge_background.png");
       preloadImage("images/nameplates/default.png");
+      setForgePressureGauge(50);
     }
 
     function wait(ms) {
       return new Promise(resolve => setTimeout(resolve, ms));
     }
 
+    function setForgePressureGauge(percent) {
+      if (!forgePressureFill) return;
+    
+      const safePercent = Math.max(0, Math.min(100, Number(percent) || 0));
+      const degrees = safePercent * 3.6;
+    
+      forgePressureFill.style.setProperty("--pressure-deg", `${degrees}deg`);
+    }
+    
     function playSlotLandSound() {
       slotLandSound.currentTime = 0;
       slotLandSound.play().catch(() => {});
