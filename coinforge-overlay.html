@@ -3361,15 +3361,18 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       
       if (typeof finalCoin.forgePressureAfter === "number") {
 
-      }
-        if (event.jackpotHit) {
+        if (finalCoin.jackpotHit) {
+      
           animateForgePressureGauge(37, 500);
       
           setTimeout(() => {
-            updateForgePressureGauge(event.pendingForgePressure);
+            updateForgePressureGauge(finalCoin.forgePressureAfter);
           }, 650);
+      
         } else {
-          updateForgePressureGauge(event.pendingForgePressure);
+      
+          updateForgePressureGauge(finalCoin.forgePressureAfter);
+      
         }
       }
       
