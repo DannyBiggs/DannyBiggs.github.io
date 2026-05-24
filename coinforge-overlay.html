@@ -745,6 +745,134 @@
       animation: slotImpactFlash 0.42s ease-out;
     }
 
+    /* ===== FORGE INSTABILITY FX START ===== */
+    .forge-instability-badge {
+      position: absolute;
+      left: 50%;
+      top: 5%;
+      transform: translate(-50%, -50%) scale(0.75);
+      opacity: 0;
+      z-index: 6;
+      pointer-events: none;
+      font-family: "ComboFont", monospace;
+      font-size: 10px;
+      letter-spacing: 1px;
+      white-space: nowrap;
+      text-shadow:
+        0 0 6px rgba(0, 0, 0, 0.9),
+        0 0 12px rgba(0, 0, 0, 0.85);
+    }
+
+    .slot-wrap.instability-overcharged {
+      animation: forgeInstabilityOvercharged 0.9s steps(6, end);
+      filter:
+        brightness(1.65)
+        drop-shadow(0 0 18px rgba(255, 220, 90, 0.95))
+        drop-shadow(0 0 34px rgba(255, 120, 30, 0.55));
+    }
+
+    .slot-wrap.instability-overcharged .forge-instability-badge {
+      color: #ffe88a;
+      animation: forgeInstabilityBadge 0.95s ease-out;
+    }
+
+    .slot-wrap.instability-scorched {
+      animation: forgeInstabilityScorched 0.95s steps(6, end);
+      filter:
+        brightness(0.82)
+        saturate(0.75)
+        drop-shadow(0 0 16px rgba(255, 90, 20, 0.42));
+    }
+
+    .slot-wrap.instability-scorched .forge-instability-badge {
+      color: #ff9b38;
+      animation: forgeInstabilityBadge 0.95s ease-out;
+    }
+
+    .slot-wrap.instability-burned-away {
+      animation: forgeInstabilityBurnedAway 1.05s steps(7, end);
+      filter:
+        brightness(0.55)
+        saturate(0.55)
+        drop-shadow(0 0 18px rgba(80, 170, 255, 0.45));
+    }
+
+    .slot-wrap.instability-burned-away .slot-coin {
+      animation: forgeCoinBurnedAway 1.05s steps(7, end) forwards;
+    }
+
+    .slot-wrap.instability-burned-away .forge-instability-badge {
+      color: #79d7ff;
+      animation: forgeInstabilityBadge 1.05s ease-out;
+    }
+
+    @keyframes forgeInstabilityBadge {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.65);
+      }
+
+      20% {
+        opacity: 1;
+        transform: translate(-50%, -80%) scale(1.04);
+      }
+
+      72% {
+        opacity: 1;
+        transform: translate(-50%, -105%) scale(1);
+      }
+
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -135%) scale(0.92);
+      }
+    }
+
+    @keyframes forgeInstabilityOvercharged {
+      0% { transform: scale(1); }
+      18% { transform: scale(1.13) translateY(-5px); }
+      38% { transform: scale(0.96) translateY(2px); }
+      64% { transform: scale(1.06) translateY(-2px); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes forgeInstabilityScorched {
+      0% { transform: scale(1); }
+      22% { transform: scale(0.96) rotate(-1deg); }
+      42% { transform: scale(1.02) rotate(1deg); }
+      68% { transform: scale(0.98) rotate(-0.5deg); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes forgeInstabilityBurnedAway {
+      0% { transform: scale(1); }
+      20% { transform: scale(1.06) rotate(-2deg); }
+      42% { transform: scale(0.9) rotate(2deg); }
+      72% { transform: scale(0.82) rotate(-1deg); }
+      100% { transform: scale(0.92); }
+    }
+
+    @keyframes forgeCoinBurnedAway {
+      0% {
+        opacity: 1;
+        transform: scale(1);
+        filter: brightness(1);
+      }
+
+      35% {
+        opacity: 0.95;
+        transform: scale(1.08);
+        filter: brightness(1.8) saturate(0.6);
+      }
+
+      100% {
+        opacity: 0.28;
+        transform: scale(0.72);
+        filter: brightness(0.45) saturate(0.3) blur(1px);
+      }
+    }
+    /* ===== FORGE INSTABILITY FX END ===== */
+    
     .pixel-spark-layer {
       position: absolute;
       inset: 0;
@@ -3259,10 +3387,14 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         
         const impactFlash = document.createElement("div");
         impactFlash.className = "slot-impact-flash";
+
+        const instabilityBadge = document.createElement("div");
+        instabilityBadge.className = "forge-instability-badge";
         
         slotWrap.appendChild(socketRing);
         slotWrap.appendChild(impactFlash);
         slotWrap.appendChild(img);
+        slotWrap.appendChild(instabilityBadge);
         slotRow.appendChild(slotWrap);
       }
     }
@@ -3601,6 +3733,64 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       fire.remove();
       counter.remove();
     }
+
+    async function triggerForgeInstabilityVisual(slot, finalCoin) {
+      if (!slot || !finalCoin || !finalCoin.raw) return;
+
+      const effect = finalCoin.raw.forgeInstabilityEffect || "";
+      if (!effect) return;
+
+      const slotWrap = slot.closest(".slot-wrap");
+      if (!slotWrap) return;
+
+      let label = "";
+      let className = "";
+
+      if (effect === "Overcharged") {
+        label = "OVERCHARGED";
+        className = "instability-overcharged";
+        screenBorderFX.classList.remove("jackpot");
+        void screenBorderFX.offsetWidth;
+        screenBorderFX.classList.add("jackpot");
+        playForgeHammerSound();
+      } else if (effect === "Scorched") {
+        label = "SCORCHED";
+        className = "instability-scorched";
+        playForgeHammerSound();
+      } else if (effect === "BurnedAway") {
+        label = "BURNED AWAY";
+        className = "instability-burned-away";
+        triggerCorruptionWave();
+        playForgeHammerSound();
+      } else {
+        return;
+      }
+
+      let badge = slotWrap.querySelector(".forge-instability-badge");
+
+      if (!badge) {
+        badge = document.createElement("div");
+        badge.className = "forge-instability-badge";
+        slotWrap.appendChild(badge);
+      }
+
+      badge.textContent = label;
+
+      slotWrap.classList.remove(
+        "instability-overcharged",
+        "instability-scorched",
+        "instability-burned-away"
+      );
+
+      void slotWrap.offsetWidth;
+      slotWrap.classList.add(className);
+
+      setTimeout(() => {
+        slotWrap.classList.remove(className);
+      }, 1250);
+
+      await wait(520);
+    }
     
     async function spinSlot(slot, finalCoin, index, shouldLock) {
       if (!shouldLock) {
@@ -3644,6 +3834,9 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       forgeStage.classList.remove("impact");
       
       await cinematicPromise;
+
+      await triggerForgeInstabilityVisual(slot, finalCoin);
+
       await playWoodBurnupIfNeeded(slot, finalCoin);
 
       if (finalCoin.raw && finalCoin.raw.comboBroken) {
