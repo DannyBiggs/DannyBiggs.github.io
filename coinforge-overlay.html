@@ -868,17 +868,6 @@
     .slot-wrap.instability-burned-away .burned-away-gif {
       animation: burnedAwayGifPop 0.9s steps(6, end) forwards;
     }
-
-    .slot-wrap.instability-burned-away .slot-impact-flash {
-      z-index: 13;
-      background:
-        radial-gradient(circle,
-          rgba(255, 245, 185, 0.95) 0%,
-          rgba(255, 165, 45, 0.55) 28%,
-          rgba(255, 70, 20, 0.24) 52%,
-          transparent 74%);
-      animation: burnedAwayStartFlash 0.34s steps(4, end) forwards;
-    }
     
     .slot-wrap.instability-burned-away .forge-instability-badge {
       color: #79d7ff;
@@ -1019,23 +1008,6 @@
       42% { transform: scale(0.9) rotate(2deg); }
       72% { transform: scale(0.82) rotate(-1deg); }
       100% { transform: scale(0.92); }
-    }
-
-    @keyframes burnedAwayStartFlash {
-      0% {
-        opacity: 0;
-        transform: scale(0.45);
-      }
-    
-      18% {
-        opacity: 1;
-        transform: scale(1.05);
-      }
-    
-      100% {
-        opacity: 0;
-        transform: scale(1.45);
-      }
     }
     
     @keyframes burnedAwayGifPop {
