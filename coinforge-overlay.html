@@ -4647,35 +4647,43 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         document.body.classList.remove("hide-status");
         return;
       }
-
-      const client = new StreamerbotClient({
+    
+      window.client = new StreamerbotClient({
         host: "127.0.0.1",
-        port: 8080
-      });
-
-      client.on("General.Custom", handleStreamerbotMessage);
-
-      // TEMP TEST - log every Streamer.bot event OBS receives
-      client.on("*", (event) => {
-        console.log("STREAMERBOT EVENT RECEIVED:", event);
-        handleStreamerbotMessage(event);
-      })
-
-      client.on("connected", () => {
+        port: 8080,
+    
+        onData: (payload) => {
+          console.log("STREAMERBOT DATA RECEIVED:", payload);
+    
+          if (payload && payload.event && payload.event.source === "General" && payload.event.type === "Custom") {
+            handleStreamerbotMessage(payload.data);
+            return;
+          }
+    
+          handleStreamerbotMessage(payload);
+        },
+    
+        onConnect: () => {
           connectionStatus.textContent = "Connected to Streamer.bot";
-      
+    
           setTimeout(() => {
-              document.body.classList.add("hide-status");
+            document.body.classList.add("hide-status");
           }, 2000);
-      
+    
           setTimeout(() => {
             warmCoinFrameCache();
           }, 500);
+        },
+    
+        onDisconnect: () => {
+          connectionStatus.textContent = "Disconnected from Streamer.bot";
+          document.body.classList.remove("hide-status");
+        }
       });
-
-      client.on("disconnected", () => {
-        connectionStatus.textContent = "Disconnected from Streamer.bot";
-        document.body.classList.remove("hide-status");
+    
+      window.client.on("General.Custom", ({ event, data }) => {
+        console.log("GENERAL CUSTOM RECEIVED:", event, data);
+        handleStreamerbotMessage(data);
       });
     }
 
