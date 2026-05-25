@@ -4565,7 +4565,16 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     }
 
     function handleStreamerbotMessage(message) {
-      const data = message && message.data ? message.data : message;
+      let data = message && message.data ? message.data : message;
+    
+      if (typeof data === "string") {
+        try {
+          data = JSON.parse(data);
+        } catch (err) {
+          console.warn("Could not parse Streamer.bot message:", data);
+          return;
+        }
+      }
     
       if (!data || !data.type) return;
     
