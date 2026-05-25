@@ -2711,8 +2711,11 @@
     const woodBurnSound = new Audio("sounds/forge_ignited/soundreality-whoosh-fire-movement-243099.m4a");
     woodBurnSound.volume = 0.12;
     
-    const forgeIgnitionSound = new Audio("sounds/forge_ignited/ForgeIgnited_Big.m4a");
+    const forgeIgnitionSound = new Audio("sounds/ForgeIgnited_Big.m4a");
     forgeIgnitionSound.volume = 0.14;
+
+    const burnedAwaySound = new Audio("sounds/forge_instability/explosion-8-bit.m4a");
+    burnedAwaySound.volume = 0.16;
     
     const comboSounds = {
       broken: new Audio("sounds/combo/combo-broken.mp3"),
@@ -3951,6 +3954,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       } else if (effect === "BurnedAway") {
         label = "BURNED AWAY";
         className = "instability-burned-away";
+        burnedAwaySound.currentTime = 0;
+        burnedAwaySound.play().catch(() => {});
       
         slotWrap.classList.add("burned-away-final");
       
