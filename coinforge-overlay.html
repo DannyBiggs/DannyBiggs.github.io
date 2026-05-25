@@ -3950,7 +3950,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       } else if (effect === "Scorched") {
         label = "SCORCHED";
         className = "instability-scorched";
-        playForgeHammerSound();
       } else if (effect === "BurnedAway") {
         label = "BURNED AWAY";
         className = "instability-burned-away";
@@ -3960,7 +3959,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         slotWrap.classList.add("burned-away-final");
       
         triggerCorruptionWave();
-        playForgeHammerSound();
       } else {
         return;
       }
