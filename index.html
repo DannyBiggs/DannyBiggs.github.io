@@ -2721,92 +2721,231 @@
   const forgeImpactFlash = document.getElementById("forgeImpactFlash");
   const forgeCorruptionWave = document.getElementById("forgeCorruptionWave");
   const forgeBloom = document.getElementById("forgeBloom");
+  const sparkStrikeGif = document.getElementById("sparkStrikeGif");
   const pullCountButtons = document.querySelectorAll(".pull-count-button");
+  
   const slotLandSound = new Audio("sounds/slot-land.m4a");
   slotLandSound.volume = 0.05;
   
   let selectedPullCount = 1;
   
   const forgeCoins = [
-    { name: "Wood Coin", file: "images/coins/wood.gif", rarity: "Common", className: "common" },
-    { name: "Bronze Coin", file: "images/coins/bronze.gif", rarity: "Common", className: "common" },
-    { name: "Silver Coin", file: "images/coins/silver.gif", rarity: "Rare", className: "rare" },
-    { name: "Gold Coin", file: "images/coins/gold.gif", rarity: "Epic", className: "epic" },
-    { name: "Diamond Coin", file: "images/coins/diamond.gif", rarity: "Legendary", className: "legendary" },
-    { name: "Rainbow Coin", file: "images/coins/rainbow.gif", rarity: "Mythic", className: "mythic" },
-    { name: "Anti Coin", file: "images/coins/anti.gif", rarity: "Cursed", className: "cursed" },
-    { name: "Lucky Coin", file: "images/coins/lucky.gif", rarity: "Rare", className: "rare" },
-    { name: "Jackpot Booster", file: "images/coins/jackpot.gif", rarity: "Legendary", className: "legendary" },
-    { name: "Kingmaker Coin", file: "images/coins/kingmaker.gif", rarity: "Mythic", className: "mythic" }
+    { key: "Wood", name: "Wood Coin", file: "images/coins/wood.gif", rarity: "Common", className: "common" },
+    { key: "Bronze", name: "Bronze Coin", file: "images/coins/bronze.gif", rarity: "Common", className: "common" },
+    { key: "Silver", name: "Silver Coin", file: "images/coins/silver.gif", rarity: "Rare", className: "rare" },
+    { key: "Gold", name: "Gold Coin", file: "images/coins/gold.gif", rarity: "Epic", className: "epic" },
+    { key: "Diamond", name: "Diamond Coin", file: "images/coins/diamond.gif", rarity: "Legendary", className: "legendary" },
+    { key: "Rainbow", name: "Rainbow Coin", file: "images/coins/rainbow.gif", rarity: "Mythic", className: "rainbow" },
+    { key: "Anti", name: "Anti Coin", file: "images/coins/anti.gif", rarity: "Cursed", className: "cursed" },
+    { key: "Lucky", name: "Lucky Coin", file: "images/coins/lucky.gif", rarity: "Rare", className: "rare" },
+    { key: "JackpotBooster", name: "Jackpot Booster", file: "images/coins/jackpot.gif", rarity: "Legendary", className: "legendary" },
+    { key: "Kingmaker", name: "Kingmaker Coin", file: "images/coins/kingmaker.gif", rarity: "Mythic", className: "mythic" }
   ];
+  
+  const coinFrameConfig = {
+    Wood: { prefix: "wood" },
+    Bronze: { prefix: "bronze" },
+    Silver: { prefix: "silver" },
+    Gold: { prefix: "gold" },
+    Diamond: { prefix: "diamond" },
+    Rainbow: { prefix: "rainbow" },
+    Anti: { prefix: "anti" },
+    Lucky: { prefix: "lucky" },
+    JackpotBooster: { prefix: "jackpot" },
+    Kingmaker: { prefix: "kingmaker" }
+  };
+  
+  const coinFrameCount = 15;
   
   function wait(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
+  
   function playSlotLandSound() {
     slotLandSound.currentTime = 0;
     slotLandSound.play().catch(() => {});
   }
   
-  function randomCycleCoin() {
-    return forgeCoins[Math.floor(Math.random() * forgeCoins.length)];
-  }
-
   function coinFileForSlot(coin, index) {
     return `${coin.file}?slot=${index}&t=${Date.now()}-${Math.random()}`;
   }
-    
-  function weightedRoll() {
-    const roll = Math.floor(Math.random() * 10000) + 1;
   
-    if (roll <= 750) return forgeCoins.find(c => c.name === "Wood Coin");
-    if (roll <= 5850) return forgeCoins.find(c => c.name === "Bronze Coin");
-    if (roll <= 8050) return forgeCoins.find(c => c.name === "Silver Coin");
-    if (roll <= 9050) return forgeCoins.find(c => c.name === "Gold Coin");
-    if (roll <= 9200) return forgeCoins.find(c => c.name === "Diamond Coin");
-    if (roll <= 9300) return forgeCoins.find(c => c.name === "Anti Coin");
-    if (roll <= 9330) return forgeCoins.find(c => c.name === "Rainbow Coin");
-    if (roll <= 9530) return forgeCoins.find(c => c.name === "Lucky Coin");
-    if (roll <= 9680) return forgeCoins.find(c => c.name === "Jackpot Booster");
-    if (roll <= 10000) return forgeCoins.find(c => c.name === "Kingmaker Coin");
-  
-    return forgeCoins.find(c => c.name === "Bronze Coin");
+  function coinFramePath(coinKey, frameNumber) {
+    const config = coinFrameConfig[coinKey] || coinFrameConfig.Bronze;
+    const frameName = String(frameNumber).padStart(2, "0");
+    return `images/coins/frames/${config.prefix}_${frameName}.png`;
   }
-
-  function restartClassAnimation(element, className) {
-    if (!element) return;
   
-    element.classList.remove(className);
-    void element.offsetWidth;
-    element.classList.add(className);
+  function randomCycleCoin() {
+    return forgeCoins[Math.floor(Math.random() * forgeCoins.length)];
+  }
+  
+  function weightedRoll() {
+    const roll = Math.random() * 10000;
+  
+    if (roll < 50) return forgeCoins.find(c => c.name === "Rainbow Coin");
+    if (roll < 130) return forgeCoins.find(c => c.name === "Kingmaker Coin");
+    if (roll < 220) return forgeCoins.find(c => c.name === "Jackpot Booster");
+    if (roll < 370) return forgeCoins.find(c => c.name === "Diamond Coin");
+    if (roll < 470) return forgeCoins.find(c => c.name === "Anti Coin");
+    if (roll < 520) return forgeCoins.find(c => c.name === "Lucky Coin");
+    if (roll < 1520) return forgeCoins.find(c => c.name === "Gold Coin");
+    if (roll < 3720) return forgeCoins.find(c => c.name === "Silver Coin");
+    if (roll < 6500) return forgeCoins.find(c => c.name === "Bronze Coin");
+  
+    return forgeCoins.find(c => c.name === "Wood Coin");
+  }
+  
+  function clearRevealClasses() {
+    forgeStage.classList.remove(
+      "impact",
+      "cinematic-jackpot",
+      "cinematic-cursed",
+      "cinematic-mythic",
+      "cinematic-legendary",
+      "reveal-common",
+      "reveal-rare",
+      "reveal-epic",
+      "reveal-legendary",
+      "reveal-mythic",
+      "reveal-rainbow",
+      "reveal-cursed"
+    );
+  
+    document.querySelectorAll(".slot-wrap").forEach(wrap => {
+      wrap.classList.remove(
+        "landed-common",
+        "landed-rare",
+        "landed-epic",
+        "landed-legendary",
+        "landed-mythic",
+        "landed-rainbow",
+        "landed-cursed",
+        "coin-cycling",
+        "lock-impact",
+        "socket-compress",
+        "forging-in"
+      );
+  
+      wrap.style.transform = "";
+      wrap.style.filter = "";
+    });
+  }
+  
+  function createSlots(count) {
+    slotRow.innerHTML = "";
+  
+    for (let i = 0; i < count; i++) {
+      const wrap = document.createElement("div");
+      wrap.className = "slot-wrap forging-in";
+  
+      const socketRing = document.createElement("div");
+      socketRing.className = "slot-socket-ring";
+  
+      const impactFlash = document.createElement("div");
+      impactFlash.className = "slot-impact-flash";
+  
+      const img = document.createElement("img");
+      img.className = "sim-coin slot-coin";
+      img.src = `images/coins/bronze.gif?slot=${i}&t=${Date.now()}`;
+      img.alt = "Forged Coin";
+  
+      wrap.appendChild(socketRing);
+      wrap.appendChild(impactFlash);
+      wrap.appendChild(img);
+      slotRow.appendChild(wrap);
+    }
+  
+    setTimeout(() => {
+      document.querySelectorAll(".slot-wrap").forEach(wrap => {
+        wrap.classList.remove("forging-in");
+      });
+    }, 650);
   }
   
   function triggerImpactFlash() {
-    restartClassAnimation(forgeImpactFlash, "active");
+    if (!forgeImpactFlash) return;
+  
+    forgeImpactFlash.classList.remove("active");
+    void forgeImpactFlash.offsetWidth;
+    forgeImpactFlash.classList.add("active");
   }
   
-  function triggerCorruptionWave() {
-    restartClassAnimation(forgeCorruptionWave, "active");
-  }
-  
-  function triggerMythicBloom() {
-    restartClassAnimation(forgeBloom, "mythic");
-  }
-
-  function clearSlotLandedClasses(slot) {
+  function triggerSocketCompression(slot) {
     const slotWrap = slot.closest(".slot-wrap");
     if (!slotWrap) return;
   
-    slotWrap.classList.remove(
-      "landed-common",
-      "landed-rare",
-      "landed-epic",
-      "landed-legendary",
-      "landed-mythic",
-      "landed-cursed"
-    );
+    slotWrap.classList.remove("socket-compress");
+    void slotWrap.offsetWidth;
+    slotWrap.classList.add("socket-compress");
+  
+    setTimeout(() => {
+      slotWrap.classList.remove("socket-compress");
+    }, 420);
   }
-    
+  
+  function triggerSocketRing(slot, coin) {
+    const slotWrap = slot.closest(".slot-wrap");
+    if (!slotWrap) return;
+  
+    const ring = slotWrap.querySelector(".slot-socket-ring");
+    if (!ring) return;
+  
+    ring.className = "slot-socket-ring";
+    ring.classList.add(coin.className, "active");
+  
+    setTimeout(() => {
+      ring.classList.remove("active");
+    }, 460);
+  }
+  
+  function triggerSlotImpact(slot) {
+    const slotWrap = slot.closest(".slot-wrap");
+    if (!slotWrap) return;
+  
+    const flash = slotWrap.querySelector(".slot-impact-flash");
+    if (!flash) return;
+  
+    flash.classList.remove("active");
+    void flash.offsetWidth;
+    flash.classList.add("active");
+  }
+  
+  function triggerSparkStrikeGif(slot) {
+    if (!sparkStrikeGif || !slot || !forgeStage) return;
+  
+    const slotRect = slot.getBoundingClientRect();
+    const stageRect = forgeStage.getBoundingClientRect();
+  
+    const slotCenterX = slotRect.left + slotRect.width / 2 - stageRect.left;
+    const slotCenterY = slotRect.top + slotRect.height / 2 - stageRect.top;
+  
+    sparkStrikeGif.style.left = `${slotCenterX}px`;
+    sparkStrikeGif.style.top = `${slotCenterY}px`;
+    sparkStrikeGif.style.setProperty("--gif-rotation", `${Math.floor(Math.random() * 18) - 9}deg`);
+  
+    sparkStrikeGif.classList.remove("active");
+    void sparkStrikeGif.offsetWidth;
+    sparkStrikeGif.classList.add("active");
+  }
+  
+  function triggerCorruptionWave() {
+    if (!forgeCorruptionWave) return;
+  
+    forgeCorruptionWave.classList.remove("active");
+    void forgeCorruptionWave.offsetWidth;
+    forgeCorruptionWave.classList.add("active");
+  }
+  
+  function triggerMythicBloom() {
+    if (!forgeBloom) return;
+  
+    forgeBloom.className = "forge-bloom mythic";
+    setTimeout(() => {
+      forgeBloom.className = "forge-bloom";
+    }, 1200);
+  }
+  
   function clearCinematicStageClasses() {
     forgeStage.classList.remove(
       "cinematic-jackpot",
@@ -2815,321 +2954,186 @@
       "cinematic-legendary"
     );
   }
-    
-  function clearRevealClasses() {
-    forgeStage.classList.remove(
-      "reveal-common",
-      "reveal-rare",
-      "reveal-epic",
-      "reveal-legendary",
-      "reveal-mythic",
-      "reveal-cursed",
-      "impact",
-      "cinematic-jackpot",
-      "cinematic-cursed",
-      "cinematic-mythic",
-      "cinematic-legendary"
-    );
-
-forgeResult.classList.remove(
-  "cinematic-text",
-  "final-panel",
-  "final-common",
-  "final-rare",
-  "final-epic",
-  "final-legendary",
-  "final-mythic",
-  "final-cursed"
-);
-cinematicBurst.className = "cinematic-burst";
-forgeImpactFlash.className = "forge-impact-flash";
-forgeCorruptionWave.className = "forge-corruption-wave";
-forgeBloom.className = "forge-bloom";
-  }
-
-  function getAuraType(coin) {
-    if (coin.name === "Gold Coin") return "gold";
-    if (coin.name === "Diamond Coin") return "diamond";
-    if (coin.name === "Rainbow Coin") return "";
-    if (coin.name === "Lucky Coin") return "lucky";
-    if (coin.name === "Jackpot Booster") return "jackpot";
-    if (coin.name === "Kingmaker Coin") return "kingmaker";
-    if (coin.name === "Anti Coin") return "anti";
   
-    return "";
-  }
-  
-  function triggerSlotAura(coin, slot) {
-    const auraType = getAuraType(coin);
-    if (!auraType) return;
-  
-    const stageRect = forgeStage.getBoundingClientRect();
-    const slotRect = slot.getBoundingClientRect();
-  
-    const aura = document.createElement("div");
-    aura.className = `slot-aura ${auraType}`;
-  
-    aura.style.left = `${slotRect.left + slotRect.width / 2 - stageRect.left}px`;
-    aura.style.top = `${slotRect.top + slotRect.height / 2 - stageRect.top}px`;
-  
-    forgeStage.appendChild(aura);
-  
-    void aura.offsetWidth;
-    aura.classList.add("active");
-  
-    setTimeout(() => {
-      aura.remove();
-    }, 1500);
-  }
-    
-  function triggerBurst(type, slot) {
-    const stageRect = forgeStage.getBoundingClientRect();
-    const slotRect = slot.getBoundingClientRect();
-  
-    const x = slotRect.left + slotRect.width / 2 - stageRect.left;
-    const y = slotRect.top + slotRect.height / 2 - stageRect.top;
-  
-    cinematicBurst.style.left = `${x}px`;
-    cinematicBurst.style.top = `${y}px`;
-  
-    cinematicBurst.className = `cinematic-burst ${type}`;
-    void cinematicBurst.offsetWidth;
-    cinematicBurst.classList.add("active");
-  }
-  
-  async function playFinalCinematic(coin, slot) {
-    forgeResult.classList.remove("cinematic-text");
-
-    if (coin.name === "Lucky Coin") {
-      triggerBurst("lucky", slot);
-      forgeResult.innerHTML = "🍀 LUCKY COIN!";
-      forgeResult.classList.add("cinematic-text");
-      await wait(450);
-      return;
-    }
+  function playFinalCinematic(coin) {
+    clearCinematicStageClasses();
   
     if (coin.name === "Jackpot Booster") {
       forgeStage.classList.add("cinematic-jackpot");
-      triggerBurst("jackpot", slot);
-      forgeResult.innerHTML = "💰 JACKPOT BOOSTER!";
-      forgeResult.classList.add("cinematic-text");
-      await wait(550);
-      return;
-    }
-  
-    if (coin.name === "Anti Coin") {
+    } else if (coin.name === "Anti Coin") {
       forgeStage.classList.add("cinematic-cursed");
-      triggerBurst("cursed", slot);
-      forgeResult.innerHTML = "💀 The forge rejects the offering...";
-      forgeResult.classList.add("cinematic-text");
-      await wait(550);
-      return;
-    }
-  
-    if (coin.name === "Rainbow Coin") {
-      triggerBurst("rainbow", slot);
-      forgeResult.innerHTML = "🌈 RAINBOW COIN!";
-      forgeResult.classList.add("cinematic-text");
-      await wait(650);
-      return;
-    }
-    
-    if (coin.name === "Kingmaker Coin") {
+    } else if (coin.name === "Rainbow Coin" || coin.name === "Kingmaker Coin") {
       forgeStage.classList.add("cinematic-mythic");
-      triggerBurst("mythic", slot);
-      forgeResult.innerHTML = "👑 KINGMAKER COIN!";
-      forgeResult.classList.add("cinematic-text");
-      await wait(650);
-      return;
+    } else if (coin.name === "Diamond Coin") {
+      forgeStage.classList.add("cinematic-legendary");
     }
   
-    if (coin.name === "Diamond Coin") {
-      forgeStage.classList.add("cinematic-legendary");
-      triggerBurst("legendary", slot);
-      forgeResult.innerHTML = `💎 LEGENDARY REVEAL — ${coin.name}!`;
-      forgeResult.classList.add("cinematic-text");
-      await wait(500);
+    return wait(900);
+  }
+  
+  async function playFrameCoinSequence(slot, slotWrap, finalCoin) {
+    let currentCoinKey = finalCoin.key;
+  
+    for (let frame = 1; frame <= coinFrameCount; frame++) {
+      const shouldFakeout = frame < coinFrameCount && frame % 4 === 0;
+  
+      if (shouldFakeout) {
+        currentCoinKey = randomCycleCoin().key;
+      } else if (frame >= coinFrameCount - 2) {
+        currentCoinKey = finalCoin.key;
+      }
+  
+      slot.src = coinFramePath(currentCoinKey, frame);
+  
+      if (slotWrap) {
+        slotWrap.style.transform = `scale(${0.16 + frame * 0.071})`;
+        slotWrap.style.filter = `brightness(${2.1 - frame * 0.045})`;
+      }
+  
+      await wait(frame < 10 ? 64 : 78);
+    }
+  
+    if (slotWrap) {
+      slotWrap.style.transform = "scale(1.22)";
+      slotWrap.style.filter = "brightness(1.18)";
     }
   }
-
-  function shouldAnticipateReveal(coin) {
-    return (
-      coin.name === "Diamond Coin" ||
-      coin.name === "Rainbow Coin" ||
-      coin.name === "Kingmaker Coin" ||
-      coin.name === "Jackpot Booster" ||
-      coin.name === "Anti Coin"
-    );
+  
+  async function growAndFakeoutSlot(slot, finalCoin, index) {
+    const slotWrap = slot.closest(".slot-wrap");
+  
+    slot.classList.remove("forming-from-forge", "landed", "spinning", "anticipating", "near-miss");
+  
+    if (slotWrap) {
+      slotWrap.classList.remove(
+        "lock-impact",
+        "coin-cycling",
+        "socket-compress",
+        "landed-common",
+        "landed-rare",
+        "landed-epic",
+        "landed-legendary",
+        "landed-mythic",
+        "landed-rainbow",
+        "landed-cursed"
+      );
+  
+      slotWrap.style.transform = "scale(0.08)";
+      slotWrap.style.filter = "brightness(2.3) blur(2px)";
+    }
+  
+    slot.style.transform = "";
+    slot.style.filter = "";
+    slot.style.opacity = "0";
+  
+    void slot.offsetWidth;
+  
+    slot.classList.add("forming-from-forge");
+  
+    await playFrameCoinSequence(slot, slotWrap, finalCoin);
+  
+    if (slotWrap) {
+      slotWrap.style.transform = "";
+      slotWrap.style.filter = "";
+      slotWrap.classList.remove("coin-cycling");
+      slotWrap.classList.add("lock-impact");
+    }
+  
+    slot.classList.remove("forming-from-forge");
+    slot.classList.remove("landed");
+  
+    void slot.offsetWidth;
+  
+    slot.src = coinFileForSlot(finalCoin, index);
+    slot.classList.add("landed");
+  
+    forgeStage.classList.remove("impact");
+    void forgeStage.offsetWidth;
+    forgeStage.classList.add("impact");
+  
+    triggerSparkStrikeGif(slot);
+    triggerImpactFlash();
+    triggerSocketCompression(slot);
+    triggerSocketRing(slot, finalCoin);
+    triggerSlotImpact(slot);
+  
+    playSlotLandSound();
+  
+    if (slotWrap) {
+      slotWrap.classList.add(`landed-${finalCoin.className}`);
+    }
+  
+    if (finalCoin.name === "Anti Coin") {
+      triggerCorruptionWave();
+    }
+  
+    if (finalCoin.name === "Kingmaker Coin") {
+      triggerMythicBloom();
+    }
+  
+    await playFinalCinematic(finalCoin);
+  
+    setTimeout(() => {
+      forgeStage.classList.remove("impact");
+      if (slotWrap) slotWrap.classList.remove("lock-impact");
+      clearCinematicStageClasses();
+    }, 420);
   }
   
   function highestRarityClass(results) {
-    const priority = {
-      common: 1,
-      rare: 2,
-      epic: 3,
-      legendary: 4,
-      mythic: 5,
-      cursed: 6
-    };
+    const order = ["common", "rare", "epic", "legendary", "mythic", "rainbow", "cursed"];
   
-    let highest = "common";
-  
-    results.forEach(coin => {
-      if (priority[coin.className] > priority[highest]) {
-        highest = coin.className;
-      }
-    });
-  
-    return highest;
+    return results.reduce((best, coin) => {
+      const bestIndex = order.indexOf(best);
+      const coinIndex = order.indexOf(coin.className);
+      return coinIndex > bestIndex ? coin.className : best;
+    }, "common");
   }
   
-  function createSlots(count) {
-    slotRow.innerHTML = "";
-  
-    for (let i = 0; i < count; i++) {
-      const slotWrap = document.createElement("div");
-      slotWrap.className = "slot-wrap";
-  
-      const img = document.createElement("img");
-      img.className = "sim-coin slot-coin";
-      img.src = `images/coins/bronze.gif?slot=${i}&t=${Date.now()}-${Math.random()}`;
-      img.alt = "Forged Coin";
-  
-      slotWrap.appendChild(img);
-      slotRow.appendChild(slotWrap);
-    }
-  }
-  
-  async function spinSlot(slot, finalCoin, index, shouldLock) {
-  if (!shouldLock) {
-    const coin = randomCycleCoin();
-    slot.src = coinFileForSlot(coin, index);
-    return;
-  }
-
-  slot.classList.remove("near-miss", "anticipating");
-  clearSlotLandedClasses(slot);
-  slot.classList.add("spinning");
-
-  const nearMissPool = [
-    forgeCoins.find(c => c.name === "Diamond Coin"),
-    forgeCoins.find(c => c.name === "Rainbow Coin"),
-    forgeCoins.find(c => c.name === "Anti Coin"),
-    forgeCoins.find(c => c.name === "Jackpot Booster")
-  ];
-
-  const nearMiss = nearMissPool[Math.floor(Math.random() * nearMissPool.length)];
-
-  slot.src = coinFileForSlot(nearMiss, index);
-  slot.classList.add("near-miss");
-
-  forgeResult.innerText = `Slot ${index + 1} sparks violently...`;
-
-  await wait(180);
-
-  slot.classList.remove("near-miss");
-
-  if (shouldAnticipateReveal(finalCoin)) {
-    slot.classList.add("anticipating");
-    forgeResult.innerText = "The forge hesitates...";
-    await wait(360);
-    slot.classList.remove("anticipating");
-  } else {
-    await wait(80);
-  }
-  
-  slot.src = coinFileForSlot(finalCoin, index);
-  slot.classList.remove("spinning");
-  clearSlotLandedClasses(slot);
-  slot.classList.add("landed");
-    
-  playSlotLandSound();
-  
-  const slotWrap = slot.closest(".slot-wrap");
-  if (slotWrap) {
-    slotWrap.classList.add(`landed-${finalCoin.className}`);
-  }
-    
-  clearCinematicStageClasses();
-
-  forgeStage.classList.remove("impact");
-  void forgeStage.offsetWidth;
-  
-  forgeStage.classList.add(`reveal-${finalCoin.className}`, "impact");
-
-  triggerImpactFlash();
-    
-  triggerSlotAura(finalCoin, slot);
-
-  if (finalCoin.name === "Anti Coin") {
-    triggerCorruptionWave();
-  }
-  
-  if (finalCoin.name === "Kingmaker Coin") {
-    triggerMythicBloom();
-  }
-    
-  const cinematicPromise = playFinalCinematic(finalCoin, slot);
-  
-  await wait(300);
-  
-  forgeStage.classList.remove("impact");
-  
-  await cinematicPromise;
-  
-  clearCinematicStageClasses();
-}
-
-    async function runForgeReveal() {
-      clearRevealClasses();
+  async function runForgeReveal() {
+    clearRevealClasses();
   
     forgeButton.disabled = true;
     pullCountButtons.forEach(button => button.disabled = true);
   
     createSlots(selectedPullCount);
   
+    await wait(220);
+  
     const slots = Array.from(document.querySelectorAll(".slot-coin"));
     const results = [];
   
     forgeResult.innerText =
       selectedPullCount === 1
-        ? "⚒️ The forge begins to turn..."
+        ? "⚒️ The forge begins to form a coin..."
         : `⚒️ The forge prepares ${selectedPullCount} coins...`;
   
     for (let i = 0; i < selectedPullCount; i++) {
       results.push(weightedRoll());
     }
   
-    for (let cycle = 0; cycle < 16; cycle++) {
-      slots.forEach((slot, index) => {
-        slot.classList.add("spinning");
-        spinSlot(slot, null, index, false);
-      });
-    
-      await wait(cycle < 10 ? 55 : cycle < 14 ? 80 : 115);
-    }
-    
-    const lockedSlots = new Set();
-
-    const continuedCycle = setInterval(() => {
-      slots.forEach((slot, index) => {
-        if (!lockedSlots.has(index)) {
-          const coin = randomCycleCoin();
-          slot.src = coinFileForSlot(coin, index);
-        }
-      });
-    }, 90);
-    
     for (let i = 0; i < slots.length; i++) {
-      lockedSlots.add(i);
-      await spinSlot(slots[i], results[i], i, true);
-      await wait(120);
+      const slotWrap = slots[i].closest(".slot-wrap");
+  
+      if (slotWrap) {
+        slotWrap.classList.add("active-slot");
+      }
+  
+      forgeResult.innerText =
+        selectedPullCount === 1
+          ? "🔥 Metal gathers in the forge..."
+          : `🔥 Forging coin ${i + 1} of ${selectedPullCount}...`;
+  
+      await growAndFakeoutSlot(slots[i], results[i], i);
+  
+      if (slotWrap) {
+        slotWrap.classList.remove("active-slot");
+      }
+  
+      await wait(160);
     }
-    
-    clearInterval(continuedCycle);
   
     const highestClass = highestRarityClass(results);
-  
     forgeStage.classList.add(`reveal-${highestClass}`);
   
     forgeResult.innerHTML =
@@ -3147,35 +3151,12 @@ forgeBloom.className = "forge-bloom";
             "Jackpot Booster": "🎰 Jackpot",
             "Kingmaker Coin": "👑 Kingmaker"
           };
-    
+  
           return shortNameMap[coin.name] || coin.name;
         })
-        .join(" &nbsp; ✦ &nbsp; ");
-      
-    forgeResult.classList.remove(
-      "final-panel",
-      "final-common",
-      "final-rare",
-      "final-epic",
-      "final-legendary",
-      "final-mythic",
-      "final-cursed"
-    );
-    
-    void forgeResult.offsetWidth;
-    
-    forgeResult.classList.add("final-panel", `final-${highestClass}`);
+        .join(" • ");
   
-    await wait(900);
-  
-    forgeStage.classList.remove(
-      "reveal-common",
-      "reveal-rare",
-      "reveal-epic",
-      "reveal-legendary",
-      "reveal-mythic",
-      "reveal-cursed"
-    );
+    await wait(1800);
   
     forgeButton.disabled = false;
     pullCountButtons.forEach(button => button.disabled = false);
@@ -3188,16 +3169,13 @@ forgeBloom.className = "forge-bloom";
       pullCountButtons.forEach(btn => btn.classList.remove("active"));
       button.classList.add("active");
   
-      createSlots(selectedPullCount);
-  
-      forgeResult.innerText =
+      forgeButton.textContent =
         selectedPullCount === 1
-          ? "Pull fate from the Coin Forge..."
-          : `${selectedPullCount} coins ready for the forge...`;
+          ? "⚒️ Forge Coin"
+          : `⚒️ Forge ${selectedPullCount} Coins`;
     });
   });
   
-  createSlots(selectedPullCount);
   forgeButton.addEventListener("click", runForgeReveal);
   </script>
 </body>
