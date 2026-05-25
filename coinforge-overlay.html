@@ -4655,6 +4655,12 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       client.on("General.Custom", handleStreamerbotMessage);
 
+      // TEMP TEST - log every Streamer.bot event OBS receives
+      client.on("*", (event) => {
+        console.log("STREAMERBOT EVENT RECEIVED:", event);
+        handleStreamerbotMessage(event);
+      })
+
       client.on("connected", () => {
           connectionStatus.textContent = "Connected to Streamer.bot";
       
