@@ -4655,24 +4655,25 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
   window.client.on("General.Custom", handleStreamerbotMessage);
 
-  window.client.on("General.Broadcast", (data) => {
-    if (data?.data?.type === "coinForgeWeeklyWinners") {
-      handleStreamerbotMessage(data);
+  window.client.on("General.Broadcast", (message) => {
+    console.log("GENERAL BROADCAST RECEIVED:", message);
+  
+    let payload = message?.data ?? message?.message ?? message;
+  
+    if (typeof payload === "string") {
+      try {
+        payload = JSON.parse(payload);
+      } catch (err) {
+        console.warn("Broadcast was not valid JSON:", payload);
+        return;
+      }
     }
-  });
-
-  window.client.on("connected", () => {
-    console.log("Connected to Streamer.bot");
-
-    connectionStatus.textContent = "Connected to Streamer.bot";
-
-    setTimeout(() => {
-      document.body.classList.add("hide-status");
-    }, 2000);
-
-    setTimeout(() => {
-      warmCoinFrameCache();
-    }, 500);
+  
+    console.log("GENERAL BROADCAST PAYLOAD:", payload);
+  
+    if (payload?.type === "coinForgeWeeklyWinners") {
+      handleStreamerbotMessage(payload);
+    }
   });
 
   window.client.on("disconnected", () => {
