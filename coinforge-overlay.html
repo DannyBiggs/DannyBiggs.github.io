@@ -4653,6 +4653,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         port: 8080,
     
         onConnect: () => {
+          console.log("Connected to Streamer.bot");
+    
           connectionStatus.textContent = "Connected to Streamer.bot";
     
           setTimeout(() => {
@@ -4665,10 +4667,19 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         },
     
         onDisconnect: () => {
+          console.log("Disconnected from Streamer.bot");
+    
           connectionStatus.textContent = "Disconnected from Streamer.bot";
           document.body.classList.remove("hide-status");
         }
       });
+    
+      window.client.on("General.Custom", ({ data }) => {
+        console.log("GENERAL CUSTOM RECEIVED:", data);
+    
+        handleStreamerbotMessage(data);
+      });
+    }
     
       window.client.on("General.Custom", ({ event, data }) => {
         handleStreamerbotMessage(data);
