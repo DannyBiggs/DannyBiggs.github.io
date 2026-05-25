@@ -4681,10 +4681,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         }
       });
     
-      window.client.on("General.Custom", ({ event, data }) => {
-        console.log("GENERAL CUSTOM RECEIVED:", event, data);
-        handleStreamerbotMessage(data);
-      });
     }
 
     preloadCoinForgeAssets();
