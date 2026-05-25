@@ -4655,6 +4655,12 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
   window.client.on("General.Custom", handleStreamerbotMessage);
 
+  window.client.on("General.Broadcast", (data) => {
+    if (data?.data?.type === "coinForgeWeeklyWinners") {
+      handleStreamerbotMessage(data);
+    }
+  });
+
   window.client.on("connected", () => {
     console.log("Connected to Streamer.bot");
 
