@@ -1642,16 +1642,23 @@
             src="images/ui/forge_background.png"
             alt="Coin Forge"
           >
-          
+    
           <div class="forge-light-overlay"></div>
           <div class="forge-glow"></div>
+    
           <div id="forgeImpactFlash" class="forge-impact-flash"></div>
           <div id="forgeCorruptionWave" class="forge-corruption-wave"></div>
           <div id="forgeBloom" class="forge-bloom"></div>
           <div id="cinematicBurst" class="cinematic-burst"></div>
     
           <div class="slot-row" id="slotRow">
-            <img class="sim-coin slot-coin" src="images/coins/bronze.gif" alt="Forged Coin">
+            <div class="slot-wrap">
+              <img
+                class="sim-coin slot-coin"
+                src="images/coins/bronze.gif"
+                alt="Forged Coin"
+              >
+            </div>
           </div>
     
           <div id="forgeResult" class="forge-result">
@@ -1661,9 +1668,17 @@
         </div>
     
         <div class="forge-controls">
-          <button class="pull-count-button active" data-pulls="1">1 Pull</button>
-          <button class="pull-count-button" data-pulls="3">3 Pulls</button>
-          <button class="pull-count-button" data-pulls="5">5 Pulls</button>
+          <button class="pull-count-button active" data-pulls="1">
+            1 Pull
+          </button>
+    
+          <button class="pull-count-button" data-pulls="3">
+            3 Pulls
+          </button>
+    
+          <button class="pull-count-button" data-pulls="5">
+            5 Pulls
+          </button>
         </div>
     
         <button id="forgeButton" class="forge-button">
