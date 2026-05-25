@@ -2798,12 +2798,13 @@
   const forgeButton = document.getElementById("forgeButton");
   const forgeResult = document.getElementById("forgeResult");
   const forgeStage = document.querySelector(".forge-stage");
+  const forgePressureFill = document.getElementById("forgePressureFill");
   const slotRow = document.getElementById("slotRow");
   const cinematicBurst = document.getElementById("cinematicBurst");
   const forgeImpactFlash = document.getElementById("forgeImpactFlash");
+  const sparkStrikeGif = document.getElementById("sparkStrikeGif");
   const forgeCorruptionWave = document.getElementById("forgeCorruptionWave");
   const forgeBloom = document.getElementById("forgeBloom");
-  const sparkStrikeGif = document.getElementById("sparkStrikeGif");
   const pullCountButtons = document.querySelectorAll(".pull-count-button");
   
   const slotLandSound = new Audio("sounds/slot-land.m4a");
@@ -2813,6 +2814,8 @@
   forgeHammerSound.volume = 0.16;
   
   let selectedPullCount = 1;
+  let currentForgePressurePercent = 0;
+  let forgePressureAnimationFrame = null;
   
   const forgeCoins = [
     { key: "Wood", name: "Wood Coin", file: "images/coins/wood.gif", rarity: "Common", className: "common" },
@@ -2820,30 +2823,74 @@
     { key: "Silver", name: "Silver Coin", file: "images/coins/silver.gif", rarity: "Rare", className: "rare" },
     { key: "Gold", name: "Gold Coin", file: "images/coins/gold.gif", rarity: "Epic", className: "epic" },
     { key: "Diamond", name: "Diamond Coin", file: "images/coins/diamond.gif", rarity: "Legendary", className: "legendary" },
-    { key: "Rainbow", name: "Rainbow Coin", file: "images/coins/rainbow.gif", rarity: "Mythic", className: "rainbow" },
+    { key: "Rainbow", name: "Rainbow Coin", file: "images/coins/rainbow.gif", rarity: "Rainbow", className: "rainbow" },
     { key: "Anti", name: "Anti Coin", file: "images/coins/anti.gif", rarity: "Cursed", className: "cursed" },
     { key: "Lucky", name: "Lucky Coin", file: "images/coins/lucky.gif", rarity: "Rare", className: "rare" },
     { key: "JackpotBooster", name: "Jackpot Booster", file: "images/coins/jackpot.gif", rarity: "Legendary", className: "legendary" },
     { key: "Kingmaker", name: "Kingmaker Coin", file: "images/coins/kingmaker.gif", rarity: "Mythic", className: "mythic" }
   ];
   
+  const shortNameMap = {
+    "Wood Coin": "🔥 Wood",
+    "Bronze Coin": "🟤 Bronze",
+    "Silver Coin": "⚪ Silver",
+    "Gold Coin": "🟡 Gold",
+    "Diamond Coin": "💎 Diamond",
+    "Rainbow Coin": "🌈 Rainbow",
+    "Anti Coin": "💀 Anti",
+    "Lucky Coin": "🍀 Lucky",
+    "Jackpot Booster": "🎰 Jackpot",
+    "Kingmaker Coin": "👑 Kingmaker"
+  };
+  
   const coinFrameConfig = {
-    Wood: { prefix: "wood" },
-    Bronze: { prefix: "bronze" },
-    Silver: { prefix: "silver" },
-    Gold: { prefix: "gold" },
-    Diamond: { prefix: "diamond" },
-    Rainbow: { prefix: "rainbow" },
-    Anti: { prefix: "anti" },
-    Lucky: { prefix: "lucky" },
-    JackpotBooster: { prefix: "jackpot" },
-    Kingmaker: { prefix: "kingmaker" }
+    Wood: { prefix: "wood", pad: true },
+    Bronze: { prefix: "bronze", pad: true },
+    Silver: { prefix: "silver", pad: true },
+    Gold: { prefix: "gold", pad: true },
+    Diamond: { prefix: "diamond", pad: true },
+    Rainbow: { prefix: "rainbow", pad: true },
+    Anti: { prefix: "anti", pad: true },
+    Lucky: { prefix: "lucky", pad: true },
+    JackpotBooster: { prefix: "jackpot", pad: true },
+    Kingmaker: { prefix: "kingmaker", pad: true }
   };
   
   const coinFrameCount = 15;
+  const coinFrameCache = {};
   
   function wait(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
+  }
+  
+  function preloadImage(src) {
+    const img = new Image();
+    img.src = src;
+    return img;
+  }
+  
+  function coinFramePath(coinKey, frameNumber) {
+    const config = coinFrameConfig[coinKey] || coinFrameConfig.Bronze;
+  
+    const frameName = config.pad
+      ? String(frameNumber).padStart(2, "0")
+      : String(frameNumber);
+  
+    return `images/coins/frames/${config.prefix}_${frameName}.png`;
+  }
+  
+  function getCachedCoinFrame(coinKey, frameNumber) {
+    const src = coinFramePath(coinKey, frameNumber);
+  
+    if (!coinFrameCache[src]) {
+      coinFrameCache[src] = preloadImage(src);
+    }
+  
+    return src;
+  }
+  
+  function coinFileForSlot(coin, index) {
+    return `${coin.file}?slot=${index}&t=${Date.now()}-${Math.random()}`;
   }
   
   function playSlotLandSound() {
@@ -2856,18 +2903,97 @@
     forgeHammerSound.play().catch(() => {});
   }
   
-  function coinFileForSlot(coin, index) {
-    return `${coin.file}?slot=${index}&t=${Date.now()}-${Math.random()}`;
-  }
-  
-  function coinFramePath(coinKey, frameNumber) {
-    const config = coinFrameConfig[coinKey] || coinFrameConfig.Bronze;
-    const frameName = String(frameNumber).padStart(2, "0");
-    return `images/coins/frames/${config.prefix}_${frameName}.png`;
-  }
-  
   function randomCycleCoin() {
     return forgeCoins[Math.floor(Math.random() * forgeCoins.length)];
+  }
+  
+  function getProofCoinKey(currentKey) {
+    const availableCoins = [
+      "Wood",
+      "Bronze",
+      "Silver",
+      "Gold",
+      "Diamond",
+      "Rainbow",
+      "Anti",
+      "Lucky",
+      "JackpotBooster",
+      "Kingmaker"
+    ];
+  
+    const options = availableCoins.filter(key => key !== currentKey);
+    return options[Math.floor(Math.random() * options.length)];
+  }
+  
+  function getFinalFrameCoinKey(finalCoin) {
+    if (!finalCoin) return "Bronze";
+    return finalCoin.key || "Bronze";
+  }
+  
+  function getTeaseCoinPool(finalCoin) {
+    if (!finalCoin) {
+      return ["Bronze", "Silver", "Gold"];
+    }
+  
+    if (finalCoin.name === "Wood Coin") {
+      return ["Wood", "Bronze", "Silver"];
+    }
+  
+    if (finalCoin.name === "Bronze Coin") {
+      return ["Wood", "Bronze", "Silver", "Gold"];
+    }
+  
+    if (finalCoin.name === "Silver Coin") {
+      return ["Bronze", "Silver", "Gold", "Diamond"];
+    }
+  
+    if (finalCoin.name === "Gold Coin") {
+      return ["Silver", "Gold", "Diamond", "Rainbow", "Anti"];
+    }
+  
+    if (finalCoin.name === "Diamond Coin") {
+      return ["Gold", "Diamond", "Rainbow", "Kingmaker", "Anti"];
+    }
+  
+    if (finalCoin.name === "Rainbow Coin" || finalCoin.name === "Kingmaker Coin") {
+      return ["Diamond", "Rainbow", "Kingmaker"];
+    }
+  
+    if (finalCoin.name === "Anti Coin") {
+      return ["Gold", "Diamond", "Rainbow", "Anti"];
+    }
+  
+    if (finalCoin.name === "Lucky Coin") {
+      return ["Silver", "Gold", "Lucky", "Diamond"];
+    }
+  
+    if (finalCoin.name === "Jackpot Booster") {
+      return ["Gold", "Diamond", "JackpotBooster", "Kingmaker"];
+    }
+  
+    return ["Gold", "Diamond", "Anti"];
+  }
+  
+  function getForgeTimingProfile(pullCount) {
+    const count = Number(pullCount) || 1;
+  
+    if (count <= 1) {
+      return { growDuration: 2600, frameDelay: 16, totalFrames: 165 };
+    }
+  
+    if (count === 2) {
+      return { growDuration: 2200, frameDelay: 14, totalFrames: 135 };
+    }
+  
+    if (count === 3) {
+      return { growDuration: 1900, frameDelay: 13, totalFrames: 115 };
+    }
+  
+    if (count === 4) {
+      return { growDuration: 1650, frameDelay: 12, totalFrames: 100 };
+    }
+  
+    return { growDuration: 1450, frameDelay: 11, totalFrames: 88 };
   }
   
   function weightedRoll() {
@@ -2886,71 +3012,47 @@
     return forgeCoins.find(c => c.name === "Wood Coin");
   }
   
-  function clearRevealClasses() {
-    forgeStage.classList.remove(
-      "impact",
-      "cinematic-jackpot",
-      "cinematic-cursed",
-      "cinematic-mythic",
-      "cinematic-legendary",
-      "reveal-common",
-      "reveal-rare",
-      "reveal-epic",
-      "reveal-legendary",
-      "reveal-mythic",
-      "reveal-rainbow",
-      "reveal-cursed"
-    );
+  function setForgePressureVisual(percent) {
+    if (!forgePressureFill) return;
   
-    document.querySelectorAll(".slot-wrap").forEach(wrap => {
-      wrap.classList.remove(
-        "landed-common",
-        "landed-rare",
-        "landed-epic",
-        "landed-legendary",
-        "landed-mythic",
-        "landed-rainbow",
-        "landed-cursed",
-        "coin-cycling",
-        "lock-impact",
-        "socket-compress",
-        "forging-in"
-      );
+    const clamped = Math.max(0, Math.min(100, Number(percent) || 0));
+    const degrees = Math.round((clamped / 100) * 360);
   
-      wrap.style.transform = "";
-      wrap.style.filter = "";
-    });
+    forgePressureFill.style.setProperty("--pressure-deg", `${degrees}deg`);
+    forgePressureFill.style.opacity = clamped <= 0 ? "0.18" : "0.72";
   }
   
-  function createSlots(count) {
-    slotRow.innerHTML = "";
+  function setForgePressureForCoin(coinKey, progress) {
+    const pressureMap = {
+      Wood: 8,
+      Bronze: 14,
+      Silver: 24,
+      Gold: 38,
+      Diamond: 58,
+      Rainbow: 88,
+      Anti: 74,
+      Lucky: 34,
+      JackpotBooster: 66,
+      Kingmaker: 92
+    };
   
-    for (let i = 0; i < count; i++) {
-      const wrap = document.createElement("div");
-      wrap.className = "slot-wrap forging-in";
+    const target = pressureMap[coinKey] || 20;
+    const eased = Math.min(1, Math.max(0, progress || 0));
+    const next = currentForgePressurePercent + (target * 0.012 * eased);
   
-      const socketRing = document.createElement("div");
-      socketRing.className = "slot-socket-ring";
+    currentForgePressurePercent = Math.min(100, next);
+    setForgePressureVisual(currentForgePressurePercent);
+  }
   
-      const impactFlash = document.createElement("div");
-      impactFlash.className = "slot-impact-flash";
+  function resetForgePressureVisual() {
+    currentForgePressurePercent = 0;
   
-      const img = document.createElement("img");
-      img.className = "sim-coin slot-coin";
-      img.src = `images/coins/bronze.gif?slot=${i}&t=${Date.now()}`;
-      img.alt = "Forged Coin";
-  
-      wrap.appendChild(socketRing);
-      wrap.appendChild(impactFlash);
-      wrap.appendChild(img);
-      slotRow.appendChild(wrap);
+    if (forgePressureAnimationFrame) {
+      cancelAnimationFrame(forgePressureAnimationFrame);
+      forgePressureAnimationFrame = null;
     }
   
-    setTimeout(() => {
-      document.querySelectorAll(".slot-wrap").forEach(wrap => {
-        wrap.classList.remove("forging-in");
-      });
-    }, 650);
+    setForgePressureVisual(0);
   }
   
   function triggerImpactFlash() {
@@ -2959,6 +3061,24 @@
     forgeImpactFlash.classList.remove("active");
     void forgeImpactFlash.offsetWidth;
     forgeImpactFlash.classList.add("active");
+  }
+  
+  function triggerSparkStrikeGif(slot) {
+    if (!sparkStrikeGif || !slot || !forgeStage) return;
+  
+    const slotRect = slot.getBoundingClientRect();
+    const stageRect = forgeStage.getBoundingClientRect();
+  
+    const slotCenterX = slotRect.left + slotRect.width / 2 - stageRect.left;
+    const slotCenterY = slotRect.top + slotRect.height / 2 - stageRect.top;
+  
+    sparkStrikeGif.style.left = `${slotCenterX}px`;
+    sparkStrikeGif.style.top = `${slotCenterY}px`;
+    sparkStrikeGif.style.setProperty("--gif-rotation", `${Math.floor(Math.random() * 18) - 9}deg`);
+  
+    sparkStrikeGif.classList.remove("active");
+    void sparkStrikeGif.offsetWidth;
+    sparkStrikeGif.classList.add("active");
   }
   
   function triggerSocketCompression(slot) {
@@ -3001,24 +3121,6 @@
     flash.classList.add("active");
   }
   
-  function triggerSparkStrikeGif(slot) {
-    if (!sparkStrikeGif || !slot || !forgeStage) return;
-  
-    const slotRect = slot.getBoundingClientRect();
-    const stageRect = forgeStage.getBoundingClientRect();
-  
-    const slotCenterX = slotRect.left + slotRect.width / 2 - stageRect.left;
-    const slotCenterY = slotRect.top + slotRect.height / 2 - stageRect.top;
-  
-    sparkStrikeGif.style.left = `${slotCenterX}px`;
-    sparkStrikeGif.style.top = `${slotCenterY}px`;
-    sparkStrikeGif.style.setProperty("--gif-rotation", `${Math.floor(Math.random() * 18) - 9}deg`);
-  
-    sparkStrikeGif.classList.remove("active");
-    void sparkStrikeGif.offsetWidth;
-    sparkStrikeGif.classList.add("active");
-  }
-  
   function triggerCorruptionWave() {
     if (!forgeCorruptionWave) return;
   
@@ -3031,12 +3133,15 @@
     if (!forgeBloom) return;
   
     forgeBloom.className = "forge-bloom mythic";
+  
     setTimeout(() => {
       forgeBloom.className = "forge-bloom";
     }, 1200);
   }
   
   function clearCinematicStageClasses() {
+    if (!forgeStage) return;
+  
     forgeStage.classList.remove(
       "cinematic-jackpot",
       "cinematic-cursed",
@@ -3047,6 +3152,10 @@
   
   function playFinalCinematic(coin) {
     clearCinematicStageClasses();
+  
+    if (!forgeStage || !coin) {
+      return wait(0);
+    }
   
     if (coin.name === "Jackpot Booster") {
       forgeStage.classList.add("cinematic-jackpot");
@@ -3061,38 +3170,185 @@
     return wait(900);
   }
   
+  function clearRevealClasses() {
+    if (!forgeStage) return;
+  
+    forgeStage.classList.remove(
+      "impact",
+      "cinematic-jackpot",
+      "cinematic-cursed",
+      "cinematic-mythic",
+      "cinematic-legendary",
+      "reveal-common",
+      "reveal-rare",
+      "reveal-epic",
+      "reveal-legendary",
+      "reveal-mythic",
+      "reveal-rainbow",
+      "reveal-cursed"
+    );
+  
+    document.querySelectorAll(".slot-wrap").forEach(wrap => {
+      wrap.classList.remove(
+        "landed-common",
+        "landed-rare",
+        "landed-epic",
+        "landed-legendary",
+        "landed-mythic",
+        "landed-rainbow",
+        "landed-cursed",
+        "active-slot",
+        "inactive-slot",
+        "coin-cycling",
+        "lock-impact",
+        "socket-compress",
+        "forging-in"
+      );
+  
+      wrap.style.transform = "";
+      wrap.style.filter = "";
+    });
+  }
+  
+  function createSlots(count) {
+    if (!slotRow) return;
+  
+    slotRow.innerHTML = "";
+  
+    for (let i = 0; i < count; i++) {
+      const wrap = document.createElement("div");
+      wrap.className = "slot-wrap forging-in";
+  
+      const socketRing = document.createElement("div");
+      socketRing.className = "slot-socket-ring";
+  
+      const impactFlash = document.createElement("div");
+      impactFlash.className = "slot-impact-flash";
+  
+      const img = document.createElement("img");
+      img.className = "sim-coin slot-coin";
+      img.src = `${coinFramePath("Bronze", 1)}?slot=${i}&t=${Date.now()}`;
+      img.alt = "Forged Coin";
+      img.style.opacity = "0";
+  
+      wrap.appendChild(socketRing);
+      wrap.appendChild(impactFlash);
+      wrap.appendChild(img);
+      slotRow.appendChild(wrap);
+    }
+  
+    setTimeout(() => {
+      document.querySelectorAll(".slot-wrap").forEach(wrap => {
+        wrap.classList.remove("forging-in");
+      });
+    }, 650);
+  }
+  
   async function playFrameCoinSequence(slot, slotWrap, finalCoin) {
-    let currentCoinKey = finalCoin.key;
+    if (!slot || !slotWrap) return;
   
-    for (let frame = 1; frame <= coinFrameCount; frame++) {
-      const shouldFakeout = frame < coinFrameCount && frame % 4 === 0;
+    slotWrap.getAnimations().forEach(anim => anim.cancel());
   
-      if (shouldFakeout) {
-        currentCoinKey = randomCycleCoin().key;
-      } else if (frame >= coinFrameCount - 2) {
-        currentCoinKey = finalCoin.key;
+    let frame = 1;
+    let currentCoinKey = "Bronze";
+  
+    const profile = getForgeTimingProfile(selectedPullCount);
+    const teaseCoins = getTeaseCoinPool(finalCoin);
+    const finalFrameCoinKey = getFinalFrameCoinKey(finalCoin);
+  
+    slotWrap.style.transform = "scale(0.08)";
+    slotWrap.style.filter = "brightness(2.3) blur(2px)";
+  
+    slot.src = getCachedCoinFrame(currentCoinKey, frame);
+    slot.style.opacity = "1";
+  
+    const growAnim = slotWrap.animate(
+      [
+        { transform: "scale(0.08)", filter: "brightness(2.3) blur(2px)" },
+        { transform: "scale(0.14)", filter: "brightness(2.1) blur(1px)", offset: 0.18 },
+        { transform: "scale(0.26)", filter: "brightness(1.95) blur(0.5px)", offset: 0.38 },
+        { transform: "scale(0.52)", filter: "brightness(1.7)", offset: 0.60 },
+        { transform: "scale(0.88)", filter: "brightness(1.45)", offset: 0.82 },
+        { transform: "scale(1.22)", filter: "brightness(1.18)", offset: 1 }
+      ],
+      {
+        duration: profile.growDuration,
+        easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+        fill: "forwards"
+      }
+    );
+  
+    for (let i = 0; i < profile.totalFrames; i++) {
+      frame++;
+  
+      if (frame > coinFrameCount) {
+        frame = 1;
       }
   
-      slot.src = coinFramePath(currentCoinKey, frame);
+      const progress = i / profile.totalFrames;
   
-      if (slotWrap) {
-        slotWrap.style.transform = `scale(${0.16 + frame * 0.071})`;
-        slotWrap.style.filter = `brightness(${2.1 - frame * 0.045})`;
+      if (frame === 9) {
+        if (progress > 0.75) {
+          currentCoinKey = teaseCoins[Math.floor(Math.random() * teaseCoins.length)];
+        } else {
+          currentCoinKey = getProofCoinKey(currentCoinKey);
+        }
+  
+        setForgePressureForCoin(currentCoinKey, progress);
       }
   
-      await wait(frame < 10 ? 64 : 78);
+      slot.src = getCachedCoinFrame(currentCoinKey, frame);
+  
+      let adjustedDelay = profile.frameDelay;
+  
+      if (frame <= 3 || frame >= 14) {
+        adjustedDelay = Math.max(8, profile.frameDelay - 4);
+      }
+  
+      if (frame >= 7 && frame <= 10) {
+        adjustedDelay = profile.frameDelay + 4;
+      }
+  
+      const isFinalTeaseWindow = progress > 0.88;
+      const isThinCoinFrame = frame === 8 || frame === 9;
+  
+      if (isFinalTeaseWindow && isThinCoinFrame) {
+        currentCoinKey = finalFrameCoinKey;
+        slot.src = getCachedCoinFrame(finalFrameCoinKey, frame);
+        setForgePressureForCoin(finalFrameCoinKey, 1);
+  
+        if (!slot.dataset.hammerSoundPlayed) {
+          slot.dataset.hammerSoundPlayed = "true";
+          playForgeHammerSound();
+          triggerSparkStrikeGif(slot);
+          triggerSocketCompression(slot);
+        }
+  
+        await wait(15);
+        break;
+      }
+  
+      await wait(adjustedDelay);
     }
   
-    if (slotWrap) {
-      slotWrap.style.transform = "scale(1.22)";
-      slotWrap.style.filter = "brightness(1.18)";
-    }
+    growAnim.cancel();
+  
+    slotWrap.style.transform = "scale(1.22)";
+    slotWrap.style.filter = "brightness(1.18)";
   }
   
   async function growAndFakeoutSlot(slot, finalCoin, index) {
     const slotWrap = slot.closest(".slot-wrap");
   
-    slot.classList.remove("forming-from-forge", "landed", "spinning", "anticipating", "near-miss");
+    delete slot.dataset.hammerSoundPlayed;
+  
+    slot.classList.remove(
+      "forming-from-forge",
+      "landed",
+      "spinning",
+      "anticipating",
+      "near-miss"
+    );
   
     if (slotWrap) {
       slotWrap.classList.remove(
@@ -3114,7 +3370,7 @@
   
     slot.style.transform = "";
     slot.style.filter = "";
-    slot.style.opacity = "1";
+    slot.style.opacity = "0";
   
     void slot.offsetWidth;
   
@@ -3125,8 +3381,6 @@
     if (slotWrap) {
       slotWrap.style.transform = "";
       slotWrap.style.filter = "";
-      slotWrap.classList.remove("coin-cycling");
-      slotWrap.classList.add("lock-impact");
     }
   
     slot.classList.remove("forming-from-forge");
@@ -3135,37 +3389,38 @@
     void slot.offsetWidth;
   
     slot.src = coinFileForSlot(finalCoin, index);
+    slot.style.opacity = "1";
     slot.classList.add("landed");
   
-    forgeStage.classList.remove("impact");
-    void forgeStage.offsetWidth;
-    forgeStage.classList.add("impact");
-
-    playForgeHammerSound();
-    triggerSparkStrikeGif(slot);
+    if (slotWrap) {
+      slotWrap.classList.add("lock-impact");
+      slotWrap.classList.add(`landed-${finalCoin.className}`);
+    }
+  
+    if (forgeStage) {
+      forgeStage.classList.remove("impact");
+      void forgeStage.offsetWidth;
+      forgeStage.classList.add("impact");
+    }
+  
     triggerImpactFlash();
-    triggerSocketCompression(slot);
     triggerSocketRing(slot, finalCoin);
     triggerSlotImpact(slot);
   
     playSlotLandSound();
   
-    if (slotWrap) {
-      slotWrap.classList.add(`landed-${finalCoin.className}`);
-    }
-  
     if (finalCoin.name === "Anti Coin") {
       triggerCorruptionWave();
     }
   
-    if (finalCoin.name === "Kingmaker Coin") {
+    if (finalCoin.name === "Kingmaker Coin" || finalCoin.name === "Rainbow Coin") {
       triggerMythicBloom();
     }
   
     await playFinalCinematic(finalCoin);
   
     setTimeout(() => {
-      forgeStage.classList.remove("impact");
+      if (forgeStage) forgeStage.classList.remove("impact");
       if (slotWrap) slotWrap.classList.remove("lock-impact");
       clearCinematicStageClasses();
     }, 420);
@@ -3183,6 +3438,7 @@
   
   async function runForgeReveal() {
     clearRevealClasses();
+    resetForgePressureVisual();
   
     forgeButton.disabled = true;
     pullCountButtons.forEach(button => button.disabled = true);
@@ -3206,9 +3462,10 @@
     for (let i = 0; i < slots.length; i++) {
       const slotWrap = slots[i].closest(".slot-wrap");
   
-      if (slotWrap) {
-        slotWrap.classList.add("active-slot");
-      }
+      document.querySelectorAll(".slot-wrap").forEach((wrap, wrapIndex) => {
+        wrap.classList.toggle("active-slot", wrapIndex === i);
+        wrap.classList.toggle("inactive-slot", wrapIndex !== i);
+      });
   
       forgeResult.innerText =
         selectedPullCount === 1
@@ -3217,35 +3474,19 @@
   
       await growAndFakeoutSlot(slots[i], results[i], i);
   
-      if (slotWrap) {
-        slotWrap.classList.remove("active-slot");
-      }
-  
       await wait(160);
     }
+  
+    document.querySelectorAll(".slot-wrap").forEach(wrap => {
+      wrap.classList.remove("active-slot", "inactive-slot");
+    });
   
     const highestClass = highestRarityClass(results);
     forgeStage.classList.add(`reveal-${highestClass}`);
   
-    forgeResult.innerHTML =
-      results
-        .map(coin => {
-          const shortNameMap = {
-            "Wood Coin": "🔥 Wood",
-            "Bronze Coin": "🟤 Bronze",
-            "Silver Coin": "⚪ Silver",
-            "Gold Coin": "🟡 Gold",
-            "Diamond Coin": "💎 Diamond",
-            "Rainbow Coin": "🌈 Rainbow",
-            "Anti Coin": "💀 Anti",
-            "Lucky Coin": "🍀 Lucky",
-            "Jackpot Booster": "🎰 Jackpot",
-            "Kingmaker Coin": "👑 Kingmaker"
-          };
-  
-          return shortNameMap[coin.name] || coin.name;
-        })
-        .join(" • ");
+    forgeResult.innerHTML = results
+      .map(coin => shortNameMap[coin.name] || coin.name)
+      .join(" • ");
   
     await wait(1800);
   
