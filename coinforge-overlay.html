@@ -4642,51 +4642,40 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     }
 
     function setupStreamerbotClient() {
-      if (typeof StreamerbotClient === "undefined") {
-        connectionStatus.textContent = "Streamer.bot client library not loaded.";
-        document.body.classList.remove("hide-status");
-        return;
-      }
-    
-      window.client = new StreamerbotClient({
-        host: "127.0.0.1",
-        port: 8080,
-    
-        onConnect: () => {
-          console.log("Connected to Streamer.bot");
-    
-          connectionStatus.textContent = "Connected to Streamer.bot";
-    
-          setTimeout(() => {
-            document.body.classList.add("hide-status");
-          }, 2000);
-    
-          setTimeout(() => {
-            warmCoinFrameCache();
-          }, 500);
-        },
-    
-        onDisconnect: () => {
-          console.log("Disconnected from Streamer.bot");
-    
-          connectionStatus.textContent = "Disconnected from Streamer.bot";
-          document.body.classList.remove("hide-status");
-        }
-      });
-    
-      window.client.on("General.Custom", ({ data }) => {
-        console.log("GENERAL CUSTOM RECEIVED:", data);
-    
-        handleStreamerbotMessage(data);
-      });
-    }
-    
-      window.client.on("General.Custom", ({ event, data }) => {
-        handleStreamerbotMessage(data);
-      });
-    }
-      
-    }
+  if (typeof StreamerbotClient === "undefined") {
+    connectionStatus.textContent = "Streamer.bot client library not loaded.";
+    document.body.classList.remove("hide-status");
+    return;
+  }
+
+  window.client = new StreamerbotClient({
+    host: "127.0.0.1",
+    port: 8080
+  });
+
+  window.client.on("General.Custom", handleStreamerbotMessage);
+
+  window.client.on("connected", () => {
+    console.log("Connected to Streamer.bot");
+
+    connectionStatus.textContent = "Connected to Streamer.bot";
+
+    setTimeout(() => {
+      document.body.classList.add("hide-status");
+    }, 2000);
+
+    setTimeout(() => {
+      warmCoinFrameCache();
+    }, 500);
+  });
+
+  window.client.on("disconnected", () => {
+    console.log("Disconnected from Streamer.bot");
+
+    connectionStatus.textContent = "Disconnected from Streamer.bot";
+    document.body.classList.remove("hide-status");
+  });
+}
 
     preloadCoinForgeAssets();
     setupStreamerbotClient();
