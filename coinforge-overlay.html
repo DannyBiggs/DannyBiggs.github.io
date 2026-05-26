@@ -3524,6 +3524,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       if (!forgeStage) return;
     
       forgePressureLevel = 0;
+      overlayState.pressureGlowActive = false;
     
       setForgePressureCursedState(false);
     
@@ -4903,10 +4904,13 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         clearPlayerIdentity();
         slotRow.innerHTML = "";
 
+        clearForgePressureGlow();
+
         overlayState.isAnimating = false;
         overlayState.activePayload = null;
         overlayState.activePullId = null;
         overlayState.forgeState = "idle";
+        overlayState.eruptionActive = false;
 
         clearOverlayCleanupTimers();
 
@@ -4984,10 +4988,13 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       clearSlotStates();
       slotRow.innerHTML = "";
 
+      clearForgePressureGlow();
+
       overlayState.isAnimating = false;
       overlayState.activePayload = null;
       overlayState.activePullId = null;
       overlayState.forgeState = "idle";
+      overlayState.eruptionActive = false;
 
       clearOverlayCleanupTimers();
 
