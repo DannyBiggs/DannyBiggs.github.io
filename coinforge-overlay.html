@@ -2749,6 +2749,8 @@
     
       currentPressure: 0,
 
+      pressureState: "empty",
+
       pressureGlowActive: false,
     
       eruptionActive: false,
@@ -2964,10 +2966,26 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       forgePressureAnimationFrame = requestAnimationFrame(step);
     }
     
+    function getForgePressureState(actualPressure) {
+      const safePressure = Math.max(0, Math.min(100, Number(actualPressure) || 0));
+
+      if (safePressure <= 0) return "empty";
+      if (safePressure < 25) return "low";
+      if (safePressure < 50) return "warm";
+      if (safePressure < 75) return "volatile";
+      return "critical";
+    }
+
+    function setForgePressureStateFromValue(actualPressure) {
+      overlayState.pressureState = getForgePressureState(actualPressure);
+      return overlayState.pressureState;
+    }
+
     function updateForgePressureGauge(actualPressure) {
       const safePressure = Math.max(0, Math.min(100, Number(actualPressure) || 0));
 
       overlayState.currentPressure = safePressure;
+      setForgePressureStateFromValue(safePressure);
     
       // Your visible gauge max is 37% of the full circle.
       const visiblePercent = (safePressure / 100) * 37;
@@ -3670,6 +3688,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         queueLength: overlayState.queue.length,
         forgeState: overlayState.forgeState,
         currentPressure: overlayState.currentPressure,
+        pressureState: overlayState.pressureState,
         pressureGlowActive: overlayState.pressureGlowActive,
         eruptionActive: overlayState.eruptionActive,
         stageClassName: forgeStage.className,
@@ -4349,10 +4368,21 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       if (coinPressureAfter !== null) {
       
         if (coinJackpotHit) {
+          overlayState.currentPressure = 100;
+          setForgePressureStateFromValue(100);
       
           triggerForgeEruptionVisuals(pullId);
 
           animateForgePressureGauge(37, 520);
+
+          registerOwnedCleanupTimer(
+            pullId,
+            () => {
+              if (!isActivePull(pullId)) return;
+              updateForgePressureGauge(coinPressureAfter);
+            },
+            1200
+          );
       
         } else {
       
