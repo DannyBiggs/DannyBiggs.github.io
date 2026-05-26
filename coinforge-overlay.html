@@ -3843,6 +3843,109 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         }
       };
     };
+
+    window.testForgeInstability = async function testForgeInstability(effect = "Overcharged") {
+      const validEffects = ["Overcharged", "Scorched", "BurnedAway"];
+
+      if (!validEffects.includes(effect)) {
+        console.warn(
+          "Invalid forge instability effect. Use one of:",
+          validEffects
+        );
+
+        return null;
+      }
+
+      let slotWrap = document.querySelector(".slot-wrap");
+
+      if (!slotWrap) {
+        forgeStage.classList.add("visible");
+        document.body.classList.add("forge-active");
+
+        slotRow.innerHTML = "";
+
+        slotWrap = document.createElement("div");
+        slotWrap.className = "slot-wrap";
+        slotWrap.dataset.slotIndex = "debug-0";
+        slotWrap.dataset.slotState = "debug";
+
+        const coin = document.createElement("img");
+        coin.className = "slot-coin landed";
+        coin.src = COIN_IMAGES.Gold;
+        coin.alt = "Debug Coin";
+
+        const burnedAwayGif = document.createElement("img");
+        burnedAwayGif.className = "burned-away-gif";
+        burnedAwayGif.src = burnedAwayGifPath;
+        burnedAwayGif.alt = "Burned Away";
+
+        const duplicateCoin = document.createElement("img");
+        duplicateCoin.className = "overcharge-duplicate-coin";
+        duplicateCoin.alt = "Overcharged Duplicate";
+
+        slotWrap.appendChild(coin);
+        slotWrap.appendChild(burnedAwayGif);
+        slotWrap.appendChild(duplicateCoin);
+
+        slotRow.appendChild(slotWrap);
+      }
+
+      const slot = slotWrap.querySelector(".slot-coin");
+
+      if (!slot) {
+        console.warn("No slot coin found for instability test.");
+        return null;
+      }
+
+      const debugPullId = `debug-instability-${Date.now()}`;
+
+      overlayState.activePullId = debugPullId;
+      overlayState.instabilityReplayOwner = debugPullId;
+      overlayState.forgeState = "debug-instability";
+
+      const finalCoin = {
+        name: "Debug Gold Coin",
+        raw: {
+          forgeInstabilityEffect: effect,
+          forgeInstabilityOriginalValue: 100,
+          forgeInstabilityRoll: 0
+        }
+      };
+
+      return activateForgeInstabilityEffect({
+        pullId: debugPullId,
+        slotWrap,
+        slot,
+        finalCoin,
+        effect
+      });
+    };
+
+    window.testForgeInstabilityAll = async function testForgeInstabilityAll() {
+      await window.testForgeInstability("Overcharged");
+      await wait(1500);
+
+      await window.testForgeInstability("Scorched");
+      await wait(1500);
+
+      await window.testForgeInstability("BurnedAway");
+
+      return window.debugForgeState();
+    };
+
+    window.resetForgeInstabilityTest = function resetForgeInstabilityTest() {
+      resetForgeInstabilityOwnership({ includePersistent: true });
+
+      overlayState.activePullId = null;
+      overlayState.instabilityReplayOwner = null;
+      overlayState.forgeState = "idle";
+
+      clearSlotStates();
+      slotRow.innerHTML = "";
+      hideForgeStage();
+
+      return window.debugForgeState();
+    };
     
     function clearRevealClasses() {
       clearStageEffects();
