@@ -2748,6 +2748,8 @@
       activeAudio: new Set(),
     
       currentPressure: 0,
+
+      pressureGlowActive: false,
     
       eruptionActive: false,
 
@@ -3422,6 +3424,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
     function setForgePressureForCoin(coinKey, progress = 0) {
       if (!forgeStage) return;
+
+      overlayState.pressureGlowActive = true;
     
       let pressureGain = 0;
     
@@ -3516,7 +3520,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       playForgeHammerSound(pullId);
     }
     
-    function clearForgePressure() {
+    function clearForgePressureGlow() {
       if (!forgeStage) return;
     
       forgePressureLevel = 0;
@@ -3665,6 +3669,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         queueLength: overlayState.queue.length,
         forgeState: overlayState.forgeState,
         currentPressure: overlayState.currentPressure,
+        pressureGlowActive: overlayState.pressureGlowActive,
         eruptionActive: overlayState.eruptionActive,
         stageClassName: forgeStage.className,
         bodyClassName: document.body.className,
@@ -4358,7 +4363,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       registerOwnedCleanupTimer(
         pullId,
         () => {
-          clearForgePressure();
+          clearForgePressureGlow();
         },
         420
       );
