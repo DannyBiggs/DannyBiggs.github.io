@@ -2730,6 +2730,43 @@
       sound.volume = 0.35;
     });
 
+    const overlayState = {
+      queue: [],
+    
+      isAnimating: false,
+    
+      activePayload: null,
+    
+      activePullId: null,
+    
+      forgeState: "idle",
+    
+      cleanupTimers: [],
+    
+      activeSlotEffects: new Map(),
+    
+      activeAudio: new Set(),
+    
+      currentPressure: 0,
+    
+      eruptionActive: false
+    };
+
+    function registerCleanupTimer(timer)
+    {
+      overlayState.cleanupTimers.push(timer);
+    }
+    
+    function clearOverlayCleanupTimers()
+    {
+      overlayState.cleanupTimers.forEach(timer =>
+      {
+        clearTimeout(timer);
+      });
+    
+      overlayState.cleanupTimers = [];
+    }
+    
     const forgeCoins = [
       { key: "Wood", name: "Wood Coin", file: "images/coins/wood.gif", rarity: "Common", className: "common" },
       { key: "Bronze", name: "Bronze Coin", file: "images/coins/bronze.gif", rarity: "Common", className: "common" },
@@ -2896,11 +2933,13 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         ignitionCast.classList.add("active");
         showForgeIgnitePopup();
     
-        setTimeout(() => {
-          ignitionCast.classList.remove("active");
-          ignitionCast.style.display = "none";
-          window.forgeIgnitionCastPlaying = false;
-        }, 880);
+        registerCleanupTimer(
+          setTimeout(() => {
+            ignitionCast.classList.remove("active");
+            ignitionCast.style.display = "none";
+            window.forgeIgnitionCastPlaying = false;
+          }, 880)
+        )
       } else {
         window.forgeIgnitionCastPlaying = false;
       }
@@ -2911,9 +2950,11 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       document.body.classList.add("forge-active");
     
-      setTimeout(() => {
-        forgeStage.classList.remove("impact");
-      }, 420);
+        registerCleanupTimer(
+          setTimeout(() => {
+            forgeStage.classList.remove("impact");
+          }, 420)
+        );
     }
     
     function playWoodBurnSound() {
@@ -3024,12 +3065,14 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       void slotWrap.offsetWidth;
       slotWrap.classList.add("socket-compress");
     
-      setTimeout(() => {
-        slotWrap.classList.remove("socket-compress");
-      }, 420);
-    }
+          registerCleanupTimer(
+            setTimeout(() => {
+              slotWrap.classList.remove("socket-compress");
+            }, 420)
+          );
+      }
       
-    function triggerSparkStrikeGif(slot) {
+      function triggerSparkStrikeGif(slot) {
       if (!sparkStrikeGif || !slot || !forgeStage) return;
     
       const slotRect = slot.getBoundingClientRect();
@@ -3052,9 +3095,11 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       sparkStrikeGif.classList.add("active");
     
-      setTimeout(() => {
-        sparkStrikeGif.classList.remove("active");
-      }, 300);
+        registerCleanupTimer(
+          setTimeout(() => {
+            sparkStrikeGif.classList.remove("active");
+          }, 300)
+        );
     }
     
     function triggerImpactFlash() {
@@ -3194,9 +3239,11 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       sparkLayer.appendChild(emberEl);
     });
       
-      setTimeout(() => {
-        sparkLayer.innerHTML = "";
-      }, 900);
+      registerCleanupTimer(
+        setTimeout(() => {
+          sparkLayer.innerHTML = "";
+        }, 900)
+      );
     }
     
     function triggerSlotImpact(slot, finalCoin) {
@@ -3234,9 +3281,11 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       ) {
         forgeStage.classList.add("escalate-cursed");
 
-        setTimeout(() => {
-          forgeStage.classList.remove("escalate-cursed");
-        }, 650);
+        registerCleanupTimer(
+          setTimeout(() => {
+            forgeStage.classList.remove("escalate-cursed");
+          }, 650)
+        );
       }
     }
     
@@ -3354,9 +3403,11 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       playForgeHammerSound();
     
-      setTimeout(() => {
-        forgeStage.classList.remove("forge-erupting");
-      }, 1900);
+      registerCleanupTimer(
+        setTimeout(() => {
+          forgeStage.classList.remove("forge-erupting");
+        }, 1900)
+      );
     }
     
     function clearForgePressure() {
@@ -3440,7 +3491,9 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       void aura.offsetWidth;
       aura.classList.add("active");
 
-      setTimeout(() => aura.remove(), 1500);
+      registerCleanupTimer(
+        setTimeout(() => aura.remove(), 1500)
+      );
     }
 
     function triggerBurst(type, slot) {
@@ -3826,9 +3879,11 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
           animateForgePressureGauge(37, 520);
           
-          setTimeout(() => {
-            updateForgePressureGauge(coinPressureAfter);
-          }, 1900);
+          registerCleanupTimer(
+            setTimeout(() => {
+              forgeStage.classList.remove("forge-erupting");
+            }, 1900)
+          );
       
         } else {
       
@@ -3837,9 +3892,11 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         }
       }
       
-      setTimeout(() => {
-        clearForgePressure();
-      }, 420);
+      registerCleanupTimer(
+        setTimeout(() => {
+          clearForgePressure();
+        }, 420)
+      );
     }
 
     async function playWoodBurnupIfNeeded(slot, finalCoin) {
@@ -3982,9 +4039,11 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       void slotWrap.offsetWidth;
       slotWrap.classList.add(className);
 
-      setTimeout(() => {
-        slotWrap.classList.remove(className);
-      }, 1250);
+      registerCleanupTimer(
+        setTimeout(() => {
+          slotWrap.classList.remove(className);
+        }, 1250)
+      );
 
       await wait(520);
     }
@@ -4207,7 +4266,9 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       achievementPopupTimeout = setTimeout(() => {
         achievementPopup.classList.remove("visible");
       }, Number(data.duration || 2000));
-    }
+      
+      registerCleanupTimer(achievementPopupTimeout);
+          }
 
     function queueAchievementDisplay(data) {
       achievementDisplayQueue.push(data);
@@ -4323,6 +4384,17 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         document.body.classList.remove("forge-active");
         clearPlayerIdentity();
         slotRow.innerHTML = "";
+
+        overlayState.isAnimating = false;
+        overlayState.activePayload = null;
+        overlayState.activePullId = null;
+        overlayState.forgeState = "idle";
+
+        clearOverlayCleanupTimers();
+
+        overlayState.activeSlotEffects.clear();
+        overlayState.activeAudio.clear();
+
         return;
       }
       
@@ -4402,6 +4474,16 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       await wait(350);
       
       slotRow.innerHTML = "";
+
+      overlayState.isAnimating = false;
+      overlayState.activePayload = null;
+      overlayState.activePullId = null;
+      overlayState.forgeState = "idle";
+
+      clearOverlayCleanupTimers();
+
+      overlayState.activeSlotEffects.clear();
+      overlayState.activeAudio.clear();
       
     }
 
@@ -4490,8 +4572,13 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       while (forgeEventQueue.length > 0) {
         const event = forgeEventQueue.shift();
+      
+        overlayState.isAnimating = true;
+        overlayState.activePayload = event;
+        overlayState.activePullId = Date.now();
+      
         await runForgeRevealExternal(event);
-
+      
       }
 
       forgeEventPlaying = false;
