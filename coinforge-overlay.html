@@ -2964,6 +2964,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
     function updateForgePressureGauge(actualPressure) {
       const safePressure = Math.max(0, Math.min(100, Number(actualPressure) || 0));
+
+      overlayState.currentPressure = safePressure;
     
       // Your visible gauge max is 37% of the full circle.
       const visiblePercent = (safePressure / 100) * 37;
@@ -3496,8 +3498,20 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     function triggerForgeEruptionVisuals(pullId) {
       if (!isActivePull(pullId)) return;
       if (!forgeStage) return;
+
+      overlayState.eruptionActive = true;
+      overlayState.forgeState = "erupting";
     
       addStageEffect(pullId, "forge-erupting", 1900, { restart: true });
+
+      registerOwnedCleanupTimer(
+        pullId,
+        () => {
+          overlayState.eruptionActive = false;
+          overlayState.forgeState = "active";
+        },
+        1900
+      );
     
       playForgeHammerSound(pullId);
     }
@@ -3649,6 +3663,9 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         activePullId: overlayState.activePullId,
         isAnimating: overlayState.isAnimating,
         queueLength: overlayState.queue.length,
+        forgeState: overlayState.forgeState,
+        currentPressure: overlayState.currentPressure,
+        eruptionActive: overlayState.eruptionActive,
         stageClassName: forgeStage.className,
         bodyClassName: document.body.className,
         slotStates: Array.from(overlayState.slotStates.entries()),
