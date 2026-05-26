@@ -3490,19 +3490,9 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       if (!isActivePull(pullId)) return;
       if (!forgeStage) return;
     
-      forgeStage.classList.remove("forge-erupting");
-      void forgeStage.offsetWidth;
-      forgeStage.classList.add("forge-erupting");
+      addStageEffect(pullId, "forge-erupting", 1900, { restart: true });
     
       playForgeHammerSound(pullId);
-    
-      registerOwnedCleanupTimer(
-        pullId,
-        () => {
-          forgeStage.classList.remove("forge-erupting");
-        },
-        1900
-      );
     }
     
     function clearForgePressure() {
@@ -3546,12 +3536,20 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     const stageEffectClasses = [
       ...stageRevealEffectClasses,
       "impact",
+      "forge-erupting",
       "cinematic-jackpot",
       "cinematic-cursed",
       "cinematic-mythic",
       "cinematic-legendary",
       "escalate-warm",
       "escalate-cursed"
+    ];
+
+    const forgeStageStateClasses = [
+      "visible",
+      "charging",
+      "charged",
+      "forge-ignited-active"
     ];
 
     function clearStageRevealEffects() {
@@ -3584,6 +3582,48 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       }
     }
 
+    function setForgeStageState(className, enabled = true) {
+      if (!forgeStage || !className) return;
+
+      if (enabled) {
+        forgeStage.classList.add(className);
+      } else {
+        forgeStage.classList.remove(className);
+      }
+    }
+
+    function setForgeIgnitedState(enabled) {
+      setForgeStageState("forge-ignited-active", enabled);
+      document.body.classList.toggle("forge-ignited-active", enabled);
+    }
+
+    function clearForgeStageStates() {
+      forgeStage.classList.remove(...forgeStageStateClasses);
+      document.body.classList.remove("forge-ignited-active");
+    }
+
+    function showForgeStage() {
+      setForgeStageState("visible", true);
+      document.body.classList.add("forge-active");
+    }
+
+    function hideForgeStage() {
+      clearForgeStageStates();
+      document.body.classList.remove("forge-active");
+    }
+
+    function setForgeChargeState(nextState) {
+      forgeStage.classList.remove("charging", "charged");
+
+      if (nextState === "charging") {
+        setForgeStageState("charging", true);
+      }
+
+      if (nextState === "charged") {
+        setForgeStageState("charged", true);
+      }
+    }    
+    
     function clearRevealClasses() {
       clearStageEffects();
 
@@ -4698,13 +4738,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       clearRevealClasses();
       window.currentForgeEvent = event;
 
-      if (event.forgeIgnitedActive === true) {
-        forgeStage.classList.add("forge-ignited-active");
-        document.body.classList.add("forge-ignited-active");
-      } else {
-        forgeStage.classList.remove("forge-ignited-active");
-        document.body.classList.remove("forge-ignited-active");
-      }
+      setForgeIgnitedState(event.forgeIgnitedActive === true);
             
      const rawCoins = Array.isArray(event.coins) ? event.coins : [];
       const results = rawCoins.map(getCoinDefinition);
@@ -4713,9 +4747,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       window.currentWoodBurnTotal = results.filter(coin => coin.name === "Wood Coin").length;
       
       if (results.length === 0) {
-        forgeStage.classList.remove("visible", "charging", "charged", "forge-ignited-active");
-        document.body.classList.remove("forge-ignited-active");
-        document.body.classList.remove("forge-active");
+        hideForgeStage();
         clearPlayerIdentity();
         slotRow.innerHTML = "";
 
@@ -4733,13 +4765,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         return;
       }
       
-      forgeStage.classList.add("visible");
-      document.body.classList.add("forge-active");
+      showForgeStage();
       
       const highestClass = highestRarityClass(results);
       renderPlayerIdentity(event, highestClass);
-      
-      forgeStage.classList.add("visible");
 
       await wait(0);
 
@@ -4749,8 +4778,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         createSlots(pullCount);
       }
       
-      forgeStage.classList.remove("charging");
-      forgeStage.classList.add("charged");
+      setForgeChargeState("charged");
 
       const slots = Array.from(document.querySelectorAll(".slot-coin"));
 
@@ -4795,9 +4823,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       clearStageRevealEffects();
       
-      forgeStage.classList.remove("visible", "charged", "forge-ignited-active");
-      document.body.classList.remove("forge-ignited-active");
-      document.body.classList.remove("forge-active");
+      hideForgeStage();
       clearPlayerIdentity();
       
       await wait(350);
@@ -5016,8 +5042,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           updateForgePressureGauge(data.forgePressure);
         }
       
-        forgeStage.classList.add("visible", "charging");
-        document.body.classList.add("forge-active");
+        showForgeStage();
+        setForgeChargeState("charging");
       
         createSlots(preparePullCount);
       
