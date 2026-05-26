@@ -3360,22 +3360,14 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         finalCoin.name === "Kingmaker Coin" ||
         finalCoin.name === "Jackpot Booster"
       ) {
-        forgeStage.classList.add("escalate-warm");
+        addStageEffect(pullId, "escalate-warm");
       }
     
       if (
         finalCoin.name === "Anti Coin" ||
         (finalCoin.raw && (finalCoin.raw.omenCorrupted || finalCoin.raw.devoured))
       ) {
-        forgeStage.classList.add("escalate-cursed");
-
-        registerOwnedCleanupTimer(
-          pullId,
-          () => {
-            forgeStage.classList.remove("escalate-cursed");
-          },
-          650
-        );
+        addStageEffect(pullId, "escalate-cursed", 650);
       }
     }
     
@@ -3654,11 +3646,11 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       cinematicBurst.classList.add("active");
     }
 
-    async function playFinalCinematic(coin, slot) {
+    async function playFinalCinematic(coin, slot, pullId) {
 
       if (coin.raw && coin.raw.devoured) {
       triggerScreenBorder("cursed");
-      forgeStage.classList.add("cinematic-cursed");
+      addStageEffect(pullId, "cinematic-cursed");
         triggerBurst("cursed", slot);
         await wait(380);
         return;
@@ -3666,7 +3658,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       if (coin.raw && coin.raw.omenCorrupted) {
       triggerScreenBorder("cursed");
-      forgeStage.classList.add("cinematic-cursed");
+      addStageEffect(pullId, "cinematic-cursed");
         triggerCorruptionWave();
         triggerBurst("cursed", slot);
         await wait(380);
@@ -3681,7 +3673,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       if (coin.name === "Jackpot Booster") {
         triggerScreenBorder("jackpot");
-        forgeStage.classList.add("cinematic-jackpot");
+        addStageEffect(pullId, "cinematic-jackpot");
         triggerBurst("jackpot", slot);
         await wait(380);
         return;
@@ -3689,7 +3681,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       if (coin.name === "Anti Coin") {
       triggerScreenBorder("cursed");
-      forgeStage.classList.add("cinematic-cursed");
+      addStageEffect(pullId, "cinematic-cursed");
         triggerBurst("cursed", slot);
         await wait(380);
         return;
@@ -3709,7 +3701,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       }
 
       if (coin.name === "Diamond Coin") {
-        forgeStage.classList.add("cinematic-legendary");
+        addStageEffect(pullId, "cinematic-legendary");
         triggerBurst("legendary", slot);
         await wait(360);
       }
@@ -4360,7 +4352,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         triggerCorruptionWave();
       }
 
-      const cinematicPromise = playFinalCinematic(finalCoin, slot);
+      const cinematicPromise = playFinalCinematic(finalCoin, slot, pullId);
 
       await wait(160);
 
