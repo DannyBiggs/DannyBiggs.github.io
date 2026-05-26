@@ -3762,7 +3762,9 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       if (coin.name === "Diamond Coin") {
         addStageEffect(pullId, "cinematic-legendary");
         triggerBurst("legendary", slot, pullId);
-        await wait(360);
+        await wait(900);
+        cinematicBurst.classList.remove("active");
+        return;
       }
     }
 
