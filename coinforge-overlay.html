@@ -3924,8 +3924,16 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       if (!isActivePull(pullId)) return;
       if (!element || !className) return;
 
-      const ownerKey = `effectOwner_${className.replace(/[^a-zA-Z0-9]/g, "_")}`;
-      element.dataset[ownerKey] = pullId;
+      const timerKey = className.replace(/[^a-zA-Z0-9]/g, "_");
+
+      if (!element.__ownedEffectTimers) {
+        element.__ownedEffectTimers = {};
+      }
+
+      if (element.__ownedEffectTimers[timerKey]) {
+        clearTimeout(element.__ownedEffectTimers[timerKey]);
+        delete element.__ownedEffectTimers[timerKey];
+      }
 
       if (options.restart === true) {
         element.classList.remove(className);
@@ -3935,13 +3943,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       element.classList.add(className);
 
       if (duration !== null) {
-        const timer = setTimeout(() => {
-          if (element.dataset[ownerKey] !== pullId) return;
-
+        element.__ownedEffectTimers[timerKey] = setTimeout(() => {
           element.classList.remove(className);
-          delete element.dataset[ownerKey];
+          delete element.__ownedEffectTimers[timerKey];
         }, duration);
-
       }
     }
 
@@ -3963,17 +3968,23 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         pullId,
         element,
         className,
-        duration,
+        null,
         options
       );
 
       if (duration !== null) {
-        const ownerKey = `displayOwner_${className.replace(/[^a-zA-Z0-9]/g, "_")}`;
-        element.dataset[ownerKey] = pullId;
+        const timerKey = `display_${className.replace(/[^a-zA-Z0-9]/g, "_")}`;
 
-        const timer = setTimeout(() => {
-          if (element.dataset[ownerKey] !== pullId) return;
+        if (!element.__ownedEffectTimers) {
+          element.__ownedEffectTimers = {};
+        }
 
+        if (element.__ownedEffectTimers[timerKey]) {
+          clearTimeout(element.__ownedEffectTimers[timerKey]);
+          delete element.__ownedEffectTimers[timerKey];
+        }
+
+        element.__ownedEffectTimers[timerKey] = setTimeout(() => {
           element.classList.remove(className);
 
           if (options.hideAfter === true) {
@@ -3984,9 +3995,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
             options.onComplete();
           }
 
-          delete element.dataset[ownerKey];
+          delete element.__ownedEffectTimers[timerKey];
         }, duration);
-
       }
     }
     
