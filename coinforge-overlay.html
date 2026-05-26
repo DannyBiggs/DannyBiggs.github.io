@@ -3179,23 +3179,26 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       restartClassAnimation(forgeImpactFlash, "active");
     }
 
-    function setActiveSlotFocus(activeSlot) {
+    function setActiveSlotFocus(activeSlot, pullId = overlayState.activePullId) {
+      if (!isActivePull(pullId)) return;
+
+      const activeSlotWrap = activeSlot ? activeSlot.closest(".slot-wrap") : null;
       const allSlots = document.querySelectorAll(".slot-wrap");
     
       allSlots.forEach(slotWrap => {
         slotWrap.classList.remove("active-slot", "inactive-slot");
     
-        if (activeSlot && slotWrap === activeSlot.closest(".slot-wrap")) {
-          slotWrap.classList.add("active-slot");
-        } else if (activeSlot) {
-          slotWrap.classList.add("inactive-slot");
+        if (activeSlotWrap && slotWrap === activeSlotWrap) {
+          addSlotEffect(pullId, slotWrap, "active-slot");
+        } else if (activeSlotWrap) {
+          addSlotEffect(pullId, slotWrap, "inactive-slot");
         }
       });
     }
     
     function clearActiveSlotFocus() {
       document.querySelectorAll(".slot-wrap").forEach(slotWrap => {
-        slotWrap.classList.remove("active-slot", "inactive-slot");
+        clearSlotEffects(slotWrap);
       });
     }
     
