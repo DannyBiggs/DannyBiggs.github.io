@@ -2999,13 +2999,15 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         ignitionCast.classList.add("active");
         showForgeIgnitePopup();
     
-        registerCleanupTimer(
-          setTimeout(() => {
+        registerOwnedCleanupTimer(
+          pullId,
+          () => {
             ignitionCast.classList.remove("active");
             ignitionCast.style.display = "none";
             window.forgeIgnitionCastPlaying = false;
-          }, 880)
-        )
+          },
+          880
+        );
       } else {
         window.forgeIgnitionCastPlaying = false;
       }
@@ -3016,10 +3018,12 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       document.body.classList.add("forge-active");
     
-        registerCleanupTimer(
-          setTimeout(() => {
+        registerOwnedCleanupTimer(
+          pullId,
+          () => {
             forgeStage.classList.remove("impact");
-          }, 420)
+          },
+          420
         );
     }
     
@@ -3563,7 +3567,9 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       return "";
     }
 
-    function triggerSlotAura(coin, slot) {
+    function triggerSlotAura(coin, slot, pullId) {
+      if (!isActivePull(pullId)) return;
+
       const auraType = getAuraType(coin);
       if (!auraType) return;
 
@@ -3581,8 +3587,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       void aura.offsetWidth;
       aura.classList.add("active");
 
-      registerCleanupTimer(
-        setTimeout(() => aura.remove(), 1500)
+      registerOwnedCleanupTimer(
+        pullId,
+        () => aura.remove(),
+        1500
       );
     }
 
@@ -4182,7 +4190,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         triggerImpactFlash();
       }
       
-      triggerSlotAura(finalCoin, slot);
+      triggerSlotAura(finalCoin, slot, pullId);
 
       if (finalCoin.name === "Anti Coin" || (finalCoin.raw && finalCoin.raw.omenCorrupted)) {
         triggerCorruptionWave();
