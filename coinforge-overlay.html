@@ -3910,9 +3910,11 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       const finalCoin = {
         name: "Debug Gold Coin",
         raw: {
-          forgeInstabilityEffect: effect,
-          forgeInstabilityOriginalValue: 100,
-          forgeInstabilityRoll: 0
+          instability: {
+            effect,
+            originalValue: 100,
+            roll: 0
+          }
         }
       };
 
@@ -3994,9 +3996,11 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       const finalCoin = {
         name: "Debug Gold Coin",
         raw: {
-          forgeInstabilityEffect: "Overcharged",
-          forgeInstabilityOriginalValue: 100,
-          forgeInstabilityRoll: 0,
+          instability: {
+            effect: "Overcharged",
+            originalValue: 100,
+            roll: 0
+          },
           ...conflictTypes[conflictType]
         }
       };
@@ -4976,40 +4980,69 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       counter.remove();
     }
 
+    function getForgeInstabilityPayload(finalCoin) {
+      const raw = finalCoin?.raw || {};
+      const structured = raw.instability || {};
+
+      const effect =
+        structured.effect ||
+        raw.forgeInstabilityEffect ||
+        "";
+
+      return {
+        effect,
+        originalValue:
+          structured.originalValue ??
+          raw.forgeInstabilityOriginalValue ??
+          null,
+        roll:
+          structured.roll ??
+          raw.forgeInstabilityRoll ??
+          null,
+        source: raw.instability ? "structured" : "legacy"
+      };
+    }
+    
     function resolveForgeInstabilityConflict(finalCoin) {
       const raw = finalCoin?.raw || {};
+      const instability = getForgeInstabilityPayload(finalCoin);
 
-      if (!raw.forgeInstabilityEffect) {
+      if (!instability.effect) {
         return {
           allowed: false,
-          reason: "no-instability-effect"
+          reason: "no-instability-effect",
+          instability
         };
       }
 
       if (raw.jackpotHit === true) {
         return {
           allowed: false,
-          reason: "eruption-takes-priority"
+          reason: "eruption-takes-priority",
+          instability
         };
       }
 
       if (raw.devoured === true) {
         return {
           allowed: false,
-          reason: "devour-takes-priority"
+          reason: "devour-takes-priority",
+          instability
         };
       }
 
       if (raw.omenCorrupted === true) {
         return {
           allowed: true,
-          reason: "corruption-plus-instability"
+          reason: "corruption-plus-instability",
+          instability
         };
       }
 
       return {
         allowed: true,
-        reason: "instability-allowed"
+        reason: "instability-allowed",
+        instability
       };
     }
     
@@ -5019,17 +5052,22 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       const conflict = resolveForgeInstabilityConflict(finalCoin);
 
+      const instability = conflict.instability;
+
       overlayState.lastInstabilityConflict = {
         pullId,
         coinName: finalCoin.name || "",
-        effect: finalCoin.raw.forgeInstabilityEffect || "",
+        effect: instability.effect || "",
+        originalValue: instability.originalValue,
+        roll: instability.roll,
+        source: instability.source,
         allowed: conflict.allowed,
         reason: conflict.reason
       };
 
       if (!conflict.allowed) return;
 
-      const effect = finalCoin.raw.forgeInstabilityEffect || "";
+      const effect = instability.effect || "";
       const slotWrap = slot.closest(".slot-wrap");
       if (!slotWrap) return;
 
