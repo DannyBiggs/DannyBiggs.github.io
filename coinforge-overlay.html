@@ -3680,6 +3680,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     }
 
     function triggerBurst(type, slot, pullId) {
+      if (!isActivePull(pullId)) return;
+
       const stageRect = forgeStage.getBoundingClientRect();
       const slotRect = slot.getBoundingClientRect();
 
@@ -3691,13 +3693,16 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       cinematicBurst.className = `cinematic-burst ${type}`;
 
-      addOwnedElementEffect(
-        pullId,
-        cinematicBurst,
-        "active",
-        760,
-        { restart: true }
-      );
+      void cinematicBurst.offsetWidth;
+      cinematicBurst.classList.add("active");
+
+      const clearBurstActive = () => {
+        cinematicBurst.classList.remove("active");
+      };
+
+      cinematicBurst.addEventListener("animationend", clearBurstActive, { once: true });
+
+      setTimeout(clearBurstActive, 900);
     }
 
     async function playFinalCinematic(coin, slot, pullId) {
