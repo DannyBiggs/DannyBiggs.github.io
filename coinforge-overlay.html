@@ -3133,17 +3133,13 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       const slotWrap = slot.closest(".slot-wrap");
       if (!slotWrap) return;
     
-      slotWrap.classList.remove("socket-compress");
-      void slotWrap.offsetWidth;
-      slotWrap.classList.add("socket-compress");
-    
-          registerOwnedCleanupTimer(
-            pullId,
-            () => {
-              slotWrap.classList.remove("socket-compress");
-            },
-            420
-          );
+      addSlotEffect(
+        pullId,
+        slotWrap,
+        "socket-compress",
+        420,
+        { restart: true }
+      );
       }
       
       function triggerSparkStrikeGif(slot, pullId) {
@@ -3226,8 +3222,14 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       }
     
       ring.className = `slot-socket-ring ${finalCoin.className}`;
-      void ring.offsetWidth;
-      ring.classList.add("active");
+
+      addOwnedElementEffect(
+        pullId,
+        ring,
+        "active",
+        460,
+        { restart: true }
+      );
     }
 
     function triggerPixelSparks(slot, pullId) {
@@ -3335,9 +3337,13 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       const slotWrap = slot.closest(".slot-wrap");
       if (!slotWrap) return;
     
-      slotWrap.classList.remove("lock-impact");
-      void slotWrap.offsetWidth;
-      slotWrap.classList.add("lock-impact");
+      addSlotEffect(
+        pullId,
+        slotWrap,
+        "lock-impact",
+        420,
+        { restart: true }
+      );
     
       let flash = slotWrap.querySelector(".slot-impact-flash");
     
@@ -3347,9 +3353,13 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         slotWrap.insertBefore(flash, slotWrap.firstChild);
       }
     
-      flash.classList.remove("active");
-      void flash.offsetWidth;
-      flash.classList.add("active");
+      addOwnedElementEffect(
+        pullId,
+        flash,
+        "active",
+        420,
+        { restart: true }
+      );
     
       if (
         finalCoin.name === "Diamond Coin" ||
@@ -3385,9 +3395,13 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         registerOwnedCleanupTimer(
           pullId,
           () => {
-            slotWrap.classList.remove("final-sync-pulse");
-            void slotWrap.offsetWidth;
-            slotWrap.classList.add("final-sync-pulse");
+            addSlotEffect(
+              pullId,
+              slotWrap,
+              "final-sync-pulse",
+              null,
+              { restart: true }
+            );
           },
           index * 45
         );
@@ -3807,11 +3821,16 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       }
     }
 
-    function addSlotEffect(pullId, target, className, duration = null) {
+    function addSlotEffect(pullId, target, className, duration = null, options = {}) {
       if (!isActivePull(pullId)) return;
 
       const slotWrap = getSlotWrap(target);
       if (!slotWrap || !className) return;
+
+      if (options.restart === true) {
+        slotWrap.classList.remove(className);
+        void slotWrap.offsetWidth;
+      }
 
       slotWrap.classList.add(className);
 
@@ -3820,6 +3839,28 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           pullId,
           () => {
             slotWrap.classList.remove(className);
+          },
+          duration
+        );
+      }
+    }
+
+    function addOwnedElementEffect(pullId, element, className, duration = null, options = {}) {
+      if (!isActivePull(pullId)) return;
+      if (!element || !className) return;
+
+      if (options.restart === true) {
+        element.classList.remove(className);
+        void element.offsetWidth;
+      }
+
+      element.classList.add(className);
+
+      if (duration !== null) {
+        registerOwnedCleanupTimer(
+          pullId,
+          () => {
+            element.classList.remove(className);
           },
           duration
         );
