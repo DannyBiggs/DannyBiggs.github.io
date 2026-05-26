@@ -3867,6 +3867,26 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       }
     }
 
+    function clearCoinEffects(coinElement) {
+      if (!coinElement) return;
+
+      coinElement.classList.remove(
+        "forming-from-forge",
+        "landed",
+        "wood-burn-prep"
+      );
+    }
+
+    function addCoinEffect(pullId, coinElement, className, duration = null, options = {}) {
+      addOwnedElementEffect(
+        pullId,
+        coinElement,
+        className,
+        duration,
+        options
+      );
+    }
+    
     function getFinalFrameCoinKey(finalCoin) {
       if (!finalCoin) return "Bronze";
     
@@ -4053,10 +4073,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       delete slot.dataset.hammerSoundPlayed;
       delete slot.dataset.woodBurned;
       
-      slot.classList.remove(
-        "forming-from-forge",
-        "landed"
-      );
+      clearCoinEffects(slot);
     
       if (slotWrap) {
         clearSlotEffects(slotWrap, { includeLanded: true });
@@ -4076,7 +4093,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       
       void slot.offsetWidth;
       
-      slot.classList.add("forming-from-forge");
+      addCoinEffect(pullId, slot, "forming-from-forge");
       setSlotState(slotWrap, "spinning", { pullId, coin: finalCoin.name });
       
       await playFrameCoinSequence(slot, slotWrap, finalCoin, pullId);
@@ -4088,13 +4105,12 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         slotWrap.style.filter = "";
       }
       
-      slot.classList.remove("forming-from-forge");
-      slot.classList.remove("landed");
+      clearCoinEffects(slot);
       void slot.offsetWidth;
       
       // FINAL LOCK + VISUAL IMPACT HAPPEN TOGETHER
       slot.src = coinFileForSlot(finalCoin, index);
-      slot.classList.add("landed");
+      addCoinEffect(pullId, slot, "landed", null, { restart: true });
       setSlotState(slotWrap, "landed", { pullId, coin: finalCoin.name });
       
       forgeStage.classList.remove("impact");
@@ -4174,9 +4190,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       }
     
       setSlotState(slot, "burning", { pullId, coin: finalCoin.name });
-      slot.classList.add("wood-burn-prep");
+      addCoinEffect(pullId, slot, "wood-burn-prep", 700, { restart: true });
       await wait(700);
-      slot.classList.remove("wood-burn-prep");
     
       const stageRect = forgeStage.getBoundingClientRect();
       const coinRect = slot.getBoundingClientRect();
