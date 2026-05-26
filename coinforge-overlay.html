@@ -2978,6 +2978,11 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
     function setForgePressureStateFromValue(actualPressure) {
       overlayState.pressureState = getForgePressureState(actualPressure);
+
+      if (forgeStage) {
+        forgeStage.dataset.pressureState = overlayState.pressureState;
+      }
+
       return overlayState.pressureState;
     }
 
@@ -3689,6 +3694,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         forgeState: overlayState.forgeState,
         currentPressure: overlayState.currentPressure,
         pressureState: overlayState.pressureState,
+        stagePressureState: forgeStage?.dataset?.pressureState || "",
         pressureGlowActive: overlayState.pressureGlowActive,
         eruptionActive: overlayState.eruptionActive,
         stageClassName: forgeStage.className,
