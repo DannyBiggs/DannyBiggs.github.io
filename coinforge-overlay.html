@@ -3110,13 +3110,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       const options = availableCoins.filter(key => key !== currentKey);
       return options[Math.floor(Math.random() * options.length)];
     }
-    
-    function restartClassAnimation(element, className) {
-      if (!element) return;
-      element.classList.remove(className);
-      void element.offsetWidth;
-      element.classList.add(className);
-    }
 
     function triggerSocketCompression(slot, pullId) {
       if (!isActivePull(pullId)) return;
@@ -3160,8 +3153,16 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       );
     }
     
-    function triggerImpactFlash() {
-      restartClassAnimation(forgeImpactFlash, "active");
+    function triggerImpactFlash(pullId) {
+      if (!isActivePull(pullId)) return;
+
+      addOwnedElementEffect(
+        pullId,
+        forgeImpactFlash,
+        "active",
+        420,
+        { restart: true }
+      );
     }
 
     function setActiveSlotFocus(activeSlot, pullId = overlayState.activePullId) {
@@ -4277,7 +4278,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       
       addStageEffect(pullId, "impact", 420, { restart: true });
       
-      triggerImpactFlash();
+      triggerImpactFlash(pullId);
     
       playSlotLandSound(pullId);
       triggerSocketRing(slot, finalCoin, pullId);
@@ -4483,13 +4484,13 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         finalCoin.name === "Kingmaker Coin" ||
         finalCoin.name === "Jackpot Booster"
       ) {
-        triggerImpactFlash();
+        triggerImpactFlash(pullId);
       }
       
       triggerSlotAura(finalCoin, slot, pullId);
 
       if (finalCoin.name === "Anti Coin" || (finalCoin.raw && finalCoin.raw.omenCorrupted)) {
-        triggerCorruptionWave();
+        triggerCorruptionWave(pullId);
       }
 
       const cinematicPromise = playFinalCinematic(finalCoin, slot, pullId);
