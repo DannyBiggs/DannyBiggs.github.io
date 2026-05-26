@@ -2794,7 +2794,6 @@
       "Kingmaker Coin": "👑 Kingmaker"
     };
 
-    const forgeEventQueue = [];
     let forgeEventPlaying = false;
 
     let currentForgePressurePercent = 0;
@@ -4484,6 +4483,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       overlayState.activeSlotEffects.clear();
       overlayState.activeAudio.clear();
+      overlayState.queue = [];
       
     }
 
@@ -4570,8 +4570,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       forgeEventPlaying = true;
 
-      while (forgeEventQueue.length > 0) {
-        const event = forgeEventQueue.shift();
+      while (overlayState.queue.length > 0) {
+        const event = overlayState.queue.shift();
       
         overlayState.isAnimating = true;
         overlayState.activePayload = event;
@@ -4647,7 +4647,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     }
     
     function enqueueForgeEvent(event) {
-      forgeEventQueue.push(event);
+      overlayState.queue.push(event);
       processForgeQueue();
     }
 
