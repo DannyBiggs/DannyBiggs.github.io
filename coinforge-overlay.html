@@ -4676,7 +4676,11 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           Math.min(5, Number(data.pullCount || 1))
         );
       
-        if (typeof data.forgePressure === "number") {
+        if (
+          typeof data.forgePressure === "number" &&
+          !overlayState.isAnimating &&
+          overlayState.queue.length === 0
+        ) {
           updateForgePressureGauge(data.forgePressure);
         }
       
