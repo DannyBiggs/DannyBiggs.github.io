@@ -3641,6 +3641,35 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         setForgeStageState("charged", true);
       }
     }    
+
+    window.debugForgeState = function debugForgeState() {
+      const slotWraps = Array.from(document.querySelectorAll(".slot-wrap"));
+
+      return {
+        activePullId: overlayState.activePullId,
+        isAnimating: overlayState.isAnimating,
+        queueLength: overlayState.queue.length,
+        stageClassName: forgeStage.className,
+        bodyClassName: document.body.className,
+        slotStates: Array.from(overlayState.slotStates.entries()),
+        activeSlotEffects: slotWraps
+          .map((slot, index) => ({
+            index,
+            className: slot.className,
+            state: slot.dataset.slotState
+          }))
+          .filter(slot =>
+            slot.className !== "slot-wrap" ||
+            slot.state !== "empty"
+          ),
+        lingeringEffects: {
+          impactFlash: forgeImpactFlash?.className,
+          corruptionWave: forgeCorruptionWave?.className,
+          cinematicBurst: cinematicBurst?.className,
+          screenBorder: screenBorderFX?.className
+        }
+      };
+    };
     
     function clearRevealClasses() {
       clearStageEffects();
