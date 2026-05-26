@@ -4272,16 +4272,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       }, config.durationMs);
       
       overlayState.instabilityTimers.push(timer);
-        }
       
-        if (overlayState.activeInstabilityEffects.size === 0) {
-          overlayState.instabilityState = "idle";
-          overlayState.instabilityReplayOwner = null;
-        }
-      }, config.durationMs);
-      
-      overlayState.instabilityTimers.push(timer);
-    
       return config;
     }
     
