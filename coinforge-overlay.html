@@ -3768,8 +3768,62 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       overlayState.slotStates.clear();
 
       document.querySelectorAll(".slot-wrap").forEach(slotWrap => {
+        clearSlotEffects(slotWrap, { includeLanded: true });
         slotWrap.dataset.slotState = "empty";
       });
+    }
+
+    const slotEffectClasses = [
+      "lock-impact",
+      "socket-compress",
+      "final-sync-pulse",
+      "coin-cycling",
+      "active-slot",
+      "inactive-slot",
+      "instability-overcharged",
+      "instability-scorched",
+      "instability-burned-away",
+      "burned-away-final"
+    ];
+
+    const slotLandedEffectClasses = [
+      "landed-common",
+      "landed-rare",
+      "landed-epic",
+      "landed-legendary",
+      "landed-mythic",
+      "landed-rainbow",
+      "landed-cursed"
+    ];
+
+    function clearSlotEffects(target, options = {}) {
+      const slotWrap = getSlotWrap(target);
+      if (!slotWrap) return;
+
+      slotWrap.classList.remove(...slotEffectClasses);
+
+      if (options.includeLanded === true) {
+        slotWrap.classList.remove(...slotLandedEffectClasses);
+      }
+    }
+
+    function addSlotEffect(pullId, target, className, duration = null) {
+      if (!isActivePull(pullId)) return;
+
+      const slotWrap = getSlotWrap(target);
+      if (!slotWrap || !className) return;
+
+      slotWrap.classList.add(className);
+
+      if (duration !== null) {
+        registerOwnedCleanupTimer(
+          pullId,
+          () => {
+            slotWrap.classList.remove(className);
+          },
+          duration
+        );
+      }
     }
 
     function getFinalFrameCoinKey(finalCoin) {
@@ -3964,14 +4018,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       );
     
       if (slotWrap) {
-        slotWrap.classList.remove(
-          "lock-impact",
-          "burned-away-final",
-          "instability-overcharged",
-          "instability-scorched",
-          "instability-burned-away"
-        );
-      
+        clearSlotEffects(slotWrap, { includeLanded: true });
+
         slotWrap.style.transform = "";
         slotWrap.style.filter = "";
       }
@@ -4169,7 +4217,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         playOwnedSound(pullId, burnedAwaySound, true);
       
         setSlotState(slotWrap, "burned", { pullId, coin: finalCoin.name });
-        slotWrap.classList.add("burned-away-final");
+        addSlotEffect(pullId, slotWrap, "burned-away-final");
       
         triggerCorruptionWave();
       } else {
@@ -4186,22 +4234,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       badge.textContent = label;
 
-      slotWrap.classList.remove(
-        "instability-overcharged",
-        "instability-scorched",
-        "instability-burned-away"
-      );
+      clearSlotEffects(slotWrap);
 
       void slotWrap.offsetWidth;
-      slotWrap.classList.add(className);
-
-      registerOwnedCleanupTimer(
-        pullId,
-        () => {
-          slotWrap.classList.remove(className);
-        },
-        1250
-      );
+      addSlotEffect(pullId, slotWrap, className, 1250);
 
       await wait(520);
     }
@@ -4219,7 +4255,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       
       const slotWrap = slot.closest(".slot-wrap");
       if (slotWrap) {
-        slotWrap.classList.add(`landed-${finalCoin.className}`);
+        addSlotEffect(pullId, slotWrap, `landed-${finalCoin.className}`);
       }
 
       clearCinematicStageClasses();
