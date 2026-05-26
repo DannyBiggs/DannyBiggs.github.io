@@ -2995,21 +2995,22 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         document.getElementById("forgeIgnitionCast");
     
       if (ignitionCast) {
-        ignitionCast.classList.remove("active");
-        ignitionCast.style.display = "block";
-        void ignitionCast.offsetWidth;
-        ignitionCast.classList.add("active");
-        showForgeIgnitePopup();
-    
-        registerOwnedCleanupTimer(
+        addOwnedDisplayedElementEffect(
           pullId,
-          () => {
-            ignitionCast.classList.remove("active");
-            ignitionCast.style.display = "none";
-            window.forgeIgnitionCastPlaying = false;
-          },
-          880
+          ignitionCast,
+          "active",
+          880,
+          {
+            restart: true,
+            displayValue: "block",
+            hideAfter: true,
+            onComplete: () => {
+              window.forgeIgnitionCastPlaying = false;
+            }
+          }
         );
+
+        showForgeIgnitePopup();
       } else {
         window.forgeIgnitionCastPlaying = false;
       }
@@ -3142,8 +3143,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       const slotCenterX = slotRect.left + (slotRect.width / 2) - stageRect.left;
       const slotCenterY = slotRect.top + (slotRect.height * 0.45) - stageRect.top;
     
-      sparkStrikeGif.classList.remove("active");
-    
       const randomRotation = (-14 + Math.random() * 28);
     
       sparkStrikeGif.style.left = `${slotCenterX}px`;
@@ -3152,17 +3151,13 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       sparkStrikeGif.src = `images/vfx/sparks_strike.gif?t=${Date.now()}`;
     
-      void sparkStrikeGif.offsetWidth;
-    
-      sparkStrikeGif.classList.add("active");
-    
-        registerOwnedCleanupTimer(
-          pullId,
-          () => {
-            sparkStrikeGif.classList.remove("active");
-          },
-          300
-        );
+      addOwnedElementEffect(
+        pullId,
+        sparkStrikeGif,
+        "active",
+        300,
+        { restart: true }
+      );
     }
     
     function triggerImpactFlash() {
@@ -3669,8 +3664,13 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       forgeStage.appendChild(aura);
 
-      void aura.offsetWidth;
-      aura.classList.add("active");
+      addOwnedElementEffect(
+        pullId,
+        aura,
+        "active",
+        1500,
+        { restart: true }
+      );
 
       registerOwnedCleanupTimer(
         pullId,
@@ -3679,7 +3679,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       );
     }
 
-    function triggerBurst(type, slot) {
+    function triggerBurst(type, slot, pullId) {
       const stageRect = forgeStage.getBoundingClientRect();
       const slotRect = slot.getBoundingClientRect();
 
@@ -3690,8 +3690,14 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       cinematicBurst.style.top = `${y}px`;
 
       cinematicBurst.className = `cinematic-burst ${type}`;
-      void cinematicBurst.offsetWidth;
-      cinematicBurst.classList.add("active");
+
+      addOwnedElementEffect(
+        pullId,
+        cinematicBurst,
+        "active",
+        760,
+        { restart: true }
+      );
     }
 
     async function playFinalCinematic(coin, slot, pullId) {
@@ -3699,7 +3705,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       if (coin.raw && coin.raw.devoured) {
       triggerScreenBorder("cursed");
       addStageEffect(pullId, "cinematic-cursed");
-        triggerBurst("cursed", slot);
+        triggerBurst("cursed", slot, pullId);
         await wait(380);
         return;
       }
@@ -3708,13 +3714,13 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       triggerScreenBorder("cursed");
       addStageEffect(pullId, "cinematic-cursed");
         triggerCorruptionWave();
-        triggerBurst("cursed", slot);
+        triggerBurst("cursed", slot, pullId);
         await wait(380);
         return;
       }
 
       if (coin.name === "Lucky Coin") {
-        triggerBurst("lucky", slot);
+        triggerBurst("lucky", slot, pullId);
         await wait(320);
         return;
       }
@@ -3722,7 +3728,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       if (coin.name === "Jackpot Booster") {
         triggerScreenBorder("jackpot");
         addStageEffect(pullId, "cinematic-jackpot");
-        triggerBurst("jackpot", slot);
+        triggerBurst("jackpot", slot, pullId);
         await wait(380);
         return;
       }
@@ -3730,27 +3736,27 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       if (coin.name === "Anti Coin") {
       triggerScreenBorder("cursed");
       addStageEffect(pullId, "cinematic-cursed");
-        triggerBurst("cursed", slot);
+        triggerBurst("cursed", slot, pullId);
         await wait(380);
         return;
       }
 
       if (coin.name === "Rainbow Coin") {
-        triggerBurst("rainbow", slot);
+        triggerBurst("rainbow", slot, pullId);
         await wait(420);
         return;
       }
 
       if (coin.name === "Kingmaker Coin") {
         triggerScreenBorder("mythic");
-        triggerBurst("mythic", slot);
+        triggerBurst("mythic", slot, pullId);
         await wait(420);
         return;
       }
 
       if (coin.name === "Diamond Coin") {
         addStageEffect(pullId, "cinematic-legendary");
-        triggerBurst("legendary", slot);
+        triggerBurst("legendary", slot, pullId);
         await wait(360);
       }
     }
@@ -3936,6 +3942,47 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       }
     }
 
+    function addOwnedDisplayedElementEffect(
+      pullId,
+      element,
+      className,
+      duration,
+      options = {}
+    ) {
+      if (!isActivePull(pullId)) return;
+      if (!element || !className) return;
+
+      if (options.displayValue) {
+        element.style.display = options.displayValue;
+      }
+
+      addOwnedElementEffect(
+        pullId,
+        element,
+        className,
+        duration,
+        options
+      );
+
+      if (duration !== null) {
+        registerOwnedCleanupTimer(
+          pullId,
+          () => {
+            element.classList.remove(className);
+
+            if (options.hideAfter === true) {
+              element.style.display = "none";
+            }
+
+            if (typeof options.onComplete === "function") {
+              options.onComplete();
+            }
+          },
+          duration
+        );
+      }
+    }
+    
     function clearCoinEffects(coinElement) {
       if (!coinElement) return;
 
