@@ -2787,6 +2787,38 @@
 
       return timer;
     }
+
+    function playOwnedSound(pullId, sound, restart = true)
+    {
+      if (!isActivePull(pullId)) return;
+      if (!sound) return;
+
+      overlayState.activeAudio.add(sound);
+
+      try {
+        if (restart) {
+          sound.currentTime = 0;
+        }
+
+        sound.play().catch(() => {});
+      } catch (error) {
+        console.warn("Coin Forge sound failed:", error);
+      }
+    }
+
+    function stopOwnedAudio()
+    {
+      overlayState.activeAudio.forEach(sound => {
+        try {
+          sound.pause();
+          sound.currentTime = 0;
+        } catch (error) {
+          console.warn("Coin Forge sound cleanup failed:", error);
+        }
+      });
+
+      overlayState.activeAudio.clear();
+    }
     
     function clearOverlayCleanupTimers()
     {
@@ -2932,14 +2964,12 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       animateForgePressureGauge(visiblePercent, 900);
     }
     
-    function playSlotLandSound() {
-      slotLandSound.currentTime = 0;
-      slotLandSound.play().catch(() => {});
+    function playSlotLandSound(pullId) {
+      playOwnedSound(pullId, slotLandSound, true);
     }
 
-    function playForgeHammerSound() {
-      forgeHammerSound.currentTime = 0;
-      forgeHammerSound.play().catch(() => {});
+    function playForgeHammerSound(pullId) {
+      playOwnedSound(pullId, forgeHammerSound, true);
     }
 
     function playAchievementSound() {
@@ -2947,7 +2977,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       achievementSound.play().catch(() => {});
     }
 
-    function triggerForgeIgnitionVisuals() {
+    function triggerForgeIgnitionVisuals(pullId) {
+      if (!isActivePull(pullId)) return;
       if (window.forgeIgnitionCastPlaying) return;
       window.forgeIgnitionCastPlaying = true;
     
@@ -2987,14 +3018,12 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         );
     }
     
-    function playWoodBurnSound() {
-      woodBurnSound.currentTime = 0;
-      woodBurnSound.play().catch(() => {});
+    function playWoodBurnSound(pullId) {
+      playOwnedSound(pullId, woodBurnSound, true);
     }
 
-    function playForgeIgnitionSound() {
-      forgeIgnitionSound.currentTime = 0;
-      forgeIgnitionSound.play().catch(() => {});
+    function playForgeIgnitionSound(pullId) {
+      playOwnedSound(pullId, forgeIgnitionSound, true);
     }
         
     function normalizeCoinName(name) {
@@ -3455,7 +3484,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       void forgeStage.offsetWidth;
       forgeStage.classList.add("forge-erupting");
     
-      playForgeHammerSound();
+      playForgeHammerSound(pullId);
     
       registerOwnedCleanupTimer(
         pullId,
@@ -3844,7 +3873,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
               return;
             }
 
-            playForgeHammerSound();
+            playForgeHammerSound(pullId);
             triggerSparkStrikeGif(slot, pullId);
             triggerSocketCompression(slot, pullId);
           }
@@ -3927,7 +3956,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       
       triggerImpactFlash();
     
-      playSlotLandSound();
+      playSlotLandSound(pullId);
       triggerSocketRing(slot, finalCoin, pullId);
       triggerSlotImpact(slot, finalCoin, pullId);
       
@@ -3965,7 +3994,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       );
     }
 
-    async function playWoodBurnupIfNeeded(slot, finalCoin) {
+    async function playWoodBurnupIfNeeded(slot, finalCoin, pullId) {
+      if (!isActivePull(pullId)) return;
       if (!slot || !finalCoin || finalCoin.name !== "Wood Coin") return;
       if (slot.dataset.woodBurned === "true") return;
       slot.dataset.woodBurned = "true";
@@ -3993,7 +4023,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       window.currentWoodBurnIndex = currentWoodIndex + 1;
 
       if (remainingToIgnition === 0) {
-        playForgeIgnitionSound();
+        playForgeIgnitionSound(pullId);
       }
     
       slot.classList.add("wood-burn-prep");
@@ -4022,10 +4052,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       forgeStage.appendChild(fire);
       forgeStage.appendChild(counter);
       
-      playWoodBurnSound();
+     playWoodBurnSound(pullId);
       
       if (remainingToIgnition === 0) {
-        triggerForgeIgnitionVisuals();
+        triggerForgeIgnitionVisuals(pullId);
       }
     
       await wait(320);
@@ -4070,15 +4100,14 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         screenBorderFX.classList.remove("jackpot");
         void screenBorderFX.offsetWidth;
         screenBorderFX.classList.add("jackpot");
-        playForgeHammerSound();
+        playForgeHammerSound(pullId);
       } else if (effect === "Scorched") {
         label = "SCORCHED";
         className = "instability-scorched";
       } else if (effect === "BurnedAway") {
         label = "BURNED AWAY";
         className = "instability-burned-away";
-        burnedAwaySound.currentTime = 0;
-        burnedAwaySound.play().catch(() => {});
+        playOwnedSound(pullId, burnedAwaySound, true);
       
         slotWrap.classList.add("burned-away-final");
       
@@ -4166,7 +4195,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       if (!isActivePull(pullId)) return;
 
-      await playWoodBurnupIfNeeded(slot, finalCoin);
+      await playWoodBurnupIfNeeded(slot, finalCoin, pullId);
 
       if (finalCoin.raw && finalCoin.raw.comboBroken) {
         queueComboDisplay("broken");
@@ -4470,7 +4499,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         clearOverlayCleanupTimers();
 
         overlayState.activeSlotEffects.clear();
-        overlayState.activeAudio.clear();
+        stopOwnedAudio();
 
         return;
       }
@@ -4562,7 +4591,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       clearOverlayCleanupTimers();
 
       overlayState.activeSlotEffects.clear();
-      overlayState.activeAudio.clear();
+        stopOwnedAudio();
       
     }
 
