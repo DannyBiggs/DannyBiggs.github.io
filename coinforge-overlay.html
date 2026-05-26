@@ -2749,7 +2749,9 @@
     
       currentPressure: 0,
     
-      eruptionActive: false
+      eruptionActive: false,
+
+      comboDisplayKeys: new Set()
     };
 
     function registerCleanupTimer(timer)
@@ -2867,6 +2869,7 @@
 
     const comboDisplayQueue = [];
     let comboDisplayActive = false;
+    let comboDisplayRunId = 0;
     
     const coinFrameCache = {};
 
@@ -4198,7 +4201,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       await playWoodBurnupIfNeeded(slot, finalCoin, pullId);
 
       if (finalCoin.raw && finalCoin.raw.comboBroken) {
-        queueComboDisplay("broken");
+        queueComboDisplay("broken", null, pullId);
       }
       
       if (
@@ -4207,7 +4210,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         finalCoin.raw.comboMilestones.length > 0
       ) {
         finalCoin.raw.comboMilestones.forEach(milestone => {
-          queueComboDisplay("milestone", milestone);
+          queueComboDisplay("milestone", milestone, pullId);
         });
       }
       
@@ -4392,19 +4395,41 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       achievementDisplayActive = false;
     }
 
-    function queueComboDisplay(type, value = null) {
-      comboDisplayQueue.push({ type, value });
+    function queueComboDisplay(type, value = null, pullId) {
+      if (!isActivePull(pullId)) return;
+
+      const comboKey = `${pullId}:${type}:${value ?? ""}`;
+
+      if (overlayState.comboDisplayKeys.has(comboKey)) return;
+
+      overlayState.comboDisplayKeys.add(comboKey);
+      comboDisplayQueue.push({ type, value, pullId });
       processComboDisplayQueue();
+    }
+
+    function clearComboDisplayState() {
+      comboDisplayRunId++;
+      comboDisplayQueue.length = 0;
+      comboDisplayActive = false;
+      overlayState.comboDisplayKeys.clear();
+
+      if (comboPopup) {
+        comboPopup.className = "combo-popup";
+        comboPopup.innerText = "";
+      }
     }
     
     async function processComboDisplayQueue() {
       if (comboDisplayActive) return;
     
       comboDisplayActive = true;
+      const runId = comboDisplayRunId;
     
-      while (comboDisplayQueue.length > 0) {
+      while (comboDisplayQueue.length > 0 && runId === comboDisplayRunId) {
         const item = comboDisplayQueue.shift();
-        showComboPopup(item.type, item.value);
+        if (!isActivePull(item.pullId)) continue;
+
+        showComboPopup(item.type, item.value, item.pullId);
         if (item.type === "broken") {
           await wait(1900);
         } else {
@@ -4426,9 +4451,15 @@ function getCachedCoinFrame(coinKey, frameNumber) {
               break;
           }
         }
+        if (!isActivePull(item.pullId)) {
+          clearComboDisplayState();
+          return;
+        }
       }
     
-      comboDisplayActive = false;
+      if (runId === comboDisplayRunId) {
+        comboDisplayActive = false;
+      }
     }
 
     function showForgeIgnitePopup() {
@@ -4438,17 +4469,19 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       comboPopup.innerText = "THE FORGE IGNITES";
     }
     
-    function showComboPopup(type, value = null) {
+    function showComboPopup(type, value = null, pullId) {
+      if (!isActivePull(pullId)) return;
       if (!comboPopup) return;
     
       comboPopup.className = "combo-popup";
+      comboPopup.innerText = "";
+      void comboPopup.offsetWidth;
     
       if (type === "broken") {
         comboPopup.innerText = "COMBO BROKEN";
         comboPopup.classList.add("broken", "visible");
     
-        comboSounds.broken.currentTime = 0;
-        comboSounds.broken.play().catch(() => {});
+        playOwnedSound(pullId, comboSounds.broken, true);
         return;
       }
     
@@ -4457,8 +4490,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       const sound = comboSounds[value];
       if (sound) {
-        sound.currentTime = 0;
-        sound.play().catch(() => {});
+        playOwnedSound(pullId, sound, true);
       }
     }
     
@@ -4467,6 +4499,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       if (!isActivePull(pullId)) return;
 
+      clearComboDisplayState();
       clearRevealClasses();
       window.currentForgeEvent = event;
 
@@ -4592,6 +4625,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       overlayState.activeSlotEffects.clear();
         stopOwnedAudio();
+        clearComboDisplayState();
       
     }
 
