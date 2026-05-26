@@ -2755,6 +2755,8 @@
     
       eruptionActive: false,
 
+      eruptionState: "idle",
+
       comboDisplayKeys: new Set(),
 
       comboMilestoneHistory: new Set(),
@@ -3532,11 +3534,31 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       );
     }
 
+    const forgeEruptionStateClasses = [
+      "eruption-idle",
+      "eruption-erupting"
+    ];
+
+    function setForgeEruptionState(state) {
+      const safeState = state || "idle";
+
+      overlayState.eruptionState = safeState;
+      overlayState.eruptionActive = safeState !== "idle";
+
+      if (forgeStage) {
+        forgeStage.dataset.eruptionState = safeState;
+        forgeStage.classList.remove(...forgeEruptionStateClasses);
+        forgeStage.classList.add(`eruption-${safeState}`);
+      }
+
+      return safeState;
+    }
+
     function triggerForgeEruptionVisuals(pullId) {
       if (!isActivePull(pullId)) return;
       if (!forgeStage) return;
 
-      overlayState.eruptionActive = true;
+      setForgeEruptionState("erupting");
       overlayState.forgeState = "erupting";
     
       addStageEffect(pullId, "forge-erupting", 1900, { restart: true });
@@ -3544,7 +3566,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       registerOwnedCleanupTimer(
         pullId,
         () => {
-          overlayState.eruptionActive = false;
+          setForgeEruptionState("idle");
           overlayState.forgeState = "active";
         },
         1900
@@ -3709,6 +3731,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           .filter(className => className.startsWith("pressure-")),
         pressureGlowActive: overlayState.pressureGlowActive,
         eruptionActive: overlayState.eruptionActive,
+        eruptionState: overlayState.eruptionState,
+        stageEruptionState: forgeStage?.dataset?.eruptionState || "",
+        stageEruptionClass: Array.from(forgeStage?.classList || [])
+          .filter(className => className.startsWith("eruption-")),
         stageClassName: forgeStage.className,
         bodyClassName: document.body.className,
         slotStates: Array.from(overlayState.slotStates.entries()),
@@ -4953,12 +4979,12 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         slotRow.innerHTML = "";
 
         clearForgePressureGlow();
+        setForgeEruptionState("idle");
 
         overlayState.isAnimating = false;
         overlayState.activePayload = null;
         overlayState.activePullId = null;
         overlayState.forgeState = "idle";
-        overlayState.eruptionActive = false;
 
         clearOverlayCleanupTimers();
 
@@ -5037,12 +5063,12 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       slotRow.innerHTML = "";
 
       clearForgePressureGlow();
+      setForgeEruptionState("idle");
 
       overlayState.isAnimating = false;
       overlayState.activePayload = null;
       overlayState.activePullId = null;
       overlayState.forgeState = "idle";
-      overlayState.eruptionActive = false;
 
       clearOverlayCleanupTimers();
 
