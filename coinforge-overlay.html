@@ -3934,15 +3934,14 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     };
 
     window.resetForgeInstabilityTest = function resetForgeInstabilityTest() {
-      resetForgeInstabilityOwnership({ includePersistent: true });
-
-      overlayState.activePullId = null;
-      overlayState.instabilityReplayOwner = null;
-      overlayState.forgeState = "idle";
-
       clearSlotStates();
       slotRow.innerHTML = "";
       hideForgeStage();
+
+      resetForgeRuntimeOwnership({
+        includePersistent: true,
+        clearPullOwnership: true
+      });
 
       return window.debugForgeState();
     };
@@ -4292,6 +4291,26 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           slotWrap.classList.remove("burned-away-final");
         }
       });
+    }
+
+    function resetForgeRuntimeOwnership(options = {}) {
+      const includePersistent = options.includePersistent === true;
+      const clearPullOwnership = options.clearPullOwnership === true;
+
+      clearOverlayCleanupTimers();
+
+      resetForgeInstabilityOwnership({
+        includePersistent
+      });
+
+      overlayState.activeSlotEffects.clear();
+
+      if (clearPullOwnership) {
+        overlayState.isAnimating = false;
+        overlayState.activePayload = null;
+        overlayState.activePullId = null;
+        overlayState.forgeState = "idle";
+      }
     }
     
     function setForgeInstabilityState(slotWrap, config, pullId, finalCoin) {
@@ -5262,16 +5281,12 @@ async function triggerForgeInstabilityVisual(slot, finalCoin, pullId) {
 
         resetForgePressureLifecycleVisuals();
 
-        overlayState.isAnimating = false;
-        overlayState.activePayload = null;
-        overlayState.activePullId = null;
-        overlayState.forgeState = "idle";
-
-        clearOverlayCleanupTimers();
-
-        overlayState.activeSlotEffects.clear();
         clearSlotStates();
-        resetForgeInstabilityOwnership({ includePersistent: true });
+
+        resetForgeRuntimeOwnership({
+          includePersistent: true,
+          clearPullOwnership: true
+        });
         stopOwnedAudio();
 
         return;
@@ -5347,15 +5362,10 @@ async function triggerForgeInstabilityVisual(slot, finalCoin, pullId) {
       
       resetForgePressureLifecycleVisuals();
       
-      overlayState.isAnimating = false;
-      overlayState.activePayload = null;
-      overlayState.activePullId = null;
-      overlayState.forgeState = "idle";
-      
-      clearOverlayCleanupTimers();
-      resetForgeInstabilityOwnership({ includePersistent: true });
-      
-      overlayState.activeSlotEffects.clear();
+      resetForgeRuntimeOwnership({
+        includePersistent: true,
+        clearPullOwnership: true
+      });
       stopOwnedAudio();
       clearComboDisplayState();
       
