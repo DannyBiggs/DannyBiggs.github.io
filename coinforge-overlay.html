@@ -2753,7 +2753,9 @@
 
       comboDisplayKeys: new Set(),
 
-      comboMilestoneHistory: new Set()
+      comboMilestoneHistory: new Set(),
+
+      slotStates: new Map()
     };
 
     function registerCleanupTimer(timer)
@@ -3694,10 +3696,13 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
     function createSlots(count) {
       slotRow.innerHTML = "";
+      overlayState.slotStates.clear();
 
       for (let i = 0; i < count; i++) {
         const slotWrap = document.createElement("div");
         slotWrap.className = "slot-wrap";
+        slotWrap.dataset.slotIndex = String(i);
+        slotWrap.dataset.slotState = "empty";
 
         const img = document.createElement("img");
         img.className = "sim-coin slot-coin";
@@ -3727,7 +3732,44 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         slotWrap.appendChild(burnedAwayGif);
         slotWrap.appendChild(instabilityBadge);
         slotRow.appendChild(slotWrap);
+
+        setSlotState(slotWrap, "empty");
       }
+    }
+
+    function getSlotWrap(target) {
+      if (!target) return null;
+
+      if (target.classList && target.classList.contains("slot-wrap")) {
+        return target;
+      }
+
+      return target.closest ? target.closest(".slot-wrap") : null;
+    }
+
+    function setSlotState(target, nextState, extra = {}) {
+      const slotWrap = getSlotWrap(target);
+      if (!slotWrap) return;
+
+      const slotIndex = slotWrap.dataset.slotIndex || "unknown";
+      const previousState = slotWrap.dataset.slotState || "unknown";
+
+      slotWrap.dataset.slotState = nextState;
+
+      overlayState.slotStates.set(slotIndex, {
+        state: nextState,
+        previousState,
+        updatedAt: Date.now(),
+        ...extra
+      });
+    }
+
+    function clearSlotStates() {
+      overlayState.slotStates.clear();
+
+      document.querySelectorAll(".slot-wrap").forEach(slotWrap => {
+        slotWrap.dataset.slotState = "empty";
+      });
     }
 
     function getFinalFrameCoinKey(finalCoin) {
@@ -3912,6 +3954,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     async function growAndFakeoutSlot(slot, finalCoin, index, pullId) {
       if (!isActivePull(pullId)) return;
       const slotWrap = slot.closest(".slot-wrap");
+      setSlotState(slotWrap, "forming", { pullId, coin: finalCoin.name });
       delete slot.dataset.hammerSoundPlayed;
       delete slot.dataset.woodBurned;
       
@@ -3945,6 +3988,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       void slot.offsetWidth;
       
       slot.classList.add("forming-from-forge");
+      setSlotState(slotWrap, "spinning", { pullId, coin: finalCoin.name });
       
       await playFrameCoinSequence(slot, slotWrap, finalCoin, pullId);
 
@@ -3962,6 +4006,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       // FINAL LOCK + VISUAL IMPACT HAPPEN TOGETHER
       slot.src = coinFileForSlot(finalCoin, index);
       slot.classList.add("landed");
+      setSlotState(slotWrap, "landed", { pullId, coin: finalCoin.name });
       
       forgeStage.classList.remove("impact");
       void forgeStage.offsetWidth;
@@ -4039,6 +4084,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         playForgeIgnitionSound(pullId);
       }
     
+      setSlotState(slot, "burning", { pullId, coin: finalCoin.name });
       slot.classList.add("wood-burn-prep");
       await wait(700);
       slot.classList.remove("wood-burn-prep");
@@ -4122,6 +4168,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         className = "instability-burned-away";
         playOwnedSound(pullId, burnedAwaySound, true);
       
+        setSlotState(slotWrap, "burned", { pullId, coin: finalCoin.name });
         slotWrap.classList.add("burned-away-final");
       
         triggerCorruptionWave();
@@ -4571,6 +4618,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         clearOverlayCleanupTimers();
 
         overlayState.activeSlotEffects.clear();
+        clearSlotStates();
         stopOwnedAudio();
 
         return;
@@ -4653,6 +4701,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       
       await wait(350);
       
+      clearSlotStates();
       slotRow.innerHTML = "";
 
       overlayState.isAnimating = false;
