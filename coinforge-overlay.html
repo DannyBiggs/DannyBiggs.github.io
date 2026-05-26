@@ -2966,6 +2966,14 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       forgePressureAnimationFrame = requestAnimationFrame(step);
     }
     
+    const forgePressureStateClasses = [
+      "pressure-empty",
+      "pressure-low",
+      "pressure-warm",
+      "pressure-volatile",
+      "pressure-critical"
+    ];
+
     function getForgePressureState(actualPressure) {
       const safePressure = Math.max(0, Math.min(100, Number(actualPressure) || 0));
 
@@ -2981,6 +2989,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       if (forgeStage) {
         forgeStage.dataset.pressureState = overlayState.pressureState;
+        forgeStage.classList.remove(...forgePressureStateClasses);
+        forgeStage.classList.add(`pressure-${overlayState.pressureState}`);
       }
 
       return overlayState.pressureState;
@@ -3695,6 +3705,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         currentPressure: overlayState.currentPressure,
         pressureState: overlayState.pressureState,
         stagePressureState: forgeStage?.dataset?.pressureState || "",
+        stagePressureClass: Array.from(forgeStage?.classList || [])
+          .filter(className => className.startsWith("pressure-")),
         pressureGlowActive: overlayState.pressureGlowActive,
         eruptionActive: overlayState.eruptionActive,
         stageClassName: forgeStage.className,
