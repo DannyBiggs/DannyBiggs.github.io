@@ -3693,16 +3693,17 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       cinematicBurst.className = `cinematic-burst ${type}`;
 
+      cinematicBurst.style.animation = "none";
       void cinematicBurst.offsetWidth;
-      cinematicBurst.classList.add("active");
+      cinematicBurst.style.animation = "burstPop 750ms ease-out";
 
-      const clearBurstActive = () => {
-        cinematicBurst.classList.remove("active");
+      const clearBurstAnimation = () => {
+        cinematicBurst.style.animation = "";
+        cinematicBurst.removeEventListener("animationend", clearBurstAnimation);
       };
 
-      cinematicBurst.addEventListener("animationend", clearBurstActive, { once: true });
-
-      setTimeout(clearBurstActive, 900);
+      cinematicBurst.addEventListener("animationend", clearBurstAnimation);
+      setTimeout(clearBurstAnimation, 900);
     }
 
     async function playFinalCinematic(coin, slot, pullId) {
@@ -4409,14 +4410,11 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         label = "BURNED AWAY";
         className = "instability-burned-away";
         playOwnedSound(pullId, burnedAwaySound, true);
-      
-        setSlotState(slotWrap, "burned", { pullId, coin: finalCoin.name });
-        addSlotEffect(pullId, slotWrap, "burned-away-final");
-      
-        triggerCorruptionWave();
       } else {
         return;
       }
+
+      clearSlotEffects(slotWrap);
 
       let badge = slotWrap.querySelector(".forge-instability-badge");
 
@@ -4428,7 +4426,11 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       badge.textContent = label;
 
-      clearSlotEffects(slotWrap);
+      if (effect === "BurnedAway") {
+        setSlotState(slotWrap, "burned", { pullId, coin: finalCoin.name });
+        addSlotEffect(pullId, slotWrap, "burned-away-final");
+        triggerCorruptionWave();
+      }
 
       void slotWrap.offsetWidth;
       addSlotEffect(pullId, slotWrap, className, 1250);
