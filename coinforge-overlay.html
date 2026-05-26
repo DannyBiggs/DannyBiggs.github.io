@@ -3941,6 +3941,9 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       slotRow.innerHTML = "";
       hideForgeStage();
 
+      document.body.classList.remove("forge-active");
+      forgeStage.classList.remove("visible");
+
       resetForgeRuntimeOwnership({
         includePersistent: true,
         clearPullOwnership: true
