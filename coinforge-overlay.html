@@ -3014,19 +3014,9 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         window.forgeIgnitionCastPlaying = false;
       }
     
-      forgeStage.classList.remove("impact");
-      void forgeStage.offsetWidth;
-      forgeStage.classList.add("impact");
+      addStageEffect(pullId, "impact", 420, { restart: true });
     
       document.body.classList.add("forge-active");
-    
-        registerOwnedCleanupTimer(
-          pullId,
-          () => {
-            forgeStage.classList.remove("impact");
-          },
-          420
-        );
     }
     
     function playWoodBurnSound(pullId) {
@@ -3551,23 +3541,59 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       );
     }
     
+    const stageRevealEffectClasses = [
+      "reveal-common",
+      "reveal-rare",
+      "reveal-epic",
+      "reveal-legendary",
+      "reveal-mythic",
+      "reveal-rainbow",
+      "reveal-cursed"
+    ];
+
+    const stageEffectClasses = [
+      ...stageRevealEffectClasses,
+      "impact",
+      "cinematic-jackpot",
+      "cinematic-cursed",
+      "cinematic-mythic",
+      "cinematic-legendary",
+      "escalate-warm",
+      "escalate-cursed"
+    ];
+
+    function clearStageRevealEffects() {
+      forgeStage.classList.remove(...stageRevealEffectClasses);
+    }
+
+    function clearStageEffects() {
+      forgeStage.classList.remove(...stageEffectClasses);
+    }
+
+    function addStageEffect(pullId, className, duration = null, options = {}) {
+      if (!isActivePull(pullId)) return;
+      if (!className) return;
+
+      if (options.restart === true) {
+        forgeStage.classList.remove(className);
+        void forgeStage.offsetWidth;
+      }
+
+      forgeStage.classList.add(className);
+
+      if (duration !== null) {
+        registerOwnedCleanupTimer(
+          pullId,
+          () => {
+            forgeStage.classList.remove(className);
+          },
+          duration
+        );
+      }
+    }
+
     function clearRevealClasses() {
-      forgeStage.classList.remove(
-        "reveal-common",
-        "reveal-rare",
-        "reveal-epic",
-        "reveal-legendary",
-        "reveal-mythic",
-        "reveal-rainbow",
-        "reveal-cursed",
-        "impact",
-        "cinematic-jackpot",
-        "cinematic-cursed",
-        "cinematic-mythic",
-        "cinematic-legendary",
-        "escalate-warm",
-        "escalate-cursed"
-      );
+      clearStageEffects();
 
       cinematicBurst.className = "cinematic-burst";
       forgeImpactFlash.className = "forge-impact-flash";
@@ -4116,9 +4142,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       addCoinEffect(pullId, slot, "landed", null, { restart: true });
       setSlotState(slotWrap, "landed", { pullId, coin: finalCoin.name });
       
-      forgeStage.classList.remove("impact");
-      void forgeStage.offsetWidth;
-      forgeStage.classList.add("impact");
+      addStageEffect(pullId, "impact", 420, { restart: true });
       
       triggerImpactFlash();
     
@@ -4319,10 +4343,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       clearCinematicStageClasses();
 
-      forgeStage.classList.remove("impact");
-      void forgeStage.offsetWidth;
-
-      forgeStage.classList.add(`reveal-${finalCoin.className}`, "impact");
+      addStageEffect(pullId, `reveal-${finalCoin.className}`);
+      addStageEffect(pullId, "impact", 180, { restart: true });
 
       if (
         finalCoin.name === "Rainbow Coin" ||
@@ -4342,7 +4364,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       await wait(160);
 
-      forgeStage.classList.remove("impact");
+      // Impact cleanup is now owned by addStageEffect(...).
       
       await cinematicPromise;
 
@@ -4772,22 +4794,14 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         await Promise.all(spinPromises);
       }
 
-      forgeStage.classList.add(`reveal-${highestClass}`);
+      addStageEffect(pullId, `reveal-${highestClass}`);
       
       triggerFinalSlotPulse(pullId);
       await wait(180);
 
       await wait(event.displayMs || 1500);
 
-      forgeStage.classList.remove(
-        "reveal-common",
-        "reveal-rare",
-        "reveal-epic",
-        "reveal-legendary",
-        "reveal-mythic",
-        "reveal-rainbow",
-        "reveal-cursed"
-      );
+      clearStageRevealEffects();
       
       forgeStage.classList.remove("visible", "charged", "forge-ignited-active");
       document.body.classList.remove("forge-ignited-active");
