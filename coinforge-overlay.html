@@ -3871,7 +3871,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
         const coin = document.createElement("img");
         coin.className = "slot-coin landed";
-        coin.src = COIN_IMAGES.Gold;
+        coin.src = getCoinImagePath("Gold");
         coin.alt = "Debug Coin";
 
         const burnedAwayGif = document.createElement("img");
