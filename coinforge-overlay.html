@@ -3087,7 +3087,9 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       element.classList.add(className);
     }
 
-    function triggerSocketCompression(slot) {
+    function triggerSocketCompression(slot, pullId) {
+      if (!isActivePull(pullId)) return;
+
       const slotWrap = slot.closest(".slot-wrap");
       if (!slotWrap) return;
     
@@ -3095,14 +3097,17 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       void slotWrap.offsetWidth;
       slotWrap.classList.add("socket-compress");
     
-          registerCleanupTimer(
-            setTimeout(() => {
+          registerOwnedCleanupTimer(
+            pullId,
+            () => {
               slotWrap.classList.remove("socket-compress");
-            }, 420)
+            },
+            420
           );
       }
       
-      function triggerSparkStrikeGif(slot) {
+      function triggerSparkStrikeGif(slot, pullId) {
+      if (!isActivePull(pullId)) return;
       if (!sparkStrikeGif || !slot || !forgeStage) return;
     
       const slotRect = slot.getBoundingClientRect();
@@ -3125,10 +3130,12 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       sparkStrikeGif.classList.add("active");
     
-        registerCleanupTimer(
-          setTimeout(() => {
+        registerOwnedCleanupTimer(
+          pullId,
+          () => {
             sparkStrikeGif.classList.remove("active");
-          }, 300)
+          },
+          300
         );
     }
     
@@ -3164,7 +3171,9 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       screenBorderFX.classList.add(type);
     }
 
-    function triggerSocketRing(slot, finalCoin) {
+    function triggerSocketRing(slot, finalCoin, pullId) {
+      if (!isActivePull(pullId)) return;
+
       const slotWrap = slot.closest(".slot-wrap");
       if (!slotWrap || !finalCoin) return;
     
@@ -3181,7 +3190,9 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       ring.classList.add("active");
     }
 
-    function triggerPixelSparks(slot) {
+    function triggerPixelSparks(slot, pullId) {
+      if (!isActivePull(pullId)) return;
+
       const slotWrap = slot.closest(".slot-wrap");
       if (!slotWrap) return;
     
@@ -3269,14 +3280,18 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       sparkLayer.appendChild(emberEl);
     });
       
-      registerCleanupTimer(
-        setTimeout(() => {
+      registerOwnedCleanupTimer(
+        pullId,
+        () => {
           sparkLayer.innerHTML = "";
-        }, 900)
+        },
+        900
       );
     }
     
-    function triggerSlotImpact(slot, finalCoin) {
+    function triggerSlotImpact(slot, finalCoin, pullId) {
+      if (!isActivePull(pullId)) return;
+
       const slotWrap = slot.closest(".slot-wrap");
       if (!slotWrap) return;
     
@@ -3311,23 +3326,31 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       ) {
         forgeStage.classList.add("escalate-cursed");
 
-        registerCleanupTimer(
-          setTimeout(() => {
+        registerOwnedCleanupTimer(
+          pullId,
+          () => {
             forgeStage.classList.remove("escalate-cursed");
-          }, 650)
+          },
+          650
         );
       }
     }
     
-    function triggerFinalSlotPulse() {
+    function triggerFinalSlotPulse(pullId) {
+      if (!isActivePull(pullId)) return;
+
       const wraps = document.querySelectorAll(".slot-wrap");
     
       wraps.forEach((slotWrap, index) => {
-        setTimeout(() => {
-          slotWrap.classList.remove("final-sync-pulse");
-          void slotWrap.offsetWidth;
-          slotWrap.classList.add("final-sync-pulse");
-        }, index * 45);
+        registerOwnedCleanupTimer(
+          pullId,
+          () => {
+            slotWrap.classList.remove("final-sync-pulse");
+            void slotWrap.offsetWidth;
+            slotWrap.classList.add("final-sync-pulse");
+          },
+          index * 45
+        );
       });
     }
     
@@ -3732,7 +3755,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       return { growDuration: 1450, frameDelay: 11, totalFrames: 88 };
     }
     
-    async function playFrameCoinSequence(slot, slotWrap, finalCoin) {
+    async function playFrameCoinSequence(slot, slotWrap, finalCoin, pullId) {
+      if (!isActivePull(pullId)) return;
       if (!slot || !slotWrap) return;
     
       slotWrap.getAnimations().forEach(anim => anim.cancel());
@@ -3768,6 +3792,11 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       const finalFrameCoinKey = getFinalFrameCoinKey(finalCoin);
           
       for (let i = 0; i < totalFrames; i++) {
+        if (!isActivePull(pullId)) {
+          growAnim.cancel();
+          return;
+        }
+
         frame++;
     
         if (frame > coinFrameCount) {
@@ -3810,9 +3839,14 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         
           if (!slot.dataset.hammerSoundPlayed) {
             slot.dataset.hammerSoundPlayed = "true";
+            if (!isActivePull(pullId)) {
+              growAnim.cancel();
+              return;
+            }
+
             playForgeHammerSound();
-            triggerSparkStrikeGif(slot);
-            triggerSocketCompression(slot);
+            triggerSparkStrikeGif(slot, pullId);
+            triggerSocketCompression(slot, pullId);
           }
         
           await wait(15);
@@ -3870,7 +3904,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       
       slot.classList.add("forming-from-forge");
       
-      await playFrameCoinSequence(slot, slotWrap, finalCoin);
+      await playFrameCoinSequence(slot, slotWrap, finalCoin, pullId);
 
       if (!isActivePull(pullId)) return;
 
@@ -3894,8 +3928,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       triggerImpactFlash();
     
       playSlotLandSound();
-      triggerSocketRing(slot, finalCoin);
-      triggerSlotImpact(slot, finalCoin);
+      triggerSocketRing(slot, finalCoin, pullId);
+      triggerSlotImpact(slot, finalCoin, pullId);
       
       const coinPressureAfter =
         finalCoin.raw &&
@@ -3914,12 +3948,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           triggerForgeEruptionVisuals(pullId);
 
           animateForgePressureGauge(37, 520);
-          
-          registerCleanupTimer(
-            setTimeout(() => {
-              forgeStage.classList.remove("forge-erupting");
-            }, 1900)
-          );
       
         } else {
       
@@ -3928,10 +3956,12 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         }
       }
       
-      registerCleanupTimer(
-        setTimeout(() => {
+      registerOwnedCleanupTimer(
+        pullId,
+        () => {
           clearForgePressure();
-        }, 420)
+        },
+        420
       );
     }
 
@@ -4500,7 +4530,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       forgeStage.classList.add(`reveal-${highestClass}`);
       
-      triggerFinalSlotPulse();
+      triggerFinalSlotPulse(pullId);
       await wait(180);
 
       await wait(event.displayMs || 1500);
