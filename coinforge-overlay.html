@@ -2744,6 +2744,14 @@
       cleanupTimers: [],
     
       activeSlotEffects: new Map(),
+
+      activeInstabilityEffects: new Map(),
+      
+      instabilityTimers: [],
+      
+      instabilityState: "idle",
+      
+      instabilityReplayOwner: null,
     
       activeAudio: new Set(),
     
@@ -3807,6 +3815,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         eruptionActive: overlayState.eruptionActive,
         eruptionState: overlayState.eruptionState,
         eruptionSource: overlayState.eruptionSource,
+        instabilityState: overlayState.instabilityState,
+        instabilityReplayOwner: overlayState.instabilityReplayOwner,
+        activeInstabilityEffects: Array.from(overlayState.activeInstabilityEffects.entries()),
+        instabilityTimers: overlayState.instabilityTimers.length,
         stageEruptionState: forgeStage?.dataset?.eruptionState || "",
         stageEruptionClass: Array.from(forgeStage?.classList || [])
           .filter(className => className.startsWith("eruption-")),
@@ -4101,6 +4113,161 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       "landed-cursed"
     ];
 
+    const forgeInstabilityRegistry = {
+      Overcharged: {
+        state: "overcharged",
+        className: "instability-overcharged",
+        label: "x2 OVERCHARGED",
+        durationMs: 1250,
+        waitMs: 520,
+        persistentClassName: "",
+        enter({ pullId, slotWrap, slot }) {
+          const duplicateCoin =
+            slotWrap.querySelector(".overcharge-duplicate-coin");
+    
+          if (duplicateCoin) {
+            duplicateCoin.src = slot.src;
+          }
+    
+          triggerScreenBorder("jackpot", pullId);
+          playForgeHammerSound(pullId);
+        }
+      },
+    
+      Scorched: {
+        state: "scorched",
+        className: "instability-scorched",
+        label: "SCORCHED",
+        durationMs: 1250,
+        waitMs: 520,
+        persistentClassName: "",
+        enter() {}
+      },
+    
+      BurnedAway: {
+        state: "burned-away",
+        className: "instability-burned-away",
+        label: "BURNED AWAY",
+        durationMs: 1250,
+        waitMs: 520,
+        persistentClassName: "burned-away-final",
+        enter({ pullId, slotWrap, finalCoin }) {
+          setSlotState(slotWrap, "burned", { pullId, coin: finalCoin.name });
+          addSlotEffect(pullId, slotWrap, "burned-away-final");
+          triggerCorruptionWave(pullId);
+          playOwnedSound(pullId, burnedAwaySound, true);
+        }
+      }
+    };
+    
+    function clearForgeInstabilityTimers() {
+      overlayState.instabilityTimers.forEach(timer =>
+        clearTimeout(timer)
+      );
+    
+      overlayState.instabilityTimers = [];
+    }
+    
+    function resetForgeInstabilityOwnership(options = {}) {
+      clearForgeInstabilityTimers();
+    
+      overlayState.instabilityState = "idle";
+      overlayState.activeInstabilityEffects.clear();
+      overlayState.instabilityReplayOwner = null;
+    
+      document.querySelectorAll(".slot-wrap").forEach(slotWrap => {
+        slotWrap.dataset.instabilityState = "idle";
+        slotWrap.dataset.instabilityEffect = "";
+    
+        slotWrap.classList.remove(
+          "instability-overcharged",
+          "instability-scorched",
+          "instability-burned-away"
+        );
+    
+        if (options.includePersistent === true) {
+          slotWrap.classList.remove("burned-away-final");
+        }
+      });
+    }
+    
+    function setForgeInstabilityState(slotWrap, config, pullId, finalCoin) {
+      const slotIndex = slotWrap.dataset.slotIndex || "unknown";
+    
+      overlayState.instabilityState = config.state;
+      overlayState.instabilityReplayOwner = pullId;
+    
+      slotWrap.dataset.instabilityState = config.state;
+      slotWrap.dataset.instabilityEffect = config.className;
+    
+      overlayState.activeInstabilityEffects.set(slotIndex, {
+        pullId,
+        state: config.state,
+        className: config.className,
+        coin: finalCoin?.name || "",
+        startedAt: Date.now()
+      });
+    }
+    
+    function activateForgeInstabilityEffect({
+      pullId,
+      slotWrap,
+      slot,
+      finalCoin,
+      effect
+    }) {
+      if (!isActivePull(pullId)) return null;
+    
+      const config = forgeInstabilityRegistry[effect];
+      if (!config) return null;
+    
+      clearSlotEffects(slotWrap);
+    
+      let badge = slotWrap.querySelector(".forge-instability-badge");
+    
+      if (!badge) {
+        badge = document.createElement("div");
+        badge.className = "forge-instability-badge";
+        slotWrap.appendChild(badge);
+      }
+    
+      badge.textContent = config.label;
+    
+      setForgeInstabilityState(slotWrap, config, pullId, finalCoin);
+    
+      if (typeof config.enter === "function") {
+        config.enter({ pullId, slotWrap, slot, finalCoin });
+      }
+    
+      void slotWrap.offsetWidth;
+    
+      addSlotEffect(
+        pullId,
+        slotWrap,
+        config.className,
+        config.durationMs,
+        { restart: true }
+      );
+    
+      const slotIndex = slotWrap.dataset.slotIndex || "unknown";
+    
+      const timer = setTimeout(() => {
+        if (!isActivePull(pullId)) return;
+    
+        slotWrap.classList.remove(config.className);
+    
+        if (!config.persistentClassName) {
+          slotWrap.dataset.instabilityState = "idle";
+          slotWrap.dataset.instabilityEffect = "";
+          overlayState.activeInstabilityEffects.delete(slotIndex);
+        }
+      }, config.durationMs);
+    
+      overlayState.instabilityTimers.push(timer);
+    
+      return config;
+    }
+    
     function clearSlotEffects(target, options = {}) {
       const slotWrap = getSlotWrap(target);
       if (!slotWrap) return;
@@ -4565,65 +4732,28 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       counter.remove();
     }
 
-    async function triggerForgeInstabilityVisual(slot, finalCoin, pullId) {
-      if (!isActivePull(pullId)) return;
-      if (!slot || !finalCoin || !finalCoin.raw) return;
+async function triggerForgeInstabilityVisual(slot, finalCoin, pullId) {
+  if (!isActivePull(pullId)) return;
+  if (!slot || !finalCoin || !finalCoin.raw) return;
 
-      const effect = finalCoin.raw.forgeInstabilityEffect || "";
-      if (!effect) return;
+  const effect = finalCoin.raw.forgeInstabilityEffect || "";
+  if (!effect) return;
 
-      const slotWrap = slot.closest(".slot-wrap");
-      if (!slotWrap) return;
+  const slotWrap = slot.closest(".slot-wrap");
+  if (!slotWrap) return;
 
-      let label = "";
-      let className = "";
+  const ownedEffect = activateForgeInstabilityEffect({
+    pullId,
+    slotWrap,
+    slot,
+    finalCoin,
+    effect
+  });
 
-      if (effect === "Overcharged") {
-        label = "x2 OVERCHARGED";
-        className = "instability-overcharged";
+  if (!ownedEffect) return;
 
-        const duplicateCoin =
-          slotWrap.querySelector(".overcharge-duplicate-coin");
-
-        if (duplicateCoin) {
-          duplicateCoin.src = slot.src;
-        }
-        triggerScreenBorder("jackpot", pullId);
-        playForgeHammerSound(pullId);
-      } else if (effect === "Scorched") {
-        label = "SCORCHED";
-        className = "instability-scorched";
-      } else if (effect === "BurnedAway") {
-        label = "BURNED AWAY";
-        className = "instability-burned-away";
-        playOwnedSound(pullId, burnedAwaySound, true);
-      } else {
-        return;
-      }
-
-      clearSlotEffects(slotWrap);
-
-      let badge = slotWrap.querySelector(".forge-instability-badge");
-
-      if (!badge) {
-        badge = document.createElement("div");
-        badge.className = "forge-instability-badge";
-        slotWrap.appendChild(badge);
-      }
-
-      badge.textContent = label;
-
-      if (effect === "BurnedAway") {
-        setSlotState(slotWrap, "burned", { pullId, coin: finalCoin.name });
-        addSlotEffect(pullId, slotWrap, "burned-away-final");
-        triggerCorruptionWave(pullId);
-      }
-
-      void slotWrap.offsetWidth;
-      addSlotEffect(pullId, slotWrap, className, 1250);
-
-      await wait(520);
-    }
+  await wait(ownedEffect.waitMs);
+}
     
     async function spinSlot(slot, finalCoin, index, shouldLock, pullId) {
       if (!shouldLock) {
