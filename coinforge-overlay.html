@@ -3916,13 +3916,13 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         }
       };
 
-      return activateForgeInstabilityEffect({
-        pullId: debugPullId,
-        slotWrap,
+      await triggerForgeInstabilityVisual(
         slot,
         finalCoin,
-        effect
-      });
+        debugPullId
+      );
+
+      return window.debugForgeState();
     };
 
     window.testForgeInstabilityAll = async function testForgeInstabilityAll() {
