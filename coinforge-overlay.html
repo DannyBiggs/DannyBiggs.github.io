@@ -4252,17 +4252,25 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       const slotIndex = slotWrap.dataset.slotIndex || "unknown";
     
       const timer = setTimeout(() => {
+        overlayState.instabilityTimers =
+          overlayState.instabilityTimers.filter(activeTimer => activeTimer !== timer);
+      
         if (!isActivePull(pullId)) return;
-    
+      
         slotWrap.classList.remove(config.className);
-    
+      
         if (!config.persistentClassName) {
           slotWrap.dataset.instabilityState = "idle";
           slotWrap.dataset.instabilityEffect = "";
           overlayState.activeInstabilityEffects.delete(slotIndex);
         }
+      
+        if (overlayState.activeInstabilityEffects.size === 0) {
+          overlayState.instabilityState = "idle";
+          overlayState.instabilityReplayOwner = null;
+        }
       }, config.durationMs);
-    
+      
       overlayState.instabilityTimers.push(timer);
     
       return config;
@@ -5160,6 +5168,7 @@ async function triggerForgeInstabilityVisual(slot, finalCoin, pullId) {
 
         overlayState.activeSlotEffects.clear();
         clearSlotStates();
+        resetForgeInstabilityOwnership({ includePersistent: true });
         stopOwnedAudio();
 
         return;
@@ -5230,20 +5239,22 @@ async function triggerForgeInstabilityVisual(slot, finalCoin, pullId) {
       await wait(350);
       
       clearSlotStates();
+      resetForgeInstabilityOwnership({ includePersistent: true });
       slotRow.innerHTML = "";
-
+      
       resetForgePressureLifecycleVisuals();
-
+      
       overlayState.isAnimating = false;
       overlayState.activePayload = null;
       overlayState.activePullId = null;
       overlayState.forgeState = "idle";
-
+      
       clearOverlayCleanupTimers();
-
+      resetForgeInstabilityOwnership({ includePersistent: true });
+      
       overlayState.activeSlotEffects.clear();
-        stopOwnedAudio();
-        clearComboDisplayState();
+      stopOwnedAudio();
+      clearComboDisplayState();
       
     }
 
