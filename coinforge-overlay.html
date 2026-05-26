@@ -2756,6 +2756,37 @@
     {
       overlayState.cleanupTimers.push(timer);
     }
+
+    function createClientPullId()
+    {
+      return `client-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    }
+
+    function normalizeForgeEventPullId(event)
+    {
+      if (!event.pullId) {
+        event.pullId = createClientPullId();
+      }
+
+      return event;
+    }
+
+    function isActivePull(pullId)
+    {
+      return !!pullId && overlayState.activePullId === pullId;
+    }
+
+    function registerOwnedCleanupTimer(pullId, callback, ms)
+    {
+      const timer = setTimeout(() => {
+        if (!isActivePull(pullId)) return;
+        callback();
+      }, ms);
+
+      registerCleanupTimer(timer);
+
+      return timer;
+    }
     
     function clearOverlayCleanupTimers()
     {
@@ -3393,7 +3424,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       );
     }
 
-    function triggerForgeEruptionVisuals() {
+    function triggerForgeEruptionVisuals(pullId) {
+      if (!isActivePull(pullId)) return;
       if (!forgeStage) return;
     
       forgeStage.classList.remove("forge-erupting");
@@ -3402,10 +3434,12 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       playForgeHammerSound();
     
-      registerCleanupTimer(
-        setTimeout(() => {
+      registerOwnedCleanupTimer(
+        pullId,
+        () => {
           forgeStage.classList.remove("forge-erupting");
-        }, 1900)
+        },
+        1900
       );
     }
     
@@ -3799,7 +3833,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       };
     }
     
-    async function growAndFakeoutSlot(slot, finalCoin, index) {
+    async function growAndFakeoutSlot(slot, finalCoin, index, pullId) {
+      if (!isActivePull(pullId)) return;
       const slotWrap = slot.closest(".slot-wrap");
       delete slot.dataset.hammerSoundPlayed;
       delete slot.dataset.woodBurned;
@@ -3836,6 +3871,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       slot.classList.add("forming-from-forge");
       
       await playFrameCoinSequence(slot, slotWrap, finalCoin);
+
+      if (!isActivePull(pullId)) return;
 
       if (slotWrap) {
         slotWrap.style.transform = "";
@@ -3874,7 +3911,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       
         if (coinJackpotHit) {
       
-          triggerForgeEruptionVisuals();
+          triggerForgeEruptionVisuals(pullId);
 
           animateForgePressureGauge(37, 520);
           
@@ -3977,7 +4014,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       counter.remove();
     }
 
-    async function triggerForgeInstabilityVisual(slot, finalCoin) {
+    async function triggerForgeInstabilityVisual(slot, finalCoin, pullId) {
+      if (!isActivePull(pullId)) return;
       if (!slot || !finalCoin || !finalCoin.raw) return;
 
       const effect = finalCoin.raw.forgeInstabilityEffect || "";
@@ -4038,23 +4076,27 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       void slotWrap.offsetWidth;
       slotWrap.classList.add(className);
 
-      registerCleanupTimer(
-        setTimeout(() => {
+      registerOwnedCleanupTimer(
+        pullId,
+        () => {
           slotWrap.classList.remove(className);
-        }, 1250)
+        },
+        1250
       );
 
       await wait(520);
     }
     
-    async function spinSlot(slot, finalCoin, index, shouldLock) {
+    async function spinSlot(slot, finalCoin, index, shouldLock, pullId) {
       if (!shouldLock) {
         const coin = randomCycleCoin();
         slot.src = coinFileForSlot(coin, index);
         return;
       }
 
-      await growAndFakeoutSlot(slot, finalCoin, index);
+      await growAndFakeoutSlot(slot, finalCoin, index, pullId);
+
+      if (!isActivePull(pullId)) return;
       
       const slotWrap = slot.closest(".slot-wrap");
       if (slotWrap) {
@@ -4090,7 +4132,9 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       
       await cinematicPromise;
 
-      await triggerForgeInstabilityVisual(slot, finalCoin);
+      await triggerForgeInstabilityVisual(slot, finalCoin, pullId);
+
+      if (!isActivePull(pullId)) return;
 
       await playWoodBurnupIfNeeded(slot, finalCoin);
 
@@ -4360,6 +4404,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     }
     
     async function runForgeRevealExternal(event) {
+      const pullId = event.pullId;
+
+      if (!isActivePull(pullId)) return;
+
       clearRevealClasses();
       window.currentForgeEvent = event;
 
@@ -4424,7 +4472,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           slots[0],
           results[0] || results[results.length - 1],
           0,
-          true
+          true,
+          pullId
         );
       } else {
       
@@ -4440,7 +4489,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
               slot,
               results[i] || results[results.length - 1],
               i,
-              true
+              true,
+              pullId
             );
           });
         });
@@ -4574,7 +4624,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       
         overlayState.isAnimating = true;
         overlayState.activePayload = event;
-        overlayState.activePullId = Date.now();
+        overlayState.activePullId = event.pullId;
       
         await runForgeRevealExternal(event);
       
@@ -4646,7 +4696,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     }
     
     function enqueueForgeEvent(event) {
-      overlayState.queue.push(event);
+      const ownedEvent = normalizeForgeEventPullId(event);
+      overlayState.queue.push(ownedEvent);
       processForgeQueue();
     }
 
