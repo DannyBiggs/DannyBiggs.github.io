@@ -3879,7 +3879,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       overlayState.slotStates.clear();
 
       document.querySelectorAll(".slot-wrap").forEach(slotWrap => {
-        clearSlotEffects(slotWrap, { includeLanded: true });
+        clearSlotEffects(slotWrap, { includeLanded: true, includePersistent: true });
         slotWrap.dataset.slotState = "empty";
       });
     }
@@ -3893,7 +3893,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       "inactive-slot",
       "instability-overcharged",
       "instability-scorched",
-      "instability-burned-away",
+      "instability-burned-away"
+    ];
+
+    const slotPersistentStateClasses = [
       "burned-away-final"
     ];
 
@@ -3912,6 +3915,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       if (!slotWrap) return;
 
       slotWrap.classList.remove(...slotEffectClasses);
+
+      if (options.includePersistent === true) {
+        slotWrap.classList.remove(...slotPersistentStateClasses);
+      }
 
       if (options.includeLanded === true) {
         slotWrap.classList.remove(...slotLandedEffectClasses);
