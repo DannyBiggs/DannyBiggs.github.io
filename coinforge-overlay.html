@@ -3924,6 +3924,9 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       if (!isActivePull(pullId)) return;
       if (!element || !className) return;
 
+      const ownerKey = `effectOwner_${className.replace(/[^a-zA-Z0-9]/g, "_")}`;
+      element.dataset[ownerKey] = pullId;
+
       if (options.restart === true) {
         element.classList.remove(className);
         void element.offsetWidth;
@@ -3932,13 +3935,14 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       element.classList.add(className);
 
       if (duration !== null) {
-        registerOwnedCleanupTimer(
-          pullId,
-          () => {
-            element.classList.remove(className);
-          },
-          duration
-        );
+        const timer = setTimeout(() => {
+          if (element.dataset[ownerKey] !== pullId) return;
+
+          element.classList.remove(className);
+          delete element.dataset[ownerKey];
+        }, duration);
+
+        registerCleanupTimer(timer);
       }
     }
 
@@ -3965,19 +3969,27 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       );
 
       if (duration !== null) {
-        registerOwnedCleanupTimer(
-          pullId,
-          () => {
-            element.classList.remove(className);
+        const ownerKey = `displayOwner_${className.replace(/[^a-zA-Z0-9]/g, "_")}`;
+        element.dataset[ownerKey] = pullId;
 
-            if (options.hideAfter === true) {
-              element.style.display = "none";
-            }
+        const timer = setTimeout(() => {
+          if (element.dataset[ownerKey] !== pullId) return;
 
-            if (typeof options.onComplete === "function") {
-              options.onComplete();
-            }
-          },
+          element.classList.remove(className);
+
+          if (options.hideAfter === true) {
+            element.style.display = "none";
+          }
+
+          if (typeof options.onComplete === "function") {
+            options.onComplete();
+          }
+
+          delete element.dataset[ownerKey];
+        }, duration);
+
+        registerCleanupTimer(timer);
+      }
           duration
         );
       }
