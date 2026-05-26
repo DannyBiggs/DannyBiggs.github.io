@@ -2751,7 +2751,9 @@
     
       eruptionActive: false,
 
-      comboDisplayKeys: new Set()
+      comboDisplayKeys: new Set(),
+
+      comboMilestoneHistory: new Set()
     };
 
     function registerCleanupTimer(timer)
@@ -4395,8 +4397,27 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       achievementDisplayActive = false;
     }
 
+    function getComboOwnerKey() {
+      const event = overlayState.activePayload || window.currentForgeEvent || {};
+      return String(event.userId || event.user || event.displayUser || "unknown").toLowerCase();
+    }
+
     function queueComboDisplay(type, value = null, pullId) {
       if (!isActivePull(pullId)) return;
+
+      const ownerKey = getComboOwnerKey();
+
+      if (type === "broken") {
+        clearComboMilestoneHistoryForOwner(ownerKey);
+      }
+
+      if (type === "milestone") {
+        const milestoneKey = `${ownerKey}:milestone:${value ?? ""}`;
+
+        if (overlayState.comboMilestoneHistory.has(milestoneKey)) return;
+
+        overlayState.comboMilestoneHistory.add(milestoneKey);
+      }
 
       const comboKey = `${pullId}:${type}:${value ?? ""}`;
 
@@ -4405,6 +4426,16 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       overlayState.comboDisplayKeys.add(comboKey);
       comboDisplayQueue.push({ type, value, pullId });
       processComboDisplayQueue();
+    }
+
+    function clearComboMilestoneHistoryForOwner(ownerKey) {
+      const prefix = `${ownerKey}:`;
+
+      for (const key of Array.from(overlayState.comboMilestoneHistory)) {
+        if (key.startsWith(prefix)) {
+          overlayState.comboMilestoneHistory.delete(key);
+        }
+      }
     }
 
     function clearComboDisplayState() {
