@@ -2989,7 +2989,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       if (window.forgeIgnitionCastPlaying) return;
       window.forgeIgnitionCastPlaying = true;
     
-      forgeStage.classList.add("forge-ignited");
+      addStageEffect(pullId, "forge-ignited", 880, { restart: true });
     
       const ignitionCast =
         document.getElementById("forgeIgnitionCast");
@@ -3016,7 +3016,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       addStageEffect(pullId, "impact", 420, { restart: true });
     
-      document.body.classList.add("forge-active");
+      showForgeStage();
     }
     
     function playWoodBurnSound(pullId) {
@@ -3460,10 +3460,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         brightness = 1.02 + (forgePressureLevel * 0.22);
       }
     
-      forgeStage.classList.toggle(
-        "pressure-cursed",
-        coinKey === "Anti"
-      );
+      setForgePressureCursedState(coinKey === "Anti");
     
       forgeStage.style.setProperty(
         "--forge-pressure-opacity",
@@ -3500,7 +3497,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       forgePressureLevel = 0;
     
-      forgeStage.classList.remove("pressure-cursed");
+      setForgePressureCursedState(false);
     
       forgeStage.style.setProperty(
         "--forge-pressure-opacity",
@@ -3537,6 +3534,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       ...stageRevealEffectClasses,
       "impact",
       "forge-erupting",
+      "forge-ignited",
       "cinematic-jackpot",
       "cinematic-cursed",
       "cinematic-mythic",
@@ -3549,7 +3547,9 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       "visible",
       "charging",
       "charged",
-      "forge-ignited-active"
+      "forge-ignited-active",
+      "pressure-cursed",
+      "weekly-champion"
     ];
 
     function clearStageRevealEffects() {
@@ -3597,6 +3597,14 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       document.body.classList.toggle("forge-ignited-active", enabled);
     }
 
+    function setForgePressureCursedState(enabled) {
+      setForgeStageState("pressure-cursed", enabled);
+    }
+
+    function setWeeklyChampionState(enabled) {
+      setForgeStageState("weekly-champion", enabled);
+    }
+    
     function clearForgeStageStates() {
       forgeStage.classList.remove(...forgeStageStateClasses);
       document.body.classList.remove("forge-ignited-active");
@@ -4944,8 +4952,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     async function showWeeklyWinnerCeremony(data) {
       if (!weeklyCeremony) return;
     
-      forgeStage.classList.add("visible", "weekly-champion");
-      document.body.classList.add("forge-active");
+      showForgeStage();
+      setWeeklyChampionState(true);
 
       weeklyWinnerMusic.currentTime = 0;
       weeklyWinnerMusic.play();
@@ -4994,13 +5002,11 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       weeklyCeremony.classList.remove("visible");
     
       await wait(700);
-      forgeStage.classList.remove("weekly-champion");
-      forgeStage.classList.remove("visible");
+      setWeeklyChampionState(false);
+      hideForgeStage();
       
       weeklyWinnerMusic.pause();
       weeklyWinnerMusic.currentTime = 0;
-      
-      document.body.classList.remove("forge-active");
     }
     
     function enqueueForgeEvent(event) {
