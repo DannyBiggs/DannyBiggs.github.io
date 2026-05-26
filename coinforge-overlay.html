@@ -4899,6 +4899,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       await wait(event.displayMs || 1500);
 
       clearStageRevealEffects();
+      cinematicBurst.classList.remove("active");
       
       hideForgeStage();
       clearPlayerIdentity();
