@@ -2757,6 +2757,8 @@
 
       eruptionState: "idle",
 
+      eruptionSource: "none",
+
       comboDisplayKeys: new Set(),
 
       comboMilestoneHistory: new Set(),
@@ -3539,11 +3541,15 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       "eruption-erupting"
     ];
 
-    function setForgeEruptionState(state) {
+    function setForgeEruptionState(state, options = {}) {
       const safeState = state || "idle";
 
       overlayState.eruptionState = safeState;
       overlayState.eruptionActive = safeState !== "idle";
+      overlayState.eruptionSource =
+        safeState === "idle"
+          ? "none"
+          : options.source || overlayState.eruptionSource || "unknown";
 
       if (forgeStage) {
         forgeStage.dataset.eruptionState = safeState;
@@ -3554,14 +3560,38 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       return safeState;
     }
 
-    function triggerForgeEruptionVisuals(pullId) {
+    function triggerForgeEruptionLifecycle(pullId, options = {}) {
       if (!isActivePull(pullId)) return;
       if (!forgeStage) return;
 
-      setForgeEruptionState("erupting");
+      const pressureAfter =
+        typeof options.pressureAfter === "number"
+          ? options.pressureAfter
+          : overlayState.currentPressure;
+
+      setForgeEruptionState(
+        "erupting",
+        {
+          source: options.source || "payload"
+        }
+      );
+
       overlayState.forgeState = "erupting";
+      overlayState.currentPressure = 100;
+      setForgePressureStateFromValue(100);
     
       addStageEffect(pullId, "forge-erupting", 1900, { restart: true });
+
+      animateForgePressureGauge(37, 520);
+
+      registerOwnedCleanupTimer(
+        pullId,
+        () => {
+          if (!isActivePull(pullId)) return;
+          updateForgePressureGauge(pressureAfter);
+        },
+        1200
+      );
 
       registerOwnedCleanupTimer(
         pullId,
@@ -3732,6 +3762,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         pressureGlowActive: overlayState.pressureGlowActive,
         eruptionActive: overlayState.eruptionActive,
         eruptionState: overlayState.eruptionState,
+        eruptionSource: overlayState.eruptionSource,
         stageEruptionState: forgeStage?.dataset?.eruptionState || "",
         stageEruptionClass: Array.from(forgeStage?.classList || [])
           .filter(className => className.startsWith("eruption-")),
@@ -4405,27 +4436,19 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           ? finalCoin.raw.forgePressureAfter
           : null;
       
-      const coinJackpotHit =
+      const coinEruptionTriggered =
         finalCoin.raw &&
         finalCoin.raw.jackpotHit === true;
       
       if (coinPressureAfter !== null) {
       
-        if (coinJackpotHit) {
-          overlayState.currentPressure = 100;
-          setForgePressureStateFromValue(100);
-      
-          triggerForgeEruptionVisuals(pullId);
-
-          animateForgePressureGauge(37, 520);
-
-          registerOwnedCleanupTimer(
+        if (coinEruptionTriggered) {
+          triggerForgeEruptionLifecycle(
             pullId,
-            () => {
-              if (!isActivePull(pullId)) return;
-              updateForgePressureGauge(coinPressureAfter);
-            },
-            1200
+            {
+              pressureAfter: coinPressureAfter,
+              source: "payload-jackpotHit"
+            }
           );
       
         } else {
