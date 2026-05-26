@@ -3560,6 +3560,35 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       return safeState;
     }
 
+    function handleForgePressurePayload(pullId, finalCoin) {
+      if (!isActivePull(pullId)) return;
+      if (!finalCoin || !finalCoin.raw) return;
+
+      const pressureAfter =
+        typeof finalCoin.raw.forgePressureAfter === "number"
+          ? finalCoin.raw.forgePressureAfter
+          : null;
+
+      const eruptionTriggered =
+        finalCoin.raw.jackpotHit === true;
+
+      if (pressureAfter === null) return;
+
+      if (eruptionTriggered) {
+        triggerForgeEruptionLifecycle(
+          pullId,
+          {
+            pressureAfter,
+            source: "payload-jackpotHit"
+          }
+        );
+
+        return;
+      }
+
+      updateForgePressureGauge(pressureAfter);
+    }
+
     function triggerForgeEruptionLifecycle(pullId, options = {}) {
       if (!isActivePull(pullId)) return;
       if (!forgeStage) return;
@@ -4430,33 +4459,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       triggerSocketRing(slot, finalCoin, pullId);
       triggerSlotImpact(slot, finalCoin, pullId);
       
-      const coinPressureAfter =
-        finalCoin.raw &&
-        typeof finalCoin.raw.forgePressureAfter === "number"
-          ? finalCoin.raw.forgePressureAfter
-          : null;
-      
-      const coinEruptionTriggered =
-        finalCoin.raw &&
-        finalCoin.raw.jackpotHit === true;
-      
-      if (coinPressureAfter !== null) {
-      
-        if (coinEruptionTriggered) {
-          triggerForgeEruptionLifecycle(
-            pullId,
-            {
-              pressureAfter: coinPressureAfter,
-              source: "payload-jackpotHit"
-            }
-          );
-      
-        } else {
-      
-          updateForgePressureGauge(coinPressureAfter);
-      
-        }
-      }
+      handleForgePressurePayload(pullId, finalCoin);
       
       registerOwnedCleanupTimer(
         pullId,
