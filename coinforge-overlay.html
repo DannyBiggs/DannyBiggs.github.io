@@ -2751,6 +2751,8 @@
 
       pressureState: "empty",
 
+      lastPressurePayload: null,
+
       pressureGlowActive: false,
     
       eruptionActive: false,
@@ -3572,6 +3574,13 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       const eruptionTriggered =
         finalCoin.raw.jackpotHit === true;
 
+      overlayState.lastPressurePayload = {
+        pressureAfter,
+        eruptionTriggered,
+        source: eruptionTriggered ? "payload-jackpotHit" : "payload-pressure",
+        coinName: finalCoin.name || finalCoin.raw.name || ""
+      };
+
       if (pressureAfter === null) return;
 
       if (eruptionTriggered) {
@@ -3632,6 +3641,11 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       );
     
       playForgeHammerSound(pullId);
+    }
+
+    function resetForgePressureLifecycleVisuals() {
+      clearForgePressureGlow();
+      setForgeEruptionState("idle");
     }
     
     function clearForgePressureGlow() {
@@ -3785,6 +3799,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         forgeState: overlayState.forgeState,
         currentPressure: overlayState.currentPressure,
         pressureState: overlayState.pressureState,
+        lastPressurePayload: overlayState.lastPressurePayload,
         stagePressureState: forgeStage?.dataset?.pressureState || "",
         stagePressureClass: Array.from(forgeStage?.classList || [])
           .filter(className => className.startsWith("pressure-")),
@@ -5004,8 +5019,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         clearPlayerIdentity();
         slotRow.innerHTML = "";
 
-        clearForgePressureGlow();
-        setForgeEruptionState("idle");
+        resetForgePressureLifecycleVisuals();
 
         overlayState.isAnimating = false;
         overlayState.activePayload = null;
@@ -5088,8 +5102,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       clearSlotStates();
       slotRow.innerHTML = "";
 
-      clearForgePressureGlow();
-      setForgeEruptionState("idle");
+      resetForgePressureLifecycleVisuals();
 
       overlayState.isAnimating = false;
       overlayState.activePayload = null;
