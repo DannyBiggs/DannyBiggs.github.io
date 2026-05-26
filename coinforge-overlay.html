@@ -3817,6 +3817,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         eruptionSource: overlayState.eruptionSource,
         instabilityState: overlayState.instabilityState,
         instabilityReplayOwner: overlayState.instabilityReplayOwner,
+        lastInstabilityConflict: overlayState.lastInstabilityConflict,
         activeInstabilityEffects: Array.from(overlayState.activeInstabilityEffects.entries()),
         instabilityTimers: overlayState.instabilityTimers.length,
         stageEruptionState: forgeStage?.dataset?.eruptionState || "",
@@ -4868,28 +4869,75 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       counter.remove();
     }
 
-async function triggerForgeInstabilityVisual(slot, finalCoin, pullId) {
-  if (!isActivePull(pullId)) return;
-  if (!slot || !finalCoin || !finalCoin.raw) return;
+    function resolveForgeInstabilityConflict(finalCoin) {
+      const raw = finalCoin?.raw || {};
 
-  const effect = finalCoin.raw.forgeInstabilityEffect || "";
-  if (!effect) return;
+      if (!raw.forgeInstabilityEffect) {
+        return {
+          allowed: false,
+          reason: "no-instability-effect"
+        };
+      }
 
-  const slotWrap = slot.closest(".slot-wrap");
-  if (!slotWrap) return;
+      if (raw.jackpotHit === true) {
+        return {
+          allowed: false,
+          reason: "eruption-takes-priority"
+        };
+      }
 
-  const ownedEffect = activateForgeInstabilityEffect({
-    pullId,
-    slotWrap,
-    slot,
-    finalCoin,
-    effect
-  });
+      if (raw.devoured === true) {
+        return {
+          allowed: false,
+          reason: "devour-takes-priority"
+        };
+      }
 
-  if (!ownedEffect) return;
+      if (raw.omenCorrupted === true) {
+        return {
+          allowed: true,
+          reason: "corruption-plus-instability"
+        };
+      }
 
-  await wait(ownedEffect.waitMs);
-}
+      return {
+        allowed: true,
+        reason: "instability-allowed"
+      };
+    }
+    
+    async function triggerForgeInstabilityVisual(slot, finalCoin, pullId) {
+      if (!isActivePull(pullId)) return;
+      if (!slot || !finalCoin || !finalCoin.raw) return;
+
+      const conflict = resolveForgeInstabilityConflict(finalCoin);
+
+      overlayState.lastInstabilityConflict = {
+        pullId,
+        coinName: finalCoin.name || "",
+        effect: finalCoin.raw.forgeInstabilityEffect || "",
+        allowed: conflict.allowed,
+        reason: conflict.reason
+      };
+
+      if (!conflict.allowed) return;
+
+      const effect = finalCoin.raw.forgeInstabilityEffect || "";
+      const slotWrap = slot.closest(".slot-wrap");
+      if (!slotWrap) return;
+
+      const ownedEffect = activateForgeInstabilityEffect({
+        pullId,
+        slotWrap,
+        slot,
+        finalCoin,
+        effect
+      });
+
+      if (!ownedEffect) return;
+
+      await wait(ownedEffect.waitMs);
+    }
     
     async function spinSlot(slot, finalCoin, index, shouldLock, pullId) {
       if (!shouldLock) {
