@@ -3187,12 +3187,18 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       });
     }
     
-    function triggerScreenBorder(type) {
+    function triggerScreenBorder(type, pullId) {
+      if (!isActivePull(pullId)) return;
       if (!screenBorderFX) return;
     
       screenBorderFX.className = "screen-border-fx";
-      void screenBorderFX.offsetWidth;
-      screenBorderFX.classList.add(type);
+      addOwnedElementEffect(
+        pullId,
+        screenBorderFX,
+        type,
+        1200,
+        { restart: true }
+      );
     }
 
     function triggerSocketRing(slot, finalCoin, pullId) {
@@ -3388,8 +3394,16 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       });
     }
     
-    function triggerCorruptionWave() {
-      restartClassAnimation(forgeCorruptionWave, "active");
+    function triggerCorruptionWave(pullId) {
+      if (!isActivePull(pullId)) return;
+
+      addOwnedElementEffect(
+        pullId,
+        forgeCorruptionWave,
+        "active",
+        900,
+        { restart: true }
+      );
     }
 
     function clearCinematicStageClasses() {
@@ -4399,9 +4413,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         if (duplicateCoin) {
           duplicateCoin.src = slot.src;
         }
-        screenBorderFX.classList.remove("jackpot");
-        void screenBorderFX.offsetWidth;
-        screenBorderFX.classList.add("jackpot");
+        triggerScreenBorder("jackpot", pullId);
         playForgeHammerSound(pullId);
       } else if (effect === "Scorched") {
         label = "SCORCHED";
@@ -4429,7 +4441,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       if (effect === "BurnedAway") {
         setSlotState(slotWrap, "burned", { pullId, coin: finalCoin.name });
         addSlotEffect(pullId, slotWrap, "burned-away-final");
-        triggerCorruptionWave();
+        triggerCorruptionWave(pullId);
       }
 
       void slotWrap.offsetWidth;
