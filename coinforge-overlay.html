@@ -3931,6 +3931,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         instabilityState: overlayState.instabilityState,
         instabilityReplayOwner: overlayState.instabilityReplayOwner,
         lastInstabilityConflict: overlayState.lastInstabilityConflict,
+        forcedInstabilityTestEffect:
+          window.latestCoinForgePayload?.forgeInstabilityTestEffect || "",
+        forcedInstabilityTestRemaining:
+          window.latestCoinForgePayload?.forgeInstabilityTestRemaining ?? null,
         activeInstabilityEffects: Array.from(overlayState.activeInstabilityEffects.entries()),
         instabilityTimers: overlayState.instabilityTimers.length,
         stageEruptionState: forgeStage?.dataset?.eruptionState || "",
@@ -5935,6 +5939,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       }
 
       if (data.type !== "coinForgePull") return;
+
+      window.latestCoinForgePayload = data;
             
       enqueueForgeEvent(data);
     }
