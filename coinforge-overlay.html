@@ -334,6 +334,80 @@
         drop-shadow(0 0 14px rgba(255, 210, 95, 0.85))
         drop-shadow(0 0 26px rgba(255, 90, 20, 0.45));
     }
+
+    /* ===== GLOBAL INSTABILITY REACTION FX START ===== */
+    .forge-stage.instability-global-overcharged {
+      animation: forgeInstabilityGlobalOvercharged 780ms steps(6, end);
+    }
+
+    .forge-stage.instability-global-scorched {
+      animation: forgeInstabilityGlobalScorched 760ms steps(6, end);
+    }
+
+    .forge-stage.instability-global-burned-away {
+      animation: forgeInstabilityGlobalBurnedAway 860ms steps(7, end);
+    }
+
+    .forge-stage.instability-pressure-burst .forge-pressure-fill {
+      animation: forgeInstabilityPressureBurst 760ms steps(6, end);
+    }
+
+    .forge-stage.instability-pressure-sputter .forge-pressure-fill {
+      animation: forgeInstabilityPressureSputter 820ms steps(7, end);
+    }
+
+    .forge-stage.instability-pressure-collapse .forge-pressure-fill {
+      animation: forgeInstabilityPressureCollapse 920ms steps(7, end);
+    }
+
+    @keyframes forgeInstabilityGlobalOvercharged {
+      0% { transform: scale(1); filter: brightness(1); }
+      18% { transform: scale(1.01) translateY(-2px); filter: brightness(1.28) saturate(1.25); }
+      42% { transform: scale(0.996) translateY(2px); filter: brightness(1.08) saturate(1.1); }
+      68% { transform: scale(1.004) translateY(-1px); filter: brightness(1.18) saturate(1.18); }
+      100% { transform: scale(1); filter: brightness(1); }
+    }
+
+    @keyframes forgeInstabilityGlobalScorched {
+      0% { transform: scale(1); filter: brightness(1); }
+      18% { transform: scale(0.997) translateY(1px); filter: brightness(0.82) saturate(0.82) sepia(0.18); }
+      44% { transform: scale(1.003) translateY(-1px); filter: brightness(1.05) saturate(0.95); }
+      72% { transform: scale(0.999); filter: brightness(0.9) saturate(0.84) sepia(0.12); }
+      100% { transform: scale(1); filter: brightness(1); }
+    }
+
+    @keyframes forgeInstabilityGlobalBurnedAway {
+      0% { transform: scale(1); filter: brightness(1); }
+      16% { transform: scale(1.012) translateY(-3px); filter: brightness(0.72) saturate(0.6) hue-rotate(145deg); }
+      36% { transform: scale(0.99) translateY(3px); filter: brightness(1.12) saturate(0.78) hue-rotate(120deg); }
+      62% { transform: scale(1.006) translateY(-1px); filter: brightness(0.84) saturate(0.65) hue-rotate(155deg); }
+      100% { transform: scale(1); filter: brightness(1); }
+    }
+
+    @keyframes forgeInstabilityPressureBurst {
+      0% { filter: brightness(1.05) drop-shadow(0 0 6px rgba(255, 135, 35, 0.45)); }
+      20% { filter: brightness(2.15) drop-shadow(0 0 18px rgba(255, 235, 130, 0.95)) drop-shadow(0 0 34px rgba(255, 145, 35, 0.75)); }
+      52% { filter: brightness(1.35) drop-shadow(0 0 12px rgba(255, 200, 80, 0.65)); }
+      100% { filter: brightness(1.05) drop-shadow(0 0 6px rgba(255, 135, 35, 0.45)); }
+    }
+
+    @keyframes forgeInstabilityPressureSputter {
+      0% { opacity: 0.95; filter: brightness(1.05); }
+      16% { opacity: 0.62; filter: brightness(0.78) saturate(0.7); }
+      34% { opacity: 1; filter: brightness(1.42) saturate(0.95); }
+      52% { opacity: 0.72; filter: brightness(0.86) saturate(0.74); }
+      78% { opacity: 0.92; filter: brightness(1.12) saturate(0.85); }
+      100% { opacity: 0.95; filter: brightness(1.05); }
+    }
+
+    @keyframes forgeInstabilityPressureCollapse {
+      0% { opacity: 0.95; filter: brightness(1.05) hue-rotate(0deg); }
+      18% { opacity: 0.36; filter: brightness(0.55) hue-rotate(150deg) saturate(0.65); }
+      42% { opacity: 0.88; filter: brightness(1.28) hue-rotate(120deg) saturate(0.8); }
+      70% { opacity: 0.54; filter: brightness(0.72) hue-rotate(160deg) saturate(0.6); }
+      100% { opacity: 0.95; filter: brightness(1.05) hue-rotate(0deg); }
+    }
+    /* ===== GLOBAL INSTABILITY REACTION FX END ===== */
     
     .forge-stage.forge-erupting .forge-eruption-flash {
       animation: forgeEruptionFlash 920ms ease-out;
@@ -3849,7 +3923,13 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       "cinematic-mythic",
       "cinematic-legendary",
       "escalate-warm",
-      "escalate-cursed"
+      "escalate-cursed",
+      "instability-global-overcharged",
+      "instability-global-scorched",
+      "instability-global-burned-away",
+      "instability-pressure-burst",
+      "instability-pressure-sputter",
+      "instability-pressure-collapse"
     ];
 
     const forgeStageStateClasses = [
@@ -3891,6 +3971,66 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       }
     }
 
+    function triggerGlobalInstabilityReaction(effect, pullId) {
+      if (!isActivePull(pullId)) return;
+
+      if (effect === "Overcharged") {
+        addStageEffect(
+          pullId,
+          "instability-global-overcharged",
+          820,
+          { restart: true }
+        );
+
+        addStageEffect(
+          pullId,
+          "instability-pressure-burst",
+          820,
+          { restart: true }
+        );
+
+        triggerScreenBorder("jackpot", pullId);
+        return;
+      }
+
+      if (effect === "Scorched") {
+        addStageEffect(
+          pullId,
+          "instability-global-scorched",
+          820,
+          { restart: true }
+        );
+
+        addStageEffect(
+          pullId,
+          "instability-pressure-sputter",
+          860,
+          { restart: true }
+        );
+
+        triggerScreenBorder("mythic", pullId);
+        return;
+      }
+
+      if (effect === "BurnedAway") {
+        addStageEffect(
+          pullId,
+          "instability-global-burned-away",
+          940,
+          { restart: true }
+        );
+
+        addStageEffect(
+          pullId,
+          "instability-pressure-collapse",
+          980,
+          { restart: true }
+        );
+
+        triggerScreenBorder("cursed", pullId);
+      }
+    }
+    
     function setForgeStageState(className, enabled = true) {
       if (!forgeStage || !className) return;
 
@@ -4497,7 +4637,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
             duplicateCoin.src = slot.src;
           }
     
-          triggerScreenBorder("jackpot", pullId);
+          triggerGlobalInstabilityReaction("Overcharged", pullId);
           playForgeHammerSound(pullId);
         }
       },
@@ -4509,8 +4649,9 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         durationMs: 1450,
         waitMs: 680,
         persistentClassName: "",
-        enter() {}
-      },
+        enter({ pullId }) {
+          triggerGlobalInstabilityReaction("Scorched", pullId);
+        }
     
       BurnedAway: {
         state: "burned-away",
@@ -4548,6 +4689,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
             );
           }
 
+          triggerGlobalInstabilityReaction("BurnedAway", pullId);
           triggerCorruptionWave(pullId);
           playOwnedSound(pullId, burnedAwaySound, true);
         }
