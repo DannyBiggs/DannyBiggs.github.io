@@ -4525,10 +4525,27 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
           const burnedAwayGif = slotWrap.querySelector(".burned-away-gif");
 
-          if (burnedAwayGif) {
+          if (
+            burnedAwayGif &&
+            burnedAwayGif.dataset.playedForPull !== pullId
+          ) {
+            burnedAwayGif.dataset.playedForPull = pullId;
             burnedAwayGif.classList.remove("burned-away-play");
-            void burnedAwayGif.offsetWidth;
-            burnedAwayGif.classList.add("burned-away-play");
+
+            requestAnimationFrame(() => {
+              if (!isActivePull(pullId)) return;
+
+              burnedAwayGif.classList.add("burned-away-play");
+            });
+
+            registerOwnedCleanupTimer(
+              pullId,
+              () => {
+                burnedAwayGif.classList.remove("burned-away-play");
+                delete burnedAwayGif.dataset.playedForPull;
+              },
+              1300
+            );
           }
 
           triggerCorruptionWave(pullId);
