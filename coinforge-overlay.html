@@ -5134,8 +5134,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       if (raw.jackpotHit === true) {
         return {
-          allowed: false,
-          reason: "eruption-takes-priority",
+          allowed: true,
+          reason: "eruption-plus-instability",
           instability
         };
       }
@@ -5220,16 +5220,18 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           ? finalCoin.raw.instability.effect
           : "";
 
-      const overchargedInstability =
-        instabilityEffect === "Overcharged";
+      const hasInstabilityEffect =
+        instabilityEffect === "Overcharged" ||
+        instabilityEffect === "Scorched" ||
+        instabilityEffect === "BurnedAway";
 
-      if (slotWrap && !overchargedInstability) {
+      if (slotWrap && !hasInstabilityEffect) {
         addSlotEffect(pullId, slotWrap, `landed-${finalCoin.className}`);
       }
 
       clearCinematicStageClasses();
 
-      if (!overchargedInstability) {
+      if (!hasInstabilityEffect) {
         addStageEffect(pullId, `reveal-${finalCoin.className}`);
         addStageEffect(pullId, "impact", 180, { restart: true });
 
