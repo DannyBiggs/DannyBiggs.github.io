@@ -377,11 +377,50 @@
     }
 
     @keyframes forgeInstabilityGlobalBurnedAway {
-      0% { transform: scale(1); filter: brightness(1); }
-      16% { transform: scale(1.012) translateY(-3px); filter: brightness(0.72) saturate(0.6) hue-rotate(145deg); }
-      36% { transform: scale(0.99) translateY(3px); filter: brightness(1.12) saturate(0.78) hue-rotate(120deg); }
-      62% { transform: scale(1.006) translateY(-1px); filter: brightness(0.84) saturate(0.65) hue-rotate(155deg); }
-      100% { transform: scale(1); filter: brightness(1); }
+      0% {
+        transform: scale(1);
+
+        filter:
+          brightness(1)
+          saturate(1)
+          contrast(1);
+      }
+
+      14% {
+        transform: scale(1.014) translateY(-3px);
+
+        filter:
+          brightness(0.62)
+          saturate(0.28)
+          contrast(1.32);
+      }
+
+      34% {
+        transform: scale(0.988) translateY(3px);
+
+        filter:
+          brightness(1.22)
+          saturate(0.38)
+          contrast(1.22);
+      }
+
+      62% {
+        transform: scale(1.006) translateY(-1px);
+
+        filter:
+          brightness(0.74)
+          saturate(0.24)
+          contrast(1.38);
+      }
+
+      100% {
+        transform: scale(1);
+
+        filter:
+          brightness(1)
+          saturate(1)
+          contrast(1);
+      }
     }
 
     @keyframes forgeInstabilityPressureBurst {
@@ -401,11 +440,53 @@
     }
 
     @keyframes forgeInstabilityPressureCollapse {
-      0% { opacity: 0.95; filter: brightness(1.05) hue-rotate(0deg); }
-      18% { opacity: 0.36; filter: brightness(0.55) hue-rotate(150deg) saturate(0.65); }
-      42% { opacity: 0.88; filter: brightness(1.28) hue-rotate(120deg) saturate(0.8); }
-      70% { opacity: 0.54; filter: brightness(0.72) hue-rotate(160deg) saturate(0.6); }
-      100% { opacity: 0.95; filter: brightness(1.05) hue-rotate(0deg); }
+      0% {
+        opacity: 0.95;
+
+        filter:
+          brightness(1.05)
+          saturate(1)
+          contrast(1);
+      }
+
+      16% {
+        opacity: 0.28;
+
+        filter:
+          brightness(0.48)
+          saturate(0.28)
+          contrast(1.28)
+          drop-shadow(0 0 10px rgba(170, 230, 255, 0.32));
+      }
+
+      38% {
+        opacity: 0.72;
+
+        filter:
+          brightness(1.18)
+          saturate(0.42)
+          contrast(1.18)
+          drop-shadow(0 0 18px rgba(210, 245, 255, 0.42));
+      }
+
+      68% {
+        opacity: 0.42;
+
+        filter:
+          brightness(0.62)
+          saturate(0.24)
+          contrast(1.32)
+          drop-shadow(0 0 8px rgba(95, 150, 170, 0.28));
+      }
+
+      100% {
+        opacity: 0.95;
+
+        filter:
+          brightness(1.05)
+          saturate(1)
+          contrast(1);
+      }
     }
     /* ===== GLOBAL INSTABILITY REACTION FX END ===== */
     
