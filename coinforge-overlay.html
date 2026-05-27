@@ -5092,36 +5092,48 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       if (!isActivePull(pullId)) return;
       
       const slotWrap = slot.closest(".slot-wrap");
-      if (slotWrap) {
+      const instabilityEffect =
+        finalCoin.raw &&
+        finalCoin.raw.instability &&
+        finalCoin.raw.instability.effect
+          ? finalCoin.raw.instability.effect
+          : "";
+
+      const overchargedInstability =
+        instabilityEffect === "Overcharged";
+
+      if (slotWrap && !overchargedInstability) {
         addSlotEffect(pullId, slotWrap, `landed-${finalCoin.className}`);
       }
 
       clearCinematicStageClasses();
 
-      addStageEffect(pullId, `reveal-${finalCoin.className}`);
-      addStageEffect(pullId, "impact", 180, { restart: true });
+      if (!overchargedInstability) {
+        addStageEffect(pullId, `reveal-${finalCoin.className}`);
+        addStageEffect(pullId, "impact", 180, { restart: true });
 
-      if (
-        finalCoin.name === "Rainbow Coin" ||
-        finalCoin.name === "Kingmaker Coin" ||
-        finalCoin.name === "Jackpot Booster"
-      ) {
-        triggerImpactFlash(pullId);
+        if (
+          finalCoin.name === "Rainbow Coin" ||
+          finalCoin.name === "Kingmaker Coin" ||
+          finalCoin.name === "Jackpot Booster"
+        ) {
+          triggerImpactFlash(pullId);
+        }
+        
+        triggerSlotAura(finalCoin, slot, pullId);
+
+        if (finalCoin.name === "Anti Coin" || (finalCoin.raw && finalCoin.raw.omenCorrupted)) {
+          triggerCorruptionWave(pullId);
+        }
+
+        const cinematicPromise = playFinalCinematic(finalCoin, slot, pullId);
+
+        await wait(160);
+
+        // Impact cleanup is now owned by addStageEffect(...).
+        
+        await cinematicPromise;
       }
-      
-      triggerSlotAura(finalCoin, slot, pullId);
-
-      if (finalCoin.name === "Anti Coin" || (finalCoin.raw && finalCoin.raw.omenCorrupted)) {
-        triggerCorruptionWave(pullId);
-      }
-
-      const cinematicPromise = playFinalCinematic(finalCoin, slot, pullId);
-
-      await wait(160);
-
-      // Impact cleanup is now owned by addStageEffect(...).
-      
-      await cinematicPromise;
 
       await triggerForgeInstabilityVisual(slot, finalCoin, pullId);
 
