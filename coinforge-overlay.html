@@ -3348,7 +3348,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
     function clearActiveSlotFocus() {
       document.querySelectorAll(".slot-wrap").forEach(slotWrap => {
-        clearSlotEffects(slotWrap);
+        slotWrap.classList.remove("active-slot", "inactive-slot");
       });
     }
     
