@@ -946,10 +946,8 @@
       visibility: hidden !important;
     }
 
-    .slot-wrap.instability-burned-away .burned-away-gif {
+    .slot-wrap .burned-away-gif.burned-away-play {
       animation: burnedAwayGifPop 1.05s steps(6, end) forwards;
-      animation-iteration-count: 1;
-      animation-fill-mode: forwards;
     }
     
     .slot-wrap.instability-burned-away .forge-instability-badge {
@@ -1120,6 +1118,32 @@
       }
     }
 
+    @keyframes forgeInstabilityBadgeBurnedAway {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -38%) scale(0.62);
+        filter: brightness(1);
+      }
+
+      14% {
+        opacity: 1;
+        transform: translate(-50%, -96%) scale(1.08);
+        filter: brightness(1.45);
+      }
+
+      70% {
+        opacity: 1;
+        transform: translate(-50%, -118%) scale(1);
+        filter: brightness(1.1);
+      }
+
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -150%) scale(0.88);
+        filter: brightness(0.85);
+      }
+    }
+    
     @keyframes forgeInstabilityBurnedAway {
       0% { transform: scale(1); }
       20% { transform: scale(1.06) rotate(-2deg); }
@@ -4491,13 +4515,22 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       BurnedAway: {
         state: "burned-away",
         className: "instability-burned-away",
-        label: "BURNED AWAY",
-        durationMs: 1250,
-        waitMs: 520,
+        label: "💥 BURNED AWAY 💥",
+        durationMs: 1450,
+        waitMs: 680,
         persistentClassName: "burned-away-final",
         enter({ pullId, slotWrap, finalCoin }) {
           setSlotState(slotWrap, "burned", { pullId, coin: finalCoin.name });
           addSlotEffect(pullId, slotWrap, "burned-away-final");
+
+          const burnedAwayGif = slotWrap.querySelector(".burned-away-gif");
+
+          if (burnedAwayGif) {
+            burnedAwayGif.classList.remove("burned-away-play");
+            void burnedAwayGif.offsetWidth;
+            burnedAwayGif.classList.add("burned-away-play");
+          }
+
           triggerCorruptionWave(pullId);
           playOwnedSound(pullId, burnedAwaySound, true);
         }
