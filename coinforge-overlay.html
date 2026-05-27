@@ -444,7 +444,7 @@
           brightness(0.48)
           saturate(0.28)
           contrast(1.28)
-          drop-shadow(0 0 10px rgba(170, 230, 255, 0.32));
+          drop-shadow(0 0 10px rgba(255, 205, 150, 0.24));
       }
 
       38% {
@@ -454,7 +454,7 @@
           brightness(1.18)
           saturate(0.42)
           contrast(1.18)
-          drop-shadow(0 0 18px rgba(210, 245, 255, 0.42));
+          drop-shadow(0 0 18px rgba(255, 240, 210, 0.34));
       }
 
       68% {
@@ -464,7 +464,7 @@
           brightness(0.62)
           saturate(0.24)
           contrast(1.32)
-          drop-shadow(0 0 8px rgba(95, 150, 170, 0.28));
+          drop-shadow(0 0 8px rgba(140, 85, 45, 0.24));
       }
 
       100% {
@@ -1081,17 +1081,21 @@
 
     .slot-wrap.instability-burned-away::before {
       opacity: 1;
+
       background:
         radial-gradient(circle,
-          rgba(220, 245, 255, 0.22) 0%,
-          rgba(80, 150, 170, 0.16) 34%,
-          rgba(12, 18, 22, 0.24) 58%,
-          transparent 76%);
+          rgba(255, 235, 210, 0.26) 0%,
+          rgba(255, 150, 70, 0.18) 26%,
+          rgba(115, 52, 20, 0.20) 52%,
+          rgba(18, 12, 10, 0.24) 68%,
+          transparent 80%);
+
       filter:
-        brightness(0.7)
-        saturate(0.35)
-        contrast(1.25)
+        brightness(0.72)
+        saturate(0.42)
+        contrast(1.28)
         blur(14px);
+
       animation: burnedAwaySocketCollapse 1.05s steps(7, end);
     }
 
