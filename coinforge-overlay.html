@@ -878,121 +878,70 @@
     @keyframes forgeInstabilityBadgeOvercharged {
       0% {
         opacity: 0;
-        transform: translate(-50%, -50%) scale(0.65);
+        transform: translate(-50%, -40%) scale(0.62);
+        filter: brightness(1);
       }
-    
-      16% {
+
+      12% {
         opacity: 1;
-        transform: translate(-50%, -80%) scale(1.04);
+        transform: translate(-50%, -86%) scale(1.16);
+        filter: brightness(1.8);
       }
-    
-      62% {
+
+      58% {
         opacity: 1;
-        transform: translate(-50%, -100%) scale(1);
+        transform: translate(-50%, -112%) scale(1.04);
+        filter: brightness(1.35);
       }
-    
+
       100% {
         opacity: 0;
-        transform: translate(-50%, -130%) scale(0.92);
+        transform: translate(-50%, -150%) scale(0.9);
+        filter: brightness(1);
       }
     }
 
-    @keyframes forgeInstabilityBadgeBurnedAway {
+    @keyframes forgeInstabilityOvercharged {
+      0% { transform: scale(1); filter: brightness(1); }
+      8% { transform: scale(1.28) translateY(-9px); filter: brightness(2.4); }
+      18% { transform: scale(0.88) translateY(5px); filter: brightness(1.2); }
+      32% { transform: scale(1.16) translateY(-4px); filter: brightness(2); }
+      52% { transform: scale(0.98) translateY(1px); filter: brightness(1.35); }
+      76% { transform: scale(1.08); filter: brightness(1.75); }
+      100% { transform: scale(1); filter: brightness(1); }
+    }
+
+    @keyframes overchargeDuplicateSplit {
       0% {
         opacity: 0;
-        transform: translate(-50%, -50%) scale(0.65);
-      }
-    
-      16% {
-        opacity: 1;
-        transform: translate(-50%, -82%) scale(1.04);
-      }
-    
-      62% {
-        opacity: 1;
-        transform: translate(-50%, -108%) scale(1);
-      }
-    
-      100% {
-        opacity: 0;
-        transform: translate(-50%, -138%) scale(0.92);
-      }
-    }
-    
-    @keyframes forgeInstabilityBadge {
-      0% {
-        opacity: 0;
-        transform: translate(-50%, -50%) scale(0.65);
+        transform: translate(-50%, -50%) scale(0.92);
       }
 
-      20% {
-        opacity: 1;
-        transform: translate(-50%, -80%) scale(1.04);
+      10% {
+        opacity: 0.95;
+        transform: translate(-18%, -68%) scale(1.16);
       }
 
-      72% {
+      28% {
         opacity: 1;
-        transform: translate(-50%, -105%) scale(1);
+        transform: translate(-92%, -38%) scale(1.02);
+      }
+
+      48% {
+        opacity: 0.9;
+        transform: translate(-74%, -50%) scale(1.08);
+      }
+
+      68% {
+        opacity: 0.72;
+        transform: translate(-50%, -50%) scale(1.24);
       }
 
       100% {
         opacity: 0;
-        transform: translate(-50%, -135%) scale(0.92);
+        transform: translate(-50%, -50%) scale(0.92);
       }
     }
-
-       @keyframes forgeInstabilityOvercharged {
-        0% { transform: scale(1); }
-        10% { transform: scale(1.22) translateY(-7px); }
-        22% { transform: scale(0.9) translateY(4px); }
-        38% { transform: scale(1.12) translateY(-3px); }
-        62% { transform: scale(0.98) translateY(1px); }
-        100% { transform: scale(1); }
-      }
-  
-      @keyframes overchargeDuplicateSplit {
-        0% {
-          opacity: 0;
-          transform:
-            translate(-50%, -50%)
-            scale(1);
-        }
-  
-        10% {
-          opacity: 1;
-          transform:
-            translate(-10%, -62%)
-            scale(1.12);
-        }
-  
-        24% {
-          opacity: 1;
-          transform:
-            translate(-88%, -38%)
-            scale(0.98);
-        }
-  
-        48% {
-          opacity: 0.95;
-          transform:
-            translate(-82%, -42%)
-            scale(0.98);
-        }
-  
-        72% {
-          opacity: 0.82;
-          transform:
-            translate(-50%, -50%)
-            scale(1.18);
-        }
-  
-        100% {
-          opacity: 0;
-          transform:
-            translate(-50%, -50%)
-            scale(0.96);
-        }
-      }
     
     @keyframes forgeInstabilityScorched {
       0% { transform: scale(1); }
