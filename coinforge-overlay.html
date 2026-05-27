@@ -795,7 +795,7 @@
     .forge-instability-badge {
       position: absolute;
       left: 50%;
-      top: 5%;
+      top: -6%;
       transform: translate(-50%, -50%) scale(0.75);
       opacity: 0;
       z-index: 6;
@@ -946,7 +946,7 @@
       visibility: hidden !important;
     }
 
-    .slot-wrap.instability-burned-away .burned-away-gif {
+    .slot-wrap.instability-burned-away .burned-away-gif:not(.played) {
       animation: burnedAwayGifPop 0.9s steps(6, end) forwards;
     }
     
