@@ -3036,6 +3036,9 @@
 
     const burnedAwaySound = new Audio("sounds/explosion-8-bit.m4a");
     burnedAwaySound.volume = 0.26;
+
+    const scorchedSound = new Audio("sounds/scorched_sound.m4a");
+    scorchedSound.volume = 0.22;
     
     const comboSounds = {
       broken: new Audio("sounds/combo/combo-broken.mp3"),
@@ -4752,6 +4755,12 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         persistentClassName: "",
         enter({ pullId }) {
           triggerGlobalInstabilityReaction("Scorched", pullId);
+
+          playOwnedSound(
+            pullId,
+            scorchedSound,
+            true
+          );
         }
       },
     
