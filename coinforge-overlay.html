@@ -289,13 +289,9 @@
       pointer-events: none;
       z-index: 28;
       opacity: 0;
-      mix-blend-mode: screen;
+      mix-blend-mode: normal;
       background:
-        radial-gradient(circle,
-          rgba(255, 245, 185, 0.9) 0%,
-          rgba(255, 150, 45, 0.36) 28%,
-          rgba(255, 70, 20, 0.16) 52%,
-          transparent 74%);
+        rgba(255,255,255,1);
       filter: blur(10px);
     }
     
@@ -367,7 +363,9 @@
     }
 
     .forge-stage.eruption-cinematic {
-      animation: forgeEruptionStageTakeoverZoomShake 6200ms steps(36, end);
+      animation:
+        forgeEruptionStageTakeoverZoomShake 6200ms ease-in-out,
+        forgeEruptionRapidVibration 90ms linear infinite;
       transform-origin: center 45%;
     }
 
@@ -380,7 +378,8 @@
     }
 
     .forge-stage.eruption-cinematic .forge-background,
-    .forge-stage.eruption-cinematic .forge-background-glow {
+    .forge-stage.eruption-cinematic .forge-background-glow,
+    .forge-stage.eruption-cinematic .forge-pressure-fill {
       animation: forgeEruptionBackgroundTakeoverZoom 3600ms ease-in forwards;
       transform-origin: center 42%;
     }
@@ -414,56 +413,50 @@
 
     @keyframes forgeEruptionStageTakeoverZoomShake {
       0% {
-        transform: scale(1) translate(0px, 0px);
+        transform: scale(1);
         filter: brightness(1) saturate(1);
       }
-
-      12% {
-        transform: scale(1.05) translate(1px, -1px);
-        filter: brightness(1.25) saturate(1.15);
+    
+      20% {
+        transform: scale(1.03);
+        filter: brightness(1.15) saturate(1.1);
       }
-
-      24% {
-        transform: scale(1.14) translate(-3px, 2px);
-        filter: brightness(1.55) saturate(1.35);
+    
+      40% {
+        transform: scale(1.08);
+        filter: brightness(1.4) saturate(1.22);
       }
-
-      36% {
-        transform: scale(1.26) translate(5px, -4px);
-        filter: brightness(2.05) saturate(1.65);
-      }
-
-      48% {
-        transform: scale(1.42) translate(-8px, 6px);
-        filter: brightness(2.75) saturate(2);
-      }
-
+    
       60% {
-        transform: scale(1.62) translate(12px, -9px);
-        filter: brightness(3.75) saturate(2.35);
+        transform: scale(1.14);
+        filter: brightness(1.9) saturate(1.45);
       }
-
-      70% {
-        transform: scale(1.82) translate(-16px, 12px);
-        filter: brightness(5.2) saturate(2.6);
+    
+      76% {
+        transform: scale(1.28);
+        filter: brightness(3.1) saturate(1.9);
       }
-
-      78% {
-        transform: scale(1.95) translate(18px, -14px);
-        filter: brightness(7) saturate(2.8);
-      }
-
-      86% {
-        transform: scale(1.2) translate(-10px, 8px);
-        filter: brightness(3.4) saturate(1.7);
-      }
-
+    
       100% {
-        transform: scale(1) translate(0px, 0px);
+        transform: scale(1);
         filter: brightness(1) saturate(1);
       }
     }
 
+    @keyframes forgeEruptionRapidVibration {
+      0% { translate: 0px 0px; }
+      10% { translate: -1px 1px; }
+      20% { translate: 1px -1px; }
+      30% { translate: -2px 0px; }
+      40% { translate: 2px 1px; }
+      50% { translate: -2px -1px; }
+      60% { translate: 2px 0px; }
+      70% { translate: -1px 2px; }
+      80% { translate: 1px -2px; }
+      90% { translate: -1px 1px; }
+      100% { translate: 0px 0px; }
+    }
+    
     @keyframes forgeEruptionBackgroundTakeoverZoom {
       0% {
         opacity: 1;
@@ -560,6 +553,24 @@
       }
     }
 
+    .forge-stage.eruption-forge-returning .forge-background,
+    .forge-stage.eruption-forge-returning .forge-background-glow,
+    .forge-stage.eruption-forge-returning .forge-pressure-fill {
+      animation: forgeReturnFadeIn 1000ms ease-out forwards;
+    }
+    
+    @keyframes forgeReturnFadeIn {
+      0% {
+        opacity: 0;
+        filter: brightness(4);
+      }
+    
+      100% {
+        opacity: 1;
+        filter: brightness(1);
+      }
+    }
+    
     @keyframes forgeEruptionExplosionGifPop {
       0% {
         opacity: 0;
@@ -3235,7 +3246,7 @@
 
   <script>
     window.COIN_FORGE_OVERLAY_VERSION =
-      "PHASE_7_Forge_Eruprion_Cinematic_V1";
+      "Phase 7.3D — Correct Takeover Timing + Return Lifecycle";
     const screenBorderFX = document.getElementById("screenBorderFX");
     const forgeStage = document.getElementById("forgeStage");
     const forgePressureFill = document.getElementById("forgePressureFill");
@@ -3644,8 +3655,18 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       if (explosionGif) {
         explosionGif.classList.remove("active");
+      
+        const originalSrc = explosionGif.src;
+      
+        explosionGif.src = "";
         void explosionGif.offsetWidth;
+      
+        explosionGif.src = originalSrc;
         explosionGif.classList.add("active");
+      
+        setTimeout(() => {
+          explosionGif.classList.remove("active");
+        }, 1700);
       }
     
       playOwnedSound(pullId, forgeEruptionExplosionSound, true);
@@ -4386,7 +4407,14 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         playForgeEruptionExplosion(pullId);
       }
       
-      await wait(2600);
+      await wait(1600);
+
+      forgeStage.classList.remove("eruption-background-hidden");
+      forgeStage.classList.add("eruption-forge-returning");
+      
+      await wait(1000);
+      
+      forgeStage.classList.remove("eruption-forge-returning");
     
       if (isActivePull(pullId)) {
         setForgeEruptionState("idle");
