@@ -4404,9 +4404,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         .filter(animation => animation.playState === "running");
       
       if (options.pauseAnimations === true) {
-        if (options.pauseAnimations === true) {
-          pausedAnimations.forEach(animation => animation.pause());
-        }
+        pausedAnimations.forEach(animation => animation.pause());
       }
     
       overlayState.pausedRevealAnimations = pausedAnimations;
@@ -4417,7 +4415,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         type: options.type || "cinematic",
         source: options.source || "unknown",
         startedAt: Date.now(),
-        pauseAnimations: options.pauseAnimations === true
         pauseAnimations: options.pauseAnimations === true
       };
     
