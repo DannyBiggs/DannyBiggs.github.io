@@ -557,7 +557,7 @@
           opacity: 0;
           visibility: hidden;
           z-index: 34;
-          transition: opacity 320ms ease;
+          transition: opacity 120ms ease;
         }
     
         .eruption-coin-rain-layer.active {
@@ -612,7 +612,7 @@
           100% {
             transform:
               translateX(var(--rain-drift, 0px))
-              translateY(138vh);
+              translateY(172vh);
           }
         }
     
@@ -3709,8 +3709,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         columnEl.className = "eruption-coin-rain-column";
     
         const columnLeft = 4 + (column * (92 / (columnCount - 1)));
-        const fallDuration = 2200 + Math.floor(Math.random() * 900);
-        const fallDelay = Math.floor(Math.random() * 420);
+        const fallDuration = 2100 + Math.floor(Math.random() * 500);
+        const fallDelay = Math.floor(Math.random() * 180);
         const drift = 0;
     
         columnEl.style.left = `${columnLeft}%`;
@@ -3741,12 +3741,9 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         rainLayer.appendChild(columnEl);
       }
     
-      await wait(3400);
-    
+      await wait(2700);
+
       rainLayer.classList.remove("active");
-    
-      await wait(320);
-    
       rainLayer.innerHTML = "";
     
       return true;
@@ -4494,11 +4491,9 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       forgeStage.classList.remove("forge-erupting");
       forgeStage.classList.add("eruption-forge-returning");
       
-      await wait(350);
+      await wait(120);
 
       await playForgeEruptionCoinRain(pullId);
-      
-      await wait(1100);
       
       forgeStage.classList.remove("eruption-forge-returning");
     
@@ -5983,6 +5978,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       triggerSlotImpact(slot, finalCoin, pullId);
       
       await handleForgePressurePayload(pullId, finalCoin);
+
+      await wait(240);
 
       if (
         overlayState.pendingEruption &&
