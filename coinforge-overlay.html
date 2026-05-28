@@ -4365,12 +4365,23 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         overlayState.forgeRevealSuspension &&
         overlayState.forgeRevealSuspension.ownerId === pullId
       ) {
+        overlayState.forgeRevealSuspension.type = options.type || overlayState.forgeRevealSuspension.type;
+        overlayState.forgeRevealSuspension.source = options.source || overlayState.forgeRevealSuspension.source;
         return true;
       }
     
       const pausedAnimations = Array.from(
-        document.querySelectorAll(".slot-row, .slot-wrap, .slot-coin")
+        document.querySelectorAll(".slot-wrap, .slot-coin")
       )
+        .filter(element => {
+          const slotWrap = element.classList.contains("slot-wrap")
+            ? element
+            : element.closest(".slot-wrap");
+      
+          const slotState = slotWrap?.dataset?.slotState || "";
+      
+          return slotState !== "landed";
+        })
         .flatMap(element => element.getAnimations ? element.getAnimations() : [])
         .filter(animation => animation.playState === "running");
     
@@ -5987,6 +5998,14 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       
         overlayState.pendingEruption = null;
 
+        pauseForgeRevealForCinematic(
+          pullId,
+          {
+            type: "forgeEruption",
+            source: pendingEruption.source
+          }
+        );
+        
         await wait(400);
       
         await triggerForgeEruptionLifecycle(
