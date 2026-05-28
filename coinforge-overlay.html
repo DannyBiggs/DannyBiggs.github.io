@@ -612,7 +612,7 @@
     
           100% {
             transform:
-              translateX(calc(var(--rain-drift, 0px) * -0.6))
+              translateX(var(--rain-drift, 0px))
               translateY(138vh);
           }
         }
@@ -3729,7 +3729,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         const columnLeft = 4 + (column * (92 / (columnCount - 1)));
         const fallDuration = 2200 + Math.floor(Math.random() * 900);
         const fallDelay = Math.floor(Math.random() * 420);
-        const drift = Math.floor(Math.random() * 34) - 17;
+        const drift = 0;
     
         columnEl.style.left = `${columnLeft}%`;
         columnEl.style.setProperty("--rain-duration", `${fallDuration}ms`);
@@ -4512,9 +4512,11 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       forgeStage.classList.remove("forge-erupting");
       forgeStage.classList.add("eruption-forge-returning");
       
-      await wait(1450);
+      await wait(350);
 
       await playForgeEruptionCoinRain(pullId);
+      
+      await wait(1100);
       
       forgeStage.classList.remove("eruption-forge-returning");
     
