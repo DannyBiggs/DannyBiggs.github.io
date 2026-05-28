@@ -4335,6 +4335,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       await wait(1350);
       
       forgeStage.classList.remove("eruption-background-hidden");
+      forgeStage.classList.remove("eruption-cinematic");
+      forgeStage.classList.remove("forge-erupting");
       forgeStage.classList.add("eruption-forge-returning");
       
       await wait(1450);
