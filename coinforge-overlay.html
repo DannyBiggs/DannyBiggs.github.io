@@ -3086,7 +3086,9 @@
       lastCinematicBlock: null,
     
       cinematicHistory: [],
-    
+      
+      cinematicSuspension: null,
+      
       activeAudio: new Set(),
     
       currentPressure: 0,
@@ -3908,66 +3910,75 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       return safeState;
     }
 
-    function handleForgePressurePayload(pullId, finalCoin) {
-      if (!isActivePull(pullId)) return;
-      if (!finalCoin || !finalCoin.raw) return;
-
+    async function handleForgePressurePayload(pullId, finalCoin) {
+      if (!isActivePull(pullId)) return false;
+      if (!finalCoin || !finalCoin.raw) return false;
+    
       const pressureAfter =
         typeof finalCoin.raw.forgePressureAfter === "number"
           ? finalCoin.raw.forgePressureAfter
           : null;
-
+    
       const eruptionTriggered =
         finalCoin.raw.jackpotHit === true;
-
+    
       overlayState.lastPressurePayload = {
         pressureAfter,
         eruptionTriggered,
         source: eruptionTriggered ? "payload-jackpotHit" : "payload-pressure",
         coinName: finalCoin.name || finalCoin.raw.name || ""
       };
-
-      if (pressureAfter === null) return;
-
+    
+      if (pressureAfter === null) return false;
+    
       if (eruptionTriggered) {
-        triggerForgeEruptionLifecycle(
+        await triggerForgeEruptionLifecycle(
           pullId,
           {
             pressureAfter,
             source: "payload-jackpotHit"
           }
         );
-
-        return;
+    
+        return true;
       }
-
+    
       updateForgePressureGauge(pressureAfter);
+      return false;
     }
-
-    function triggerForgeEruptionLifecycle(pullId, options = {}) {
-      if (!isActivePull(pullId)) return;
-      if (!forgeStage) return;
-
+    
+    async function triggerForgeEruptionLifecycle(pullId, options = {}) {
+      if (!isActivePull(pullId)) return false;
+      if (!forgeStage) return false;
+    
       const pressureAfter =
         typeof options.pressureAfter === "number"
           ? options.pressureAfter
           : overlayState.currentPressure;
-
+    
+      overlayState.cinematicSuspension = {
+        type: "forgeEruption",
+        ownerId: pullId,
+        startedAt: Date.now(),
+        durationMs: 1900,
+        source: options.source || "payload"
+      };
+    
       setForgeEruptionState(
         "erupting",
         {
           source: options.source || "payload"
         }
       );
-
+    
       overlayState.forgeState = "erupting";
       overlayState.currentPressure = 100;
       setForgePressureStateFromValue(100);
     
       addStageEffect(pullId, "forge-erupting", 1900, { restart: true });
-
+    
       animateForgePressureGauge(37, 520);
-
+    
       registerOwnedCleanupTimer(
         pullId,
         () => {
@@ -3976,17 +3987,24 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         },
         1200
       );
-
-      registerOwnedCleanupTimer(
-        pullId,
-        () => {
-          setForgeEruptionState("idle");
-          overlayState.forgeState = "active";
-        },
-        1900
-      );
     
       playForgeHammerSound(pullId);
+    
+      await wait(1900);
+    
+      if (isActivePull(pullId)) {
+        setForgeEruptionState("idle");
+        overlayState.forgeState = "active";
+      }
+    
+      if (
+        overlayState.cinematicSuspension &&
+        overlayState.cinematicSuspension.ownerId === pullId
+      ) {
+        overlayState.cinematicSuspension = null;
+      }
+    
+      return true;
     }
 
     function resetForgePressureLifecycleVisuals() {
@@ -4306,6 +4324,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         activeCinematic: overlayState.activeCinematic,
         lastCinematicBlock: overlayState.lastCinematicBlock,
         cinematicHistory: overlayState.cinematicHistory,
+        cinematicSuspension: overlayState.cinematicSuspension,
         currentPressure: overlayState.currentPressure,
         pressureState: overlayState.pressureState,
         lastPressurePayload: overlayState.lastPressurePayload,
@@ -5442,7 +5461,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       triggerSocketRing(slot, finalCoin, pullId);
       triggerSlotImpact(slot, finalCoin, pullId);
       
-      handleForgePressurePayload(pullId, finalCoin);
+      await handleForgePressurePayload(pullId, finalCoin);
       
       registerOwnedCleanupTimer(
         pullId,
