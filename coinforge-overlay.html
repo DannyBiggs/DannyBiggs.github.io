@@ -588,7 +588,6 @@
             brightness(1.12)
             drop-shadow(0 0 8px rgba(255, 210, 100, 0.55));
           animation:
-            eruptionCoinRainCoinSpin 520ms steps(6, end) infinite,
             eruptionCoinRainCoinFlicker 900ms ease-in-out infinite alternate;
         }
     
@@ -614,23 +613,6 @@
             transform:
               translateX(var(--rain-drift, 0px))
               translateY(138vh);
-          }
-        }
-    
-        @keyframes eruptionCoinRainCoinSpin {
-          0% {
-            rotate: 0deg;
-            scale: 1;
-          }
-    
-          50% {
-            rotate: 180deg;
-            scale: 1.08;
-          }
-    
-          100% {
-            rotate: 360deg;
-            scale: 1;
           }
         }
     
@@ -3751,7 +3733,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
           img.style.top = `${spacing + stagger}px`;
           img.style.width = `${size}px`;
-          img.style.animationDelay = `${fallDelay + coinIndex * 85}ms`;
+          img.style.animationDelay = `${fallDelay}ms`;
     
           columnEl.appendChild(img);
         }
