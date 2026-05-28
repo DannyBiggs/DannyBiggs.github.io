@@ -360,18 +360,6 @@
     .forge-stage.eruption-cinematic .slot-row {
       animation: forgeEruptionSlotsVanish 850ms ease-in forwards;
     }
-
-    .forge-stage.eruption-coin-rain-active .slot-row {
-      opacity: 1 !important;
-      visibility: visible !important;
-      animation: none !important;
-    }
-    
-    .forge-stage.eruption-coin-rain-active .slot-wrap[data-slot-state="spinning"] .slot-coin,
-    .forge-stage.eruption-coin-rain-active .slot-wrap[data-slot-state="forming"] .slot-coin {
-      opacity: 1 !important;
-      animation: slotSpin 0.34s linear infinite !important;
-    }
     
     .forge-stage.eruption-cinematic .player-identity-layer {
       animation: forgeEruptionIdentityVanish 650ms ease-in forwards;
@@ -6025,10 +6013,15 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       triggerSlotImpact(slot, finalCoin, pullId);
       
       await wait(380);
-      
-      slot.src = coinFileForSlot(finalCoin, index);
-      
+
       await handleForgePressurePayload(pullId, finalCoin);
+      
+      if (
+        !overlayState.pendingEruption ||
+        overlayState.pendingEruption.pullId !== pullId
+      ) {
+        slot.src = coinFileForSlot(finalCoin, index);
+      }
       
       await wait(120);
 
@@ -6066,6 +6059,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
             source: pendingEruption.source
           }
         );
+        slot.src = coinFileForSlot(finalCoin, index);
       }
       
       registerOwnedCleanupTimer(
@@ -6719,76 +6713,35 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           1050 - (pullCount * 120)
         );
       
-        const eruptionIndex = results.findIndex(result =>
-          result &&
-          result.raw &&
-          result.raw.jackpotHit === true
-        );
+        const activeSpinPromises = [];
+
+        for (let i = 0; i < slots.length; i++) {
         
-        let nextSlotIndex = 0;
+          while (
+            overlayState.forgeRevealSuspension &&
+            overlayState.forgeRevealSuspension.ownerId === pullId
+          ) {
+            await wait(50);
+          }
         
-        const launchSpinSlot = index => {  
-          const slot = slots[index];
+          const slot = slots[i];
         
-          return spinSlot(
-            slot,
-            results[index] || results[results.length - 1],
-            index,
-            true,
-            pullId
+          activeSpinPromises.push(
+            spinSlot(
+              slot,
+              results[i] || results[results.length - 1],
+              i,
+              true,
+              pullId
+            )
           );
-        };
         
-        const preEruptionSpinPromises = [];
-        
-        for (
-          ;
-          nextSlotIndex < slots.length;
-          nextSlotIndex++
-        ) {
-          while (
-            overlayState.forgeRevealSuspension &&
-            overlayState.forgeRevealSuspension.ownerId === pullId
-          ) {
-            await wait(50);
-          }
-        
-          preEruptionSpinPromises.push(launchSpinSlot(nextSlotIndex));
-        
-          if (nextSlotIndex === eruptionIndex) {
-            nextSlotIndex++;
-            break;
-          }
-        
-          if (nextSlotIndex < slots.length - 1) {
+          if (i < slots.length - 1) {
             await wait(staggerDelay);
           }
         }
         
-        await Promise.all(preEruptionSpinPromises);
-        
-        const postEruptionSpinPromises = [];
-        
-        for (
-          ;
-          nextSlotIndex < slots.length;
-          nextSlotIndex++
-        ) {
-          while (
-            overlayState.forgeRevealSuspension &&
-            overlayState.forgeRevealSuspension.ownerId === pullId
-          ) {
-            await wait(50);
-          }
-        
-          postEruptionSpinPromises.push(launchSpinSlot(nextSlotIndex));
-        
-          if (nextSlotIndex < slots.length - 1) {
-            await wait(staggerDelay);
-          }
-        }
-        
-        await Promise.all(postEruptionSpinPromises);
+        await Promise.all(activeSpinPromises);
       }
 
       addStageEffect(pullId, `reveal-${highestClass}`);
