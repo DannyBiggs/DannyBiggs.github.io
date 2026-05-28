@@ -4455,6 +4455,62 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         await wait(50);
       }
     }
+
+    async function waitForForgeLandingGate(pullId, slot, finalCoin, index) {
+      const slotWrap = slot?.closest(".slot-wrap");
+      let enteredLandingGate = false;
+    
+      while (
+        isActivePull(pullId) &&
+        overlayState.forgeRevealSuspension &&
+        overlayState.forgeRevealSuspension.ownerId === pullId
+      ) {
+        if (!enteredLandingGate) {
+          enteredLandingGate = true;
+    
+          if (slotWrap) {
+            slotWrap.style.transform = "";
+            slotWrap.style.filter = "";
+    
+            setSlotState(slotWrap, "spinning", {
+              pullId,
+              coin: finalCoin.name
+            });
+    
+            addSlotEffect(
+              pullId,
+              slotWrap,
+              "coin-cycling",
+              null,
+              { restart: true }
+            );
+          }
+    
+          clearCoinEffects(slot);
+          slot.classList.remove("landed");
+          slot.src = coinFileForSlot(finalCoin, index);
+    
+          addCoinEffect(
+            pullId,
+            slot,
+            "spinning",
+            null,
+            { restart: true }
+          );
+        }
+    
+        await wait(50);
+      }
+    
+      if (enteredLandingGate) {
+        slot.classList.remove("spinning");
+    
+        if (slotWrap) {
+          slotWrap.classList.remove("coin-cycling");
+        }
+      }
+    }
+    
     // ===== PHASE 7.3B FORGE REVEAL PAUSE / RESUME END =====
     
     async function triggerForgeEruptionLifecycle(pullId, options = {}) {
@@ -6015,6 +6071,19 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       await wait(380);
 
       await handleForgePressurePayload(pullId, finalCoin);
+
+      if (
+        overlayState.pendingEruption &&
+        overlayState.pendingEruption.pullId === pullId
+      ) {
+        startForgeRevealProgressionGate(
+          pullId,
+          {
+            type: "forgeEruption",
+            source: overlayState.pendingEruption.source
+          }
+        );
+      }
       
       if (
         !overlayState.pendingEruption ||
