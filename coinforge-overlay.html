@@ -4742,7 +4742,16 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           }
     
           triggerGlobalInstabilityReaction("Overcharged", pullId);
+
           playForgeHammerSound(pullId);
+  
+          setTimeout(() => {
+            if (activePullId !== pullId) {
+              return;
+            }
+  
+            playForgeHammerSound(pullId, 0.72);
+          }, 160);
         }
       },
     
