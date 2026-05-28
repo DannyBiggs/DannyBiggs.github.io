@@ -548,6 +548,101 @@
         transform: translate(-50%, -50%) scale(1.04);
       }
     }
+
+        .eruption-coin-rain-layer {
+          position: fixed;
+          inset: 0;
+          overflow: hidden;
+          pointer-events: none;
+          opacity: 0;
+          visibility: hidden;
+          z-index: 34;
+          transition: opacity 320ms ease;
+        }
+    
+        .eruption-coin-rain-layer.active {
+          opacity: 1;
+          visibility: visible;
+        }
+    
+        .eruption-coin-rain-column {
+          position: absolute;
+          top: -18vh;
+          width: 72px;
+          height: 140vh;
+          transform: translateX(var(--rain-drift, 0px));
+          animation:
+            eruptionCoinRainColumnFall var(--rain-duration, 2800ms) linear var(--rain-delay, 0ms) forwards;
+        }
+    
+        .eruption-coin-rain-coin {
+          position: absolute;
+          left: 50%;
+          width: 64px;
+          height: auto;
+          transform: translateX(-50%);
+          image-rendering: pixelated;
+          object-fit: contain;
+          opacity: 0.92;
+          filter:
+            brightness(1.12)
+            drop-shadow(0 0 8px rgba(255, 210, 100, 0.55));
+          animation:
+            eruptionCoinRainCoinSpin 520ms steps(6, end) infinite,
+            eruptionCoinRainCoinFlicker 900ms ease-in-out infinite alternate;
+        }
+    
+        .eruption-coin-rain-coin.legendary,
+        .eruption-coin-rain-coin.mythic,
+        .eruption-coin-rain-coin.rainbow {
+          opacity: 1;
+          filter:
+            brightness(1.35)
+            saturate(1.25)
+            drop-shadow(0 0 12px rgba(255, 240, 150, 0.82))
+            drop-shadow(0 0 28px rgba(255, 140, 45, 0.42));
+        }
+    
+        @keyframes eruptionCoinRainColumnFall {
+          0% {
+            transform:
+              translateX(var(--rain-drift, 0px))
+              translateY(-16vh);
+          }
+    
+          100% {
+            transform:
+              translateX(calc(var(--rain-drift, 0px) * -0.6))
+              translateY(138vh);
+          }
+        }
+    
+        @keyframes eruptionCoinRainCoinSpin {
+          0% {
+            rotate: 0deg;
+            scale: 1;
+          }
+    
+          50% {
+            rotate: 180deg;
+            scale: 1.08;
+          }
+    
+          100% {
+            rotate: 360deg;
+            scale: 1;
+          }
+        }
+    
+        @keyframes eruptionCoinRainCoinFlicker {
+          from {
+            opacity: 0.78;
+          }
+    
+          to {
+            opacity: 1;
+          }
+        }
     
     /* ===== GLOBAL INSTABILITY REACTION FX START ===== */
     .forge-stage.instability-global-overcharged {
@@ -3105,6 +3200,7 @@
           src="images/vfx/nuke.gif"
           alt=""
         >
+        <div id="forgeEruptionCoinRainLayer" class="eruption-coin-rain-layer"></div>
         <div class="forge-eruption-vent vent-left"></div>
         <div class="forge-eruption-vent vent-right"></div>
         <!-- <img class="forge-background-glow" src="images/ui/forge_background_glowonly_red.png" alt=""> -->
@@ -3595,6 +3691,83 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       }
     
       playOwnedSound(pullId, forgeEruptionExplosionSound, true);
+    }
+
+    async function playForgeEruptionCoinRain(pullId) {
+      if (!isActivePull(pullId)) return false;
+    
+      const rainLayer = document.getElementById("forgeEruptionCoinRainLayer");
+      if (!rainLayer) return false;
+    
+      rainLayer.innerHTML = "";
+      rainLayer.classList.remove("active");
+      void rainLayer.offsetWidth;
+      rainLayer.classList.add("active");
+    
+      const weightedRainCoins = [
+        ...forgeCoins.filter(coin => coin.key === "Wood"),
+        ...forgeCoins.filter(coin => coin.key === "Bronze"),
+        ...forgeCoins.filter(coin => coin.key === "Bronze"),
+        ...forgeCoins.filter(coin => coin.key === "Silver"),
+        ...forgeCoins.filter(coin => coin.key === "Silver"),
+        ...forgeCoins.filter(coin => coin.key === "Gold"),
+        ...forgeCoins.filter(coin => coin.key === "Gold"),
+        ...forgeCoins.filter(coin => coin.key === "Diamond"),
+        ...forgeCoins.filter(coin => coin.key === "Rainbow"),
+        ...forgeCoins.filter(coin => coin.key === "Lucky"),
+        ...forgeCoins.filter(coin => coin.key === "JackpotBooster"),
+        ...forgeCoins.filter(coin => coin.key === "Kingmaker")
+      ].filter(coin => coin && coin.key !== "Anti");
+    
+      const columnCount = 13;
+      const coinsPerColumn = 7;
+    
+      for (let column = 0; column < columnCount; column++) {
+        const columnEl = document.createElement("div");
+        columnEl.className = "eruption-coin-rain-column";
+    
+        const columnLeft = 4 + (column * (92 / (columnCount - 1)));
+        const fallDuration = 2200 + Math.floor(Math.random() * 900);
+        const fallDelay = Math.floor(Math.random() * 420);
+        const drift = Math.floor(Math.random() * 34) - 17;
+    
+        columnEl.style.left = `${columnLeft}%`;
+        columnEl.style.setProperty("--rain-duration", `${fallDuration}ms`);
+        columnEl.style.setProperty("--rain-delay", `${fallDelay}ms`);
+        columnEl.style.setProperty("--rain-drift", `${drift}px`);
+    
+        for (let coinIndex = 0; coinIndex < coinsPerColumn; coinIndex++) {
+          const coin =
+            weightedRainCoins[Math.floor(Math.random() * weightedRainCoins.length)];
+    
+          const img = document.createElement("img");
+          img.className = `eruption-coin-rain-coin ${coin.className || "common"}`;
+          img.src = `${coin.file}?rain=${pullId}-${column}-${coinIndex}-${Date.now()}`;
+          img.alt = "";
+    
+          const spacing = coinIndex * -118;
+          const stagger = Math.floor(Math.random() * 46) - 23;
+          const size = 54 + Math.floor(Math.random() * 28);
+    
+          img.style.top = `${spacing + stagger}px`;
+          img.style.width = `${size}px`;
+          img.style.animationDelay = `${fallDelay + coinIndex * 85}ms`;
+    
+          columnEl.appendChild(img);
+        }
+    
+        rainLayer.appendChild(columnEl);
+      }
+    
+      await wait(3400);
+    
+      rainLayer.classList.remove("active");
+    
+      await wait(320);
+    
+      rainLayer.innerHTML = "";
+    
+      return true;
     }
     
     function playForgeHammerSound(pullId) {
@@ -4340,6 +4513,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       forgeStage.classList.add("eruption-forge-returning");
       
       await wait(1450);
+
+      await playForgeEruptionCoinRain(pullId);
       
       forgeStage.classList.remove("eruption-forge-returning");
     
