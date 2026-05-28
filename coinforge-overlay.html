@@ -3088,6 +3088,8 @@
       cinematicHistory: [],
       
       cinematicSuspension: null,
+
+      pendingEruption: null,
       
       activeAudio: new Set(),
     
@@ -3932,14 +3934,13 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       if (pressureAfter === null) return false;
     
       if (eruptionTriggered) {
-        await triggerForgeEruptionLifecycle(
+        overlayState.pendingEruption = {
           pullId,
-          {
-            pressureAfter,
-            source: "payload-jackpotHit"
-          }
-        );
-    
+          pressureAfter,
+          source: "payload-jackpotHit",
+          createdAt: Date.now()
+        };
+      
         return true;
       }
     
@@ -4325,6 +4326,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         lastCinematicBlock: overlayState.lastCinematicBlock,
         cinematicHistory: overlayState.cinematicHistory,
         cinematicSuspension: overlayState.cinematicSuspension,
+        pendingEruption: overlayState.pendingEruption,
         currentPressure: overlayState.currentPressure,
         pressureState: overlayState.pressureState,
         lastPressurePayload: overlayState.lastPressurePayload,
@@ -5462,6 +5464,23 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       triggerSlotImpact(slot, finalCoin, pullId);
       
       await handleForgePressurePayload(pullId, finalCoin);
+
+      if (
+        overlayState.pendingEruption &&
+        overlayState.pendingEruption.pullId === pullId
+      ) {
+        const pendingEruption = overlayState.pendingEruption;
+      
+        overlayState.pendingEruption = null;
+      
+        await triggerForgeEruptionLifecycle(
+          pullId,
+          {
+            pressureAfter: pendingEruption.pressureAfter,
+            source: pendingEruption.source
+          }
+        );
+      }
       
       registerOwnedCleanupTimer(
         pullId,
