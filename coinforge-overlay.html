@@ -3224,9 +3224,15 @@
       cinematicSuspension: null,
 
       pendingEruption: null,
+
+      forgeRevealSuspension: null,
+      
+      forgeRevealSnapshot: null,
+      
+      pausedRevealAnimations: [],
       
       activeAudio: new Set(),
-    
+          
       currentPressure: 0,
     
       pressureState: "empty",
@@ -4081,6 +4087,95 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       updateForgePressureGauge(pressureAfter);
       return false;
     }
+
+    // ===== PHASE 7.3B FORGE REVEAL PAUSE / RESUME START =====
+    function snapshotForgeRevealState(pullId) {
+      const slotWraps = Array.from(document.querySelectorAll(".slot-wrap"));
+    
+      return {
+        pullId,
+        createdAt: Date.now(),
+        slotRowClassName: slotRow?.className || "",
+        slotRowStyle: slotRow?.getAttribute("style") || "",
+        slots: slotWraps.map((slotWrap, index) => {
+          const coin = slotWrap.querySelector(".slot-coin");
+    
+          return {
+            index,
+            wrapClassName: slotWrap.className,
+            wrapStyle: slotWrap.getAttribute("style") || "",
+            slotState: slotWrap.dataset.slotState || "",
+            coinSrc: coin?.getAttribute("src") || "",
+            coinClassName: coin?.className || "",
+            coinStyle: coin?.getAttribute("style") || ""
+          };
+        })
+      };
+    }
+    
+    function pauseForgeRevealForCinematic(pullId, options = {}) {
+      if (!isActivePull(pullId)) return false;
+    
+      if (
+        overlayState.forgeRevealSuspension &&
+        overlayState.forgeRevealSuspension.ownerId === pullId
+      ) {
+        return true;
+      }
+    
+      const pausedAnimations = Array.from(
+        document.querySelectorAll(".slot-row, .slot-wrap, .slot-coin")
+      )
+        .flatMap(element => element.getAnimations ? element.getAnimations() : [])
+        .filter(animation => animation.playState === "running");
+    
+      pausedAnimations.forEach(animation => animation.pause());
+    
+      overlayState.pausedRevealAnimations = pausedAnimations;
+      overlayState.forgeRevealSnapshot = snapshotForgeRevealState(pullId);
+    
+      overlayState.forgeRevealSuspension = {
+        ownerId: pullId,
+        type: options.type || "cinematic",
+        source: options.source || "unknown",
+        startedAt: Date.now()
+      };
+    
+      return true;
+    }
+    
+    function resumeForgeRevealAfterCinematic(pullId) {
+      if (
+        !overlayState.forgeRevealSuspension ||
+        overlayState.forgeRevealSuspension.ownerId !== pullId
+      ) {
+        return false;
+      }
+    
+      overlayState.pausedRevealAnimations.forEach(animation => {
+        try {
+          animation.play();
+        } catch (err) {
+          console.warn("Could not resume reveal animation:", err);
+        }
+      });
+    
+      overlayState.pausedRevealAnimations = [];
+      overlayState.forgeRevealSuspension = null;
+    
+      return true;
+    }
+    
+    async function waitForForgeRevealResume(pullId) {
+      while (
+        isActivePull(pullId) &&
+        overlayState.forgeRevealSuspension &&
+        overlayState.forgeRevealSuspension.ownerId === pullId
+      ) {
+        await wait(50);
+      }
+    }
+    // ===== PHASE 7.3B FORGE REVEAL PAUSE / RESUME END =====
     
     async function triggerForgeEruptionLifecycle(pullId, options = {}) {
       if (!isActivePull(pullId)) return false;
@@ -4091,11 +4186,19 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           ? options.pressureAfter
           : overlayState.currentPressure;
     
+      pauseForgeRevealForCinematic(
+        pullId,
+        {
+          type: "forgeEruption",
+          source: options.source || "payload"
+        }
+      );
+    
       overlayState.cinematicSuspension = {
         type: "forgeEruption",
         ownerId: pullId,
         startedAt: Date.now(),
-        durationMs: 2400,
+        durationMs: 4200,
         source: options.source || "payload"
       };
     
@@ -4110,8 +4213,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       overlayState.currentPressure = 100;
       setForgePressureStateFromValue(100);
     
-      addStageEffect(pullId, "forge-erupting", 2400, { restart: true });
-      addStageEffect(pullId, "eruption-cinematic", 2400, { restart: true });
+      addStageEffect(pullId, "forge-erupting", 4200, { restart: true });
+      addStageEffect(pullId, "eruption-cinematic", 4200, { restart: true });
     
       animateForgePressureGauge(37, 520);
     
@@ -4121,12 +4224,12 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           if (!isActivePull(pullId)) return;
           updateForgePressureGauge(pressureAfter);
         },
-        1450
+        3000
       );
     
       playForgeHammerSound(pullId);
     
-      await wait(2400);
+      await wait(4200);
     
       if (isActivePull(pullId)) {
         setForgeEruptionState("idle");
@@ -4140,6 +4243,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       ) {
         overlayState.cinematicSuspension = null;
       }
+    
+      resumeForgeRevealAfterCinematic(pullId);
     
       return true;
     }
@@ -4463,6 +4568,9 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         cinematicHistory: overlayState.cinematicHistory,
         cinematicSuspension: overlayState.cinematicSuspension,
         pendingEruption: overlayState.pendingEruption,
+        forgeRevealSuspension: overlayState.forgeRevealSuspension,
+        forgeRevealSnapshot: overlayState.forgeRevealSnapshot,
+        pausedRevealAnimationCount: overlayState.pausedRevealAnimations.length,
         currentPressure: overlayState.currentPressure,
         pressureState: overlayState.pressureState,
         lastPressurePayload: overlayState.lastPressurePayload,
@@ -5469,6 +5577,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       const finalFrameCoinKey = getFinalFrameCoinKey(finalCoin);
           
       for (let i = 0; i < totalFrames; i++) {
+        await waitForForgeRevealResume(pullId);
+      
         if (!isActivePull(pullId)) {
           growAnim.cancel();
           return;
@@ -5576,6 +5686,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       
       await playFrameCoinSequence(slot, slotWrap, finalCoin, pullId);
 
+      await waitForForgeRevealResume(pullId);
+      
       if (!isActivePull(pullId)) return;
 
       if (slotWrap) {
@@ -5817,7 +5929,11 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         slot.src = coinFileForSlot(coin, index);
         return;
       }
-
+    
+      await waitForForgeRevealResume(pullId);
+    
+      if (!isActivePull(pullId)) return;
+    
       await growAndFakeoutSlot(slot, finalCoin, index, pullId);
 
       if (!isActivePull(pullId)) return;
