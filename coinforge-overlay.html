@@ -3072,7 +3072,7 @@
       cleanupTimers: [],
     
       activeSlotEffects: new Map(),
-
+    
       activeInstabilityEffects: new Map(),
       
       instabilityTimers: [],
@@ -3081,26 +3081,32 @@
       
       instabilityReplayOwner: null,
     
+      activeCinematic: null,
+    
+      lastCinematicBlock: null,
+    
+      cinematicHistory: [],
+    
       activeAudio: new Set(),
     
       currentPressure: 0,
-
+    
       pressureState: "empty",
-
+    
       lastPressurePayload: null,
-
+    
       pressureGlowActive: false,
     
       eruptionActive: false,
-
+    
       eruptionState: "idle",
-
+    
       eruptionSource: "none",
-
+    
       comboDisplayKeys: new Set(),
-
+    
       comboMilestoneHistory: new Set(),
-
+    
       slotStates: new Map()
     };
 
@@ -4085,6 +4091,101 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       }
     }
 
+    // ===== PHASE 7.1 CINEMATIC OWNERSHIP MANAGER START =====
+    function getActiveCinematicPriority() {
+      return overlayState.activeCinematic?.priority || 0;
+    }
+    
+    function acquireCinematic(type, ownerId, options = {}) {
+      if (!type || !ownerId) return false;
+    
+      const requestedPriority = Number(options.priority || 0);
+      const canInterrupt = options.interrupt === true;
+    
+      if (overlayState.activeCinematic) {
+        const activePriority = getActiveCinematicPriority();
+    
+        if (!canInterrupt && requestedPriority <= activePriority) {
+          overlayState.lastCinematicBlock = {
+            requestedType: type,
+            requestedOwner: ownerId,
+            requestedPriority,
+            activeType: overlayState.activeCinematic.type,
+            activeOwner: overlayState.activeCinematic.ownerId,
+            activePriority,
+            blockedAt: Date.now()
+          };
+    
+          return false;
+        }
+    
+        if (canInterrupt && requestedPriority >= activePriority) {
+          releaseCinematic(overlayState.activeCinematic.ownerId, {
+            interruptedBy: type
+          });
+        }
+      }
+    
+      overlayState.activeCinematic = {
+        type,
+        ownerId,
+        priority: requestedPriority,
+        startedAt: Date.now(),
+        interruptible: options.interruptible !== false
+      };
+    
+      overlayState.cinematicHistory.push({
+        action: "acquire",
+        type,
+        ownerId,
+        priority: requestedPriority,
+        at: Date.now()
+      });
+    
+      if (overlayState.cinematicHistory.length > 12) {
+        overlayState.cinematicHistory.shift();
+      }
+    
+      return true;
+    }
+    
+    function releaseCinematic(ownerId, options = {}) {
+      if (!overlayState.activeCinematic) return false;
+    
+      if (
+        ownerId &&
+        overlayState.activeCinematic.ownerId !== ownerId
+      ) {
+        return false;
+      }
+    
+      overlayState.cinematicHistory.push({
+        action: options.interruptedBy ? "interrupted" : "release",
+        type: overlayState.activeCinematic.type,
+        ownerId: overlayState.activeCinematic.ownerId,
+        interruptedBy: options.interruptedBy || "",
+        at: Date.now()
+      });
+    
+      if (overlayState.cinematicHistory.length > 12) {
+        overlayState.cinematicHistory.shift();
+      }
+    
+      overlayState.activeCinematic = null;
+    
+      return true;
+    }
+    
+    function resetCinematicOwnership(options = {}) {
+      overlayState.activeCinematic = null;
+      overlayState.lastCinematicBlock = null;
+    
+      if (options.clearPullOwnership === true) {
+        overlayState.cinematicHistory = [];
+      }
+    }
+    // ===== PHASE 7.1 CINEMATIC OWNERSHIP MANAGER END =====
+    
     function triggerGlobalInstabilityReaction(effect, pullId) {
       if (!isActivePull(pullId)) return;
 
@@ -4202,6 +4303,9 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         isAnimating: overlayState.isAnimating,
         queueLength: overlayState.queue.length,
         forgeState: overlayState.forgeState,
+        activeCinematic: overlayState.activeCinematic,
+        lastCinematicBlock: overlayState.lastCinematicBlock,
+        cinematicHistory: overlayState.cinematicHistory,
         currentPressure: overlayState.currentPressure,
         pressureState: overlayState.pressureState,
         lastPressurePayload: overlayState.lastPressurePayload,
@@ -4859,15 +4963,19 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     function resetForgeRuntimeOwnership(options = {}) {
       const includePersistent = options.includePersistent === true;
       const clearPullOwnership = options.clearPullOwnership === true;
-
+    
       clearOverlayCleanupTimers();
-
+    
       resetForgeInstabilityOwnership({
         includePersistent
       });
-
+    
+      resetCinematicOwnership({
+        clearPullOwnership
+      });
+    
       overlayState.activeSlotEffects.clear();
-
+    
       if (clearPullOwnership) {
         overlayState.isAnimating = false;
         overlayState.activePayload = null;
@@ -6109,20 +6217,42 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
     async function processForgeQueue() {
       if (forgeEventPlaying) return;
-
+    
       forgeEventPlaying = true;
-
+    
       while (overlayState.queue.length > 0) {
         const event = overlayState.queue.shift();
-      
+        const pullId = event.pullId || `forge-${Date.now()}`;
+    
         overlayState.isAnimating = true;
         overlayState.activePayload = event;
-        overlayState.activePullId = event.pullId;
-      
-        await runForgeRevealExternal(event);
-      
+        overlayState.activePullId = pullId;
+    
+        const cinematicAcquired = acquireCinematic(
+          "forgeReveal",
+          pullId,
+          {
+            priority: 10,
+            interrupt: false
+          }
+        );
+    
+        if (!cinematicAcquired) {
+          console.warn("Forge reveal skipped because another cinematic owns the stage.", {
+            activeCinematic: overlayState.activeCinematic,
+            pullId
+          });
+    
+          continue;
+        }
+    
+        try {
+          await runForgeRevealExternal(event);
+        } finally {
+          releaseCinematic(pullId);
+        }
       }
-
+    
       forgeEventPlaying = false;
     }
 
