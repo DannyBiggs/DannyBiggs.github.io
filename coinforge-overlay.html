@@ -6701,8 +6701,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           1050 - (pullCount * 120)
         );
       
-        for (let i = 0; i < slots.length; i++) {
+        const activeSpinPromises = [];
 
+        for (let i = 0; i < slots.length; i++) {
+        
           while (
             overlayState.forgeRevealSuspension &&
             overlayState.forgeRevealSuspension.ownerId === pullId
@@ -6712,18 +6714,22 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         
           const slot = slots[i];
         
-          if (i > 0) {
+          activeSpinPromises.push(
+            spinSlot(
+              slot,
+              results[i] || results[results.length - 1],
+              i,
+              true,
+              pullId
+            )
+          );
+        
+          if (i < slots.length - 1) {
             await wait(staggerDelay);
           }
-        
-          await spinSlot(
-            slot,
-            results[i] || results[results.length - 1],
-            i,
-            true,
-            pullId
-          );
         }
+        
+        await Promise.all(activeSpinPromises);
       }
 
       addStageEffect(pullId, `reveal-${highestClass}`);
