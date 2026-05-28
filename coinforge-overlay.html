@@ -3020,8 +3020,13 @@
     
     const slotLandSound = new Audio("sounds/slot-land.m4a");
     slotLandSound.volume = 0.10;
+    
     const forgeHammerSound = new Audio("sounds/hammer_strike.m4a");
     forgeHammerSound.volume = 0.16;
+
+    const forgeHammerEchoSound = new Audio("sounds/hammer_strike.m4a");
+    forgeHammerEchoSound.volume = 0.11;
+    
     const achievementSound = new Audio("sounds/koiroylers-awesome-level-up-351714.mp3");
     achievementSound.volume = 0.15;
 
@@ -3351,6 +3356,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
     function playForgeHammerSound(pullId) {
       playOwnedSound(pullId, forgeHammerSound, true);
+    }
+
+    function playForgeHammerEchoSound(pullId) {
+      playOwnedSound(pullId, forgeHammerEchoSound, true);
     }
 
     function playAchievementSound() {
@@ -4746,12 +4755,12 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           playForgeHammerSound(pullId);
   
           setTimeout(() => {
-            if (activePullId !== pullId) {
+            if (!isActivePull(pullId)) {
               return;
             }
-  
-            playForgeHammerSound(pullId, 0.72);
-          }, 160);
+
+            playForgeHammerEchoSound(pullId);
+          }, 180);
         }
       },
     
