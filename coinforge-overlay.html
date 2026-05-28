@@ -6717,10 +6717,11 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           }
         
           await spinSlot(
-            pullId,
             slot,
+            results[i] || results[results.length - 1],
             i,
-            slots.length
+            true,
+            pullId
           );
         }
       }
