@@ -4357,6 +4357,33 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         })
       };
     }
+
+    function startForgeRevealProgressionGate(pullId, options = {}) {
+      if (!isActivePull(pullId)) return false;
+    
+      if (
+        overlayState.forgeRevealSuspension &&
+        overlayState.forgeRevealSuspension.ownerId === pullId
+      ) {
+        overlayState.forgeRevealSuspension.type = options.type || overlayState.forgeRevealSuspension.type;
+        overlayState.forgeRevealSuspension.source = options.source || overlayState.forgeRevealSuspension.source;
+        return true;
+      }
+    
+      overlayState.forgeRevealSnapshot = snapshotForgeRevealState(pullId);
+    
+      overlayState.forgeRevealSuspension = {
+        ownerId: pullId,
+        type: options.type || "progressionGate",
+        source: options.source || "unknown",
+        startedAt: Date.now(),
+        pauseAnimations: false
+      };
+    
+      overlayState.pausedRevealAnimations = [];
+    
+      return true;
+    }
     
     function pauseForgeRevealForCinematic(pullId, options = {}) {
       if (!isActivePull(pullId)) return false;
@@ -4373,8 +4400,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       )
         .flatMap(element => element.getAnimations ? element.getAnimations() : [])
         .filter(animation => animation.playState === "running");
-    
-      pausedAnimations.forEach(animation => animation.pause());
+      
+      if (options.pauseAnimations === true) {
+        pausedAnimations.forEach(animation => animation.pause());
+      }
     
       overlayState.pausedRevealAnimations = pausedAnimations;
       overlayState.forgeRevealSnapshot = snapshotForgeRevealState(pullId);
@@ -4383,7 +4412,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         ownerId: pullId,
         type: options.type || "cinematic",
         source: options.source || "unknown",
-        startedAt: Date.now()
+        startedAt: Date.now(),
+        pauseAnimations: options.pauseAnimations === true
       };
     
       return true;
@@ -4436,7 +4466,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         pullId,
         {
           type: "forgeEruption",
-          source: options.source || "payload"
+          source: options.source || "payload",
+          pauseAnimations: false
         }
       );
     
@@ -5989,8 +6020,16 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       
         overlayState.pendingEruption = null;
 
+        startForgeRevealProgressionGate(
+          pullId,
+          {
+            type: "forgeEruption",
+            source: pendingEruption.source
+          }
+        );
+        
         await wait(400);
-      
+        
         await triggerForgeEruptionLifecycle(
           pullId,
           {
