@@ -4396,13 +4396,17 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       }
     
       const pausedAnimations = Array.from(
-        document.querySelectorAll(".slot-wrap.coin-cycling, .slot-coin.forming-from-forge, .slot-coin.materializing")
+        document.querySelectorAll(
+          ".slot-wrap.coin-cycling, .slot-coin.forming-from-forge, .slot-coin.materializing"
+        )
       )
         .flatMap(element => element.getAnimations ? element.getAnimations() : [])
         .filter(animation => animation.playState === "running");
       
       if (options.pauseAnimations === true) {
-        pausedAnimations.forEach(animation => animation.pause());
+        if (options.pauseAnimations === true) {
+          pausedAnimations.forEach(animation => animation.pause());
+        }
       }
     
       overlayState.pausedRevealAnimations = pausedAnimations;
@@ -4413,6 +4417,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         type: options.type || "cinematic",
         source: options.source || "unknown",
         startedAt: Date.now(),
+        pauseAnimations: options.pauseAnimations === true
         pauseAnimations: options.pauseAnimations === true
       };
     
@@ -6028,6 +6033,15 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           }
         );
         
+        pauseForgeRevealForCinematic(
+          pullId,
+          {
+            type: "forgeEruption",
+            source: pendingEruption.source,
+            pauseAnimations: false
+          }
+        );
+        
         await wait(400);
         
         await triggerForgeEruptionLifecycle(
@@ -6690,20 +6704,28 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           1050 - (pullCount * 120)
         );
       
-        const spinPromises = slots.map((slot, i) => {
-          return wait(i * staggerDelay).then(() => {
-      
-            return spinSlot(
-              slot,
-              results[i] || results[results.length - 1],
-              i,
-              true,
-              pullId
-            );
-          });
-        });
-      
-        await Promise.all(spinPromises);
+        for (let i = 0; i < slots.length; i++) {
+
+          while (
+            overlayState.forgeRevealSuspension &&
+            overlayState.forgeRevealSuspension.ownerId === pullId
+          ) {
+            await wait(50);
+          }
+        
+          const slot = slots[i];
+        
+          if (i > 0) {
+            await wait(staggerDelay);
+          }
+        
+          await spinSlot(
+            pullId,
+            slot,
+            i,
+            slots.length
+          );
+        }
       }
 
       addStageEffect(pullId, `reveal-${highestClass}`);
