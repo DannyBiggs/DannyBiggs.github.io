@@ -345,79 +345,147 @@
         drop-shadow(0 0 26px rgba(255, 90, 20, 0.45));
     }
 
+    .forge-eruption-explosion-gif {
+      position: absolute;
+      left: 50%;
+      top: 48%;
+      width: 640px;
+      height: auto;
+      transform: translate(-50%, -50%) scale(0.82);
+      object-fit: contain;
+      image-rendering: pixelated;
+      pointer-events: none;
+      opacity: 0;
+      z-index: 8;
+      mix-blend-mode: screen;
+      filter:
+        brightness(1.25)
+        drop-shadow(0 0 24px rgba(255, 210, 120, 0.55))
+        drop-shadow(0 0 70px rgba(255, 80, 20, 0.35));
+    }
+
     .forge-stage.eruption-cinematic {
       animation:
-        forgeEruptionRecoil 520ms steps(5, end),
-        forgeEruptionStageDolly 2400ms ease-in-out;
+        forgeEruptionTakeoverShake 6200ms steps(28, end),
+        forgeEruptionStageTakeoverZoom 6200ms ease-in-out;
     }
 
     .forge-stage.eruption-cinematic .slot-row {
-      animation: forgeEruptionSlotsVanish 700ms ease-in forwards;
+      animation: forgeEruptionSlotsVanish 850ms ease-in forwards;
     }
 
     .forge-stage.eruption-cinematic .player-identity-layer {
-      animation: forgeEruptionIdentityVanish 500ms ease-in forwards;
+      animation: forgeEruptionIdentityVanish 650ms ease-in forwards;
     }
 
     .forge-stage.eruption-cinematic .forge-background,
     .forge-stage.eruption-cinematic .forge-background-glow {
-      animation: forgeEruptionBackgroundDolly 2400ms ease-in-out;
+      animation: forgeEruptionBackgroundTakeoverZoom 6200ms ease-in-out forwards;
     }
 
     .forge-stage.eruption-cinematic .forge-eruption-flash {
-      animation: forgeEruptionCinematicWhiteout 1450ms ease-out;
+      animation: forgeEruptionTotalWhiteout 3600ms ease-in forwards;
     }
 
     .forge-stage.eruption-cinematic .forge-eruption-vent {
-      animation: forgeEruptionVent 1700ms steps(8, end);
+      animation: forgeEruptionVent 2800ms steps(12, end);
     }
 
-    @keyframes forgeEruptionStageDolly {
+    .forge-stage.eruption-background-hidden .forge-background,
+    .forge-stage.eruption-background-hidden .forge-background-glow,
+    .forge-stage.eruption-background-hidden .forge-pressure-fill,
+    .forge-stage.eruption-background-hidden .forge-light-overlay {
+      opacity: 0 !important;
+      visibility: hidden !important;
+    }
+
+    .forge-stage.eruption-background-hidden .forge-eruption-explosion-gif {
+      animation: forgeEruptionExplosionPlaceholderPop 1500ms steps(8, end);
+    }
+
+    @keyframes forgeEruptionStageTakeoverZoom {
       0% {
         transform: scale(1);
-        filter: brightness(1);
+        filter: brightness(1) saturate(1);
       }
 
       18% {
-        transform: scale(1.025) translateY(-4px);
-        filter: brightness(1.25) saturate(1.2);
+        transform: scale(1.045) translateY(-5px);
+        filter: brightness(1.28) saturate(1.18);
       }
 
-      42% {
-        transform: scale(1.055) translateY(-10px);
-        filter: brightness(1.75) saturate(1.45);
+      38% {
+        transform: scale(1.12) translateY(-16px);
+        filter: brightness(1.75) saturate(1.42);
       }
 
-      62% {
-        transform: scale(1.085) translateY(-14px);
-        filter: brightness(2.25) saturate(1.8);
+      58% {
+        transform: scale(1.24) translateY(-30px);
+        filter: brightness(2.35) saturate(1.75);
+      }
+
+      72% {
+        transform: scale(1.38) translateY(-46px);
+        filter: brightness(3.2) saturate(2.1);
       }
 
       100% {
         transform: scale(1);
-        filter: brightness(1);
+        filter: brightness(1) saturate(1);
       }
     }
 
-    @keyframes forgeEruptionBackgroundDolly {
+    @keyframes forgeEruptionTakeoverShake {
+      0% { translate: 0 0; }
+      8% { translate: 1px -1px; }
+      16% { translate: -2px 1px; }
+      24% { translate: 2px 2px; }
+      32% { translate: -3px -2px; }
+      40% { translate: 4px 2px; }
+      48% { translate: -5px 3px; }
+      56% { translate: 6px -4px; }
+      64% { translate: -8px 5px; }
+      72% { translate: 10px -7px; }
+      80% { translate: -12px 8px; }
+      88% { translate: 8px -6px; }
+      100% { translate: 0 0; }
+    }
+
+    @keyframes forgeEruptionBackgroundTakeoverZoom {
       0% {
+        opacity: 1;
         transform: translateY(36px) scale(1);
         filter: brightness(1) saturate(1);
       }
 
       28% {
-        transform: translateY(34px) scale(1.035);
-        filter: brightness(1.35) saturate(1.2);
+        opacity: 1;
+        transform: translateY(30px) scale(1.08);
+        filter: brightness(1.45) saturate(1.25);
       }
 
-      58% {
-        transform: translateY(28px) scale(1.095);
-        filter: brightness(2.15) saturate(1.6);
+      54% {
+        opacity: 1;
+        transform: translateY(16px) scale(1.22);
+        filter: brightness(2.3) saturate(1.75);
+      }
+
+      72% {
+        opacity: 1;
+        transform: translateY(2px) scale(1.42);
+        filter: brightness(3.4) saturate(2.25);
+      }
+
+      88% {
+        opacity: 0;
+        transform: translateY(-12px) scale(1.58);
+        filter: brightness(5) saturate(2.7);
       }
 
       100% {
-        transform: translateY(36px) scale(1);
-        filter: brightness(1) saturate(1);
+        opacity: 0;
+        transform: translateY(-12px) scale(1.58);
+        filter: brightness(5) saturate(2.7);
       }
     }
 
@@ -428,7 +496,7 @@
         filter: brightness(1);
       }
 
-      32% {
+      38% {
         opacity: 1;
         transform: translate(-50%, -54%) scale(1.05);
         filter: brightness(1.8);
@@ -436,8 +504,8 @@
 
       100% {
         opacity: 0;
-        transform: translate(-50%, -60%) scale(0.72);
-        filter: brightness(2.5) blur(3px);
+        transform: translate(-50%, -62%) scale(0.65);
+        filter: brightness(2.8) blur(4px);
       }
     }
 
@@ -449,33 +517,61 @@
 
       100% {
         opacity: 0;
-        transform: translateX(-50%) translateY(18px) scale(0.92);
+        transform: translateX(-50%) translateY(22px) scale(0.9);
       }
     }
 
-    @keyframes forgeEruptionCinematicWhiteout {
+    @keyframes forgeEruptionTotalWhiteout {
       0% {
         opacity: 0;
-        transform: translate(-50%, -50%) scale(0.62);
-        filter: blur(8px) brightness(1);
+        transform: translate(-50%, -50%) scale(0.7);
+        filter: blur(10px) brightness(1);
       }
 
-      22% {
-        opacity: 0.95;
-        transform: translate(-50%, -50%) scale(1.35);
-        filter: blur(4px) brightness(2.4);
+      24% {
+        opacity: 0.75;
+        transform: translate(-50%, -50%) scale(1.45);
+        filter: blur(6px) brightness(2.2);
       }
 
-      48% {
+      52% {
         opacity: 1;
-        transform: translate(-50%, -50%) scale(2.65);
-        filter: blur(2px) brightness(3.2);
+        transform: translate(-50%, -50%) scale(3.2);
+        filter: blur(2px) brightness(4);
+      }
+
+      78% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(5.4);
+        filter: blur(0px) brightness(7);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(6.4);
+        filter: blur(0px) brightness(8);
+      }
+    }
+
+    @keyframes forgeEruptionExplosionPlaceholderPop {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.72);
+      }
+
+      12% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.12);
+      }
+
+      78% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.18);
       }
 
       100% {
         opacity: 0;
-        transform: translate(-50%, -50%) scale(3.15);
-        filter: blur(14px) brightness(1);
+        transform: translate(-50%, -50%) scale(1.32);
       }
     }
     
@@ -3061,6 +3157,12 @@
         <div id="forgePressureFill" class="forge-pressure-fill"></div>
         <img class="forge-background" src="images/ui/forge_background_gauge.png" alt="Coin Forge">
         <div class="forge-eruption-flash"></div>
+        <img
+          id="forgeEruptionExplosionGif"
+          class="forge-eruption-explosion-gif"
+          src="images/vfx/forge_eruption_explosion_PLACEHOLDER.gif"
+          alt=""
+        >
         <div class="forge-eruption-vent vent-left"></div>
         <div class="forge-eruption-vent vent-right"></div>
         <!-- <img class="forge-background-glow" src="images/ui/forge_background_glowonly_red.png" alt=""> -->
@@ -3504,6 +3606,21 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       playOwnedSound(pullId, slotLandSound, true);
     }
 
+    function startForgeEruptionAudioPlaceholder(pullId, phase) {
+      console.log("FORGE ERUPTION AUDIO PLACEHOLDER:", {
+        pullId,
+        phase,
+        note: "Future pressure buildup sound starts here."
+      });
+    }
+    
+    function playForgeEruptionExplosionPlaceholder(pullId) {
+      console.log("FORGE ERUPTION EXPLOSION PLACEHOLDER:", {
+        pullId,
+        note: "Future explosion GIF and explosion sound start here."
+      });
+    }
+    
     function playForgeHammerSound(pullId) {
       playOwnedSound(pullId, forgeHammerSound, true);
     }
@@ -4199,7 +4316,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         type: "forgeEruption",
         ownerId: pullId,
         startedAt: Date.now(),
-        durationMs: 4200,
+        durationMs: 6200,
         source: options.source || "payload"
       };
     
@@ -4214,8 +4331,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       overlayState.currentPressure = 100;
       setForgePressureStateFromValue(100);
     
-      addStageEffect(pullId, "forge-erupting", 4200, { restart: true });
-      addStageEffect(pullId, "eruption-cinematic", 4200, { restart: true });
+      addStageEffect(pullId, "forge-erupting", 6200, { restart: true });
+      addStageEffect(pullId, "eruption-cinematic", 6200, { restart: true });
+      
+      startForgeEruptionAudioPlaceholder(pullId, "pressure-build");
     
       animateForgePressureGauge(37, 520);
     
@@ -4225,12 +4344,19 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           if (!isActivePull(pullId)) return;
           updateForgePressureGauge(pressureAfter);
         },
-        3000
+        5200
       );
     
       playForgeHammerSound(pullId);
-    
-      await wait(4200);
+
+      await wait(3600);
+      
+      if (isActivePull(pullId)) {
+        forgeStage.classList.add("eruption-background-hidden");
+        playForgeEruptionExplosionPlaceholder(pullId);
+      }
+      
+      await wait(2600);
     
       if (isActivePull(pullId)) {
         setForgeEruptionState("idle");
