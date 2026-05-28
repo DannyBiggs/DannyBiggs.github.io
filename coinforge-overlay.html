@@ -4474,8 +4474,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         },
         5200
       );
-    
-      playForgeHammerSound(pullId);
 
       await wait(3400);
 
@@ -5988,6 +5986,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         const pendingEruption = overlayState.pendingEruption;
       
         overlayState.pendingEruption = null;
+
+        await wait(420);
       
         await triggerForgeEruptionLifecycle(
           pullId,
