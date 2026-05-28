@@ -348,26 +348,28 @@
     .forge-eruption-explosion-gif {
       position: absolute;
       left: 50%;
-      top: 48%;
-      width: 640px;
+      top: 50%;
+      width: 960px;
+      max-width: 92vw;
       height: auto;
       transform: translate(-50%, -50%) scale(0.82);
       object-fit: contain;
       image-rendering: pixelated;
       pointer-events: none;
       opacity: 0;
-      z-index: 8;
+      visibility: hidden;
+      z-index: 30;
       mix-blend-mode: screen;
       filter:
-        brightness(1.25)
-        drop-shadow(0 0 24px rgba(255, 210, 120, 0.55))
-        drop-shadow(0 0 70px rgba(255, 80, 20, 0.35));
+        brightness(1.35)
+        contrast(1.12)
+        drop-shadow(0 0 36px rgba(255, 230, 145, 0.75))
+        drop-shadow(0 0 110px rgba(255, 70, 20, 0.55));
     }
 
     .forge-stage.eruption-cinematic {
-      animation:
-        forgeEruptionTakeoverShake 6200ms steps(28, end),
-        forgeEruptionStageTakeoverZoom 6200ms ease-in-out;
+      animation: forgeEruptionStageTakeoverZoomShake 6200ms steps(36, end);
+      transform-origin: center 45%;
     }
 
     .forge-stage.eruption-cinematic .slot-row {
@@ -380,11 +382,12 @@
 
     .forge-stage.eruption-cinematic .forge-background,
     .forge-stage.eruption-cinematic .forge-background-glow {
-      animation: forgeEruptionBackgroundTakeoverZoom 6200ms ease-in-out forwards;
+      animation: forgeEruptionBackgroundTakeoverZoom 3600ms ease-in forwards;
+      transform-origin: center 42%;
     }
 
     .forge-stage.eruption-cinematic .forge-eruption-flash {
-      animation: forgeEruptionTotalWhiteout 3600ms ease-in forwards;
+      animation: forgeEruptionFullScreenWhiteout 3800ms ease-in forwards;
     }
 
     .forge-stage.eruption-cinematic .forge-eruption-vent {
@@ -399,56 +402,67 @@
       visibility: hidden !important;
     }
 
-    .forge-stage.eruption-background-hidden .forge-eruption-explosion-gif {
-      animation: forgeEruptionExplosionPlaceholderPop 1500ms steps(8, end);
+    .forge-stage.eruption-background-hidden .forge-eruption-flash {
+      opacity: 0 !important;
+      visibility: hidden !important;
+      animation: none !important;
     }
 
-    @keyframes forgeEruptionStageTakeoverZoom {
+    .forge-stage.eruption-background-hidden .forge-eruption-explosion-gif.active {
+      visibility: visible;
+      animation: forgeEruptionExplosionGifPop 1900ms steps(10, end) forwards;
+    }
+
+    @keyframes forgeEruptionStageTakeoverZoomShake {
       0% {
-        transform: scale(1);
+        transform: scale(1) translate(0px, 0px);
         filter: brightness(1) saturate(1);
       }
 
-      18% {
-        transform: scale(1.045) translateY(-5px);
-        filter: brightness(1.28) saturate(1.18);
+      12% {
+        transform: scale(1.05) translate(1px, -1px);
+        filter: brightness(1.25) saturate(1.15);
       }
 
-      38% {
-        transform: scale(1.12) translateY(-16px);
-        filter: brightness(1.75) saturate(1.42);
+      24% {
+        transform: scale(1.14) translate(-3px, 2px);
+        filter: brightness(1.55) saturate(1.35);
       }
 
-      58% {
-        transform: scale(1.24) translateY(-30px);
-        filter: brightness(2.35) saturate(1.75);
+      36% {
+        transform: scale(1.26) translate(5px, -4px);
+        filter: brightness(2.05) saturate(1.65);
       }
 
-      72% {
-        transform: scale(1.38) translateY(-46px);
-        filter: brightness(3.2) saturate(2.1);
+      48% {
+        transform: scale(1.42) translate(-8px, 6px);
+        filter: brightness(2.75) saturate(2);
+      }
+
+      60% {
+        transform: scale(1.62) translate(12px, -9px);
+        filter: brightness(3.75) saturate(2.35);
+      }
+
+      70% {
+        transform: scale(1.82) translate(-16px, 12px);
+        filter: brightness(5.2) saturate(2.6);
+      }
+
+      78% {
+        transform: scale(1.95) translate(18px, -14px);
+        filter: brightness(7) saturate(2.8);
+      }
+
+      86% {
+        transform: scale(1.2) translate(-10px, 8px);
+        filter: brightness(3.4) saturate(1.7);
       }
 
       100% {
-        transform: scale(1);
+        transform: scale(1) translate(0px, 0px);
         filter: brightness(1) saturate(1);
       }
-    }
-
-    @keyframes forgeEruptionTakeoverShake {
-      0% { translate: 0 0; }
-      8% { translate: 1px -1px; }
-      16% { translate: -2px 1px; }
-      24% { translate: 2px 2px; }
-      32% { translate: -3px -2px; }
-      40% { translate: 4px 2px; }
-      48% { translate: -5px 3px; }
-      56% { translate: 6px -4px; }
-      64% { translate: -8px 5px; }
-      72% { translate: 10px -7px; }
-      80% { translate: -12px 8px; }
-      88% { translate: 8px -6px; }
-      100% { translate: 0 0; }
     }
 
     @keyframes forgeEruptionBackgroundTakeoverZoom {
@@ -458,34 +472,28 @@
         filter: brightness(1) saturate(1);
       }
 
-      28% {
+      24% {
         opacity: 1;
-        transform: translateY(30px) scale(1.08);
-        filter: brightness(1.45) saturate(1.25);
+        transform: translateY(28px) scale(1.12);
+        filter: brightness(1.55) saturate(1.35);
       }
 
-      54% {
+      48% {
         opacity: 1;
-        transform: translateY(16px) scale(1.22);
-        filter: brightness(2.3) saturate(1.75);
+        transform: translateY(12px) scale(1.34);
+        filter: brightness(2.6) saturate(1.9);
       }
 
       72% {
         opacity: 1;
-        transform: translateY(2px) scale(1.42);
-        filter: brightness(3.4) saturate(2.25);
-      }
-
-      88% {
-        opacity: 0;
-        transform: translateY(-12px) scale(1.58);
-        filter: brightness(5) saturate(2.7);
+        transform: translateY(-8px) scale(1.72);
+        filter: brightness(4.7) saturate(2.55);
       }
 
       100% {
         opacity: 0;
-        transform: translateY(-12px) scale(1.58);
-        filter: brightness(5) saturate(2.7);
+        transform: translateY(-22px) scale(2.15);
+        filter: brightness(8) saturate(3);
       }
     }
 
@@ -504,8 +512,8 @@
 
       100% {
         opacity: 0;
-        transform: translate(-50%, -62%) scale(0.65);
-        filter: brightness(2.8) blur(4px);
+        transform: translate(-50%, -64%) scale(0.58);
+        filter: brightness(3.2) blur(5px);
       }
     }
 
@@ -517,61 +525,66 @@
 
       100% {
         opacity: 0;
-        transform: translateX(-50%) translateY(22px) scale(0.9);
+        transform: translateX(-50%) translateY(24px) scale(0.88);
       }
     }
 
-    @keyframes forgeEruptionTotalWhiteout {
+    @keyframes forgeEruptionFullScreenWhiteout {
       0% {
         opacity: 0;
-        transform: translate(-50%, -50%) scale(0.7);
-        filter: blur(10px) brightness(1);
+        transform: none;
+        filter: brightness(1);
       }
 
-      24% {
-        opacity: 0.75;
-        transform: translate(-50%, -50%) scale(1.45);
-        filter: blur(6px) brightness(2.2);
+      18% {
+        opacity: 0.35;
+        transform: none;
+        filter: brightness(1.8);
       }
 
-      52% {
+      40% {
+        opacity: 0.72;
+        transform: none;
+        filter: brightness(3);
+      }
+
+      68% {
         opacity: 1;
-        transform: translate(-50%, -50%) scale(3.2);
-        filter: blur(2px) brightness(4);
-      }
-
-      78% {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(5.4);
-        filter: blur(0px) brightness(7);
+        transform: none;
+        filter: brightness(6);
       }
 
       100% {
         opacity: 1;
-        transform: translate(-50%, -50%) scale(6.4);
-        filter: blur(0px) brightness(8);
+        transform: none;
+        filter: brightness(9);
       }
     }
 
-    @keyframes forgeEruptionExplosionPlaceholderPop {
+    @keyframes forgeEruptionExplosionGifPop {
       0% {
         opacity: 0;
-        transform: translate(-50%, -50%) scale(0.72);
+        transform: translate(-50%, -50%) scale(0.55);
+        filter:
+          brightness(2)
+          contrast(1.2)
+          drop-shadow(0 0 36px rgba(255, 240, 180, 0.9))
+          drop-shadow(0 0 130px rgba(255, 80, 20, 0.72));
       }
 
-      12% {
+      10% {
         opacity: 1;
-        transform: translate(-50%, -50%) scale(1.12);
+        transform: translate(-50%, -50%) scale(1.28);
       }
 
-      78% {
+      55% {
         opacity: 1;
-        transform: translate(-50%, -50%) scale(1.18);
+        transform: translate(-50%, -50%) scale(1.08);
       }
 
       100% {
         opacity: 0;
-        transform: translate(-50%, -50%) scale(1.32);
+        transform: translate(-50%, -50%) scale(1.38);
       }
     }
     
@@ -3160,7 +3173,7 @@
         <img
           id="forgeEruptionExplosionGif"
           class="forge-eruption-explosion-gif"
-          src="images/vfx/forge_eruption_explosion_PLACEHOLDER.gif"
+          src="images/vfx/nuke.gif"
           alt=""
         >
         <div class="forge-eruption-vent vent-left"></div>
@@ -3223,7 +3236,7 @@
 
   <script>
     window.COIN_FORGE_OVERLAY_VERSION =
-      "PHASE_6_6B_Forge_Background_Instability_V1";
+      "PHASE_7_Forge_Eruprion_Cinematic_V1";
     const screenBorderFX = document.getElementById("screenBorderFX");
     const forgeStage = document.getElementById("forgeStage");
     const forgePressureFill = document.getElementById("forgePressureFill");
@@ -3280,6 +3293,12 @@
 
     const scorchedSound = new Audio("sounds/scorched_sound.m4a");
     scorchedSound.volume = 0.22;
+    
+    const forgeEruptionBuildSound = new Audio("sounds/ksjsbwuil-riser-4-513929.mp3");
+    forgeEruptionBuildSound.volume = 0.34;
+    
+    const forgeEruptionExplosionSound = new Audio("sounds/soundreality-explosion-fx-343683.mp3");
+    forgeEruptionExplosionSound.volume = 0.42;
     
     const comboSounds = {
       broken: new Audio("sounds/combo/combo-broken.mp3"),
@@ -3607,18 +3626,30 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     }
 
     function startForgeEruptionAudioPlaceholder(pullId, phase) {
-      console.log("FORGE ERUPTION AUDIO PLACEHOLDER:", {
+      console.log("FORGE ERUPTION AUDIO:", {
         pullId,
         phase,
-        note: "Future pressure buildup sound starts here."
+        note: "Pressure buildup sound started."
       });
+    
+      playOwnedSound(pullId, forgeEruptionBuildSound, true);
     }
     
-    function playForgeEruptionExplosionPlaceholder(pullId) {
-      console.log("FORGE ERUPTION EXPLOSION PLACEHOLDER:", {
+    function playForgeEruptionExplosion(pullId) {
+      const explosionGif = document.getElementById("forgeEruptionExplosionGif");
+    
+      console.log("FORGE ERUPTION EXPLOSION:", {
         pullId,
-        note: "Future explosion GIF and explosion sound start here."
+        note: "Explosion GIF and explosion sound started."
       });
+    
+      if (explosionGif) {
+        explosionGif.classList.remove("active");
+        void explosionGif.offsetWidth;
+        explosionGif.classList.add("active");
+      }
+    
+      playOwnedSound(pullId, forgeEruptionExplosionSound, true);
     }
     
     function playForgeHammerSound(pullId) {
@@ -4353,7 +4384,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       
       if (isActivePull(pullId)) {
         forgeStage.classList.add("eruption-background-hidden");
-        playForgeEruptionExplosionPlaceholder(pullId);
+        playForgeEruptionExplosion(pullId);
       }
       
       await wait(2600);
