@@ -331,7 +331,7 @@
     .forge-eruption-explosion-gif {
       position: absolute;
       left: 50%;
-      top: 58%;
+      top: 68%;
       width: 1100px;
       max-width: 92vw;
       height: auto;
@@ -500,19 +500,20 @@
     }
 
     .forge-stage.eruption-forge-returning .forge-background,
-    .forge-stage.eruption-forge-returning .forge-background-glow {
-      animation: forgeReturnFadeIn 1000ms ease-out forwards;
+    .forge-stage.eruption-forge-returning .forge-background-glow,
+    .forge-stage.eruption-forge-returning .player-identity-layer {
+      animation: forgeReturnFadeIn 1450ms ease-out forwards;
     }
     
     @keyframes forgeReturnFadeIn {
       0% {
         opacity: 0;
-        filter: brightness(3.5) saturate(0.65);
+        filter: brightness(2.8) saturate(0.55);
       }
     
       45% {
-        opacity: 0.72;
-        filter: brightness(2.1) saturate(0.85);
+        opacity: 0.45;
+        filter: brightness(1.75) saturate(0.75);
       }
     
       100% {
