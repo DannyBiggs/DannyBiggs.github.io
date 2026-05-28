@@ -6043,7 +6043,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       
       await playFrameCoinSequence(slot, slotWrap, finalCoin, pullId);
 
-      await waitForForgeRevealResume(pullId);
+      await waitForForgeLandingGate(pullId, slot, finalCoin, index);
       
       if (!isActivePull(pullId)) return;
 
