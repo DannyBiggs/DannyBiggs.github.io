@@ -328,70 +328,11 @@
         drop-shadow(0 0 26px rgba(255, 90, 20, 0.45));
     }
 
-    .forge-eruption-explosion-gif {
-      position: absolute;
-      left: 50%;
-      top: 68%;
-      width: 1100px;
-      max-width: 92vw;
-      height: auto;
-      transform: translate(-50%, -50%) scale(0.82);
-      object-fit: contain;
-      image-rendering: pixelated;
-      pointer-events: none;
-      opacity: 0;
-      visibility: hidden;
-      z-index: 30;
-      mix-blend-mode: screen;
+    .forge-stage.eruption-resonance-active {
       filter:
-        brightness(1.35)
-        contrast(1.12)
-        drop-shadow(0 0 36px rgba(255, 230, 145, 0.75))
-        drop-shadow(0 0 110px rgba(255, 70, 20, 0.55));
-    }
-
-    .forge-stage.eruption-cinematic {
-      animation:
-        forgeEruptionStageTakeoverZoomShake 6200ms ease-in-out,
-        forgeEruptionRapidVibration 70ms linear infinite;
-      transform-origin: center 45%;
-    }
-
-    .forge-stage.eruption-cinematic .slot-row {
-      animation: forgeEruptionSlotsVanish 850ms ease-in forwards;
-    }
-    
-    .forge-stage.eruption-cinematic .player-identity-layer {
-      animation: forgeEruptionIdentityVanish 650ms ease-in forwards;
-    }
-
-    .forge-stage.eruption-cinematic .forge-background,
-    .forge-stage.eruption-cinematic .forge-background-glow {
-      animation: forgeEruptionBackgroundTakeoverZoom 3400ms ease-in forwards;
-      transform-origin: center 42%;
-    }
-    
-    .forge-stage.eruption-cinematic .forge-pressure-fill {
-      opacity: 0 !important;
-      visibility: hidden !important;
-    }
-
-    .forge-stage.eruption-cinematic .forge-eruption-vent {
-      animation: forgeEruptionVent 2800ms steps(12, end);
-    }
-
-    .forge-stage.eruption-background-hidden .forge-background,
-    .forge-stage.eruption-background-hidden .forge-background-glow,
-    .forge-stage.eruption-background-hidden .forge-pressure-fill,
-    .forge-stage.eruption-background-hidden .forge-light-overlay,
-    .forge-stage.eruption-background-hidden .forge-eruption-flash {
-      opacity: 0 !important;
-      visibility: hidden !important;
-    }
-
-    .forge-stage.eruption-background-hidden .forge-eruption-explosion-gif.active {
-      visibility: visible;
-      animation: forgeEruptionExplosionGifPop 1350ms steps(8, end) forwards;
+        brightness(1.18)
+        saturate(1.18)
+        contrast(1.08);
     }
 
     @keyframes forgeEruptionStageTakeoverZoomShake {
@@ -549,130 +490,125 @@
       }
     }
     
-        .eruption-coin-rain-layer {
-          position: fixed;
-          inset: 0;
-          overflow: hidden;
-          pointer-events: none;
-          opacity: 0;
-          visibility: hidden;
-          z-index: 34;
-          transition: opacity 120ms ease;
-        }
-        
-        .eruption-coin-rain-layer.active {
-          opacity: 1;
-          visibility: visible;
-        }
-        
-        .forge-eruption-payout-burst {
-          position: fixed;
-          left: 50%;
-          top: 43%;
-          transform: translate(-50%, -50%);
-          font-family: "ComboFont", monospace;
-          font-size: 22px;
-          letter-spacing: 2px;
-          color: #fff0a8;
-          text-align: center;
-          white-space: nowrap;
-          text-shadow:
-            0 0 8px rgba(0, 0, 0, 0.95),
-            0 0 18px rgba(255, 190, 55, 0.9),
-            0 0 34px rgba(255, 110, 25, 0.72);
-          animation: forgeEruptionPayoutBurst 1550ms ease-out forwards;
-        }
-        
-        .forge-eruption-shockwave {
-          position: fixed;
-          left: 50%;
-          top: 50%;
-          width: 260px;
-          height: 260px;
-          border-radius: 50%;
-          transform: translate(-50%, -50%) scale(0.35);
-          border: 5px solid rgba(255, 230, 140, 0.92);
-          box-shadow:
-            0 0 28px rgba(255, 220, 120, 0.85),
-            0 0 88px rgba(255, 105, 25, 0.55),
-            inset 0 0 34px rgba(255, 160, 45, 0.45);
-          animation: forgeEruptionShockwave 1250ms ease-out forwards;
-        }
-        
-        .forge-eruption-burst-spark {
-          position: fixed;
-          left: 50%;
-          top: 50%;
-          width: 12px;
-          height: 12px;
-          background: #fff0a8;
-          image-rendering: pixelated;
-          box-shadow:
-            0 0 0 3px rgba(255, 170, 45, 0.85),
-            0 0 18px rgba(255, 220, 120, 0.95);
-          animation: forgeEruptionBurstSpark 950ms ease-out forwards;
-        }
-        
-        @keyframes forgeEruptionPayoutBurst {
-          0% {
-            opacity: 0;
-            transform: translate(-50%, -34%) scale(0.72);
-            filter: brightness(2);
-          }
-        
-          18% {
-            opacity: 1;
-            transform: translate(-50%, -58%) scale(1.12);
-            filter: brightness(1.4);
-          }
-        
-          72% {
-            opacity: 1;
-            transform: translate(-50%, -72%) scale(1);
-          }
-        
-          100% {
-            opacity: 0;
-            transform: translate(-50%, -96%) scale(0.9);
-          }
-        }
-        
-        @keyframes forgeEruptionShockwave {
-          0% {
-            opacity: 0;
-            transform: translate(-50%, -50%) scale(0.28);
-          }
-        
-          18% {
-            opacity: 1;
-          }
-        
-          100% {
-            opacity: 0;
-            transform: translate(-50%, -50%) scale(3.2);
-          }
-        }
-        
-        @keyframes forgeEruptionBurstSpark {
-          0% {
-            opacity: 1;
-            transform:
-              translate(-50%, -50%)
-              translate(0px, 0px)
-              scale(1);
-          }
-        
-          100% {
-            opacity: 0;
-            transform:
-              translate(-50%, -50%)
-              translate(
-                calc(var(--spark-x) * 1px),
-                calc(var(--spark-y) * 1px)
-              )
-              scale(0.42);
-          }
-        }
+    .eruption-coin-rain-layer {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      opacity: 0;
+      visibility: hidden;
+      z-index: 34;
+      transition: opacity 120ms ease;
+    }
+    
+    .eruption-coin-rain-layer.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .forge-resonance-core {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      transform: translate(-50%, -50%) scale(0.35);
+      background:
+        radial-gradient(circle,
+          rgba(255, 255, 230, 0.95) 0%,
+          rgba(255, 218, 120, 0.72) 22%,
+          rgba(255, 125, 35, 0.32) 48%,
+          transparent 72%);
+      mix-blend-mode: screen;
+      filter: blur(2px);
+      animation: forgeResonanceCore 1800ms ease-out forwards;
+    }
+
+    .forge-resonance-ring {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      width: 230px;
+      height: 230px;
+      border-radius: 50%;
+      transform: translate(-50%, -50%) scale(0.22);
+      border: 4px solid rgba(255, 238, 165, 0.92);
+      box-shadow:
+        0 0 22px rgba(255, 230, 135, 0.9),
+        0 0 72px rgba(255, 135, 35, 0.55),
+        inset 0 0 26px rgba(255, 190, 70, 0.38);
+      animation: forgeResonanceRing 1300ms ease-out forwards;
+    }
+
+    .forge-resonance-fracture {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      width: 520px;
+      height: 4px;
+      transform:
+        translate(-50%, -50%)
+        rotate(var(--fracture-rotate));
+      background:
+        linear-gradient(
+          90deg,
+          transparent 0%,
+          rgba(255, 235, 155, 0.0) 18%,
+          rgba(255, 235, 155, 0.85) 48%,
+          rgba(255, 145, 45, 0.55) 58%,
+          transparent 100%
+        );
+      box-shadow:
+        0 0 14px rgba(255, 230, 145, 0.75),
+        0 0 38px rgba(255, 105, 25, 0.42);
+      opacity: 0;
+      animation: forgeResonanceFracture 900ms steps(6, end) forwards;
+    }
+
+    .forge-resonance-title {
+      position: fixed;
+      left: 50%;
+      top: 40%;
+      transform: translate(-50%, -50%);
+      font-family: "ComboFont", monospace;
+      font-size: 20px;
+      letter-spacing: 2px;
+      color: #fff0a8;
+      white-space: nowrap;
+      text-shadow:
+        0 0 8px rgba(0, 0, 0, 0.95),
+        0 0 18px rgba(255, 220, 120, 0.95),
+        0 0 42px rgba(255, 125, 35, 0.68);
+      animation: forgeResonanceTitle 1850ms ease-out forwards;
+    }
+
+    @keyframes forgeResonanceCore {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.24); filter: brightness(2.4) blur(4px); }
+      14% { opacity: 1; transform: translate(-50%, -50%) scale(0.92); filter: brightness(2.8) blur(2px); }
+      48% { opacity: 0.9; transform: translate(-50%, -50%) scale(1.18); filter: brightness(1.7) blur(5px); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(1.72); filter: brightness(1) blur(14px); }
+    }
+
+    @keyframes forgeResonanceRing {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.22); }
+      16% { opacity: 1; }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(3.9); }
+    }
+
+    @keyframes forgeResonanceFracture {
+      0% { opacity: 0; filter: brightness(2); }
+      18% { opacity: 1; filter: brightness(3); }
+      46% { opacity: 0.75; }
+      100% { opacity: 0; filter: brightness(1); }
+    }
+
+    @keyframes forgeResonanceTitle {
+      0% { opacity: 0; transform: translate(-50%, -34%) scale(0.78); }
+      18% { opacity: 1; transform: translate(-50%, -50%) scale(1.08); }
+      72% { opacity: 1; transform: translate(-50%, -58%) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -74%) scale(0.9); }
+    }
     
     /* ===== GLOBAL INSTABILITY REACTION FX START ===== */
     .forge-stage.instability-global-overcharged {
@@ -3224,12 +3160,6 @@
         <div id="forgePressureFill" class="forge-pressure-fill"></div>
         <img class="forge-background" src="images/ui/forge_background_gauge.png" alt="Coin Forge">
         <div class="forge-eruption-flash"></div>
-        <img
-          id="forgeEruptionExplosionGif"
-          class="forge-eruption-explosion-gif"
-          src="images/vfx/nuke.gif"
-          alt=""
-        >
         <div id="forgeEruptionCoinRainLayer" class="eruption-coin-rain-layer"></div>
         <div class="forge-eruption-vent vent-left"></div>
         <div class="forge-eruption-vent vent-right"></div>
@@ -3691,39 +3621,13 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     }
     
     function playForgeEruptionExplosion(pullId) {
-      const explosionGif = document.getElementById("forgeEruptionExplosionGif");
-    
-      console.log("FORGE ERUPTION EXPLOSION:", {
+      console.log("FORGE RESONANCE DISCHARGE:", {
         pullId,
-        note: "Explosion GIF and explosion sound started."
+        note: "Legacy explosion hook bypassed. Resonance discharge handles payoff visuals."
       });
-    
-      if (explosionGif) {
-        explosionGif.classList.remove("active");
-    
-        const originalSrc = explosionGif.getAttribute("src");
-    
-        explosionGif.removeAttribute("src");
-        void explosionGif.offsetWidth;
-    
-        explosionGif.setAttribute("src", originalSrc);
-        void explosionGif.offsetWidth;
-    
-        explosionGif.classList.add("active");
-    
-        setTimeout(() => {
-          explosionGif.classList.remove("active");
-        
-          explosionGif.pause?.();
-        
-          explosionGif.removeAttribute("src");
-        }, 820);
-      }
-    
-      playOwnedSound(pullId, forgeEruptionExplosionSound, true);
     }
     
-    async function playForgeEruptionCoinRain(pullId) {
+    async function playForgeResonanceDischarge(pullId) {
       if (!isActivePull(pullId)) return false;
     
       const burstLayer = document.getElementById("forgeEruptionCoinRainLayer");
@@ -3734,39 +3638,39 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       void burstLayer.offsetWidth;
     
       burstLayer.classList.add("active");
-      forgeStage?.classList.add("eruption-coin-rain-active");
+      forgeStage?.classList.add("eruption-resonance-active");
     
-      triggerScreenBorder("jackpot", pullId);
+      triggerScreenBorder("legendary", pullId);
+      playOwnedSound(pullId, forgeEruptionExplosionSound, true);
     
-      const shockwave = document.createElement("div");
-      shockwave.className = "forge-eruption-shockwave";
-      burstLayer.appendChild(shockwave);
+      const core = document.createElement("div");
+      core.className = "forge-resonance-core";
+      burstLayer.appendChild(core);
     
-      const payoutText = document.createElement("div");
-      payoutText.className = "forge-eruption-payout-burst";
-      payoutText.innerText = "FORGE ERUPTION!";
-      burstLayer.appendChild(payoutText);
-    
-      const sparkCount = 22;
-    
-      for (let i = 0; i < sparkCount; i++) {
-        const spark = document.createElement("div");
-        spark.className = "forge-eruption-burst-spark";
-    
-        const angle = (Math.PI * 2 * i) / sparkCount;
-        const distance = 160 + Math.floor(Math.random() * 220);
-    
-        spark.style.setProperty("--spark-x", `${Math.cos(angle) * distance}`);
-        spark.style.setProperty("--spark-y", `${Math.sin(angle) * distance}`);
-        spark.style.animationDelay = `${Math.floor(Math.random() * 140)}ms`;
-    
-        burstLayer.appendChild(spark);
+      for (let i = 0; i < 4; i++) {
+        const ring = document.createElement("div");
+        ring.className = "forge-resonance-ring";
+        ring.style.animationDelay = `${i * 135}ms`;
+        burstLayer.appendChild(ring);
       }
     
-      await wait(1650);
+      for (let i = 0; i < 3; i++) {
+        const fracture = document.createElement("div");
+        fracture.className = "forge-resonance-fracture";
+        fracture.style.animationDelay = `${220 + i * 90}ms`;
+        fracture.style.setProperty("--fracture-rotate", `${i * 58 - 44}deg`);
+        burstLayer.appendChild(fracture);
+      }
+    
+      const text = document.createElement("div");
+      text.className = "forge-resonance-title";
+      text.innerText = "RESONANCE OVERLOAD";
+      burstLayer.appendChild(text);
+    
+      await wait(2250);
     
       burstLayer.classList.remove("active");
-      forgeStage?.classList.remove("eruption-coin-rain-active");
+      forgeStage?.classList.remove("eruption-resonance-active");
       burstLayer.innerHTML = "";
     
       return true;
@@ -4590,20 +4494,15 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       await wait(3400);
 
       if (isActivePull(pullId)) {
-        forgeStage.classList.add("eruption-background-hidden");
-        playForgeEruptionExplosion(pullId);
+        await playForgeResonanceDischarge(pullId);
       }
-      
-      await wait(1350);
       
       forgeStage.classList.remove("eruption-background-hidden");
       forgeStage.classList.remove("eruption-cinematic");
       forgeStage.classList.remove("forge-erupting");
       forgeStage.classList.add("eruption-forge-returning");
       
-      await wait(120);
-
-      await playForgeEruptionCoinRain(pullId);
+      await wait(900);
       
       forgeStage.classList.remove("eruption-forge-returning");
     
