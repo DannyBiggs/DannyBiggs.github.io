@@ -3719,7 +3719,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       burstLayer.classList.add("active");
       triggerScreenBorder("legendary", pullId);
-      playOwnedSound(pullId, forgeEruptionExplosionSound, true);
+      setTimeout(() => {
+        if (!isActivePull(pullId)) return;
+        playOwnedSound(pullId, forgeEruptionExplosionSound, true);
+      }, 120);
 
       const impactFlash = document.createElement("div");
       impactFlash.className = "forge-resonance-impact-flash";
