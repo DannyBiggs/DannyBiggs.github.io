@@ -557,27 +557,6 @@
       100% { opacity: 0; transform: translate(-50%, -50%) scale(1.38); }
     }
     
-    .forge-resonance-impact-dim {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      background:
-        radial-gradient(circle at 50% 43%,
-          transparent 0%,
-          rgba(0, 0, 0, 0.18) 38%,
-          rgba(0, 0, 0, 0.52) 100%);
-      opacity: 0;
-      animation: forgeResonanceImpactDim 1550ms ease-out forwards;
-      z-index: -1;
-    }
-
-    @keyframes forgeResonanceImpactDim {
-      0% { opacity: 0; }
-      8% { opacity: 1; }
-      42% { opacity: 0.72; }
-      100% { opacity: 0; }
-    }
-    
     .forge-resonance-core {
       position: absolute;
       left: 50%;
@@ -3733,10 +3712,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       burstLayer.classList.add("active");
       triggerScreenBorder("legendary", pullId);
       playOwnedSound(pullId, forgeEruptionExplosionSound, true);
-
-      const impactDim = document.createElement("div");
-      impactDim.className = "forge-resonance-impact-dim";
-      burstLayer.appendChild(impactDim);
 
       const impactFlash = document.createElement("div");
       impactFlash.className = "forge-resonance-impact-flash";
