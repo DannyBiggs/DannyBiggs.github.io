@@ -3285,6 +3285,46 @@
       }
     }
 
+    .forge-stage.core-breach-pending {
+      animation: forgeCoreBreachPendingShake 90ms linear infinite;
+    }
+
+    .forge-stage.core-breach-pending .forge-background-glow {
+      opacity: 1;
+      animation: forgeCoreBreachPendingGlow 720ms steps(6, end) infinite;
+    }
+
+    .forge-stage.core-breach-pending .forge-pressure-fill {
+      opacity: 1;
+      filter:
+        brightness(2.35)
+        drop-shadow(0 0 18px rgba(255, 235, 140, 0.95))
+        drop-shadow(0 0 40px rgba(255, 90, 20, 0.65));
+      animation: forgeCoreBreachPendingPressure 520ms steps(5, end) infinite;
+    }
+
+    @keyframes forgeCoreBreachPendingShake {
+      0% { translate: 0px 0px; }
+      25% { translate: -1px 1px; }
+      50% { translate: 1px -1px; }
+      75% { translate: -1px -1px; }
+      100% { translate: 0px 0px; }
+    }
+
+    @keyframes forgeCoreBreachPendingGlow {
+      0% { filter: brightness(1.5) saturate(1.15); }
+      35% { filter: brightness(2.35) saturate(1.45); }
+      65% { filter: brightness(1.75) saturate(1.25); }
+      100% { filter: brightness(2.1) saturate(1.4); }
+    }
+
+    @keyframes forgeCoreBreachPendingPressure {
+      0% { opacity: 0.82; }
+      40% { opacity: 1; }
+      70% { opacity: 0.72; }
+      100% { opacity: 0.95; }
+    }
+    
     .slot-row.resonance-result-hidden {
       opacity: 0 !important;
       visibility: hidden !important;
@@ -4096,11 +4136,14 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       return coinTotal + jackpotPayout;
     }
 
-    function clearForgeResonanceResult() {
+    function clearForgeResonanceResult(options = {}) {
       if (!forgeResonanceResult) return;
 
       forgeResonanceResult.classList.remove("active");
-      slotRow.classList.remove("resonance-result-hidden");
+
+      if (!options.keepSlotsHidden) {
+        slotRow.classList.remove("resonance-result-hidden");
+      }
     }
 
     function showForgeResonanceResult(event, results, pullId) {
@@ -4613,7 +4656,11 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           source: "payload-jackpotHit",
           createdAt: Date.now()
         };
-      
+
+        updateForgePressureGauge(pressureAfter);
+        forgeStage.classList.add("core-breach-pending");
+        triggerScreenBorder("legendary", pullId);
+        
         return true;
       }
     
@@ -4917,7 +4964,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       "instability-global-burned-away",
       "instability-pressure-burst",
       "instability-pressure-sputter",
-      "instability-pressure-collapse"
+      "instability-pressure-collapse",
+      "core-breach-pending"
     ];
 
     const forgeStageStateClasses = [
@@ -7017,6 +7065,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         overlayState.pendingEruption = null;
         
         await wait(950);
+        forgeStage.classList.remove("core-breach-pending");
         
         await triggerForgeEruptionLifecycle(
           pullId,
@@ -7030,7 +7079,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
         await wait(Math.max(2600, Number(event.displayMs || 0)));
 
-        clearForgeResonanceResult();
+        clearForgeResonanceResult({ keepSlotsHidden: true });
         clearStageRevealEffects();
         cinematicBurst.classList.remove("active");
         
