@@ -6395,7 +6395,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       };
     }
     
-    async function growAndFakeoutSlot(slot, finalCoin, index, pullId) {
+    async function growAndFakeoutSlot(slot, finalCoin, index, pullId, pullCount = 1) {
       if (!isActivePull(pullId)) return;
       const slotWrap = slot.closest(".slot-wrap");
       setSlotState(slotWrap, "forming", { pullId, coin: finalCoin.name });
@@ -6664,7 +6664,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       if (!isActivePull(pullId)) return;
     
-      await growAndFakeoutSlot(slot, finalCoin, index, pullId);
+      await growAndFakeoutSlot(slot, finalCoin, index, pullId, pullCount);
 
       if (!isActivePull(pullId)) return;
       
