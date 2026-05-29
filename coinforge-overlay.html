@@ -548,35 +548,6 @@
         transform: translate(-50%, -50%) scale(1.04);
       }
     }
-
-        .forge-eruption-hold-coin-layer {
-          position: fixed;
-          inset: 0;
-          pointer-events: none;
-          z-index: 33;
-        }
-        
-        .forge-eruption-hold-coin {
-          position: fixed;
-          transform: translate(-50%, -50%);
-          object-fit: contain;
-          image-rendering: pixelated;
-          opacity: 0.96;
-          filter:
-            brightness(1.18)
-            drop-shadow(0 0 12px rgba(255, 210, 100, 0.6));
-          animation: forgeEruptionHoldCoinSpin 0.34s linear infinite;
-        }
-        
-        @keyframes forgeEruptionHoldCoinSpin {
-          from {
-            transform: translate(-50%, -50%) rotateY(0deg) scale(1);
-          }
-        
-          to {
-            transform: translate(-50%, -50%) rotateY(360deg) scale(1.08);
-          }
-        }
     
         .eruption-coin-rain-layer {
           position: fixed;
@@ -3703,58 +3674,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       playOwnedSound(pullId, forgeEruptionExplosionSound, true);
     }
-
-    function clearForgeEruptionHoldCoins() {
-      const existingLayer = document.getElementById("forgeEruptionHoldCoinLayer");
-    
-      if (existingLayer) {
-        existingLayer.remove();
-      }
-    }
-    
-    function createForgeEruptionHoldCoins(pullId) {
-      if (!isActivePull(pullId)) return;
-    
-      clearForgeEruptionHoldCoins();
-    
-      const slotWraps = Array.from(document.querySelectorAll(".slot-wrap"));
-    
-      const holdLayer = document.createElement("div");
-      holdLayer.id = "forgeEruptionHoldCoinLayer";
-      holdLayer.className = "forge-eruption-hold-coin-layer";
-    
-      document.body.appendChild(holdLayer);
-    
-      slotWraps.forEach((slotWrap, index) => {
-        const slotState = slotWrap.dataset.slotState || "";
-    
-        if (slotState === "landed") return;
-    
-        const slot = slotWrap.querySelector(".slot-coin");
-        if (!slot) return;
-    
-        const src = slot.getAttribute("src") || "";
-        if (!src) return;
-    
-        const rect = slot.getBoundingClientRect();
-    
-        if (rect.width <= 0 || rect.height <= 0) return;
-    
-        const clone = document.createElement("img");
-    
-        clone.className = "forge-eruption-hold-coin";
-        clone.src = src;
-        clone.alt = "";
-    
-        clone.style.left = `${rect.left + rect.width / 2}px`;
-        clone.style.top = `${rect.top + rect.height / 2}px`;
-        clone.style.width = `${rect.width}px`;
-        clone.style.height = `${rect.height}px`;
-        clone.style.animationDelay = `${index * 70}ms`;
-    
-        holdLayer.appendChild(clone);
-      });
-    }
     
     async function playForgeEruptionCoinRain(pullId) {
       if (!isActivePull(pullId)) return false;
@@ -3767,8 +3686,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       void rainLayer.offsetWidth;
       rainLayer.classList.add("active");
       forgeStage?.classList.add("eruption-coin-rain-active");
-      
-      createForgeEruptionHoldCoins(pullId);
     
       const weightedRainCoins = [
         ...forgeCoins.filter(coin => coin.key === "Wood"),
