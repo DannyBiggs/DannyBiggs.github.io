@@ -8230,7 +8230,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
   
     console.log("GENERAL BROADCAST PAYLOAD:", payload);
   
-    if (payload?.type === "coinForgeWeeklyWinners") {
+    if (
+      payload?.type === "coinForgeWeeklyWinners" ||
+      payload?.type === "coinForgeBossState"
+    ) {
       handleStreamerbotMessage(payload);
     }
   });
