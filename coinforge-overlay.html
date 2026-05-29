@@ -2204,6 +2204,118 @@
       animation: invidraCorruptionForgeTint 980ms steps(7, end);
     }
 
+    /* ===== BOSS WORLD OWNERSHIP FX START ===== */
+    .forge-stage.boss-world-invidra .forge-background {
+      filter:
+        brightness(0.82)
+        saturate(0.72)
+        hue-rotate(142deg)
+        contrast(1.08);
+    }
+
+    .forge-stage.boss-world-invidra .forge-background-glow {
+      opacity: 0.34;
+      mix-blend-mode: screen;
+      filter:
+        brightness(1.08)
+        saturate(0.76)
+        hue-rotate(150deg)
+        drop-shadow(0 0 16px rgba(70, 185, 255, 0.32));
+      animation: invidraBossWorldIdle 2600ms ease-in-out infinite alternate;
+    }
+
+    .forge-stage.boss-world-invidra .forge-light-overlay {
+      opacity: 0.26;
+      background:
+        radial-gradient(circle at 50% 34%, rgba(70, 185, 255, 0.20), transparent 12%),
+        radial-gradient(circle at 50% 78%, rgba(25, 60, 190, 0.18), transparent 22%),
+        radial-gradient(ellipse at 50% 54%, rgba(4, 10, 34, 0.34), transparent 72%);
+      mix-blend-mode: screen;
+      filter: blur(12px);
+      animation: invidraBossWorldHaze 3200ms ease-in-out infinite alternate;
+    }
+
+    .forge-stage.boss-world-avaros .forge-background {
+      filter:
+        brightness(1.04)
+        saturate(1.08)
+        hue-rotate(-12deg)
+        contrast(1.08);
+    }
+
+    .forge-stage.boss-world-avaros .forge-background-glow {
+      opacity: 0.42;
+      mix-blend-mode: screen;
+      filter:
+        brightness(1.24)
+        saturate(1.18)
+        hue-rotate(-24deg)
+        drop-shadow(0 0 18px rgba(255, 190, 70, 0.36));
+      animation: avarosBossWorldIdle 2800ms ease-in-out infinite alternate;
+    }
+
+    .forge-stage.boss-world-avaros .forge-light-overlay {
+      opacity: 0.24;
+      background:
+        radial-gradient(circle at 50% 35%, rgba(255, 215, 95, 0.20), transparent 12%),
+        radial-gradient(circle at 50% 80%, rgba(170, 82, 18, 0.20), transparent 24%),
+        radial-gradient(ellipse at 50% 55%, rgba(62, 28, 4, 0.24), transparent 72%);
+      mix-blend-mode: screen;
+      filter: blur(12px);
+      animation: avarosBossWorldHaze 3400ms ease-in-out infinite alternate;
+    }
+
+    @keyframes invidraBossWorldIdle {
+      0% {
+        opacity: 0.24;
+        filter:
+          brightness(0.92)
+          saturate(0.62)
+          hue-rotate(140deg)
+          drop-shadow(0 0 10px rgba(70, 185, 255, 0.20));
+      }
+
+      100% {
+        opacity: 0.46;
+        filter:
+          brightness(1.14)
+          saturate(0.82)
+          hue-rotate(168deg)
+          drop-shadow(0 0 24px rgba(55, 155, 255, 0.46));
+      }
+    }
+
+    @keyframes invidraBossWorldHaze {
+      0% { opacity: 0.18; transform: scale(0.99); }
+      100% { opacity: 0.34; transform: scale(1.012); }
+    }
+
+    @keyframes avarosBossWorldIdle {
+      0% {
+        opacity: 0.30;
+        filter:
+          brightness(1.08)
+          saturate(1.05)
+          hue-rotate(-18deg)
+          drop-shadow(0 0 10px rgba(255, 185, 65, 0.20));
+      }
+
+      100% {
+        opacity: 0.54;
+        filter:
+          brightness(1.32)
+          saturate(1.28)
+          hue-rotate(-30deg)
+          drop-shadow(0 0 28px rgba(255, 165, 40, 0.46));
+      }
+    }
+
+    @keyframes avarosBossWorldHaze {
+      0% { opacity: 0.16; transform: scale(0.99); }
+      100% { opacity: 0.32; transform: scale(1.014); }
+    }
+    /* ===== BOSS WORLD OWNERSHIP FX END ===== */
+    
     .forge-stage.event-world-corrupted .forge-background {
       animation: invidraWorldBackgroundBreath 1800ms ease-in-out infinite alternate;
     }
@@ -3875,6 +3987,8 @@
       activeEventWorldState: null,
       
       pendingEruption: null,
+
+      activeBossWorldState: null,
 
       coreBreachPendingTimer: null,
 
@@ -5643,6 +5757,79 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       return true;
     }
     // ===== PHASE 7.2 EVENT REACTION OWNERSHIP MANAGER END =====
+
+    // ===== PHASE 7.3 BOSS WORLD OWNERSHIP MANAGER START =====
+    const bossWorldStateClasses = [
+      "boss-world-invidra",
+      "boss-world-avaros"
+    ];
+
+    function normalizeBossWorldType(type) {
+      const value = String(type || "").trim().toLowerCase();
+
+      if (value.includes("invidra") || value.includes("envy")) {
+        return "invidra";
+      }
+
+      if (value.includes("avaros") || value.includes("greed")) {
+        return "avaros";
+      }
+
+      return "";
+    }
+
+    function setBossWorldState(type, options = {}) {
+      if (!forgeStage) return false;
+
+      const bossType = normalizeBossWorldType(type);
+
+      if (!bossType) {
+        console.warn("Unknown Coin Forge boss world type:", type);
+        return false;
+      }
+
+      clearBossWorldState({ force: true });
+
+      const className = `boss-world-${bossType}`;
+
+      overlayState.activeBossWorldState = {
+        type: bossType,
+        className,
+        source: options.source || "unknown",
+        payload: options.payload || null,
+        startedAt: Date.now()
+      };
+
+      forgeStage.dataset.bossWorldState = bossType;
+      forgeStage.classList.add(className);
+
+      return true;
+    }
+
+    function clearBossWorldState(options = {}) {
+      if (!forgeStage) {
+        overlayState.activeBossWorldState = null;
+        return false;
+      }
+
+      forgeStage.classList.remove(...bossWorldStateClasses);
+      delete forgeStage.dataset.bossWorldState;
+
+      overlayState.activeBossWorldState = null;
+
+      return true;
+    }
+
+    window.setBossWorldState = setBossWorldState;
+    window.clearBossWorldState = clearBossWorldState;
+
+    window.testBossWorldState = async function testBossWorldState(type = "invidra") {
+      showForgeStage();
+      setBossWorldState(type, { source: "console-test" });
+      await wait(1200);
+      return debugForgeState();
+    };
+    // ===== PHASE 7.3 BOSS WORLD OWNERSHIP MANAGER END =====
     
     function triggerGlobalInstabilityReaction(effect, pullId) {
       if (!isActivePull(pullId)) return;
@@ -5772,6 +5959,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         eventReactionHistory: overlayState.eventReactionHistory,
         eventReactionSuspension: overlayState.eventReactionSuspension,
         activeEventWorldState: overlayState.activeEventWorldState,
+        activeBossWorldState: overlayState.activeBossWorldState,
+        stageBossWorldState: forgeStage?.dataset?.bossWorldState || "",
+        stageBossWorldClass: Array.from(forgeStage?.classList || [])
+          .filter(className => className.startsWith("boss-world-")),
         pendingEruption: overlayState.pendingEruption,
         forgeRevealSuspension: overlayState.forgeRevealSuspension,
         forgeRevealSnapshot: overlayState.forgeRevealSnapshot,
@@ -7981,6 +8172,27 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         return;
       }
 
+      if (data.type === "coinForgeBossState") {
+        if (
+          data.active === false ||
+          data.clear === true ||
+          String(data.bossType || data.bossName || data.boss || "").toLowerCase() === "none"
+        ) {
+          clearBossWorldState({ force: true });
+          return;
+        }
+
+        setBossWorldState(
+          data.bossType || data.bossName || data.boss,
+          {
+            source: "streamerbot",
+            payload: data
+          }
+        );
+
+        return;
+      }
+      
       if (data.type !== "coinForgePull") return;
 
       window.latestCoinForgePayload = data;
