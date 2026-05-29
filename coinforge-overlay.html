@@ -3285,6 +3285,53 @@
       }
     }
 
+    .forge-stage.core-breach-final-discharge .forge-background,
+    .forge-stage.core-breach-final-discharge .forge-background-glow {
+      animation: coreBreachFinalDischargeSettle 1850ms cubic-bezier(.14,.86,.2,1) forwards;
+      transform-origin: center 42%;
+    }
+
+    .forge-stage.core-breach-final-discharge .forge-background-glow {
+      opacity: 1;
+    }
+
+    .forge-stage.core-breach-final-discharge .forge-pressure-fill {
+      opacity: 0 !important;
+      visibility: hidden !important;
+    }
+
+    @keyframes coreBreachFinalDischargeSettle {
+      0% {
+        opacity: 1;
+        transform: translateY(36px) scale(1.025);
+        filter: brightness(5.8) saturate(0.28) contrast(1.42);
+      }
+
+      14% {
+        opacity: 1;
+        transform: translateY(36px) scale(1.065);
+        filter: brightness(7.4) saturate(0.18) contrast(1.62);
+      }
+
+      34% {
+        opacity: 1;
+        transform: translateY(36px) scale(0.975);
+        filter: brightness(3.1) saturate(0.62) contrast(1.24);
+      }
+
+      62% {
+        opacity: 1;
+        transform: translateY(36px) scale(1.018);
+        filter: brightness(1.7) saturate(0.88) contrast(1.1);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(36px) scale(1);
+        filter: brightness(1) saturate(1) contrast(1);
+      }
+    }
+    
     .forge-stage.core-breach-pending {
       animation: forgeCoreBreachPendingShake 54ms linear infinite;
     }
@@ -4935,7 +4982,39 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         typeof options.pressureAfter === "number"
           ? options.pressureAfter
           : overlayState.currentPressure;
-    
+
+
+      if (options.skipBuildup === true) {
+        setForgeEruptionState(
+          "erupting",
+          {
+            source: options.source || "payload"
+          }
+        );
+
+        overlayState.forgeState = "erupting";
+        overlayState.currentPressure = 100;
+        setForgePressureStateFromValue(100);
+
+        forgeStage.classList.add("core-breach-final-discharge");
+        stopCoreBreachPendingSequence();
+
+        addStageEffect(pullId, "forge-erupting", 2200, { restart: true });
+        playForgeResonanceDischarge(pullId);
+
+        await wait(2200);
+
+        forgeStage.classList.remove("forge-erupting");
+        forgeStage.classList.remove("core-breach-final-discharge");
+
+        if (isActivePull(pullId)) {
+          setForgeEruptionState("idle");
+          overlayState.forgeState = "active";
+        }
+
+        return true;
+      }
+      
       setForgeEruptionState(
         "erupting",
         {
@@ -5048,7 +5127,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       "instability-pressure-burst",
       "instability-pressure-sputter",
       "instability-pressure-collapse",
-      "core-breach-pending"
+      "core-breach-pending",
+      "core-breach-final-discharge"
     ];
 
     const forgeStageStateClasses = [
@@ -7156,14 +7236,14 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         const pendingEruption = overlayState.pendingEruption;
         overlayState.pendingEruption = null;
         
-        await wait(320);
-        stopCoreBreachPendingSequence();
+        await wait(180);
         
         await triggerForgeEruptionLifecycle(
           pullId,
           {
             pressureAfter: pendingEruption.pressureAfter,
-            source: pendingEruption.source
+            source: pendingEruption.source,
+            skipBuildup: true
           }
         );
 
