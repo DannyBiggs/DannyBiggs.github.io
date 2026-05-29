@@ -2315,6 +2315,96 @@
       100% { opacity: 0.32; transform: scale(1.014); }
     }
     /* ===== BOSS WORLD OWNERSHIP FX END ===== */
+
+    .boss-sprite-layer {
+      position: absolute;
+      right: 7%;
+      top: 38%;
+      width: 320px;
+      height: 320px;
+      transform: translateY(-50%) scale(0.92);
+      pointer-events: none;
+      opacity: 0;
+      visibility: hidden;
+      z-index: 4;
+      image-rendering: pixelated;
+      transition:
+        opacity 520ms ease,
+        transform 720ms cubic-bezier(.16,.92,.2,1),
+        filter 520ms ease;
+    }
+
+    .boss-sprite-layer.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(-50%) scale(1);
+    }
+
+    .boss-sprite-image {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      image-rendering: pixelated;
+      filter:
+        drop-shadow(0 0 18px rgba(40, 140, 255, 0.42))
+        drop-shadow(0 0 42px rgba(10, 30, 120, 0.34));
+      animation: bossSpriteIdleFloat 3400ms ease-in-out infinite alternate;
+    }
+
+    .boss-sprite-layer.boss-sprite-invidra::before {
+      content: "";
+      position: absolute;
+      inset: 14%;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle,
+          rgba(70, 185, 255, 0.26) 0%,
+          rgba(30, 80, 220, 0.16) 38%,
+          transparent 72%);
+      filter: blur(18px);
+      mix-blend-mode: screen;
+      animation: invidraBossSpriteAura 2400ms ease-in-out infinite alternate;
+      z-index: -1;
+    }
+
+    .boss-nameplate {
+      position: absolute;
+      left: 50%;
+      bottom: 8%;
+      transform: translateX(-50%);
+      font-family: "CoinForgeName", "ComboFont", monospace;
+      font-size: 24px;
+      letter-spacing: 3px;
+      color: #d9f5ff;
+      text-shadow:
+        0 0 8px rgba(0, 0, 0, 0.95),
+        0 0 18px rgba(70, 185, 255, 0.9),
+        0 0 34px rgba(30, 80, 220, 0.65);
+      opacity: 0.92;
+      white-space: nowrap;
+    }
+
+    @keyframes bossSpriteIdleFloat {
+      0% {
+        transform: translateY(0px) scale(1);
+      }
+
+      100% {
+        transform: translateY(-10px) scale(1.025);
+      }
+    }
+
+    @keyframes invidraBossSpriteAura {
+      0% {
+        opacity: 0.26;
+        transform: scale(0.94);
+      }
+
+      100% {
+        opacity: 0.72;
+        transform: scale(1.1);
+      }
+    }
     
     .forge-stage.event-world-corrupted .forge-background {
       animation: invidraWorldBackgroundBreath 1800ms ease-in-out infinite alternate;
@@ -3810,7 +3900,10 @@
         <div id="forgeCorruptionWave" class="forge-corruption-wave"></div>
         <div id="forgeBloom" class="forge-bloom"></div>
         <div id="cinematicBurst" class="cinematic-burst"></div>
-        
+        <div id="bossSpriteLayer" class="boss-sprite-layer">
+          <img id="bossSpriteImage" class="boss-sprite-image" src="" alt="">
+          <div id="bossNamePlate" class="boss-nameplate"></div>
+        </div>
         <img
           id="forgeIgnitionCast"
           class="forge-ignition-cast"
@@ -3878,6 +3971,9 @@
     const sparkStrikeGif = document.getElementById("sparkStrikeGif");
     const forgeCorruptionWave = document.getElementById("forgeCorruptionWave");
     const forgeBloom = document.getElementById("forgeBloom");
+    const bossSpriteLayer = document.getElementById("bossSpriteLayer");
+    const bossSpriteImage = document.getElementById("bossSpriteImage");
+    const bossNamePlate = document.getElementById("bossNamePlate");
     const connectionStatus = document.getElementById("connectionStatus") || { textContent: "", style: {}, classList: { add() {}, remove() {} } };
     const playerIdentityLayer = document.getElementById("playerIdentityLayer");
     const playerNameplate = document.getElementById("playerNameplate");
@@ -3989,6 +4085,8 @@
       pendingEruption: null,
 
       activeBossWorldState: null,
+
+      activeBossSpriteState: null,
 
       coreBreachPendingTimer: null,
 
@@ -5813,6 +5911,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       forgeStage.dataset.bossWorldState = bossType;
       forgeStage.classList.add(className);
+      showForgeStage();
+      setBossSpriteState(bossType, "idle", {
+        source: options.source || "unknown"
+      });
 
       return true;
     }
@@ -5827,10 +5929,103 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       delete forgeStage.dataset.bossWorldState;
 
       overlayState.activeBossWorldState = null;
+      clearBossSpriteState();
 
       return true;
     }
 
+    function getBossSpriteAssets(type) {
+      const bossType = normalizeBossWorldType(type);
+
+      if (bossType === "invidra") {
+        return {
+          idle: "images/bosses/invidra/InvidraPixelIdle.gif",
+          attack: "images/bosses/invidra/InvidraPixelAttack.gif",
+          hurt: "images/bosses/invidra/InvidraPixelHurt.gif",
+          dead: "images/bosses/invidra/InvidraPixelDead.png"
+        };
+      }
+
+      return null;
+    }
+
+    function setBossSpriteState(type, state = "idle", options = {}) {
+      if (!bossSpriteLayer || !bossSpriteImage) return false;
+
+      const bossType = normalizeBossWorldType(type);
+      const assets = getBossSpriteAssets(bossType);
+
+      if (!bossType || !assets) {
+        clearBossSpriteState();
+        return false;
+      }
+
+      const safeState = assets[state] ? state : "idle";
+
+      bossSpriteImage.src = assets[safeState];
+      bossSpriteImage.alt = bossType;
+
+      bossSpriteLayer.dataset.bossType = bossType;
+      bossSpriteLayer.dataset.bossSpriteState = safeState;
+
+      bossSpriteLayer.classList.remove(
+        "boss-sprite-invidra",
+        "boss-sprite-avaros",
+        "boss-sprite-idle",
+        "boss-sprite-attack",
+        "boss-sprite-hurt",
+        "boss-sprite-dead"
+      );
+
+      bossSpriteLayer.classList.add(
+        "active",
+        `boss-sprite-${bossType}`,
+        `boss-sprite-${safeState}`
+      );
+
+      if (bossNamePlate) {
+        bossNamePlate.textContent = bossType === "invidra" ? "INVIDRA" : "AVAROS";
+      }
+
+      overlayState.activeBossSpriteState = {
+        type: bossType,
+        state: safeState,
+        source: options.source || "unknown",
+        startedAt: Date.now()
+      };
+
+      return true;
+    }
+
+    function clearBossSpriteState() {
+      if (bossSpriteLayer) {
+        bossSpriteLayer.classList.remove(
+          "active",
+          "boss-sprite-invidra",
+          "boss-sprite-avaros",
+          "boss-sprite-idle",
+          "boss-sprite-attack",
+          "boss-sprite-hurt",
+          "boss-sprite-dead"
+        );
+
+        delete bossSpriteLayer.dataset.bossType;
+        delete bossSpriteLayer.dataset.bossSpriteState;
+      }
+
+      if (bossSpriteImage) {
+        bossSpriteImage.removeAttribute("src");
+        bossSpriteImage.alt = "";
+      }
+
+      overlayState.activeBossSpriteState = null;
+
+      return true;
+    }
+
+    window.setBossSpriteState = setBossSpriteState;
+    window.clearBossSpriteState = clearBossSpriteState;
+    
     window.setBossWorldState = setBossWorldState;
     window.clearBossWorldState = clearBossWorldState;
 
@@ -5971,6 +6166,9 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         eventReactionSuspension: overlayState.eventReactionSuspension,
         activeEventWorldState: overlayState.activeEventWorldState,
         activeBossWorldState: overlayState.activeBossWorldState,
+        activeBossSpriteState: overlayState.activeBossSpriteState,
+        bossSpriteClassName: bossSpriteLayer?.className || "",
+        bossSpriteImage: bossSpriteImage?.getAttribute("src") || "",
         stageBossWorldState: forgeStage?.dataset?.bossWorldState || "",
         stageBossWorldClass: Array.from(forgeStage?.classList || [])
           .filter(className => className.startsWith("boss-world-")),
