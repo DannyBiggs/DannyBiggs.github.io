@@ -6386,14 +6386,14 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           { transform: "scale(1.22)", filter: "brightness(1.18)", offset: 1 }
         ],
         {
-          duration: 2600,
+          duration: 2400,
           easing: "cubic-bezier(0.16, 1, 0.3, 1)",
           fill: "forwards"
         }
       );
     
       const frameDelay = 16;
-      const totalFrames = 165;
+      const totalFrames = 150;
       const teaseCoins = getTeaseCoinPool(finalCoin);
       const finalFrameCoinKey = getFinalFrameCoinKey(finalCoin);
           
@@ -6437,7 +6437,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         
         // Tiny pre-lock hold near the end of the animation.
         // This creates suspense without adding a second animation phase.
-        const isFinalTeaseWindow = progress > 0.88;
+        const isFinalTeaseWindow = progress > 0.90;
         const isThinCoinFrame = frame === 8 || frame === 9;
         
         if (isFinalTeaseWindow && isThinCoinFrame) {
