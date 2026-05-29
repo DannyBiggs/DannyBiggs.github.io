@@ -360,23 +360,6 @@
     .forge-stage.eruption-cinematic .slot-row {
       animation: forgeEruptionSlotsVanish 850ms ease-in forwards;
     }
-
-    .forge-stage.eruption-cinematic.eruption-coin-rain-active .slot-row {
-      opacity: 1 !important;
-      visibility: visible !important;
-      animation: none !important;
-      filter: none !important;
-    }
-    
-    .forge-stage.eruption-coin-rain-active .slot-wrap:not([data-slot-state="landed"]) {
-      animation: coinCycleSpin 0.42s linear infinite !important;
-    }
-    
-    .forge-stage.eruption-coin-rain-active .slot-wrap:not([data-slot-state="landed"]) .slot-coin {
-      opacity: 1 !important;
-      visibility: visible !important;
-      animation: slotSpin 0.34s linear infinite !important;
-    }
     
     .forge-stage.eruption-cinematic .player-identity-layer {
       animation: forgeEruptionIdentityVanish 650ms ease-in forwards;
@@ -3691,28 +3674,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       playOwnedSound(pullId, forgeEruptionExplosionSound, true);
     }
-
-    function forceSuspendedForgeCoinsToSpinDuringRain(pullId) {
-      if (!isActivePull(pullId)) return;
-    
-      const slotWraps = Array.from(document.querySelectorAll(".slot-wrap"));
-    
-      slotWraps.forEach(slotWrap => {
-        const slotState = slotWrap.dataset.slotState || "";
-    
-        if (slotState === "landed") return;
-    
-        const slot = slotWrap.querySelector(".slot-coin");
-        if (!slot) return;
-    
-        slotWrap.classList.add("coin-cycling");
-    
-        slot.classList.remove("landed");
-        slot.classList.add("spinning");
-        slot.style.opacity = "1";
-        slot.style.visibility = "visible";
-      });
-    }
     
     async function playForgeEruptionCoinRain(pullId) {
       if (!isActivePull(pullId)) return false;
@@ -3725,12 +3686,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       void rainLayer.offsetWidth;
       rainLayer.classList.add("active");
       forgeStage?.classList.add("eruption-coin-rain-active");
-      
-      forceSuspendedForgeCoinsToSpinDuringRain(pullId);
-      
-      const coinRainSpinKeeper = setInterval(() => {
-        forceSuspendedForgeCoinsToSpinDuringRain(pullId);
-      }, 120);
     
       const weightedRainCoins = [
         ...forgeCoins.filter(coin => coin.key === "Wood"),
@@ -3789,9 +3744,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       await wait(2700);
 
-      clearInterval(coinRainSpinKeeper);
-
-      rainLayer.classList.remove("active");
+      crainLayer.classList.remove("active");
       forgeStage?.classList.remove("eruption-coin-rain-active");
       rainLayer.innerHTML = "";
     
