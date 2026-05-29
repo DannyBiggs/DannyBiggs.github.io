@@ -533,35 +533,54 @@
       position: absolute;
       left: 50%;
       top: 43%;
-      width: 260px;
-      height: 260px;
+      width: 420px;
+      height: 420px;
       border-radius: 50%;
-      transform: translate(-50%, -50%) scale(0.35);
+      transform: translate(-50%, -50%) scale(0.25);
       background:
         radial-gradient(circle,
-          rgba(255, 255, 235, 1) 0%,
-          rgba(255, 230, 145, 0.9) 18%,
-          rgba(255, 140, 40, 0.48) 42%,
-          transparent 70%);
+          rgba(255, 255, 245, 1) 0%,
+          rgba(255, 236, 165, 0.95) 16%,
+          rgba(255, 160, 45, 0.62) 40%,
+          rgba(255, 80, 18, 0.28) 58%,
+          transparent 76%);
       mix-blend-mode: screen;
-      filter: blur(2px);
-      animation: forgeResonanceCorePop 1450ms ease-out forwards;
+      filter: blur(3px);
+      animation: forgeResonanceCorePop 1550ms ease-out forwards;
     }
 
     .forge-resonance-shockwave {
       position: absolute;
       left: 50%;
       top: 43%;
-      width: 240px;
-      height: 240px;
+      width: 360px;
+      height: 360px;
       border-radius: 50%;
-      transform: translate(-50%, -50%) scale(0.2);
-      border: 4px solid rgba(255, 240, 170, 0.82);
+      transform: translate(-50%, -50%) scale(0.14);
+      border: 7px solid rgba(255, 245, 185, 0.96);
       box-shadow:
-        0 0 22px rgba(255, 235, 145, 0.82),
-        0 0 64px rgba(255, 120, 30, 0.42),
-        inset 0 0 28px rgba(255, 180, 60, 0.32);
-      animation: forgeResonanceShockwave 1500ms ease-out forwards;
+        0 0 38px rgba(255, 240, 170, 1),
+        0 0 110px rgba(255, 155, 35, 0.82),
+        0 0 190px rgba(255, 75, 18, 0.42),
+        inset 0 0 56px rgba(255, 215, 95, 0.62);
+      mix-blend-mode: screen;
+      animation: forgeResonanceShockwave 1650ms ease-out forwards;
+    }
+
+    .forge-resonance-shockwave.shockwave-2 {
+      width: 430px;
+      height: 430px;
+      border-width: 4px;
+      opacity: 0.72;
+      animation-duration: 1750ms;
+    }
+
+    .forge-resonance-shockwave.shockwave-3 {
+      width: 520px;
+      height: 520px;
+      border-width: 2px;
+      opacity: 0.48;
+      animation-duration: 1850ms;
     }
 
     .forge-resonance-spark {
@@ -586,10 +605,28 @@
     }
 
     @keyframes forgeResonanceShockwave {
-      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.18); filter: brightness(2.4); }
-      10% { opacity: 0.9; }
-      42% { opacity: 0.55; }
-      100% { opacity: 0; transform: translate(-50%, -50%) scale(2.65); filter: brightness(1); }
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.12);
+        filter: brightness(3.2) blur(0px);
+      }
+
+      8% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(0.82);
+        filter: brightness(3.8) blur(0px);
+      }
+
+      38% {
+        opacity: 0.82;
+        filter: brightness(2.1) blur(1px);
+      }
+
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(4.8);
+        filter: brightness(1) blur(4px);
+      }
     }
 
     @keyframes forgeResonanceSparkBurst {
@@ -3645,9 +3682,12 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       core.className = "forge-resonance-core";
       burstLayer.appendChild(core);
     
-      const shockwave = document.createElement("div");
-      shockwave.className = "forge-resonance-shockwave";
-      burstLayer.appendChild(shockwave);
+      for (let i = 0; i < 3; i++) {
+        const shockwave = document.createElement("div");
+        shockwave.className = `forge-resonance-shockwave shockwave-${i + 1}`;
+        shockwave.style.animationDelay = `${i * 95}ms`;
+        burstLayer.appendChild(shockwave);
+      }
     
       for (let i = 0; i < 18; i++) {
         const spark = document.createElement("div");
@@ -3665,7 +3705,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       setTimeout(() => {
         burstLayer.classList.remove("active");
         burstLayer.innerHTML = "";
-      }, 1650);
+      }, 1850);
     
       return true;
     }
@@ -4491,7 +4531,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         playForgeResonanceDischarge(pullId);
       }
       
-      await wait(1350);
+      await wait(1650);
       
       forgeStage.classList.remove("eruption-cinematic");
       forgeStage.classList.remove("forge-erupting");
