@@ -3705,6 +3705,14 @@
       
       cinematicSuspension: null,
 
+      activeEventReaction: null,
+      
+      lastEventReactionBlock: null,
+      
+      eventReactionHistory: [],
+      
+      eventReactionSuspension: null,
+      
       pendingEruption: null,
 
       coreBreachPendingTimer: null,
@@ -5264,6 +5272,105 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       }
     }
     // ===== PHASE 7.1 CINEMATIC OWNERSHIP MANAGER END =====
+
+    // ===== PHASE 7.2 EVENT REACTION OWNERSHIP MANAGER START =====
+    function getActiveEventReactionPriority() {
+      return overlayState.activeEventReaction?.priority || 0;
+    }
+    
+    function acquireEventReaction(type, ownerId, options = {}) {
+      if (!type || !ownerId) return false;
+    
+      const requestedPriority = Number(options.priority || 0);
+      const canInterrupt = options.interrupt === true;
+    
+      if (overlayState.activeEventReaction) {
+        const activePriority = getActiveEventReactionPriority();
+    
+        if (!canInterrupt && requestedPriority <= activePriority) {
+          overlayState.lastEventReactionBlock = {
+            requestedType: type,
+            requestedOwner: ownerId,
+            requestedPriority,
+            activeType: overlayState.activeEventReaction.type,
+            activeOwner: overlayState.activeEventReaction.ownerId,
+            activePriority,
+            blockedAt: Date.now()
+          };
+    
+          return false;
+        }
+    
+        if (canInterrupt && requestedPriority >= activePriority) {
+          releaseEventReaction(overlayState.activeEventReaction.ownerId, {
+            interruptedBy: type
+          });
+        }
+      }
+    
+      overlayState.activeEventReaction = {
+        type,
+        ownerId,
+        priority: requestedPriority,
+        startedAt: Date.now(),
+        interruptible: options.interruptible !== false,
+        source: options.source || "unknown"
+      };
+    
+      overlayState.eventReactionHistory.push({
+        action: "acquire",
+        type,
+        ownerId,
+        priority: requestedPriority,
+        source: options.source || "unknown",
+        at: Date.now()
+      });
+    
+      if (overlayState.eventReactionHistory.length > 16) {
+        overlayState.eventReactionHistory.shift();
+      }
+    
+      return true;
+    }
+    
+    function releaseEventReaction(ownerId, options = {}) {
+      if (!overlayState.activeEventReaction) return false;
+    
+      if (
+        ownerId &&
+        overlayState.activeEventReaction.ownerId !== ownerId
+      ) {
+        return false;
+      }
+    
+      overlayState.eventReactionHistory.push({
+        action: options.interruptedBy ? "interrupted" : "release",
+        type: overlayState.activeEventReaction.type,
+        ownerId: overlayState.activeEventReaction.ownerId,
+        interruptedBy: options.interruptedBy || "",
+        at: Date.now()
+      });
+    
+      if (overlayState.eventReactionHistory.length > 16) {
+        overlayState.eventReactionHistory.shift();
+      }
+    
+      overlayState.activeEventReaction = null;
+      overlayState.eventReactionSuspension = null;
+    
+      return true;
+    }
+    
+    function resetEventReactionOwnership(options = {}) {
+      overlayState.activeEventReaction = null;
+      overlayState.lastEventReactionBlock = null;
+      overlayState.eventReactionSuspension = null;
+    
+      if (options.clearPullOwnership === true) {
+        overlayState.eventReactionHistory = [];
+      }
+    }
+    // ===== PHASE 7.2 EVENT REACTION OWNERSHIP MANAGER END =====
     
     function triggerGlobalInstabilityReaction(effect, pullId) {
       if (!isActivePull(pullId)) return;
@@ -5388,6 +5495,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         lastCinematicBlock: overlayState.lastCinematicBlock,
         cinematicHistory: overlayState.cinematicHistory,
         cinematicSuspension: overlayState.cinematicSuspension,
+        activeEventReaction: overlayState.activeEventReaction,
+        lastEventReactionBlock: overlayState.lastEventReactionBlock,
+        eventReactionHistory: overlayState.eventReactionHistory,
+        eventReactionSuspension: overlayState.eventReactionSuspension,
         pendingEruption: overlayState.pendingEruption,
         forgeRevealSuspension: overlayState.forgeRevealSuspension,
         forgeRevealSnapshot: overlayState.forgeRevealSnapshot,
@@ -6057,6 +6168,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       });
     
       resetCinematicOwnership({
+        clearPullOwnership
+      });
+      
+      resetEventReactionOwnership({
         clearPullOwnership
       });
     
