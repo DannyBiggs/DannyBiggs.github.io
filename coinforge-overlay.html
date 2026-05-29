@@ -2235,6 +2235,35 @@
         drop-shadow(0 0 10px rgba(80, 185, 255, 0.42));
     }
 
+    .forge-stage.event-world-corrupted .slot-wrap {
+      filter:
+        brightness(0.82)
+        saturate(0.72)
+        hue-rotate(155deg)
+        drop-shadow(0 0 14px rgba(60, 165, 255, 0.42));
+    }
+
+    .forge-stage.event-world-corrupted .slot-wrap::before {
+      opacity: 1;
+      background:
+        radial-gradient(circle,
+          rgba(70, 185, 255, 0.26) 0%,
+          rgba(30, 80, 220, 0.16) 42%,
+          rgba(5, 12, 38, 0.18) 68%,
+          transparent 82%);
+      animation: invidraCoinOmenAura 1300ms ease-in-out infinite alternate;
+    }
+
+    .forge-stage.event-world-corrupted .slot-coin {
+      filter:
+        brightness(0.86)
+        saturate(0.62)
+        hue-rotate(158deg)
+        contrast(1.12)
+        drop-shadow(0 0 10px rgba(80, 190, 255, 0.48));
+      animation: invidraCoinWatchedPulse 1200ms ease-in-out infinite alternate;
+    }
+    
     @keyframes invidraCorruptionStageReaction {
       0% { transform: scale(1); filter: brightness(1) saturate(1); }
       18% { transform: scale(1.006) translateX(-2px); filter: brightness(0.78) saturate(0.66) hue-rotate(145deg); }
@@ -2298,6 +2327,30 @@
       100% {
         opacity: 0.68;
         transform: scale(1.018);
+      }
+    }
+
+    @keyframes invidraCoinOmenAura {
+      0% {
+        opacity: 0.28;
+        transform: scale(0.96);
+        filter: blur(12px);
+      }
+
+      100% {
+        opacity: 0.72;
+        transform: scale(1.12);
+        filter: blur(18px);
+      }
+    }
+
+    @keyframes invidraCoinWatchedPulse {
+      0% {
+        transform: scale(1);
+      }
+
+      100% {
+        transform: scale(0.985);
       }
     }
     
