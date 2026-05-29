@@ -6136,33 +6136,9 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       
       await wait(120);
 
-      if (
-        overlayState.pendingEruption &&
-        overlayState.pendingEruption.pullId === pullId
-      ) {
-        const pendingEruption = overlayState.pendingEruption;
+      slot.src = coinFileForSlot(finalCoin, index);
       
-        overlayState.pendingEruption = null;
-
-        startForgeRevealProgressionGate(
-          pullId,
-          {
-            type: "forgeEruption",
-            source: pendingEruption.source
-          }
-        );
-        
-        await wait(950);
-        
-        await triggerForgeEruptionLifecycle(
-          pullId,
-          {
-            pressureAfter: pendingEruption.pressureAfter,
-            source: pendingEruption.source
-          }
-        );
-        slot.src = coinFileForSlot(finalCoin, index);
-      }
+      await wait(120);
       
       registerOwnedCleanupTimer(
         pullId,
@@ -6845,7 +6821,25 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         
         await Promise.all(activeSpinPromises);
       }
-
+  
+        if (
+          overlayState.pendingEruption &&
+          overlayState.pendingEruption.pullId === pullId
+        ) {
+          const pendingEruption = overlayState.pendingEruption;
+          overlayState.pendingEruption = null;
+          
+          await wait(950);
+          
+          await triggerForgeEruptionLifecycle(
+            pullId,
+            {
+              pressureAfter: pendingEruption.pressureAfter,
+              source: pendingEruption.source
+            }
+          );
+        }
+      
       addStageEffect(pullId, `reveal-${highestClass}`);
       
       triggerFinalSlotPulse(pullId);
