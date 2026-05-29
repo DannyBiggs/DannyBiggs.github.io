@@ -3284,6 +3284,114 @@
           saturate(1.75);
       }
     }
+
+    .slot-row.resonance-result-hidden {
+      opacity: 0 !important;
+      visibility: hidden !important;
+    }
+
+    .forge-resonance-result {
+      position: absolute;
+      left: 50%;
+      top: 47%;
+      transform: translate(-50%, -50%) scale(0.82);
+      z-index: 38;
+      opacity: 0;
+      pointer-events: none;
+      text-align: center;
+      font-family: "ComboFont", monospace;
+      image-rendering: pixelated;
+      filter:
+        drop-shadow(0 0 10px rgba(0, 0, 0, 0.95))
+        drop-shadow(0 0 26px rgba(255, 150, 35, 0.72));
+    }
+
+    .forge-resonance-result.active {
+      animation: forgeResonanceResultReveal 2600ms steps(9, end) forwards;
+    }
+
+    .forge-resonance-result-title {
+      font-size: 46px;
+      letter-spacing: 4px;
+      color: #fff2b8;
+      text-shadow:
+        0 0 8px rgba(0, 0, 0, 1),
+        0 0 20px rgba(255, 190, 70, 0.95),
+        0 0 42px rgba(255, 90, 18, 0.8);
+    }
+
+    .forge-resonance-result-subtitle {
+      margin-top: 16px;
+      font-size: 16px;
+      letter-spacing: 3px;
+      color: #ffb84a;
+      text-shadow:
+        0 0 8px rgba(0, 0, 0, 1),
+        0 0 18px rgba(255, 120, 25, 0.75);
+    }
+
+    .forge-resonance-result-amount {
+      margin-top: 28px;
+      font-size: 30px;
+      letter-spacing: 2px;
+      color: #ffffff;
+      text-shadow:
+        0 0 8px rgba(0, 0, 0, 1),
+        0 0 24px rgba(255, 225, 120, 0.95),
+        0 0 50px rgba(255, 120, 25, 0.7);
+    }
+
+    .forge-resonance-result-user {
+      margin-top: 18px;
+      font-size: 14px;
+      letter-spacing: 2px;
+      color: #d8c08a;
+      text-shadow:
+        0 0 8px rgba(0, 0, 0, 1),
+        0 0 16px rgba(255, 160, 50, 0.55);
+    }
+
+    @keyframes forgeResonanceResultReveal {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.62);
+        filter:
+          brightness(2.8)
+          drop-shadow(0 0 12px rgba(255, 240, 180, 0.85));
+      }
+
+      12% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.12);
+        filter:
+          brightness(2.1)
+          drop-shadow(0 0 28px rgba(255, 180, 55, 0.9));
+      }
+
+      26% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(0.98);
+        filter:
+          brightness(1.35)
+          drop-shadow(0 0 22px rgba(255, 130, 35, 0.75));
+      }
+
+      82% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+        filter:
+          brightness(1)
+          drop-shadow(0 0 18px rgba(255, 130, 35, 0.65));
+      }
+
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.08);
+        filter:
+          brightness(1.4)
+          drop-shadow(0 0 24px rgba(255, 190, 70, 0.65));
+      }
+    }
     
   </style>
 </head>
@@ -3330,6 +3438,12 @@
         <div id="forgeIgnitedMarker" class="forge-ignited-marker">
           FORGE IGNITED
         </div>
+        <div id="forgeResonanceResult" class="forge-resonance-result">
+          <div id="forgeResonanceTitle" class="forge-resonance-result-title"></div>
+          <div id="forgeResonanceSubtitle" class="forge-resonance-result-subtitle"></div>
+          <div id="forgeResonanceAmount" class="forge-resonance-result-amount"></div>
+          <div id="forgeResonanceUser" class="forge-resonance-result-user"></div>
+        </div>
         <div class="slot-row" id="slotRow"></div>
         <div id="playerIdentityLayer" class="player-identity-layer">
           <img id="playerNameplate" class="player-nameplate-bg" src="" alt="">
@@ -3370,6 +3484,11 @@
     const screenBorderFX = document.getElementById("screenBorderFX");
     const forgeStage = document.getElementById("forgeStage");
     const forgePressureFill = document.getElementById("forgePressureFill");
+    const forgeResonanceResult = document.getElementById("forgeResonanceResult");
+    const forgeResonanceTitle = document.getElementById("forgeResonanceTitle");
+    const forgeResonanceSubtitle = document.getElementById("forgeResonanceSubtitle");
+    const forgeResonanceAmount = document.getElementById("forgeResonanceAmount");
+    const forgeResonanceUser = document.getElementById("forgeResonanceUser");
     const slotRow = document.getElementById("slotRow");
     const cinematicBurst = document.getElementById("cinematicBurst");
     const forgeImpactFlash = document.getElementById("forgeImpactFlash");
@@ -3914,6 +4033,95 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       return { ...forgeCoins.find(c => c.name === "Bronze Coin"), raw: rawCoin || {} };
     }
 
+    function formatForgeCoinAmount(amount) {
+      const safeAmount = Number(amount) || 0;
+      const absolute = Math.abs(safeAmount).toLocaleString();
+
+      return safeAmount < 0 ? `-${absolute}` : `+${absolute}`;
+    }
+
+    function getForgeResultCoinValue(rawCoin, coinDef) {
+      const raw = rawCoin || {};
+
+      const candidates = [
+        raw.finalValue,
+        raw.value,
+        raw.coinValue,
+        raw.payout,
+        coinDef && coinDef.finalValue,
+        coinDef && coinDef.value
+      ];
+
+      for (const candidate of candidates) {
+        const numeric = Number(candidate);
+
+        if (Number.isFinite(numeric)) {
+          return numeric;
+        }
+      }
+
+      const fallbackValues = {
+        "Wood Coin": 1,
+        "Bronze Coin": 25,
+        "Silver Coin": 50,
+        "Gold Coin": 100,
+        "Diamond Coin": 500,
+        "Anti Coin": -500,
+        "Rainbow Coin": 2000
+      };
+
+      return fallbackValues[coinDef && coinDef.name] || 0;
+    }
+
+    function getForgeResonanceEarnedTotal(event, results) {
+      const explicitTotal = Number(
+        event.coinsEarned ??
+        event.totalCoinsEarned ??
+        event.pullTotal ??
+        event.totalValue
+      );
+
+      if (Number.isFinite(explicitTotal)) {
+        return explicitTotal;
+      }
+
+      const rawCoins = Array.isArray(event.coins) ? event.coins : [];
+
+      const coinTotal = results.reduce((sum, coinDef, index) => {
+        return sum + getForgeResultCoinValue(rawCoins[index], coinDef);
+      }, 0);
+
+      const jackpotPayout = Number(event.jackpotPayout || 0);
+
+      return coinTotal + jackpotPayout;
+    }
+
+    function clearForgeResonanceResult() {
+      if (!forgeResonanceResult) return;
+
+      forgeResonanceResult.classList.remove("active");
+      slotRow.classList.remove("resonance-result-hidden");
+    }
+
+    function showForgeResonanceResult(event, results, pullId) {
+      if (!isActivePull(pullId)) return;
+      if (!forgeResonanceResult) return;
+
+      const earnedTotal = getForgeResonanceEarnedTotal(event, results);
+      const userName = event.user || event.userName || "FORGED";
+
+      forgeResonanceTitle.textContent = "CORE BREACH";
+      forgeResonanceSubtitle.textContent = "RESONANCE RELEASED";
+      forgeResonanceAmount.textContent = `${formatForgeCoinAmount(earnedTotal)} COINS`;
+      forgeResonanceUser.textContent = userName;
+
+      slotRow.classList.add("resonance-result-hidden");
+
+      forgeResonanceResult.classList.remove("active");
+      void forgeResonanceResult.offsetWidth;
+      forgeResonanceResult.classList.add("active");
+    }
+    
     function randomCycleCoin() {
       return forgeCoins[Math.floor(Math.random() * forgeCoins.length)];
     }
@@ -6801,23 +7009,52 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         await Promise.all(activeSpinPromises);
       }
   
-        if (
-          overlayState.pendingEruption &&
-          overlayState.pendingEruption.pullId === pullId
-        ) {
-          const pendingEruption = overlayState.pendingEruption;
-          overlayState.pendingEruption = null;
-          
-          await wait(950);
-          
-          await triggerForgeEruptionLifecycle(
-            pullId,
-            {
-              pressureAfter: pendingEruption.pressureAfter,
-              source: pendingEruption.source
-            }
-          );
-        }
+      if (
+        overlayState.pendingEruption &&
+        overlayState.pendingEruption.pullId === pullId
+      ) {
+        const pendingEruption = overlayState.pendingEruption;
+        overlayState.pendingEruption = null;
+        
+        await wait(950);
+        
+        await triggerForgeEruptionLifecycle(
+          pullId,
+          {
+            pressureAfter: pendingEruption.pressureAfter,
+            source: pendingEruption.source
+          }
+        );
+
+        showForgeResonanceResult(event, results, pullId);
+
+        await wait(Math.max(2600, Number(event.displayMs || 0)));
+
+        clearForgeResonanceResult();
+        clearStageRevealEffects();
+        cinematicBurst.classList.remove("active");
+        
+        hideForgeStage();
+        clearPlayerIdentity();
+        
+        await wait(350);
+        
+        clearSlotStates();
+        resetForgeInstabilityOwnership({ includePersistent: true });
+        slotRow.innerHTML = "";
+        
+        resetForgePressureLifecycleVisuals();
+        
+        resetForgeRuntimeOwnership({
+          includePersistent: true,
+          clearPullOwnership: true
+        });
+
+        stopOwnedAudio();
+        clearComboDisplayState();
+
+        return;
+      }
       
       addStageEffect(pullId, `reveal-${highestClass}`);
       
