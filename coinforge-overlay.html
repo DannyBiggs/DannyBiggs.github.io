@@ -5767,11 +5767,22 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     function normalizeBossWorldType(type) {
       const value = String(type || "").trim().toLowerCase();
 
-      if (value.includes("invidra") || value.includes("envy")) {
+      if (
+        value.includes("invidra") ||
+        value.includes("envy") ||
+        value.includes("omeneye") ||
+        value.includes("omen eye") ||
+        value.includes("omen")
+      ) {
         return "invidra";
       }
 
-      if (value.includes("avaros") || value.includes("greed")) {
+      if (
+        value.includes("avaros") ||
+        value.includes("greed") ||
+        value.includes("coineater") ||
+        value.includes("coin eater")
+      ) {
         return "avaros";
       }
 
