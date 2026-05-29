@@ -3286,43 +3286,68 @@
     }
 
     .forge-stage.core-breach-pending {
-      animation: forgeCoreBreachPendingShake 90ms linear infinite;
+      animation: forgeCoreBreachPendingShake 54ms linear infinite;
+    }
+
+    .forge-stage.core-breach-pending .forge-background,
+    .forge-stage.core-breach-pending .forge-background-glow {
+      animation: forgeCoreBreachPendingWhiteout var(--core-breach-pending-duration, 1800ms) linear forwards;
+      transform-origin: center 42%;
     }
 
     .forge-stage.core-breach-pending .forge-background-glow {
       opacity: 1;
-      animation: forgeCoreBreachPendingGlow 720ms steps(6, end) infinite;
     }
 
     .forge-stage.core-breach-pending .forge-pressure-fill {
       opacity: 1;
       filter:
-        brightness(2.35)
+        brightness(2.45)
         drop-shadow(0 0 18px rgba(255, 235, 140, 0.95))
-        drop-shadow(0 0 40px rgba(255, 90, 20, 0.65));
-      animation: forgeCoreBreachPendingPressure 520ms steps(5, end) infinite;
+        drop-shadow(0 0 46px rgba(255, 90, 20, 0.72));
+      animation: forgeCoreBreachPendingPressure 420ms steps(5, end) infinite;
     }
 
     @keyframes forgeCoreBreachPendingShake {
       0% { translate: 0px 0px; }
-      25% { translate: -1px 1px; }
-      50% { translate: 1px -1px; }
-      75% { translate: -1px -1px; }
+      20% { translate: calc(var(--core-breach-shake-px, 1px) * -1) var(--core-breach-shake-px, 1px); }
+      40% { translate: var(--core-breach-shake-px, 1px) calc(var(--core-breach-shake-px, 1px) * -1); }
+      60% { translate: calc(var(--core-breach-shake-px, 1px) * -1) calc(var(--core-breach-shake-px, 1px) * -1); }
+      80% { translate: var(--core-breach-shake-px, 1px) var(--core-breach-shake-px, 1px); }
       100% { translate: 0px 0px; }
     }
 
-    @keyframes forgeCoreBreachPendingGlow {
-      0% { filter: brightness(1.5) saturate(1.15); }
-      35% { filter: brightness(2.35) saturate(1.45); }
-      65% { filter: brightness(1.75) saturate(1.25); }
-      100% { filter: brightness(2.1) saturate(1.4); }
+    @keyframes forgeCoreBreachPendingWhiteout {
+      0% {
+        opacity: 1;
+        transform: translateY(36px) scale(1);
+        filter: brightness(1.2) saturate(1.1) contrast(1.05);
+      }
+
+      35% {
+        opacity: 1;
+        transform: translateY(36px) scale(1.01);
+        filter: brightness(2.35) saturate(1.2) contrast(1.12);
+      }
+
+      68% {
+        opacity: 1;
+        transform: translateY(36px) scale(1.015);
+        filter: brightness(3.85) saturate(0.75) contrast(1.28);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(36px) scale(1.02);
+        filter: brightness(5.6) saturate(0.28) contrast(1.42);
+      }
     }
 
     @keyframes forgeCoreBreachPendingPressure {
       0% { opacity: 0.82; }
-      40% { opacity: 1; }
-      70% { opacity: 0.72; }
-      100% { opacity: 0.95; }
+      35% { opacity: 1; }
+      70% { opacity: 0.68; }
+      100% { opacity: 0.98; }
     }
     
     .slot-row.resonance-result-hidden {
@@ -3634,6 +3659,8 @@
       cinematicSuspension: null,
 
       pendingEruption: null,
+
+      coreBreachPendingTimer: null,
 
       forgeRevealSuspension: null,
       
@@ -4164,6 +4191,49 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       void forgeResonanceResult.offsetWidth;
       forgeResonanceResult.classList.add("active");
     }
+
+    function stopCoreBreachPendingSequence() {
+      if (overlayState.coreBreachPendingTimer) {
+        clearInterval(overlayState.coreBreachPendingTimer);
+        overlayState.coreBreachPendingTimer = null;
+      }
+
+      forgeStage.classList.remove("core-breach-pending");
+      forgeStage.style.removeProperty("--core-breach-pending-duration");
+      forgeStage.style.removeProperty("--core-breach-shake-px");
+    }
+
+    function startCoreBreachPendingSequence(pullId, options = {}) {
+      if (!isActivePull(pullId)) return;
+
+      stopCoreBreachPendingSequence();
+
+      const pullCount = Math.max(1, Number(options.pullCount || 1));
+      const triggerIndex = Math.max(0, Number(options.triggerIndex || 0));
+      const remainingCoins = Math.max(0, pullCount - triggerIndex - 1);
+
+      const pendingDuration = 900 + (remainingCoins * 760);
+      const maxShake = 2 + (remainingCoins * 1.15);
+
+      forgeStage.style.setProperty("--core-breach-pending-duration", `${pendingDuration}ms`);
+      forgeStage.style.setProperty("--core-breach-shake-px", "1px");
+
+      forgeStage.classList.add("core-breach-pending");
+
+      const startedAt = Date.now();
+
+      overlayState.coreBreachPendingTimer = setInterval(() => {
+        if (!isActivePull(pullId)) {
+          stopCoreBreachPendingSequence();
+          return;
+        }
+
+        const progress = Math.min(1, (Date.now() - startedAt) / pendingDuration);
+        const shake = 1 + ((maxShake - 1) * progress);
+
+        forgeStage.style.setProperty("--core-breach-shake-px", `${shake.toFixed(2)}px`);
+      }, 80);
+    }
     
     function randomCycleCoin() {
       return forgeCoins[Math.floor(Math.random() * forgeCoins.length)];
@@ -4628,7 +4698,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       return safeState;
     }
 
-    async function handleForgePressurePayload(pullId, finalCoin) {
+    async function handleForgePressurePayload(pullId, finalCoin, triggerIndex = 0, pullCount = 1) {
       if (!isActivePull(pullId)) return false;
       if (!finalCoin || !finalCoin.raw) return false;
     
@@ -4654,11 +4724,22 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           pullId,
           pressureAfter,
           source: "payload-jackpotHit",
-          createdAt: Date.now()
+          createdAt: Date.now(),
+          triggerIndex,
+          pullCount
         };
 
         updateForgePressureGauge(pressureAfter);
-        forgeStage.classList.add("core-breach-pending");
+
+        startCoreBreachPendingSequence(
+          pullId,
+          {
+            pressureAfter,
+            triggerIndex,
+            pullCount
+          }
+        );
+
         triggerScreenBorder("legendary", pullId);
         
         return true;
@@ -6369,7 +6450,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       
       await wait(380);
 
-      await handleForgePressurePayload(pullId, finalCoin);
+      await handleForgePressurePayload(pullId, finalCoin, index, pullCount);
 
       slot.src = coinFileForSlot(finalCoin, index);
       
@@ -6568,7 +6649,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       await wait(ownedEffect.waitMs);
     }
     
-    async function spinSlot(slot, finalCoin, index, shouldLock, pullId) {
+    async function spinSlot(slot, finalCoin, index, shouldLock, pullId, pullCount = 1) {
       if (!shouldLock) {
         const coin = randomCycleCoin();
         slot.src = coinFileForSlot(coin, index);
@@ -6994,6 +7075,9 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       }
       
       showForgeStage();
+      clearForgeResonanceResult();
+      stopCoreBreachPendingSequence();
+      slotRow.classList.remove("resonance-result-hidden");
       
       const highestClass = highestRarityClass(results);
       renderPlayerIdentity(event, highestClass);
@@ -7017,7 +7101,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           results[0] || results[results.length - 1],
           0,
           true,
-          pullId
+          pullId,
+          pullCount
         );
       } else {
       
@@ -7045,7 +7130,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
               results[i] || results[results.length - 1],
               i,
               true,
-              pullId
+              pullId,
+              pullCount
             )
           );
         
@@ -7064,8 +7150,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         const pendingEruption = overlayState.pendingEruption;
         overlayState.pendingEruption = null;
         
-        await wait(950);
-        forgeStage.classList.remove("core-breach-pending");
+        await wait(320);
+        stopCoreBreachPendingSequence();
         
         await triggerForgeEruptionLifecycle(
           pullId,
