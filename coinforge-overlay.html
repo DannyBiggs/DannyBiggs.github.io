@@ -2235,7 +2235,7 @@
         drop-shadow(0 0 10px rgba(80, 185, 255, 0.42));
     }
 
-    .forge-stage.event-world-corrupted .slot-wrap {
+    .slot-wrap.invidra-corrupted-coin {
       filter:
         brightness(0.82)
         saturate(0.72)
@@ -2243,7 +2243,7 @@
         drop-shadow(0 0 14px rgba(60, 165, 255, 0.42));
     }
 
-    .forge-stage.event-world-corrupted .slot-wrap::before {
+    .slot-wrap.invidra-corrupted-coin::before {
       opacity: 1;
       background:
         radial-gradient(circle,
@@ -2254,7 +2254,7 @@
       animation: invidraCoinOmenAura 1300ms ease-in-out infinite alternate;
     }
 
-    .forge-stage.event-world-corrupted .slot-coin {
+    .slot-wrap.invidra-corrupted-coin .slot-coin {
       filter:
         brightness(0.86)
         saturate(0.62)
@@ -4790,7 +4790,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       });
     }
     
-    function triggerCorruptionWave(pullId) {
+    function triggerCorruptionWave(pullId, corruptedSlot = null) {
       if (!isActivePull(pullId)) return;
 
       const ownerId = `invidra-corruption-${pullId}`;
@@ -4816,6 +4816,16 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         }
       );
 
+      if (corruptedSlot) {
+        addSlotEffect(
+          pullId,
+          corruptedSlot,
+          "invidra-corrupted-coin",
+          worldStateDuration,
+          { restart: true }
+        );
+      }
+      
       addStageEffect(
         pullId,
         "event-reaction-invidra-corruption",
@@ -6143,7 +6153,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       if (coin.raw && coin.raw.omenCorrupted) {
       triggerScreenBorder("cursed");
       addStageEffect(pullId, "cinematic-cursed");
-        triggerCorruptionWave(pullId);
+        triggerCorruptionWave(pullId, slot);
         triggerBurst("cursed", slot, pullId);
         await wait(380);
         return;
