@@ -421,13 +421,13 @@
       78% {
         opacity: 1;
         transform: translateY(36px) scale(1);
-        filter: brightness(4.8) saturate(0.65) contrast(1.35);
+        filter: brightness(3.85) saturate(0.8) contrast(1.28);
       }
     
       100% {
         opacity: 1;
         transform: translateY(36px) scale(1);
-        filter: brightness(7.5) saturate(0.15) contrast(1.55);
+        filter: brightness(5.6) saturate(0.28) contrast(1.42);
       }
     }
 
@@ -653,16 +653,17 @@
       position: absolute;
       left: 50%;
       top: 43%;
-      width: 430px;
-      height: 430px;
+      width: 450px;
+      height: 450px;
       border-radius: 50%;
       transform: translate(-50%, -50%) scale(0.08);
-      border: 11px solid rgba(255, 252, 215, 1);
+      border: 14px solid rgba(255, 190, 70, 1);
       box-shadow:
-        0 0 56px rgba(255, 250, 195, 1),
-        0 0 150px rgba(255, 175, 45, 0.98),
-        0 0 280px rgba(255, 70, 18, 0.68),
-        inset 0 0 90px rgba(255, 230, 120, 0.86);
+        0 0 28px rgba(255, 255, 235, 1),
+        0 0 90px rgba(255, 210, 95, 1),
+        0 0 190px rgba(255, 120, 28, 0.9),
+        0 0 330px rgba(255, 55, 12, 0.58),
+        inset 0 0 100px rgba(255, 230, 120, 0.92);
       mix-blend-mode: screen;
       animation: forgeResonanceShockwave 1700ms cubic-bezier(.08,.82,.22,1) forwards;
       z-index: 3;
@@ -709,30 +710,30 @@
       0% {
         opacity: 0;
         transform: translate(-50%, -50%) scale(0.08);
-        filter: brightness(4.2) blur(0px);
+        filter: brightness(5.2) saturate(1.25) blur(0px);
       }
 
       7% {
         opacity: 1;
-        transform: translate(-50%, -50%) scale(0.55);
-        filter: brightness(4.8) blur(0px);
+        transform: translate(-50%, -50%) scale(0.52);
+        filter: brightness(5.6) saturate(1.35) blur(0px);
       }
 
       24% {
         opacity: 1;
-        transform: translate(-50%, -50%) scale(1.35);
-        filter: brightness(3.1) blur(0px);
+        transform: translate(-50%, -50%) scale(1.42);
+        filter: brightness(4.1) saturate(1.25) blur(0px);
       }
 
       58% {
-        opacity: 0.78;
-        filter: brightness(1.9) blur(1px);
+        opacity: 0.86;
+        filter: brightness(2.35) saturate(1.15) blur(1px);
       }
 
       100% {
         opacity: 0;
-        transform: translate(-50%, -50%) scale(5.35);
-        filter: brightness(1) blur(5px);
+        transform: translate(-50%, -50%) scale(5.55);
+        filter: brightness(1) saturate(1) blur(5px);
       }
     }
 
