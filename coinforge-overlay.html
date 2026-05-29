@@ -464,25 +464,56 @@
     }
 
     .forge-stage.eruption-forge-returning .forge-background,
-    .forge-stage.eruption-forge-returning .forge-background-glow,
+    .forge-stage.eruption-forge-returning .forge-background-glow {
+      animation: forgeReturnSlamBack 900ms cubic-bezier(.18,.92,.22,1) forwards;
+      transform-origin: center 42%;
+    }
+
     .forge-stage.eruption-forge-returning .player-identity-layer {
-      animation: forgeReturnFadeIn 1450ms ease-out forwards;
+      animation: forgeReturnIdentityFade 720ms ease-out forwards;
     }
     
-    @keyframes forgeReturnFadeIn {
+    @keyframes forgeReturnSlamBack {
       0% {
-        opacity: 0;
-        filter: brightness(2.8) saturate(0.55);
+        opacity: 1;
+        transform: translateY(36px) scale(1.08);
+        filter: brightness(5.4) saturate(0.25) contrast(1.45);
       }
-    
-      45% {
-        opacity: 0.45;
-        filter: brightness(1.75) saturate(0.75);
+
+      28% {
+        opacity: 1;
+        transform: translateY(36px) scale(0.955);
+        filter: brightness(2.15) saturate(0.72) contrast(1.18);
+      }
+
+      52% {
+        opacity: 1;
+        transform: translateY(36px) scale(1.025);
+        filter: brightness(1.45) saturate(0.9) contrast(1.08);
+      }
+
+      76% {
+        opacity: 1;
+        transform: translateY(36px) scale(0.992);
+        filter: brightness(1.12) saturate(0.98) contrast(1.02);
       }
     
       100% {
         opacity: 1;
-        filter: brightness(1) saturate(1);
+        transform: translateY(36px) scale(1);
+        filter: brightness(1) saturate(1) contrast(1);
+      }
+    }
+
+    @keyframes forgeReturnIdentityFade {
+      0% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(18px) scale(0.94);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0) scale(1);
       }
     }
     
@@ -4587,7 +4618,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       forgeStage.classList.remove("forge-erupting");
       forgeStage.classList.add("eruption-forge-returning");
       
-      await wait(120);
+      await wait(950);
       
       forgeStage.classList.remove("eruption-forge-returning");
     
