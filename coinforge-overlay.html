@@ -515,12 +515,16 @@
     
     .eruption-coin-rain-layer {
       position: fixed;
-      inset: 0;
-      overflow: hidden;
+      left: 0;
+      top: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: visible;
       pointer-events: none;
       opacity: 0;
       visibility: hidden;
       z-index: 34;
+      transform: none !important;
       transition: opacity 80ms ease;
     }
     
@@ -3351,7 +3355,7 @@
     const scorchedSound = new Audio("sounds/scorched_sound.m4a");
     scorchedSound.volume = 0.22;
     
-    const forgeEruptionBuildSound = new Audio("sounds/resonance_eruption.m4a");
+    const forgeEruptionBuildSound = new Audio("sounds/resonance_eruption_long.m4a");
     forgeEruptionBuildSound.volume = 0.54;
     
     const forgeEruptionExplosionSound = new Audio("sounds/resonance_eruption_long.m4a");
@@ -3704,6 +3708,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       const burstLayer = document.getElementById("forgeEruptionCoinRainLayer");
       if (!burstLayer) return false;
+
+      if (burstLayer.parentElement !== document.body) {
+        document.body.appendChild(burstLayer);
+      }
     
       burstLayer.innerHTML = "";
       burstLayer.classList.remove("active");
