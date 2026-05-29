@@ -6114,28 +6114,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       await handleForgePressurePayload(pullId, finalCoin);
 
-      if (
-        overlayState.pendingEruption &&
-        overlayState.pendingEruption.pullId === pullId
-      ) {
-        startForgeRevealProgressionGate(
-          pullId,
-          {
-            type: "forgeEruption",
-            source: overlayState.pendingEruption.source
-          }
-        );
-      }
-      
-      if (
-        !overlayState.pendingEruption ||
-        overlayState.pendingEruption.pullId !== pullId
-      ) {
-        slot.src = coinFileForSlot(finalCoin, index);
-      }
-      
-      await wait(120);
-
       slot.src = coinFileForSlot(finalCoin, index);
       
       await wait(120);
