@@ -529,6 +529,34 @@
       visibility: visible;
     }
 
+    .forge-resonance-impact-flash {
+      position: absolute;
+      left: 50%;
+      top: 43%;
+      width: 720px;
+      height: 720px;
+      border-radius: 50%;
+      pointer-events: none;
+      transform: translate(-50%, -50%) scale(0.08);
+      background:
+        radial-gradient(circle,
+          rgba(255, 255, 245, 1) 0%,
+          rgba(255, 240, 170, 0.95) 14%,
+          rgba(255, 125, 30, 0.42) 34%,
+          transparent 62%);
+      mix-blend-mode: screen;
+      filter: brightness(3.4) blur(2px);
+      animation: forgeResonanceImpactFlash 420ms steps(5, end) forwards;
+      z-index: 2;
+    }
+
+    @keyframes forgeResonanceImpactFlash {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.06); }
+      18% { opacity: 1; transform: translate(-50%, -50%) scale(0.72); }
+      42% { opacity: 0.95; transform: translate(-50%, -50%) scale(1.05); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(1.38); }
+    }
+    
     .forge-resonance-impact-dim {
       position: fixed;
       inset: 0;
@@ -574,18 +602,19 @@
       position: absolute;
       left: 50%;
       top: 43%;
-      width: 390px;
-      height: 390px;
+      width: 430px;
+      height: 430px;
       border-radius: 50%;
-      transform: translate(-50%, -50%) scale(0.1);
-      border: 9px solid rgba(255, 250, 205, 1);
+      transform: translate(-50%, -50%) scale(0.08);
+      border: 11px solid rgba(255, 252, 215, 1);
       box-shadow:
-        0 0 48px rgba(255, 245, 185, 1),
-        0 0 130px rgba(255, 165, 40, 0.92),
-        0 0 230px rgba(255, 70, 18, 0.55),
-        inset 0 0 72px rgba(255, 220, 100, 0.75);
+        0 0 56px rgba(255, 250, 195, 1),
+        0 0 150px rgba(255, 175, 45, 0.98),
+        0 0 280px rgba(255, 70, 18, 0.68),
+        inset 0 0 90px rgba(255, 230, 120, 0.86);
       mix-blend-mode: screen;
-      animation: forgeResonanceShockwave 1700ms ease-out forwards;
+      animation: forgeResonanceShockwave 1700ms cubic-bezier(.08,.82,.22,1) forwards;
+      z-index: 3;
     }
 
     .forge-resonance-shockwave.shockwave-2 {
@@ -3708,6 +3737,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       const impactDim = document.createElement("div");
       impactDim.className = "forge-resonance-impact-dim";
       burstLayer.appendChild(impactDim);
+
+      const impactFlash = document.createElement("div");
+      impactFlash.className = "forge-resonance-impact-flash";
+      burstLayer.appendChild(impactFlash);
       
       const core = document.createElement("div");
       core.className = "forge-resonance-core";
