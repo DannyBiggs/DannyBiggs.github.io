@@ -463,14 +463,51 @@
       }
     }
 
+    .forge-stage.eruption-forge-returning {
+      animation: forgeStageReturnSettle 2100ms cubic-bezier(.16,.92,.2,1) forwards;
+      transform-origin: center 45%;
+    }
+
     .forge-stage.eruption-forge-returning .forge-background,
     .forge-stage.eruption-forge-returning .forge-background-glow {
-      animation: forgeReturnSlamBack 900ms cubic-bezier(.18,.92,.22,1) forwards;
+      animation: forgeReturnSlamBack 1250ms cubic-bezier(.18,.92,.22,1) forwards;
       transform-origin: center 42%;
     }
 
+    @keyframes forgeStageReturnSettle {
+      0% {
+        transform: scale(1.26);
+        filter: brightness(2.15) saturate(1.36);
+      }
+
+      14% {
+        transform: scale(1.18);
+        filter: brightness(1.85) saturate(1.22);
+      }
+
+      34% {
+        transform: scale(0.965);
+        filter: brightness(1.35) saturate(1.05);
+      }
+
+      56% {
+        transform: scale(1.035);
+        filter: brightness(1.12) saturate(1.02);
+      }
+
+      76% {
+        transform: scale(0.992);
+        filter: brightness(1.04) saturate(1);
+      }
+
+      100% {
+        transform: scale(1);
+        filter: brightness(1) saturate(1);
+      }
+    }
+    
     .forge-stage.eruption-forge-returning .player-identity-layer {
-      animation: forgeReturnIdentityFade 720ms ease-out forwards;
+      animation: forgeReturnIdentityFade 920ms ease-out forwards;
     }
     
     @keyframes forgeReturnSlamBack {
@@ -4613,7 +4650,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         playForgeResonanceDischarge(pullId);
       }
       
-      await wait(1850);
+      await wait(2200);
       
       forgeStage.classList.remove("eruption-cinematic");
       forgeStage.classList.remove("forge-erupting");
