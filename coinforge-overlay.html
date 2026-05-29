@@ -6531,14 +6531,16 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       playSlotLandSound(pullId);
       triggerSocketRing(slot, finalCoin, pullId);
       triggerSlotImpact(slot, finalCoin, pullId);
+      const instabilityPromise = triggerForgeInstabilityVisual(slot, finalCoin, pullId);
       
-      await wait(380);
+      await wait(170);
 
       await handleForgePressurePayload(pullId, finalCoin, index, pullCount);
 
       slot.src = coinFileForSlot(finalCoin, index);
       
       await wait(120);
+      await instabilityPromise;      
       
       registerOwnedCleanupTimer(
         pullId,
@@ -6794,7 +6796,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         await cinematicPromise;
       }
 
-      await triggerForgeInstabilityVisual(slot, finalCoin, pullId);
+      // Instability is now triggered inside growAndFakeoutSlot immediately after socket impact.
 
       if (!isActivePull(pullId)) return;
 
