@@ -358,15 +358,6 @@
       animation: forgeEruptionVent 2800ms steps(12, end);
     }
 
-    .forge-stage.eruption-background-hidden .forge-background,
-    .forge-stage.eruption-background-hidden .forge-background-glow,
-    .forge-stage.eruption-background-hidden .forge-pressure-fill,
-    .forge-stage.eruption-background-hidden .forge-light-overlay,
-    .forge-stage.eruption-background-hidden .forge-eruption-flash {
-      opacity: 0 !important;
-      visibility: hidden !important;
-    }
-
     @keyframes forgeEruptionStageTakeoverZoomShake {
       0% {
         transform: scale(1);
@@ -539,9 +530,9 @@
     }
 
     .forge-resonance-core {
-      position: fixed;
+      position: absolute;
       left: 50%;
-      top: 50%;
+      top: 43%;
       width: 340px;
       height: 340px;
       border-radius: 50%;
@@ -558,9 +549,9 @@
     }
 
     .forge-resonance-shockwave {
-      position: fixed;
+      position: absolute;
       left: 50%;
-      top: 50%;
+      top: 43%;
       width: 300px;
       height: 300px;
       border-radius: 50%;
@@ -574,9 +565,9 @@
     }
 
     .forge-resonance-spark {
-      position: fixed;
+      position: absolute;
       left: 50%;
-      top: 50%;
+      top: 43%;
       width: 10px;
       height: 10px;
       background: #fff0a8;
@@ -4496,13 +4487,11 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       await wait(3400);
 
       if (isActivePull(pullId)) {
-        forgeStage.classList.add("eruption-background-hidden");
         playForgeResonanceDischarge(pullId);
       }
       
       await wait(1350);
       
-      forgeStage.classList.remove("eruption-background-hidden");
       forgeStage.classList.remove("eruption-cinematic");
       forgeStage.classList.remove("forge-erupting");
       forgeStage.classList.add("eruption-forge-returning");
