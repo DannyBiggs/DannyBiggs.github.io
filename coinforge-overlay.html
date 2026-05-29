@@ -4599,23 +4599,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           ? options.pressureAfter
           : overlayState.currentPressure;
     
-      pauseForgeRevealForCinematic(
-        pullId,
-        {
-          type: "forgeEruption",
-          source: options.source || "payload",
-          pauseAnimations: false
-        }
-      );
-    
-      overlayState.cinematicSuspension = {
-        type: "forgeEruption",
-        ownerId: pullId,
-        startedAt: Date.now(),
-        durationMs: 6200,
-        source: options.source || "payload"
-      };
-    
       setForgeEruptionState(
         "erupting",
         {
@@ -4661,17 +4644,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         forgeStage.classList.remove("eruption-cinematic");
         overlayState.forgeState = "active";
       }
-    
-      if (
-        overlayState.cinematicSuspension &&
-        overlayState.cinematicSuspension.ownerId === pullId
-      ) {
-        overlayState.cinematicSuspension = null;
-      }
-    
-      await wait(160);
-
-      resumeForgeRevealAfterCinematic(pullId);
       
       return true;
     }
@@ -6180,16 +6152,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           }
         );
         
-        pauseForgeRevealForCinematic(
-          pullId,
-          {
-            type: "forgeEruption",
-            source: pendingEruption.source,
-            pauseAnimations: false
-          }
-        );
-        
-        await wait(400);
+        await wait(950);
         
         await triggerForgeEruptionLifecycle(
           pullId,
