@@ -5033,6 +5033,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       ...stageRevealEffectClasses,
       "impact",
       "forge-erupting",
+      "eruption-cinematic",
+      "eruption-forge-returning",
       "forge-ignited",
       "cinematic-jackpot",
       "cinematic-cursed",
@@ -5276,6 +5278,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     }
 
     function hideForgeStage() {
+      stopCoreBreachPendingSequence();
+      clearStageEffects();
       clearForgeStageStates();
       document.body.classList.remove("forge-active");
     }
@@ -7074,10 +7078,12 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         return;
       }
       
-      showForgeStage();
-      clearForgeResonanceResult();
+      clearStageEffects();
       stopCoreBreachPendingSequence();
+      clearForgeResonanceResult();
       slotRow.classList.remove("resonance-result-hidden");
+      
+      showForgeStage();
       
       const highestClass = highestRarityClass(results);
       renderPlayerIdentity(event, highestClass);
@@ -7165,17 +7171,18 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
         await wait(Math.max(2600, Number(event.displayMs || 0)));
 
-        clearForgeResonanceResult({ keepSlotsHidden: true });
-        clearStageRevealEffects();
-        cinematicBurst.classList.remove("active");
-        
         hideForgeStage();
         clearPlayerIdentity();
+        clearStageEffects();
+        stopCoreBreachPendingSequence();
+        cinematicBurst.classList.remove("active");
         
         await wait(350);
         
+        clearForgeResonanceResult();
         clearSlotStates();
         resetForgeInstabilityOwnership({ includePersistent: true });
+        slotRow.classList.remove("resonance-result-hidden");
         slotRow.innerHTML = "";
         
         resetForgePressureLifecycleVisuals();
