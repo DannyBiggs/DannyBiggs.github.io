@@ -2584,6 +2584,43 @@
       animation: invidraNameplatePulse 3600ms ease-in-out infinite alternate;
     }
 
+    .boss-sprite-layer.boss-sprite-hit-react {
+      animation: bossSpriteHitReaction 720ms steps(6, end);
+    }
+    
+    .boss-sprite-layer.boss-sprite-hurt .boss-sprite-image {
+      animation: bossSpriteHurtFlicker 720ms steps(6, end);
+    }
+    
+    .encounter-layer.boss-damage-reaction .invidra-presence-fog {
+      animation:
+        invidraPresenceBreath 5200ms ease-in-out infinite alternate,
+        invidraDamageFogPulse 720ms steps(6, end);
+    }
+    
+    @keyframes bossSpriteHitReaction {
+      0% { transform: translateX(0px) translateY(0px) scale(1); filter: brightness(1); }
+      18% { transform: translateX(-10px) translateY(-4px) scale(1.035); filter: brightness(1.8); }
+      38% { transform: translateX(7px) translateY(2px) scale(0.985); filter: brightness(0.78); }
+      62% { transform: translateX(-4px) translateY(1px) scale(1.012); filter: brightness(1.35); }
+      100% { transform: translateX(0px) translateY(0px) scale(1); filter: brightness(1); }
+    }
+    
+    @keyframes bossSpriteHurtFlicker {
+      0% { opacity: 1; filter: brightness(1) saturate(1); }
+      16% { opacity: 0.72; filter: brightness(2.2) saturate(0.55) hue-rotate(150deg); }
+      34% { opacity: 1; filter: brightness(0.85) saturate(1.4); }
+      58% { opacity: 0.82; filter: brightness(1.75) saturate(0.72) hue-rotate(155deg); }
+      100% { opacity: 1; filter: brightness(1) saturate(1); }
+    }
+    
+    @keyframes invidraDamageFogPulse {
+      0% { filter: blur(1px) brightness(1); opacity: 0.8; }
+      20% { filter: blur(3px) brightness(1.9); opacity: 1; }
+      52% { filter: blur(2px) brightness(0.72); opacity: 0.64; }
+      100% { filter: blur(1px) brightness(1); opacity: 1; }
+    }
+    
     @keyframes invidraPresenceBreath {
       0% {
         opacity: 0.58;
@@ -4352,6 +4389,12 @@
       bossEncounterState: "none",
       
       lastBossEncounterPayload: null,
+
+      lastBossHp: null,
+      
+      bossDamageReactionActive: false,
+      
+      bossDamageReactionTimer: null,
 
       coreBreachPendingTimer: null,
 
@@ -6341,43 +6384,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       return true;
     }
 
-    function syncBossHudFromPayload(payload) {
-      if (!payload || payload.bossActive !== true) {
-        clearBossWorldState({ force: true });
-        return false;
-      }
-    
-      const bossType = normalizeBossWorldType(payload.bossType || payload.bossName);
-    
-      if (!bossType) return false;
-    
-      setBossWorldState(bossType, {
-        source: "coinForgePull",
-        payload
-      });
-    
-      const bossHp = Math.max(0, Number(payload.bossHp || 0));
-      const bossMaxHp = Math.max(1, Number(payload.bossMaxHp || 1));
-      const hpPercent = Math.max(0, Math.min(100, (bossHp / bossMaxHp) * 100));
-    
-      if (bossNamePlate) {
-        bossNamePlate.textContent = payload.bossName || (bossType === "invidra" ? "INVIDRA" : "AVAROS");
-      }
-    
-      if (bossHudLayer) {
-        bossHudLayer.classList.add("active");
-      }
-    
-      if (bossHpFill) {
-        bossHpFill.style.width = `${hpPercent}%`;
-      }
-    
-      if (bossHpText) {
-        bossHpText.textContent = `${bossHp}/${bossMaxHp} HP`;
-      }
-    
-      return true;
-    }
+    // syncBossHudFromPayload is defined once below with boss damage reaction support.
 
     function setBossEncounterState(state, options = {}) {
       const safeState = String(state || "active").trim().toLowerCase();
@@ -6411,6 +6418,70 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       return true;
     }
     
+    function triggerBossDamageReaction(bossType, payload, options = {}) {
+      if (!bossType || !payload || payload.bossActive !== true) return false;
+      if (Number(payload.bossHp || 0) <= 0) return false;
+    
+      const damageAmount = Number(payload.worldBossDamage || payload.bossDamage || 0);
+      const previousHp = Number(overlayState.lastBossHp ?? payload.bossMaxHp ?? 0);
+      const currentHp = Number(payload.bossHp ?? previousHp);
+    
+      if (damageAmount <= 0 && currentHp >= previousHp) return false;
+    
+      clearTimeout(overlayState.bossDamageReactionTimer);
+    
+      overlayState.bossDamageReactionActive = true;
+    
+      setBossEncounterState("damaged", {
+        source: options.source || "boss-damage-reaction",
+        payload
+      });
+    
+      setBossSpriteState(bossType, "hurt", {
+        source: options.source || "boss-damage-reaction"
+      });
+    
+      if (encounterLayer) {
+        encounterLayer.classList.remove("boss-damage-reaction");
+        void encounterLayer.offsetWidth;
+        encounterLayer.classList.add("boss-damage-reaction");
+      }
+    
+      if (bossSpriteLayer) {
+        bossSpriteLayer.classList.remove("boss-sprite-hit-react");
+        void bossSpriteLayer.offsetWidth;
+        bossSpriteLayer.classList.add("boss-sprite-hit-react");
+      }
+    
+      overlayState.bossDamageReactionTimer = setTimeout(() => {
+        overlayState.bossDamageReactionActive = false;
+    
+        if (
+          overlayState.activeBossWorldState?.type === bossType &&
+          overlayState.bossEncounterState === "damaged"
+        ) {
+          setBossEncounterState("active", {
+            source: "boss-damage-reaction-return",
+            payload
+          });
+    
+          setBossSpriteState(bossType, "idle", {
+            source: "boss-damage-reaction-return"
+          });
+        }
+    
+        if (encounterLayer) {
+          encounterLayer.classList.remove("boss-damage-reaction");
+        }
+    
+        if (bossSpriteLayer) {
+          bossSpriteLayer.classList.remove("boss-sprite-hit-react");
+        }
+      }, 720);
+    
+      return true;
+    }
+
     function syncBossHudFromPayload(payload, options = {}) {
       if (!payload || payload.bossActive !== true) {
         clearBossWorldState({ force: true });
@@ -6439,6 +6510,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         payload
       });
     
+      if (bossHp > 0) {
+        triggerBossDamageReaction(bossType, payload, options);
+      }
+    
       if (bossNamePlate) {
         bossNamePlate.textContent =
           payload.bossName ||
@@ -6456,6 +6531,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       if (bossHpText) {
         bossHpText.textContent = `${bossHp}/${bossMaxHp} HP`;
       }
+    
+      overlayState.lastBossHp = bossHp;
     
       return true;
     }
@@ -6611,6 +6688,9 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         activeEventWorldState: overlayState.activeEventWorldState,
         activeBossWorldState: overlayState.activeBossWorldState,
         activeBossSpriteState: overlayState.activeBossSpriteState,
+        bossEncounterState: overlayState.bossEncounterState,
+        lastBossHp: overlayState.lastBossHp,
+        bossDamageReactionActive: overlayState.bossDamageReactionActive,
         bossSpriteClassName: bossSpriteLayer?.className || "",
         bossSpriteImage: bossSpriteImage?.getAttribute("src") || "",
         encounterLayerClassName: encounterLayer?.className || "",
