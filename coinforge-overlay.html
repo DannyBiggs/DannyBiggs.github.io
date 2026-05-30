@@ -2609,13 +2609,14 @@
       pointer-events: none;
       z-index: 2;
       opacity: 0;
-      mix-blend-mode: screen;
+      mix-blend-mode: multiply;
       background:
         radial-gradient(circle at 18% 72%,
-          rgba(80, 235, 255, 0.26),
-          rgba(30, 80, 255, 0.13) 20%,
-          transparent 44%);
-      animation: invidraBossHitScreenPulse 1650ms steps(12, end);
+          transparent 0%,
+          rgba(10, 20, 55, 0.08) 28%,
+          rgba(0, 0, 18, 0.18) 72%,
+          rgba(0, 0, 8, 0.24) 100%);
+      animation: invidraBossHitScreenPulse 1650ms ease-out;
     }
     
     @keyframes bossSpriteHitReaction {
@@ -2706,11 +2707,10 @@
     }
     
     @keyframes invidraBossHitScreenPulse {
-      0% { opacity: 0; filter: brightness(1); }
-      10% { opacity: 1; filter: brightness(1.65); }
-      28% { opacity: 0.32; filter: brightness(0.9); }
-      48% { opacity: 0.72; filter: brightness(1.28); }
-      100% { opacity: 0; filter: brightness(1); }
+      0% { opacity: 0; }
+      14% { opacity: 0.68; }
+      42% { opacity: 0.34; }
+      100% { opacity: 0; }
     }
     
     @keyframes invidraDamageFogPulse {
@@ -2718,6 +2718,59 @@
       20% { filter: blur(3px) brightness(1.9); opacity: 1; }
       52% { filter: blur(2px) brightness(0.72); opacity: 0.64; }
       100% { filter: blur(1px) brightness(1); opacity: 1; }
+    }
+
+    .encounter-layer.invidra-hp-wounded .invidra-presence-fog {
+      opacity: 1;
+      filter: blur(2px) brightness(1.14);
+    }
+    
+    .encounter-layer.invidra-hp-danger .invidra-presence-fog {
+      opacity: 1;
+      filter: blur(3px) brightness(1.28) saturate(1.18);
+    }
+    
+    .encounter-layer.invidra-hp-critical .invidra-presence-fog {
+      opacity: 1;
+      filter: blur(4px) brightness(1.42) saturate(1.32);
+    }
+    
+    .boss-sprite-layer.invidra-hp-wounded .boss-sprite-image {
+      filter:
+        drop-shadow(0 0 22px rgba(60, 180, 255, 0.52))
+        drop-shadow(0 0 52px rgba(15, 45, 160, 0.42));
+    }
+    
+    .boss-sprite-layer.invidra-hp-danger .boss-sprite-image {
+      filter:
+        brightness(1.08)
+        saturate(1.12)
+        drop-shadow(0 0 28px rgba(75, 220, 255, 0.64))
+        drop-shadow(0 0 68px rgba(20, 80, 220, 0.5));
+    }
+    
+    .boss-sprite-layer.invidra-hp-critical .boss-sprite-image {
+      animation:
+        bossSpriteIdleFloat 2600ms ease-in-out infinite alternate,
+        invidraCriticalWatchPulse 1450ms ease-in-out infinite;
+    }
+    
+    @keyframes invidraCriticalWatchPulse {
+      0%, 100% {
+        filter:
+          brightness(1.05)
+          saturate(1.1)
+          drop-shadow(0 0 28px rgba(85, 230, 255, 0.62))
+          drop-shadow(0 0 70px rgba(20, 80, 220, 0.48));
+      }
+    
+      50% {
+        filter:
+          brightness(1.28)
+          saturate(1.28)
+          drop-shadow(0 0 38px rgba(120, 250, 255, 0.82))
+          drop-shadow(0 0 96px rgba(35, 95, 255, 0.62));
+      }
     }
     
     @keyframes invidraPresenceBreath {
@@ -6341,7 +6394,14 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       delete forgeStage.dataset.bossWorldState;
 
       if (encounterLayer) {
-        encounterLayer.classList.remove("active", ...bossWorldStateClasses);
+        encounterLayer.classList.remove(
+          "active",
+          ...bossWorldStateClasses,
+          "invidra-hp-wounded",
+          "invidra-hp-danger",
+          "invidra-hp-critical"
+        );
+      
         delete encounterLayer.dataset.bossWorldState;
       }
 
@@ -6358,6 +6418,12 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       }
       
       if (bossSpriteLayer) {
+        bossSpriteLayer.classList.remove(
+          "invidra-hp-wounded",
+          "invidra-hp-danger",
+          "invidra-hp-critical"
+        );
+      
         delete bossSpriteLayer.dataset.bossEncounterState;
       }
       
@@ -6581,6 +6647,52 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       return true;
     }
 
+    function updateInvidraHpThresholdState(bossType, hpPercent) {
+      const thresholdClasses = [
+        "invidra-hp-wounded",
+        "invidra-hp-danger",
+        "invidra-hp-critical"
+      ];
+    
+      if (bossType !== "invidra") {
+        if (encounterLayer) {
+          encounterLayer.classList.remove(...thresholdClasses);
+        }
+    
+        if (bossSpriteLayer) {
+          bossSpriteLayer.classList.remove(...thresholdClasses);
+        }
+    
+        return;
+      }
+    
+      let nextClass = "";
+    
+      if (hpPercent <= 25) {
+        nextClass = "invidra-hp-critical";
+      } else if (hpPercent <= 50) {
+        nextClass = "invidra-hp-danger";
+      } else if (hpPercent <= 75) {
+        nextClass = "invidra-hp-wounded";
+      }
+    
+      if (encounterLayer) {
+        encounterLayer.classList.remove(...thresholdClasses);
+    
+        if (nextClass) {
+          encounterLayer.classList.add(nextClass);
+        }
+      }
+    
+      if (bossSpriteLayer) {
+        bossSpriteLayer.classList.remove(...thresholdClasses);
+    
+        if (nextClass) {
+          bossSpriteLayer.classList.add(nextClass);
+        }
+      }
+    }
+    
     function syncBossHudFromPayload(payload, options = {}) {
       if (!payload || payload.bossActive !== true) {
         clearBossWorldState({ force: true });
@@ -6609,6 +6721,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         payload
       });
     
+      updateInvidraHpThresholdState(bossType, hpPercent);
+
       if (bossHp > 0) {
         triggerBossDamageReaction(bossType, payload, options);
       }
