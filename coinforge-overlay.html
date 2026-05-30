@@ -4349,6 +4349,10 @@
 
       activeBossSpriteState: null,
 
+      bossEncounterState: "none",
+      
+      lastBossEncounterPayload: null,
+
       coreBreachPendingTimer: null,
 
       forgeRevealSuspension: null,
@@ -6200,6 +6204,21 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       }
 
       overlayState.activeBossWorldState = null;
+      overlayState.bossEncounterState = "none";
+      overlayState.lastBossEncounterPayload = null;
+      
+      if (forgeStage) {
+        delete forgeStage.dataset.bossEncounterState;
+      }
+      
+      if (encounterLayer) {
+        delete encounterLayer.dataset.bossEncounterState;
+      }
+      
+      if (bossSpriteLayer) {
+        delete bossSpriteLayer.dataset.bossEncounterState;
+      }
+      
       clearBossSpriteState();
 
       return true;
@@ -6343,6 +6362,87 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       if (bossNamePlate) {
         bossNamePlate.textContent = payload.bossName || (bossType === "invidra" ? "INVIDRA" : "AVAROS");
+      }
+    
+      if (bossHudLayer) {
+        bossHudLayer.classList.add("active");
+      }
+    
+      if (bossHpFill) {
+        bossHpFill.style.width = `${hpPercent}%`;
+      }
+    
+      if (bossHpText) {
+        bossHpText.textContent = `${bossHp}/${bossMaxHp} HP`;
+      }
+    
+      return true;
+    }
+
+    function setBossEncounterState(state, options = {}) {
+      const safeState = String(state || "active").trim().toLowerCase();
+    
+      overlayState.bossEncounterState = safeState;
+      overlayState.lastBossEncounterPayload = options.payload || null;
+    
+      if (forgeStage) {
+        forgeStage.dataset.bossEncounterState = safeState;
+      }
+    
+      if (encounterLayer) {
+        encounterLayer.dataset.bossEncounterState = safeState;
+      }
+    
+      if (bossSpriteLayer) {
+        bossSpriteLayer.dataset.bossEncounterState = safeState;
+      }
+    
+      if (safeState === "defeated") {
+        const bossType =
+          overlayState.activeBossWorldState?.type ||
+          bossSpriteLayer?.dataset?.bossType ||
+          normalizeBossWorldType(options.payload?.bossType || options.payload?.bossName);
+    
+        setBossSpriteState(bossType, "dead", {
+          source: options.source || "boss-lifecycle"
+        });
+      }
+    
+      return true;
+    }
+    
+    function syncBossHudFromPayload(payload, options = {}) {
+      if (!payload || payload.bossActive !== true) {
+        clearBossWorldState({ force: true });
+        return false;
+      }
+    
+      const bossType = normalizeBossWorldType(payload.bossType || payload.bossName);
+      if (!bossType) return false;
+    
+      const bossMaxHp = Math.max(1, Number(payload.bossMaxHp || 1500));
+      const bossHp = Math.max(0, Math.min(bossMaxHp, Number(payload.bossHp ?? bossMaxHp)));
+      const hpPercent = Math.max(0, Math.min(100, (bossHp / bossMaxHp) * 100));
+    
+      setBossWorldState(bossType, {
+        source: options.source || "coinForgePull",
+        payload
+      });
+    
+      const nextState =
+        bossHp <= 0
+          ? "defeated"
+          : payload.bossEncounterState || payload.encounterState || "active";
+    
+      setBossEncounterState(nextState, {
+        source: options.source || "coinForgePull",
+        payload
+      });
+    
+      if (bossNamePlate) {
+        bossNamePlate.textContent =
+          payload.bossName ||
+          (bossType === "invidra" ? "INVIDRA" : "AVAROS");
       }
     
       if (bossHudLayer) {
@@ -8736,18 +8836,29 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           data.clear === true ||
           String(data.bossType || data.bossName || data.boss || "").toLowerCase() === "none"
         ) {
-          clearBossWorldState({ force: true });
-          return;
-        }
-
-        setBossWorldState(
-          data.bossType || data.bossName || data.boss,
-          {
+          setBossEncounterState("escaped", {
             source: "streamerbot",
             payload: data
-          }
-        );
-
+          });
+      
+          setTimeout(() => {
+            clearBossWorldState({ force: true });
+          }, 900);
+      
+          return;
+        }
+      
+        syncBossHudFromPayload({
+          bossActive: true,
+          bossType: data.bossType || data.bossName || data.boss,
+          bossName: data.bossName || data.bossType || data.boss,
+          bossHp: data.bossHp ?? data.hp ?? data.currentHp ?? data.maxHp ?? data.bossMaxHp ?? 1500,
+          bossMaxHp: data.bossMaxHp ?? data.maxHp ?? 1500,
+          bossEncounterState: "spawning"
+        }, {
+          source: "streamerbot"
+        });
+      
         return;
       }
       
