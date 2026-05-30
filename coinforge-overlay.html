@@ -2588,31 +2588,6 @@
       animation: bossSpriteHitReaction 1650ms steps(12, end);
     }
     
-    .boss-sprite-layer.boss-sprite-hit-react::after {
-      content: "";
-      position: absolute;
-      left: 175px;
-      bottom: 325px;
-      width: 360px;
-      height: 210px;
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 16;
-      opacity: 0;
-      mix-blend-mode: screen;
-      background:
-        radial-gradient(circle,
-          rgba(255, 255, 255, 0.95) 0%,
-          rgba(80, 240, 255, 0.75) 16%,
-          rgba(30, 80, 255, 0.34) 36%,
-          transparent 68%);
-      filter:
-        blur(4px)
-        brightness(2.2)
-        drop-shadow(0 0 24px rgba(75, 220, 255, 0.95));
-      animation: invidraBossHitEyeFlash 1650ms steps(12, end);
-    }
-    
     .boss-sprite-layer.boss-sprite-hurt .boss-sprite-image {
       animation:
         bossSpriteHurtFlicker 1650ms steps(12, end),
@@ -2726,15 +2701,6 @@
       34% { opacity: 1; filter: brightness(0.85) saturate(1.4); }
       58% { opacity: 0.82; filter: brightness(1.75) saturate(0.72) hue-rotate(155deg); }
       100% { opacity: 1; filter: brightness(1) saturate(1); }
-    }
-
-    @keyframes invidraBossHitEyeFlash {
-      0% { opacity: 0; transform: scale(0.82); }
-      8% { opacity: 1; transform: scale(1.08); }
-      18% { opacity: 0.45; transform: scale(0.94); }
-      32% { opacity: 0.9; transform: scale(1.16); }
-      54% { opacity: 0.34; transform: scale(1.02); }
-      100% { opacity: 0; transform: scale(1.28); }
     }
     
     @keyframes invidraBossHitScreenPulse {
@@ -6655,8 +6621,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         bossHudLayer.classList.add("active");
       }
     
-      if (bossHpFill) {
-        bossHpFill.style.width = `${hpPercent}%`;
+      const bossHpFillMaxWidth = 336;
+      bossHpFill.style.width = `${Math.round((hpPercent / 100) * bossHpFillMaxWidth)}px`;
       }
     
       if (bossHpText) {
