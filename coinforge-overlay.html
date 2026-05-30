@@ -6266,11 +6266,11 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         bossHpFrame.src = "images/bosses/invidra/InvidraHPBar.png";
       }
 
-      if (bossHpFill) {
+      if (bossHpFill && !bossHpFill.style.width) {
         bossHpFill.style.width = "100%";
       }
-
-      if (bossHpText) {
+      
+      if (bossHpText && !bossHpText.textContent) {
         bossHpText.textContent = bossType === "invidra" ? "1500/1500 HP" : "";
       }
 
@@ -6322,6 +6322,44 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       return true;
     }
 
+    function syncBossHudFromPayload(payload) {
+      if (!payload || payload.bossActive !== true) {
+        clearBossWorldState({ force: true });
+        return false;
+      }
+    
+      const bossType = normalizeBossWorldType(payload.bossType || payload.bossName);
+    
+      if (!bossType) return false;
+    
+      setBossWorldState(bossType, {
+        source: "coinForgePull",
+        payload
+      });
+    
+      const bossHp = Math.max(0, Number(payload.bossHp || 0));
+      const bossMaxHp = Math.max(1, Number(payload.bossMaxHp || 1));
+      const hpPercent = Math.max(0, Math.min(100, (bossHp / bossMaxHp) * 100));
+    
+      if (bossNamePlate) {
+        bossNamePlate.textContent = payload.bossName || (bossType === "invidra" ? "INVIDRA" : "AVAROS");
+      }
+    
+      if (bossHudLayer) {
+        bossHudLayer.classList.add("active");
+      }
+    
+      if (bossHpFill) {
+        bossHpFill.style.width = `${hpPercent}%`;
+      }
+    
+      if (bossHpText) {
+        bossHpText.textContent = `${bossHp}/${bossMaxHp} HP`;
+      }
+    
+      return true;
+    }
+    
     window.setBossSpriteState = setBossSpriteState;
     window.clearBossSpriteState = clearBossSpriteState;
 
@@ -8716,7 +8754,9 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       if (data.type !== "coinForgePull") return;
 
       window.latestCoinForgePayload = data;
-            
+
+      syncBossHudFromPayload(data);
+                  
       enqueueForgeEvent(data);
     }
 
