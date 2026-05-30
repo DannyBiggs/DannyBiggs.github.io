@@ -6621,8 +6621,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         bossHudLayer.classList.add("active");
       }
     
-      const bossHpFillMaxWidth = 336;
-      bossHpFill.style.width = `${Math.round((hpPercent / 100) * bossHpFillMaxWidth)}px`;
+      if (bossHpFill) {
+        bossHpFill.style.width = `${hpPercent}%`;
       }
     
       if (bossHpText) {
