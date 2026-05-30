@@ -2386,17 +2386,19 @@
 
     .boss-nameplate {
       position: absolute;
-      left: 156px;
-      bottom: 30px;
-      width: 245px;
-      height: 64px;
-      object-fit: contain;
-      mix-blend-mode: screen;
-      filter:
-        brightness(1.35)
-        contrast(1.15)
-        drop-shadow(0 0 8px rgba(70, 185, 255, 0.62));
+      left: 190px;
+      bottom: 34px;
+      transform: translateX(-50%);
+      font-family: "CoinForgeName", "ComboFont", monospace;
+      font-size: 26px;
+      letter-spacing: 3px;
+      color: #d9f5ff;
+      text-shadow:
+        0 0 8px rgba(0, 0, 0, 0.95),
+        0 0 16px rgba(70, 185, 255, 0.9),
+        0 0 30px rgba(30, 80, 220, 0.7);
       opacity: 0.96;
+      white-space: nowrap;
     }
 
     @keyframes bossSpriteIdleFloat {
@@ -3899,14 +3901,7 @@
   <div id="encounterLayer" class="encounter-layer">
     <div id="bossSpriteLayer" class="boss-sprite-layer">
       <img id="bossSpriteImage" class="boss-sprite-image" src="" alt="">
-      <video
-        id="bossNamePlate"
-        class="boss-nameplate"
-        src=""
-        muted
-        loop
-        playsinline
-      ></video>
+     <div id="bossNamePlate" class="boss-nameplate">INVIDRA</div>
     </div>
   </div>
   
@@ -6021,11 +6016,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       );
 
       if (bossNamePlate) {
-        bossNamePlate.src = bossType === "invidra"
-          ? "images/bosses/invidra/InvidraName.mp4"
-          : "";
-        bossNamePlate.load();
-        bossNamePlate.play().catch(() => {});
+        bossNamePlate.textContent = bossType === "invidra" ? "INVIDRA" : "AVAROS";
       }
 
       overlayState.activeBossSpriteState = {
