@@ -2328,10 +2328,10 @@
 
     .boss-sprite-layer {
       position: absolute;
-      left: -18px;
-      bottom: 18px;
-      width: 760px;
-      height: 520px;
+      left: -42px;
+      bottom: -18px;
+      width: 700px;
+      height: 430px;
       pointer-events: none;
       opacity: 0;
       visibility: hidden;
@@ -2353,9 +2353,9 @@
     .boss-sprite-image {
       position: absolute;
       left: 0;
-      bottom: 92px;
-      width: 620px;
-      height: 380px;
+      bottom: 82px;
+      width: 500px;
+      height: 300px;
       object-fit: contain;
       object-position: left bottom;
       image-rendering: pixelated;
@@ -2386,32 +2386,20 @@
 
     .boss-nameplate {
       position: absolute;
-
-      left: 165px;
-      bottom: -8px;
-
+      left: 190px;
+      bottom: 58px;
       transform: translateX(-50%);
-
       font-family: "CoinForgeName", "ComboFont", monospace;
-
-      font-size: 52px;
-
-      letter-spacing: 4px;
-
-      color: #d9f5ff;
-
+      font-size: 18px;
+      letter-spacing: 2px;
+      color: #58f6ff;
       white-space: nowrap;
-
       opacity: 0.98;
-
       z-index: 12;
-
       text-shadow:
-        0 0 4px rgba(255,255,255,0.95),
-        0 0 12px rgba(180,220,255,0.95),
-        0 0 26px rgba(90,170,255,0.9),
-        0 0 52px rgba(30,90,255,0.72),
-        4px 4px 0 rgba(10,18,40,0.95);
+        0 0 4px rgba(0, 0, 0, 0.95),
+        0 0 8px rgba(30, 220, 255, 0.9),
+        0 0 14px rgba(20, 90, 255, 0.72);
     }
 
     @keyframes bossSpriteIdleFloat {
