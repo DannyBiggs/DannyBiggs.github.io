@@ -2404,16 +2404,15 @@
 
     .boss-hud-layer {
       position: absolute;
-      left: 8px;
-      bottom: 162px;
-      width: 430px;
-      height: 110px;
+      left: 350px;
+      bottom: 245px;
+      width: 320px;
+      height: 74px;
+      transform: translateX(-50%);
       pointer-events: none;
       opacity: 0;
       visibility: hidden;
-      z-index: 11;
-      transform: translateY(8px) scale(0.94);
-      transform-origin: left bottom;
+      z-index: 14;
       transition:
         opacity 420ms ease,
         transform 520ms cubic-bezier(.16,.92,.2,1),
@@ -2423,7 +2422,7 @@
     .boss-hud-layer.active {
       opacity: 1;
       visibility: visible;
-      transform: translateY(0) scale(1);
+      transform: translateX(-50%);
     }
 
     .boss-hp-frame {
