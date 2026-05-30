@@ -2585,26 +2585,68 @@
     }
 
     .boss-sprite-layer.boss-sprite-hit-react {
-      animation: bossSpriteHitReaction 1350ms steps(10, end);
+      animation: bossSpriteHitReaction 1650ms steps(12, end);
+    }
+    
+    .boss-sprite-layer.boss-sprite-hit-react::after {
+      content: "";
+      position: absolute;
+      left: 175px;
+      bottom: 325px;
+      width: 360px;
+      height: 210px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 16;
+      opacity: 0;
+      mix-blend-mode: screen;
+      background:
+        radial-gradient(circle,
+          rgba(255, 255, 255, 0.95) 0%,
+          rgba(80, 240, 255, 0.75) 16%,
+          rgba(30, 80, 255, 0.34) 36%,
+          transparent 68%);
+      filter:
+        blur(4px)
+        brightness(2.2)
+        drop-shadow(0 0 24px rgba(75, 220, 255, 0.95));
+      animation: invidraBossHitEyeFlash 1650ms steps(12, end);
     }
     
     .boss-sprite-layer.boss-sprite-hurt .boss-sprite-image {
       animation:
-        bossSpriteHurtFlicker 1350ms steps(10, end),
-        bossSpriteHurtViolence 1350ms steps(10, end);
+        bossSpriteHurtFlicker 1650ms steps(12, end),
+        bossSpriteHurtViolence 1650ms steps(12, end);
     }
     
     .encounter-layer.boss-damage-reaction .invidra-presence-fog {
       animation:
         invidraPresenceBreath 5200ms ease-in-out infinite alternate,
-        invidraDamageFogPulse 720ms steps(6, end);
+        invidraDamageFogPulse 1650ms steps(12, end);
+    }
+    
+    .encounter-layer.boss-damage-reaction::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 2;
+      opacity: 0;
+      mix-blend-mode: screen;
+      background:
+        radial-gradient(circle at 18% 72%,
+          rgba(80, 235, 255, 0.26),
+          rgba(30, 80, 255, 0.13) 20%,
+          transparent 44%);
+      animation: invidraBossHitScreenPulse 1650ms steps(12, end);
     }
     
     @keyframes bossSpriteHitReaction {
       0% { transform: translateX(0px) translateY(0px) scale(1); filter: brightness(1); }
-      18% { transform: translateX(-10px) translateY(-4px) scale(1.035); filter: brightness(1.8); }
-      38% { transform: translateX(7px) translateY(2px) scale(0.985); filter: brightness(0.78); }
-      62% { transform: translateX(-4px) translateY(1px) scale(1.012); filter: brightness(1.35); }
+      10% { transform: translateX(-18px) translateY(-7px) scale(1.045); filter: brightness(2.15) saturate(0.72); }
+      22% { transform: translateX(13px) translateY(4px) scale(0.972); filter: brightness(0.7) saturate(1.35); }
+      38% { transform: translateX(-9px) translateY(2px) scale(1.026); filter: brightness(1.75) saturate(0.86); }
+      58% { transform: translateX(6px) translateY(-2px) scale(0.992); filter: brightness(1.22) saturate(1.12); }
       100% { transform: translateX(0px) translateY(0px) scale(1); filter: brightness(1); }
     }
 
@@ -2684,6 +2726,23 @@
       34% { opacity: 1; filter: brightness(0.85) saturate(1.4); }
       58% { opacity: 0.82; filter: brightness(1.75) saturate(0.72) hue-rotate(155deg); }
       100% { opacity: 1; filter: brightness(1) saturate(1); }
+    }
+
+    @keyframes invidraBossHitEyeFlash {
+      0% { opacity: 0; transform: scale(0.82); }
+      8% { opacity: 1; transform: scale(1.08); }
+      18% { opacity: 0.45; transform: scale(0.94); }
+      32% { opacity: 0.9; transform: scale(1.16); }
+      54% { opacity: 0.34; transform: scale(1.02); }
+      100% { opacity: 0; transform: scale(1.28); }
+    }
+    
+    @keyframes invidraBossHitScreenPulse {
+      0% { opacity: 0; filter: brightness(1); }
+      10% { opacity: 1; filter: brightness(1.65); }
+      28% { opacity: 0.32; filter: brightness(0.9); }
+      48% { opacity: 0.72; filter: brightness(1.28); }
+      100% { opacity: 0; filter: brightness(1); }
     }
     
     @keyframes invidraDamageFogPulse {
@@ -6549,7 +6608,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         if (bossSpriteLayer) {
           bossSpriteLayer.classList.remove("boss-sprite-hit-react");
         }
-      }, 1350);
+      }, 1650);
     
       return true;
     }
