@@ -2443,8 +2443,10 @@
       position: absolute;
       left: 78px;
       top: 55px;
-      width: 100%;
-      max-width: 336px;
+      width: 336px;
+      max-width: none;
+      transform-origin: left center;
+      transition: transform 260ms ease;
       height: 16px;
       z-index: 1;
       border-radius: 10px;
@@ -6622,7 +6624,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       }
     
       if (bossHpFill) {
-        bossHpFill.style.width = `${hpPercent}%`;
+        bossHpFill.style.width = "336px";
+        bossHpFill.style.transform = `scaleX(${hpPercent / 100})`;
       }
     
       if (bossHpText) {
