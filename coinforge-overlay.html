@@ -2402,6 +2402,82 @@
         0 0 14px rgba(20, 90, 255, 0.72);
     }
 
+    .boss-hud-layer {
+      position: absolute;
+      left: 18px;
+      bottom: 154px;
+      width: 330px;
+      height: 86px;
+      pointer-events: none;
+      opacity: 0;
+      visibility: hidden;
+      z-index: 11;
+      transform: translateY(8px) scale(0.94);
+      transform-origin: left bottom;
+      transition:
+        opacity 420ms ease,
+        transform 520ms cubic-bezier(.16,.92,.2,1),
+        visibility 420ms ease;
+    }
+
+    .boss-hud-layer.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0) scale(1);
+    }
+
+    .boss-hp-frame {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      image-rendering: pixelated;
+      z-index: 2;
+      filter:
+        drop-shadow(0 0 8px rgba(0, 0, 0, 0.88))
+        drop-shadow(0 0 14px rgba(120, 20, 20, 0.42));
+    }
+
+    .boss-hp-fill {
+      position: absolute;
+      left: 58px;
+      top: 34px;
+      width: 100%;
+      max-width: 222px;
+      height: 13px;
+      z-index: 1;
+      border-radius: 8px;
+      background:
+        linear-gradient(
+          90deg,
+          #48ff3d 0%,
+          #8cff36 48%,
+          #d6ff52 100%
+        );
+      box-shadow:
+        0 0 6px rgba(80, 255, 80, 0.8),
+        inset 0 0 6px rgba(255, 255, 255, 0.38);
+      transform-origin: left center;
+      transition: width 420ms ease;
+    }
+
+    .boss-hp-text {
+      position: absolute;
+      left: 118px;
+      top: 31px;
+      width: 150px;
+      z-index: 3;
+      font-family: "ComboFont", monospace;
+      font-size: 9px;
+      color: #eaffd8;
+      text-align: center;
+      text-shadow:
+        0 0 4px rgba(0, 0, 0, 1),
+        0 0 8px rgba(0, 0, 0, 0.95);
+      white-space: nowrap;
+    }
+    
     @keyframes bossSpriteIdleFloat {
       0% {
         transform: translateY(0px) scale(1);
@@ -4056,6 +4132,11 @@
     <div id="bossSpriteLayer" class="boss-sprite-layer">
       <img id="bossSpriteImage" class="boss-sprite-image" src="" alt="">
      <div id="bossNamePlate" class="boss-nameplate">INVIDRA</div>
+      <div id="bossHudLayer" class="boss-hud-layer">
+        <div id="bossHpFill" class="boss-hp-fill"></div>
+        <img id="bossHpFrame" class="boss-hp-frame" src="images/bosses/invidra/InvidraHPBar.png" alt="">
+        <div id="bossHpText" class="boss-hp-text">1500/1500 HP</div>
+      </div>
     </div>
   </div>
   
@@ -4149,6 +4230,10 @@
     const bossSpriteLayer = document.getElementById("bossSpriteLayer");
     const bossSpriteImage = document.getElementById("bossSpriteImage");
     const bossNamePlate = document.getElementById("bossNamePlate");
+    const bossHudLayer = document.getElementById("bossHudLayer");
+    const bossHpFill = document.getElementById("bossHpFill");
+    const bossHpFrame = document.getElementById("bossHpFrame");
+    const bossHpText = document.getElementById("bossHpText");
     const connectionStatus = document.getElementById("connectionStatus") || { textContent: "", style: {}, classList: { add() {}, remove() {} } };
     const playerIdentityLayer = document.getElementById("playerIdentityLayer");
     const playerNameplate = document.getElementById("playerNameplate");
@@ -6173,6 +6258,22 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         bossNamePlate.textContent = bossType === "invidra" ? "INVIDRA" : "AVAROS";
       }
 
+      if (bossHudLayer) {
+        bossHudLayer.classList.toggle("active", bossType === "invidra");
+      }
+
+      if (bossHpFrame && bossType === "invidra") {
+        bossHpFrame.src = "images/bosses/invidra/InvidraHPBar.png";
+      }
+
+      if (bossHpFill) {
+        bossHpFill.style.width = "100%";
+      }
+
+      if (bossHpText) {
+        bossHpText.textContent = bossType === "invidra" ? "1500/1500 HP" : "";
+      }
+
       overlayState.activeBossSpriteState = {
         type: bossType,
         state: safeState,
@@ -6204,6 +6305,18 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         bossSpriteImage.alt = "";
       }
 
+      if (bossHudLayer) {
+        bossHudLayer.classList.remove("active");
+      }
+
+      if (bossHpFill) {
+        bossHpFill.style.width = "0%";
+      }
+
+      if (bossHpText) {
+        bossHpText.textContent = "";
+      }
+      
       overlayState.activeBossSpriteState = null;
 
       return true;
@@ -6364,6 +6477,9 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         bossSpriteImage: bossSpriteImage?.getAttribute("src") || "",
         encounterLayerClassName: encounterLayer?.className || "",
         invidraPresenceFogClassName: document.getElementById("invidraPresenceFog")?.className || "",
+        bossHudLayerClassName: bossHudLayer?.className || "",
+        bossHpFillWidth: bossHpFill?.style?.width || "",
+        bossHpText: bossHpText?.textContent || "",
         stageBossWorldState: forgeStage?.dataset?.bossWorldState || "",
         stageBossWorldClass: Array.from(forgeStage?.classList || [])
           .filter(className => className.startsWith("boss-world-")),
