@@ -2316,17 +2316,27 @@
     }
     /* ===== BOSS WORLD OWNERSHIP FX END ===== */
 
+    .encounter-layer {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 22;
+      overflow: hidden;
+    }
+
     .boss-sprite-layer {
       position: absolute;
-      right: 7%;
-      top: 38%;
-      width: 320px;
-      height: 320px;
-      transform: translateY(-50%) scale(0.92);
+      left: 24px;
+      bottom: 72px;
+      width: 590px;
+      height: 360px;
       pointer-events: none;
       opacity: 0;
       visibility: hidden;
-      z-index: 4;
+      transform: translateX(-34px) translateY(18px) scale(0.94);
+      transform-origin: left bottom;
       image-rendering: pixelated;
       transition:
         opacity 520ms ease,
@@ -2337,13 +2347,17 @@
     .boss-sprite-layer.active {
       opacity: 1;
       visibility: visible;
-      transform: translateY(-50%) scale(1);
+      transform: translateX(0px) translateY(0px) scale(1);
     }
 
     .boss-sprite-image {
-      width: 100%;
-      height: 100%;
+      position: absolute;
+      left: 0;
+      bottom: 44px;
+      width: 500px;
+      height: 300px;
       object-fit: contain;
+      object-position: left bottom;
       image-rendering: pixelated;
       filter:
         drop-shadow(0 0 18px rgba(40, 140, 255, 0.42))
@@ -2354,13 +2368,16 @@
     .boss-sprite-layer.boss-sprite-invidra::before {
       content: "";
       position: absolute;
-      inset: 14%;
+      left: 34px;
+      bottom: 86px;
+      width: 410px;
+      height: 220px;
       border-radius: 50%;
       background:
         radial-gradient(circle,
-          rgba(70, 185, 255, 0.26) 0%,
-          rgba(30, 80, 220, 0.16) 38%,
-          transparent 72%);
+          rgba(70, 185, 255, 0.24) 0%,
+          rgba(30, 80, 220, 0.13) 42%,
+          transparent 74%);
       filter: blur(18px);
       mix-blend-mode: screen;
       animation: invidraBossSpriteAura 2400ms ease-in-out infinite alternate;
@@ -2369,19 +2386,17 @@
 
     .boss-nameplate {
       position: absolute;
-      left: 50%;
-      bottom: 8%;
-      transform: translateX(-50%);
-      font-family: "CoinForgeName", "ComboFont", monospace;
-      font-size: 24px;
-      letter-spacing: 3px;
-      color: #d9f5ff;
-      text-shadow:
-        0 0 8px rgba(0, 0, 0, 0.95),
-        0 0 18px rgba(70, 185, 255, 0.9),
-        0 0 34px rgba(30, 80, 220, 0.65);
-      opacity: 0.92;
-      white-space: nowrap;
+      left: 156px;
+      bottom: 30px;
+      width: 245px;
+      height: 64px;
+      object-fit: contain;
+      mix-blend-mode: screen;
+      filter:
+        brightness(1.35)
+        contrast(1.15)
+        drop-shadow(0 0 8px rgba(70, 185, 255, 0.62));
+      opacity: 0.96;
     }
 
     @keyframes bossSpriteIdleFloat {
@@ -2390,19 +2405,19 @@
       }
 
       100% {
-        transform: translateY(-10px) scale(1.025);
+        transform: translateY(-8px) scale(1.012);
       }
     }
 
     @keyframes invidraBossSpriteAura {
       0% {
-        opacity: 0.26;
-        transform: scale(0.94);
+        opacity: 0.24;
+        transform: scale(0.96);
       }
 
       100% {
-        opacity: 0.72;
-        transform: scale(1.1);
+        opacity: 0.58;
+        transform: scale(1.08);
       }
     }
     
@@ -3870,6 +3885,7 @@
 </head>
 
 <body>
+  
     <div id="screenBorderFX" class="screen-border-fx"></div>
   <div class="embers" aria-hidden="true">
     <span class="ember"></span>
@@ -3879,7 +3895,21 @@
     <span class="ember"></span>
     <span class="ember"></span>
   </div>
-
+  
+  <div id="encounterLayer" class="encounter-layer">
+    <div id="bossSpriteLayer" class="boss-sprite-layer">
+      <img id="bossSpriteImage" class="boss-sprite-image" src="" alt="">
+      <video
+        id="bossNamePlate"
+        class="boss-nameplate"
+        src=""
+        muted
+        loop
+        playsinline
+      ></video>
+    </div>
+  </div>
+  
   <div class="overlay-root">
     <div class="forge-simulator">
       <div class="forge-stage" id="forgeStage">
@@ -3900,10 +3930,6 @@
         <div id="forgeCorruptionWave" class="forge-corruption-wave"></div>
         <div id="forgeBloom" class="forge-bloom"></div>
         <div id="cinematicBurst" class="cinematic-burst"></div>
-        <div id="bossSpriteLayer" class="boss-sprite-layer">
-          <img id="bossSpriteImage" class="boss-sprite-image" src="" alt="">
-          <div id="bossNamePlate" class="boss-nameplate"></div>
-        </div>
         <img
           id="forgeIgnitionCast"
           class="forge-ignition-cast"
@@ -3994,6 +4020,7 @@
     const weeklyThird = document.getElementById("weeklyThird");
     const weeklyChampionCallout = document.getElementById("weeklyChampionCallout");
     const comboPopup = document.getElementById("comboPopup");
+    const encounterLayer = document.getElementById("encounterLayer");
     
     const slotLandSound = new Audio("sounds/slot-land.m4a");
     slotLandSound.volume = 0.10;
@@ -5911,7 +5938,12 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       forgeStage.dataset.bossWorldState = bossType;
       forgeStage.classList.add(className);
-      showForgeStage();
+
+      if (encounterLayer) {
+        encounterLayer.dataset.bossWorldState = bossType;
+        encounterLayer.classList.add("active", className);
+      }
+
       setBossSpriteState(bossType, "idle", {
         source: options.source || "unknown"
       });
@@ -5927,6 +5959,11 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       forgeStage.classList.remove(...bossWorldStateClasses);
       delete forgeStage.dataset.bossWorldState;
+
+      if (encounterLayer) {
+        encounterLayer.classList.remove("active", ...bossWorldStateClasses);
+        delete encounterLayer.dataset.bossWorldState;
+      }
 
       overlayState.activeBossWorldState = null;
       clearBossSpriteState();
@@ -5984,7 +6021,11 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       );
 
       if (bossNamePlate) {
-        bossNamePlate.textContent = bossType === "invidra" ? "INVIDRA" : "AVAROS";
+        bossNamePlate.src = bossType === "invidra"
+          ? "images/bosses/invidra/InvidraName.mp4"
+          : "";
+        bossNamePlate.load();
+        bossNamePlate.play().catch(() => {});
       }
 
       overlayState.activeBossSpriteState = {
@@ -6025,6 +6066,13 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
     window.setBossSpriteState = setBossSpriteState;
     window.clearBossSpriteState = clearBossSpriteState;
+
+    window.testPersistentBossPresence = async function testPersistentBossPresence(type = "invidra") {
+      setBossWorldState(type, { source: "console-test" });
+      hideForgeStage();
+      await wait(1200);
+      return debugForgeState();
+    };
     
     window.setBossWorldState = setBossWorldState;
     window.clearBossWorldState = clearBossWorldState;
