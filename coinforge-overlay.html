@@ -2423,6 +2423,158 @@
         transform: scale(1.08);
       }
     }
+
+    .invidra-presence-fog {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0;
+      visibility: hidden;
+      z-index: 1;
+      background:
+        radial-gradient(circle at 14% 72%,
+          rgba(60, 190, 255, 0.22),
+          rgba(20, 70, 180, 0.10) 24%,
+          transparent 46%),
+        radial-gradient(circle at 50% 58%,
+          rgba(40, 105, 255, 0.06),
+          transparent 54%),
+        linear-gradient(
+          90deg,
+          rgba(4, 12, 38, 0.28),
+          transparent 34%,
+          transparent 100%
+        );
+      mix-blend-mode: screen;
+      filter: blur(1px);
+      transition: opacity 700ms ease, visibility 700ms ease;
+    }
+
+    .encounter-layer.boss-world-invidra .invidra-presence-fog {
+      opacity: 1;
+      visibility: visible;
+      animation: invidraPresenceBreath 5200ms ease-in-out infinite alternate;
+    }
+
+    .invidra-presence-fog::before,
+    .invidra-presence-fog::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 520px;
+      height: 420px;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 18% 76%, rgba(80, 230, 255, 0.22), transparent 2%),
+        radial-gradient(circle at 32% 62%, rgba(80, 230, 255, 0.16), transparent 2%),
+        radial-gradient(circle at 46% 84%, rgba(80, 230, 255, 0.18), transparent 2%),
+        radial-gradient(circle at 58% 70%, rgba(80, 230, 255, 0.12), transparent 2%);
+      mix-blend-mode: screen;
+      filter: blur(1px);
+      animation: invidraPresenceMotes 6400ms linear infinite;
+    }
+
+    .invidra-presence-fog::after {
+      opacity: 0.55;
+      animation-duration: 9200ms;
+      animation-direction: reverse;
+    }
+
+    .encounter-layer.boss-world-invidra::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background:
+        radial-gradient(circle at 14% 72%, rgba(0, 190, 255, 0.10), transparent 32%),
+        radial-gradient(circle at 50% 50%, transparent 42%, rgba(0, 0, 20, 0.16) 100%);
+      opacity: 0.72;
+      animation: invidraScreenWatch 6200ms ease-in-out infinite alternate;
+    }
+
+    .boss-sprite-layer.boss-sprite-invidra {
+      z-index: 3;
+    }
+
+    .boss-sprite-layer.boss-sprite-invidra .boss-sprite-image {
+      animation:
+        bossSpriteIdleFloat 3400ms ease-in-out infinite alternate,
+        invidraEyePresencePulse 2600ms ease-in-out infinite;
+    }
+
+    .boss-sprite-layer.boss-sprite-invidra .boss-nameplate {
+      animation: invidraNameplatePulse 3600ms ease-in-out infinite alternate;
+    }
+
+    @keyframes invidraPresenceBreath {
+      0% {
+        opacity: 0.58;
+        filter: blur(1px) brightness(0.95);
+      }
+
+      100% {
+        opacity: 1;
+        filter: blur(2px) brightness(1.25);
+      }
+    }
+
+    @keyframes invidraPresenceMotes {
+      0% {
+        opacity: 0.22;
+        transform: translate(0px, 18px) scale(0.96);
+      }
+
+      50% {
+        opacity: 0.62;
+      }
+
+      100% {
+        opacity: 0.18;
+        transform: translate(42px, -54px) scale(1.08);
+      }
+    }
+
+    @keyframes invidraScreenWatch {
+      0% {
+        opacity: 0.46;
+      }
+
+      100% {
+        opacity: 0.78;
+      }
+    }
+
+    @keyframes invidraEyePresencePulse {
+      0%, 100% {
+        filter:
+          brightness(1)
+          saturate(1)
+          drop-shadow(0 0 18px rgba(40, 140, 255, 0.42))
+          drop-shadow(0 0 42px rgba(10, 30, 120, 0.34));
+      }
+
+      48% {
+        filter:
+          brightness(1.18)
+          saturate(1.16)
+          drop-shadow(0 0 24px rgba(80, 220, 255, 0.58))
+          drop-shadow(0 0 58px rgba(20, 80, 220, 0.46));
+      }
+    }
+
+    @keyframes invidraNameplatePulse {
+      0% {
+        opacity: 0.82;
+        filter: brightness(0.95);
+      }
+
+      100% {
+        opacity: 1;
+        filter: brightness(1.25);
+      }
+    }
     
     .forge-stage.event-world-corrupted .forge-background {
       animation: invidraWorldBackgroundBreath 1800ms ease-in-out infinite alternate;
@@ -3900,6 +4052,7 @@
   </div>
   
   <div id="encounterLayer" class="encounter-layer">
+    <div id="invidraPresenceFog" class="invidra-presence-fog"></div>
     <div id="bossSpriteLayer" class="boss-sprite-layer">
       <img id="bossSpriteImage" class="boss-sprite-image" src="" alt="">
      <div id="bossNamePlate" class="boss-nameplate">INVIDRA</div>
@@ -6209,6 +6362,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         activeBossSpriteState: overlayState.activeBossSpriteState,
         bossSpriteClassName: bossSpriteLayer?.className || "",
         bossSpriteImage: bossSpriteImage?.getAttribute("src") || "",
+        encounterLayerClassName: encounterLayer?.className || "",
+        invidraPresenceFogClassName: document.getElementById("invidraPresenceFog")?.className || "",
         stageBossWorldState: forgeStage?.dataset?.bossWorldState || "",
         stageBossWorldClass: Array.from(forgeStage?.classList || [])
           .filter(className => className.startsWith("boss-world-")),
