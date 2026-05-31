@@ -2695,12 +2695,18 @@
     }
     
     .invidra-intro-title {
+      width: min(92vw, 1320px);
       margin-top: 18px;
+      margin-left: auto;
+      margin-right: auto;
       font-family: "CoinForgeName", "ComboFont", monospace;
-      font-size: 42px;
-      letter-spacing: 5px;
+      font-size: clamp(26px, 3.05vw, 42px);
+      line-height: 1.18;
+      letter-spacing: 3px;
       color: #58f6ff;
       opacity: 0;
+      text-align: center;
+      overflow-wrap: normal;
       text-shadow:
         0 0 8px rgba(0, 0, 0, 1),
         0 0 18px rgba(80, 240, 255, 0.9),
@@ -2720,12 +2726,17 @@
     }
     
     .invidra-intro-subtitle {
+      width: min(92vw, 1100px);
       margin-top: 14px;
+      margin-left: auto;
+      margin-right: auto;
       font-family: "ComboFont", monospace;
-      font-size: 13px;
+      font-size: clamp(9px, 0.9vw, 13px);
+      line-height: 1.4;
       letter-spacing: 3px;
       color: #d9fbff;
       opacity: 0;
+      text-align: center;
       text-shadow:
         0 0 8px rgba(0, 0, 0, 1),
         0 0 18px rgba(80, 240, 255, 0.72);
@@ -8001,7 +8012,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           }
 
           triggerGlobalInstabilityReaction("BurnedAway", pullId);
-          triggerCorruptionWave(pullId, slotWrap);
           playOwnedSound(pullId, burnedAwaySound, true);
         }
       }
