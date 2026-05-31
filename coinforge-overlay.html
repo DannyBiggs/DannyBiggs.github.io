@@ -1978,7 +1978,7 @@
       transform: scale(1.02);
     }
 
-    .slot-wrap img {
+    .slot-wrap > img.slot-coin {
       position: relative;
       width: 100%;
       height: 100%;
@@ -7791,50 +7791,50 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     function createSlots(count) {
       slotRow.innerHTML = "";
       overlayState.slotStates.clear();
-
+    
       for (let i = 0; i < count; i++) {
         const slotWrap = document.createElement("div");
         slotWrap.className = "slot-wrap";
         slotWrap.dataset.slotIndex = String(i);
         slotWrap.dataset.slotState = "empty";
-
+    
         const img = document.createElement("img");
         img.className = "sim-coin slot-coin";
         img.src = `images/coins/bronze.gif?slot=${i}&t=${Date.now()}-${Math.random()}`;
         img.alt = "Forged Coin";
-
+    
         const socketRing = document.createElement("div");
         socketRing.className = "slot-socket-ring";
         
         const impactFlash = document.createElement("div");
         impactFlash.className = "slot-impact-flash";
-
+    
         const instabilityBadge = document.createElement("div");
         instabilityBadge.className = "forge-instability-badge";
-
+    
         const overchargeDuplicate = document.createElement("img");
         overchargeDuplicate.className = "overcharge-duplicate-coin";
-
+    
         const burnedAwayGif = document.createElement("img");
         burnedAwayGif.className = "burned-away-gif";
         burnedAwayGif.src = "images/vfx/burned-away.gif";
-        
+    
         const omenEyeFlash = document.createElement("img");
         omenEyeFlash.className = "invidra-omen-eye-flash";
         omenEyeFlash.alt = "Invidra Omen Eye";
         
         slotWrap.appendChild(socketRing);
         slotWrap.appendChild(impactFlash);
-        slotWrap.appendChild(omenEyeFlash);
         slotWrap.appendChild(img);
+        slotWrap.appendChild(omenEyeFlash);
         slotWrap.appendChild(overchargeDuplicate);
         slotWrap.appendChild(burnedAwayGif);
-
-        setSlotState(slotWrap, "empty");
+        slotWrap.appendChild(instabilityBadge);
         slotRow.appendChild(slotWrap);
+    
+        setSlotState(slotWrap, "empty");
       }
     }
-
     function getSlotWrap(target) {
       if (!target) return null;
 
