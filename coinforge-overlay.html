@@ -2775,17 +2775,21 @@
       100% { opacity: 0; transform: translateY(-10px); }
     }
     
-    .boss-sprite-layer.boss-sprite-attack-react {
-      animation: invidraAttackLoom 1250ms cubic-bezier(.22,.74,.18,1) forwards;
-    }
-    
-    .boss-sprite-layer.boss-sprite-attack-return {
-      animation: invidraAttackReturnSettle 220ms ease-out forwards;
-    }
-    
     .boss-sprite-layer.boss-sprite-attack .boss-sprite-image {
       animation: invidraAttackImagePulse 1250ms ease-in-out forwards;
       transform-origin: left bottom;
+    }
+
+    .boss-sprite-layer.boss-sprite-attack-react .boss-sprite-image {
+      animation: invidraAttackLoom 1250ms cubic-bezier(.22,.74,.18,1) forwards;
+      transform-origin: left bottom;
+      will-change: transform, filter;
+    }
+    
+    .boss-sprite-layer.boss-sprite-attack-return .boss-sprite-image {
+      animation: invidraAttackReturnSettle 220ms ease-out forwards;
+      transform-origin: left bottom;
+      will-change: transform, filter;
     }
     
     @keyframes invidraAttackLoom {
