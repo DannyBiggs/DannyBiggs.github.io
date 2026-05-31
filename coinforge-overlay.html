@@ -4494,6 +4494,10 @@
 
       activeBossSpriteState: null,
 
+      activeBossSpriteState: null,
+
+      bossWorldSyncSuppressed: false,
+
       bossEncounterState: "none",
       
       lastBossEncounterPayload: null,
@@ -6708,6 +6712,11 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     }
     
     function applyNextPendingBossDamageTick() {
+      if (overlayState.bossWorldSyncSuppressed === true) {
+        overlayState.pendingBossDamageSync = null;
+        return false;
+      }
+    
       const pending = overlayState.pendingBossDamageSync;
     
       if (!pending || !Array.isArray(pending.ticks) || pending.ticks.length === 0) {
@@ -6716,10 +6725,17 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       const nextTick = pending.ticks.shift();
     
+      const shouldPlayReaction = pending.reactionPlayed !== true;
+    
       syncBossHudFromPayload(nextTick.payload, {
         ...(pending.options || {}),
-        source: "boss-damage-after-coin-land"
+        source: "boss-damage-after-coin-land",
+        suppressBossHurtReaction: !shouldPlayReaction
       });
+    
+      if (shouldPlayReaction) {
+        pending.reactionPlayed = true;
+      }
     
       if (pending.ticks.length === 0) {
         overlayState.pendingBossDamageSync = null;
@@ -6729,6 +6745,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     }
     
     function syncBossHudFromPayload(payload, options = {}) {
+      if (overlayState.bossWorldSyncSuppressed === true) {
+        return false;
+      }
+      
       if (!payload || payload.bossActive !== true) {
         clearBossWorldState({ force: true });
         return false;
@@ -6758,7 +6778,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       updateInvidraHpThresholdState(bossType, hpPercent);
       
-      if (bossHp > 0) {
+      if (bossHp > 0 && options.suppressBossHurtReaction !== true) {
         triggerBossDamageReaction(bossType, payload, options);
       }
     
@@ -9171,18 +9191,22 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           data.clear === true ||
           String(data.bossType || data.bossName || data.boss || "").toLowerCase() === "none"
         ) {
+          overlayState.bossWorldSyncSuppressed = true;
+          overlayState.pendingBossDamageSync = null;
+          
           setBossEncounterState("escaped", {
             source: "streamerbot",
             payload: data
           });
-      
+          
           setTimeout(() => {
             clearBossWorldState({ force: true });
           }, 900);
-      
+          
           return;
         }
-      
+
+        overlayState.bossWorldSyncSuppressed = false;
         syncBossHudFromPayload({
           bossActive: true,
           bossType: data.bossType || data.bossName || data.boss,
@@ -9214,12 +9238,27 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           }
         };
       } else {
-        syncBossHudFromPayload(data, {
-          source: "coinForgePull-pre-reveal"
-        });
-      }
-                  
-      enqueueForgeEvent(data);
+        const hasDeferredBossDamage =
+          data.bossActive === true &&
+          overlayState.bossWorldSyncSuppressed !== true &&
+          Number(data.worldBossDamage || data.bossDamage || 0) > 0;
+        
+        if (hasDeferredBossDamage) {
+          overlayState.pendingBossDamageSync = {
+            payload: data,
+            ticks: buildPendingBossDamageTicks(data),
+            reactionPlayed: false,
+            options: {
+              source: "coinForgePull-after-each-coin-land"
+            }
+          };
+        } else if (overlayState.bossWorldSyncSuppressed !== true) {
+          syncBossHudFromPayload(data, {
+            source: "coinForgePull-pre-reveal"
+          });
+        }
+                    
+        enqueueForgeEvent(data);
     }
 
     function setupStreamerbotClient() {
