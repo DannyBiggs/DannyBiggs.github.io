@@ -6656,28 +6656,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       overlayState.pendingBossDamageSync = null;
     
-      const {
-        bossType,
-        payload,
-        options,
-        bossHp,
-        bossMaxHp,
-        hpPercent
-      } = pending;
-    
-      if (bossHpFill) {
-        bossHpFill.style.width = "336px";
-        bossHpFill.style.transform = `scaleX(${hpPercent / 100})`;
-      }
-    
-      if (bossHpText) {
-        bossHpText.textContent = `${bossHp}/${bossMaxHp} HP`;
-      }
-    
-      overlayState.lastBossHp = bossHp;
-    
-      triggerBossDamageReaction(bossType, payload, {
-        ...options,
+      syncBossHudFromPayload(pending.payload, {
+        ...(pending.options || {}),
         source: "boss-damage-after-slot-land"
       });
     
@@ -6713,22 +6693,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       });
     
       updateInvidraHpThresholdState(bossType, hpPercent);
-
-      const shouldDelayBossDamageSync =
-        options.deferDamageSync === true &&
-        bossHp > 0 &&
-        Number(payload.worldBossDamage || payload.bossDamage || 0) > 0;
       
-      if (shouldDelayBossDamageSync) {
-        overlayState.pendingBossDamageSync = {
-          bossType,
-          payload,
-          options,
-          bossHp,
-          bossMaxHp,
-          hpPercent
-        };
-      } else if (bossHp > 0) {
+      if (bossHp > 0) {
         triggerBossDamageReaction(bossType, payload, options);
       }
     
@@ -6742,20 +6708,16 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         bossHudLayer.classList.add("active");
       }
     
-      if (!shouldDelayBossDamageSync) {
-        if (bossHpFill) {
-          bossHpFill.style.width = "336px";
-          bossHpFill.style.transform = `scaleX(${hpPercent / 100})`;
-        }
+      if (bossHpFill) {
+        bossHpFill.style.width = "336px";
+        bossHpFill.style.transform = `scaleX(${hpPercent / 100})`;
+      }
       
-        if (bossHpText) {
-          bossHpText.textContent = `${bossHp}/${bossMaxHp} HP`;
-        }
+      if (bossHpText) {
+        bossHpText.textContent = `${bossHp}/${bossMaxHp} HP`;
       }
     
-      if (!shouldDelayBossDamageSync) {
-        overlayState.lastBossHp = bossHp;
-      }
+      overlayState.lastBossHp = bossHp;
     
       return true;
     }
@@ -9172,10 +9134,22 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       window.latestCoinForgePayload = data;
 
-      syncBossHudFromPayload(data, {
-        deferDamageSync: true,
-        source: "coinForgePull-pre-reveal"
-      });
+      const hasDeferredBossDamage =
+        data.bossActive === true &&
+        Number(data.worldBossDamage || data.bossDamage || 0) > 0;
+      
+      if (hasDeferredBossDamage) {
+        overlayState.pendingBossDamageSync = {
+          payload: data,
+          options: {
+            source: "coinForgePull-after-slot-land"
+          }
+        };
+      } else {
+        syncBossHudFromPayload(data, {
+          source: "coinForgePull-pre-reveal"
+        });
+      }
                   
       enqueueForgeEvent(data);
     }
