@@ -7311,11 +7311,13 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       const payloadEncounterState =
         String(payload.bossEncounterState || payload.encounterState || "").toLowerCase();
       
-      const nextState =
+      const isExplicitDefeatPayload =
         payload.defeated === true ||
         payload.bossDefeated === true ||
-        payloadEncounterState === "defeated" ||
-        bossHp <= 0
+        payloadEncounterState === "defeated";
+      
+      const nextState =
+        isExplicitDefeatPayload
           ? "defeated"
           : payload.bossEncounterState || payload.encounterState || "active";
     
@@ -9788,13 +9790,22 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         const incomingBossType = data.bossType || data.bossName || data.boss;
         const normalizedIncomingBossType = normalizeBossWorldType(incomingBossType);
         
+        const incomingEncounterState =
+          data.bossDefeated === true ||
+          data.defeated === true ||
+          String(data.bossEncounterState || data.encounterState || "").toLowerCase() === "defeated"
+            ? "defeated"
+            : "spawning";
+        
         const normalizedBossPayload = {
           bossActive: true,
           bossType: incomingBossType,
           bossName: data.bossName || data.bossType || data.boss,
           bossHp: data.bossHp ?? data.hp ?? data.currentHp ?? data.maxHp ?? data.bossMaxHp ?? 1500,
           bossMaxHp: data.bossMaxHp ?? data.maxHp ?? 1500,
-          bossEncounterState: "spawning"
+          bossDefeated: data.bossDefeated === true || data.defeated === true,
+          defeated: data.bossDefeated === true || data.defeated === true,
+          bossEncounterState: incomingEncounterState
         };
         
         const shouldPlayInvidraIntro =
