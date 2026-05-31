@@ -2695,13 +2695,13 @@
     }
     
     .invidra-intro-title {
-      width: min(88vw, 980px);
+      width: min(88vw, 1040px);
       margin-top: 18px;
       margin-left: auto;
       margin-right: auto;
       font-family: "CoinForgeName", "ComboFont", monospace;
       font-size: clamp(24px, 2.45vw, 35px);
-      line-height: 1.14;
+      line-height: 1.28;
       letter-spacing: 3px;
       color: #58f6ff;
       opacity: 0;
@@ -2715,6 +2715,10 @@
 
     .invidra-intro-title span {
       display: block;
+    }
+
+    .invidra-intro-title span + span {
+      margin-top: 14px;
     }
     
     .encounter-layer.invidra-intro-active .invidra-intro-title {
@@ -2731,12 +2735,12 @@
     
     .invidra-intro-subtitle {
       width: min(86vw, 980px);
-      margin-top: 22px;
+      margin-top: 36px;
       margin-left: auto;
       margin-right: auto;
       font-family: "ComboFont", monospace;
       font-size: clamp(18px, 1.65vw, 26px);
-      line-height: 1.45;
+      line-height: 1.55;
       letter-spacing: 3px;
       color: #e9fdff;
       opacity: 0;
@@ -2825,58 +2829,82 @@
     }
 
     .boss-sprite-layer.boss-sprite-dead .boss-sprite-image {
-      animation: invidraDeathCollapse 3000ms cubic-bezier(.12,.82,.18,1) forwards;
+      animation: invidraDeathCollapse 4200ms cubic-bezier(.12,.82,.18,1) forwards;
       transform-origin: center center;
       will-change: transform, opacity, filter;
+    }
+
+    .boss-sprite-layer.boss-sprite-dead::before {
+      animation: invidraDeathAuraCollapse 4200ms ease-out forwards;
+    }
+
+    .encounter-layer[data-boss-encounter-state="defeated"]::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 24;
+      opacity: 0;
+      mix-blend-mode: screen;
+      background:
+        radial-gradient(circle at 18% 68%,
+          rgba(255, 255, 255, 0.95) 0%,
+          rgba(255, 70, 70, 0.55) 10%,
+          rgba(80, 240, 255, 0.32) 22%,
+          transparent 46%);
+      animation: invidraDeathScreenBreak 4200ms ease-out forwards;
     }
 
     @keyframes invidraDeathCollapse {
       0% {
         opacity: 1;
         transform: scale(1.08);
-        filter:
-          brightness(1.6)
-          saturate(1.35)
-          drop-shadow(0 0 28px rgba(255, 55, 55, 0.75));
+        filter: brightness(1.6) saturate(1.35) drop-shadow(0 0 28px rgba(255, 55, 55, 0.75));
       }
 
-      18% {
+      12% {
         opacity: 1;
-        transform: scale(1.28);
-        filter:
-          brightness(2.8)
-          saturate(1.8)
-          drop-shadow(0 0 70px rgba(255, 70, 70, 1));
+        transform: scale(1.34) rotate(-1deg);
+        filter: brightness(3.2) saturate(2) drop-shadow(0 0 90px rgba(255, 70, 70, 1));
       }
 
-      38% {
-        opacity: 0.88;
-        transform: scale(0.92) rotate(-3deg);
-        filter:
-          brightness(0.72)
-          saturate(0.45)
-          grayscale(0.35);
+      24% {
+        opacity: 1;
+        transform: scale(0.98) rotate(2deg);
+        filter: brightness(1.25) saturate(0.8) drop-shadow(0 0 52px rgba(80, 240, 255, 0.95));
       }
 
-      66% {
-        opacity: 0.46;
-        transform: scale(0.62) rotate(3deg);
-        filter:
-          brightness(0.36)
-          saturate(0.12)
-          grayscale(0.8)
-          blur(2px);
+      46% {
+        opacity: 0.82;
+        transform: scale(0.76) rotate(-4deg);
+        filter: brightness(0.55) saturate(0.35) grayscale(0.45) blur(1px);
+      }
+
+      72% {
+        opacity: 0.34;
+        transform: scale(0.46) rotate(5deg);
+        filter: brightness(0.24) saturate(0.08) grayscale(0.9) blur(3px);
       }
 
       100% {
         opacity: 0;
-        transform: scale(0.28) rotate(-5deg);
-        filter:
-          brightness(0.08)
-          saturate(0)
-          grayscale(1)
-          blur(5px);
+        transform: scale(0.16) rotate(-8deg);
+        filter: brightness(0.04) saturate(0) grayscale(1) blur(7px);
       }
+    }
+
+    @keyframes invidraDeathAuraCollapse {
+      0% { opacity: 1; transform: scale(1); filter: blur(18px) brightness(1); }
+      18% { opacity: 1; transform: scale(1.45); filter: blur(10px) brightness(2.4); }
+      52% { opacity: 0.62; transform: scale(0.72); filter: blur(22px) brightness(0.72); }
+      100% { opacity: 0; transform: scale(0.18); filter: blur(34px) brightness(0.18); }
+    }
+
+    @keyframes invidraDeathScreenBreak {
+      0% { opacity: 0; transform: scale(0.8); filter: brightness(1); }
+      10% { opacity: 1; transform: scale(1); filter: brightness(2.2); }
+      24% { opacity: 0.55; transform: scale(1.08); filter: brightness(1.3); }
+      100% { opacity: 0; transform: scale(1.35); filter: brightness(1); }
     }
     
     @keyframes bossSpriteHitReaction {
@@ -9702,7 +9730,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           
           setTimeout(() => {
             clearBossWorldState({ force: true });
-          }, endedAsDefeat ? 3200 : 900);
+          }, endedAsDefeat ? 4800 : 900);
           
           return;
         }
