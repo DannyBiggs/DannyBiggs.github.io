@@ -6834,7 +6834,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
     function getBossSpriteAssets(type) {
       const bossType = normalizeBossWorldType(type);
-
+    
       if (bossType === "invidra") {
         return {
           idle: "images/bosses/invidra/InvidraPixelIdle.gif",
@@ -6843,7 +6843,16 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           dead: "images/bosses/invidra/InvidraPixelDead.png"
         };
       }
-
+    
+      if (bossType === "avaros") {
+        return {
+          idle: "images/bosses/avaros/AvarosPixelIdle.gif",
+          attack: "images/bosses/avaros/AvarosPixelSuck.gif",
+          hurt: "images/bosses/avaros/AvarosPixelHurt.gif",
+          dead: "images/bosses/avaros/AvarosPixelDead.png"
+        };
+      }
+    
       return null;
     }
 
@@ -6886,7 +6895,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       }
 
       if (bossHudLayer) {
-        bossHudLayer.classList.toggle("active", bossType === "invidra");
+        bossHudLayer.classList.add("active");
       }
 
       if (bossHpFrame && bossType === "invidra") {
