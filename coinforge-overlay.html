@@ -7220,39 +7220,56 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       const rawWeightTotal = rawCoinWeights.reduce((sum, value) => sum + value, 0);
     
       let runningHp = visibleStartHp;
+      const ticks = [];
     
-      return coins.map((coin, index) => {
+      coins.forEach((coin, index) => {
         let hpDelta = 0;
+        const coinWeight = rawCoinWeights[index] || 0;
     
-        if (rawWeightTotal > 0) {
-          hpDelta = Math.round(totalHpDelta * (rawCoinWeights[index] / rawWeightTotal));
-        } else if (index === coins.length - 1) {
+        if (coinWeight > 0) {
+          const desiredDelta = isHealing ? coinWeight : -coinWeight;
+          const remainingDelta = finalBossHp - runningHp;
+    
+          hpDelta = isHealing
+            ? Math.min(desiredDelta, Math.max(0, remainingDelta))
+            : Math.max(desiredDelta, Math.min(0, remainingDelta));
+        } else if (rawWeightTotal <= 0 && index === coins.length - 1) {
           hpDelta = finalBossHp - runningHp;
         }
     
-        if (index === coins.length - 1) {
-          hpDelta = finalBossHp - runningHp;
-        }
-    
-        runningHp = Math.max(
+        const nextHp = Math.max(
           0,
           Math.min(bossMaxHp, runningHp + hpDelta)
         );
     
-        return {
-          payload: {
-            ...payload,
-            bossHp: runningHp,
-            bossMaxHp,
-            worldBossDamage: hpDelta < 0 ? Math.abs(hpDelta) : 0,
-            bossDamage: hpDelta < 0 ? Math.abs(hpDelta) : 0,
-            worldBossHealing: hpDelta > 0 ? hpDelta : 0,
-            bossHealing: hpDelta > 0 ? hpDelta : 0
-          },
-          damage: Math.abs(hpDelta),
-          index
-        };
-      }).filter(tick => tick.damage > 0);
+        const tickDefeated = nextHp <= 0;
+        const tickDamage = hpDelta < 0 ? Math.abs(hpDelta) : 0;
+        const tickHealing = hpDelta > 0 ? hpDelta : 0;
+    
+        if (tickDamage > 0 || tickHealing > 0) {
+          ticks.push({
+            payload: {
+              ...payload,
+              bossHp: nextHp,
+              bossMaxHp,
+              worldBossDamage: tickDamage,
+              bossDamage: tickDamage,
+              worldBossHealing: tickHealing,
+              bossHealing: tickHealing,
+              bossDefeated: tickDefeated,
+              defeated: tickDefeated,
+              bossEncounterState: tickDefeated ? "defeated" : "active",
+              encounterState: tickDefeated ? "defeated" : "active"
+            },
+            damage: Math.abs(hpDelta),
+            index
+          });
+        }
+    
+        runningHp = nextHp;
+      });
+    
+      return ticks;
     }
     
     function applyNextPendingBossDamageTick() {
@@ -9914,11 +9931,16 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           Number(data.worldBossDamage || data.bossDamage || 0) > 0 ||
           Number(data.worldBossHealing || data.bossHealing || 0) > 0
         );
+
+      const pendingBossDamageTicks =
+        hasDeferredBossHpChange
+          ? buildPendingBossDamageTicks(data)
+          : [];
       
-      if (hasDeferredBossHpChange) {
+      if (hasDeferredBossHpChange && pendingBossDamageTicks.length > 0) {
         overlayState.pendingBossDamageSync = {
           payload: data,
-          ticks: buildPendingBossDamageTicks(data),
+          ticks: pendingBossDamageTicks,
           reactionPlayed: false,
           options: {
             source: "coinForgePull-after-each-coin-land"
