@@ -5358,9 +5358,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         return sum + getForgeResultCoinValue(rawCoins[index], coinDef);
       }, 0);
 
-      const jackpotPayout = Number(event.jackpotPayout || 0);
-
-      return coinTotal + jackpotPayout;
+      return coinTotal;
     }
 
     function clearForgeResonanceResult(options = {}) {
