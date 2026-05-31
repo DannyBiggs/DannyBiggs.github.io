@@ -6649,17 +6649,81 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       }
     }
 
-    function applyPendingBossDamageSync() {
+    function buildPendingBossDamageTicks(payload) {
+      if (!payload || payload.bossActive !== true) return [];
+    
+      const coins = Array.isArray(payload.coins) ? payload.coins : [];
+      const bossMaxHp = Math.max(1, Number(payload.bossMaxHp || 1500));
+      const visibleStartHp = Math.max(
+        0,
+        Math.min(bossMaxHp, Number(overlayState.lastBossHp ?? bossMaxHp))
+      );
+    
+      const finalBossHp = Math.max(
+        0,
+        Math.min(bossMaxHp, Number(payload.bossHp ?? visibleStartHp))
+      );
+    
+      const totalDamage = Math.max(0, visibleStartHp - finalBossHp);
+    
+      if (totalDamage <= 0 || coins.length === 0) return [];
+    
+      const rawCoinDamages = coins.map((coin) => {
+        const value = Number(coin.finalValue ?? coin.value ?? 0);
+        const wasDevoured = coin.devoured === true || coin.coinEaterDevoured === true;
+        return wasDevoured ? 0 : Math.max(0, value);
+      });
+    
+      const rawDamageTotal = rawCoinDamages.reduce((sum, value) => sum + value, 0);
+    
+      let runningHp = visibleStartHp;
+    
+      return coins.map((coin, index) => {
+        let damage = 0;
+    
+        if (rawDamageTotal > 0) {
+          damage = Math.round(totalDamage * (rawCoinDamages[index] / rawDamageTotal));
+        } else if (index === coins.length - 1) {
+          damage = totalDamage;
+        }
+    
+        if (index === coins.length - 1) {
+          damage = Math.max(0, runningHp - finalBossHp);
+        }
+    
+        runningHp = Math.max(finalBossHp, runningHp - damage);
+    
+        return {
+          payload: {
+            ...payload,
+            bossHp: runningHp,
+            bossMaxHp,
+            worldBossDamage: damage,
+            bossDamage: damage
+          },
+          damage,
+          index
+        };
+      }).filter(tick => tick.damage > 0);
+    }
+    
+    function applyNextPendingBossDamageTick() {
       const pending = overlayState.pendingBossDamageSync;
     
-      if (!pending || !pending.payload) return false;
+      if (!pending || !Array.isArray(pending.ticks) || pending.ticks.length === 0) {
+        return false;
+      }
     
-      overlayState.pendingBossDamageSync = null;
+      const nextTick = pending.ticks.shift();
     
-      syncBossHudFromPayload(pending.payload, {
+      syncBossHudFromPayload(nextTick.payload, {
         ...(pending.options || {}),
-        source: "boss-damage-after-slot-land"
+        source: "boss-damage-after-coin-land"
       });
+    
+      if (pending.ticks.length === 0) {
+        overlayState.pendingBossDamageSync = null;
+      }
     
       return true;
     }
@@ -8716,6 +8780,9 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           pullId,
           pullCount
         );
+        
+        applyNextPendingBossDamageTick();
+        await wait(120);
       } else {
       
         const staggerDelay = Math.max(
@@ -8744,7 +8811,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
               true,
               pullId,
               pullCount
-            )
+            ).then(async () => {
+              applyNextPendingBossDamageTick();
+              await wait(120);
+            })
           );
         
           if (i < slots.length - 1) {
@@ -8754,9 +8824,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         
         await Promise.all(activeSpinPromises);
       }
-
-      applyPendingBossDamageSync();
-      await wait(140);
       
       if (
         overlayState.pendingEruption &&
@@ -9141,8 +9208,9 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       if (hasDeferredBossDamage) {
         overlayState.pendingBossDamageSync = {
           payload: data,
+          ticks: buildPendingBossDamageTicks(data),
           options: {
-            source: "coinForgePull-after-slot-land"
+            source: "coinForgePull-after-each-coin-land"
           }
         };
       } else {
