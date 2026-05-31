@@ -2621,80 +2621,36 @@
     
     @keyframes bossSpriteHitReaction {
       0% { transform: translateX(0px) translateY(0px) scale(1); filter: brightness(1); }
-      10% { transform: translateX(-18px) translateY(-7px) scale(1.045); filter: brightness(2.15) saturate(0.72); }
-      22% { transform: translateX(13px) translateY(4px) scale(0.972); filter: brightness(0.7) saturate(1.35); }
-      38% { transform: translateX(-9px) translateY(2px) scale(1.026); filter: brightness(1.75) saturate(0.86); }
-      58% { transform: translateX(6px) translateY(-2px) scale(0.992); filter: brightness(1.22) saturate(1.12); }
+      14% { transform: translateX(-7px) translateY(-3px) scale(1.018); filter: brightness(1.55) saturate(0.86); }
+      32% { transform: translateX(5px) translateY(2px) scale(0.988); filter: brightness(0.86) saturate(1.18); }
+      54% { transform: translateX(-3px) translateY(1px) scale(1.008); filter: brightness(1.28) saturate(0.94); }
       100% { transform: translateX(0px) translateY(0px) scale(1); filter: brightness(1); }
     }
 
     @keyframes bossSpriteHurtViolence {
       0% {
-        transform:
-          translateX(0px)
-          translateY(0px)
-          scale(1);
-    
-        filter:
-          brightness(1)
-          saturate(1);
+        transform: translateX(0px) translateY(0px) scale(1);
+        filter: brightness(1) saturate(1);
       }
     
-      12% {
-        transform:
-          translateX(-18px)
-          translateY(-8px)
-          scale(1.08);
-    
-        filter:
-          brightness(2.4)
-          saturate(0.42)
-          hue-rotate(165deg);
+      16% {
+        transform: translateX(-7px) translateY(-3px) scale(1.025);
+        filter: brightness(1.75) saturate(0.72) hue-rotate(150deg);
       }
     
-      26% {
-        transform:
-          translateX(14px)
-          translateY(5px)
-          scale(0.96);
-    
-        filter:
-          brightness(0.55)
-          saturate(1.55);
+      36% {
+        transform: translateX(5px) translateY(2px) scale(0.988);
+        filter: brightness(0.78) saturate(1.25);
       }
     
-      48% {
-        transform:
-          translateX(-12px)
-          translateY(3px)
-          scale(1.04);
-    
-        filter:
-          brightness(2)
-          saturate(0.55)
-          hue-rotate(150deg);
-      }
-    
-      72% {
-        transform:
-          translateX(8px)
-          translateY(-2px)
-          scale(0.985);
-    
-        filter:
-          brightness(1.4)
-          saturate(1.2);
+      62% {
+        transform: translateX(-3px) translateY(1px) scale(1.008);
+        filter: brightness(1.35) saturate(0.86) hue-rotate(145deg);
       }
     
       100% {
-        transform:
-          translateX(0px)
-          translateY(0px)
-          scale(1);
-    
-        filter:
-          brightness(1)
-          saturate(1);
+        transform: translateX(0px) translateY(0px) scale(1);
+        filter: brightness(1) saturate(1);
       }
     }
     
@@ -6692,6 +6648,41 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         }
       }
     }
+
+    function applyPendingBossDamageSync() {
+      const pending = overlayState.pendingBossDamageSync;
+    
+      if (!pending || !pending.payload) return false;
+    
+      overlayState.pendingBossDamageSync = null;
+    
+      const {
+        bossType,
+        payload,
+        options,
+        bossHp,
+        bossMaxHp,
+        hpPercent
+      } = pending;
+    
+      if (bossHpFill) {
+        bossHpFill.style.width = "336px";
+        bossHpFill.style.transform = `scaleX(${hpPercent / 100})`;
+      }
+    
+      if (bossHpText) {
+        bossHpText.textContent = `${bossHp}/${bossMaxHp} HP`;
+      }
+    
+      overlayState.lastBossHp = bossHp;
+    
+      triggerBossDamageReaction(bossType, payload, {
+        ...options,
+        source: "boss-damage-after-slot-land"
+      });
+    
+      return true;
+    }
     
     function syncBossHudFromPayload(payload, options = {}) {
       if (!payload || payload.bossActive !== true) {
@@ -6723,7 +6714,21 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       updateInvidraHpThresholdState(bossType, hpPercent);
 
-      if (bossHp > 0) {
+      const shouldDelayBossDamageSync =
+        options.deferDamageSync === true &&
+        bossHp > 0 &&
+        Number(payload.worldBossDamage || payload.bossDamage || 0) > 0;
+      
+      if (shouldDelayBossDamageSync) {
+        overlayState.pendingBossDamageSync = {
+          bossType,
+          payload,
+          options,
+          bossHp,
+          bossMaxHp,
+          hpPercent
+        };
+      } else if (bossHp > 0) {
         triggerBossDamageReaction(bossType, payload, options);
       }
     
@@ -6737,16 +6742,20 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         bossHudLayer.classList.add("active");
       }
     
-      if (bossHpFill) {
-        bossHpFill.style.width = "336px";
-        bossHpFill.style.transform = `scaleX(${hpPercent / 100})`;
+      if (!shouldDelayBossDamageSync) {
+        if (bossHpFill) {
+          bossHpFill.style.width = "336px";
+          bossHpFill.style.transform = `scaleX(${hpPercent / 100})`;
+        }
+      
+        if (bossHpText) {
+          bossHpText.textContent = `${bossHp}/${bossMaxHp} HP`;
+        }
       }
     
-      if (bossHpText) {
-        bossHpText.textContent = `${bossHp}/${bossMaxHp} HP`;
+      if (!shouldDelayBossDamageSync) {
+        overlayState.lastBossHp = bossHp;
       }
-    
-      overlayState.lastBossHp = bossHp;
     
       return true;
     }
@@ -8783,7 +8792,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         
         await Promise.all(activeSpinPromises);
       }
-  
+
+      applyPendingBossDamageSync();
+      await wait(140);
+      
       if (
         overlayState.pendingEruption &&
         overlayState.pendingEruption.pullId === pullId
@@ -9160,7 +9172,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       window.latestCoinForgePayload = data;
 
-      syncBossHudFromPayload(data);
+      syncBossHudFromPayload(data, {
+        deferDamageSync: true,
+        source: "coinForgePull-pre-reveal"
+      });
                   
       enqueueForgeEvent(data);
     }
