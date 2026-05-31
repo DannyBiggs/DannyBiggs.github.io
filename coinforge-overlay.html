@@ -4799,6 +4799,8 @@
       isAnimating: false,
     
       activePayload: null,
+
+      deferredBossDefeatPayload: null,
     
       activePullId: null,
     
@@ -9606,8 +9608,16 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       }
     
       forgeEventPlaying = false;
+      
+      if (overlayState.deferredBossDefeatPayload) {
+        const deferredBossDefeatPayload = overlayState.deferredBossDefeatPayload;
+        overlayState.deferredBossDefeatPayload = null;
+        handleStreamerbotMessage(deferredBossDefeatPayload);
+      }
     }
 
+    
+    
     async function showWeeklyWinnerCeremony(data) {
       if (!weeklyCeremony) return;
     
@@ -9760,6 +9770,26 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       }
       
       if (data.type === "coinForgeBossState") {
+        const isDefeatStatePayload =
+          data.active === true &&
+          (
+            data.defeated === true ||
+            data.bossDefeated === true ||
+            String(data.bossEncounterState || data.encounterState || "").toLowerCase() === "defeated"
+          );
+      
+        if (
+          isDefeatStatePayload &&
+          (
+            forgeEventPlaying === true ||
+            overlayState.isAnimating === true ||
+            overlayState.pendingBossDamageSync
+          )
+        ) {
+          overlayState.deferredBossDefeatPayload = data;
+          return;
+        }
+      
         if (
           data.active === false ||
           data.clear === true ||
@@ -9767,36 +9797,29 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         ) {
           overlayState.bossWorldSyncSuppressed = true;
           overlayState.pendingBossDamageSync = null;
-          
+      
           const endedAsDefeat =
             data.defeated === true ||
             data.bossDefeated === true ||
             String(data.bossEncounterState || data.encounterState || "").toLowerCase() === "defeated";
-
+      
           setBossEncounterState(endedAsDefeat ? "defeated" : "escaped", {
             source: "streamerbot",
             payload: data
           });
-          
+      
           setTimeout(() => {
             clearBossWorldState({ force: true });
           }, endedAsDefeat ? 4800 : 900);
-          
+      
           return;
         }
-
+      
         overlayState.bossWorldSyncSuppressed = false;
-
+      
         const incomingBossType = data.bossType || data.bossName || data.boss;
         const normalizedIncomingBossType = normalizeBossWorldType(incomingBossType);
-        
-        const incomingEncounterState =
-          data.bossDefeated === true ||
-          data.defeated === true ||
-          String(data.bossEncounterState || data.encounterState || "").toLowerCase() === "defeated"
-            ? "defeated"
-            : "spawning";
-        
+      
         const normalizedBossPayload = {
           bossActive: true,
           bossType: incomingBossType,
@@ -9805,22 +9828,22 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           bossMaxHp: data.bossMaxHp ?? data.maxHp ?? 1500,
           bossDefeated: data.bossDefeated === true || data.defeated === true,
           defeated: data.bossDefeated === true || data.defeated === true,
-          bossEncounterState: incomingEncounterState
+          bossEncounterState: data.bossEncounterState || data.encounterState || "spawning"
         };
-        
+      
         const shouldPlayInvidraIntro =
           normalizedIncomingBossType === "invidra" &&
           overlayState.activeBossWorldState?.type !== "invidra";
-        
+      
         if (shouldPlayInvidraIntro) {
           triggerInvidraIntro(normalizedBossPayload);
           return;
         }
-        
+      
         syncBossHudFromPayload(normalizedBossPayload, {
           source: "streamerbot"
         });
-        
+      
         return;
       }
       
