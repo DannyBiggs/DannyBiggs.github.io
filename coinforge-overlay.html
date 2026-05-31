@@ -7208,6 +7208,29 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         Math.min(bossMaxHp, Number(payload.bossHp ?? visibleStartHp))
       );
 
+      const baseCoinBossDamageByName = {
+        wood: 1,
+        bronze: 25,
+        silver: 50,
+        gold: 100,
+        diamond: 500,
+        rainbow: 2000,
+        anti: 0,
+        jackpotbooster: 0,
+        kingmaker: 0,
+        lucky: 0
+      };
+
+      function getBaseBossDamageForCoin(coin) {
+        const rawName = String(coin?.name || coin?.coinName || "").toLowerCase();
+        const key = rawName
+          .replace(" coin", "")
+          .replace(/\s+/g, "")
+          .trim();
+
+        return baseCoinBossDamageByName[key] ?? 0;
+      }
+
       const coreBreachTriggerIndex = coins.findIndex((coin) =>
         coin?.jackpotHit === true ||
         coin?.coreBreach === true ||
@@ -7218,11 +7241,20 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       const hasCoreBreach = coreBreachTriggerIndex >= 0;
       const isHealing = finalBossHp > visibleStartHp;
     
-      const rawCoinWeights = coins.map((coin) => {
-        const value = Number(coin.finalValue ?? coin.value ?? 0);
+      const rawCoinWeights = coins.map((coin, index) => {
         const wasDevoured = coin.devoured === true || coin.coinEaterDevoured === true;
-    
         if (wasDevoured) return 0;
+
+        const isCoreBreachCoin =
+          hasCoreBreach &&
+          index === coreBreachTriggerIndex &&
+          !isHealing;
+
+        if (isCoreBreachCoin) {
+          return getBaseBossDamageForCoin(coin);
+        }
+
+        const value = Number(coin.finalValue ?? coin.value ?? 0);
     
         return isHealing
           ? Math.max(0, Math.abs(Math.min(0, value)))
