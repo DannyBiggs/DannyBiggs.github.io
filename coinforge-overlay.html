@@ -7276,7 +7276,16 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         source: "boss-damage-after-coin-land",
         suppressBossHurtReaction: !shouldPlayReaction
       });
-    
+
+      const bossHpReachedZero =
+        Number(nextTick.payload?.bossHp ?? 999999) <= 0;
+
+      if (bossHpReachedZero && overlayState.deferredBossDefeatPayload) {
+        const deferredBossDefeatPayload = overlayState.deferredBossDefeatPayload;
+        overlayState.deferredBossDefeatPayload = null;
+        handleStreamerbotMessage(deferredBossDefeatPayload);
+      }
+      
       if (shouldPlayReaction) {
         pending.reactionPlayed = true;
       }
@@ -9778,15 +9787,21 @@ function getCachedCoinFrame(coinKey, frameNumber) {
             String(data.bossEncounterState || data.encounterState || "").toLowerCase() === "defeated"
           );
       
-        if (
-          isDefeatStatePayload &&
-          (
-            forgeEventPlaying === true ||
-            overlayState.isAnimating === true ||
-            overlayState.pendingBossDamageSync
-          )
-        ) {
+        if (isDefeatStatePayload) {
           overlayState.deferredBossDefeatPayload = data;
+
+          const bossHpAlreadyReachedZero =
+            Number(overlayState.lastBossHp ?? 999999) <= 0;
+
+          if (
+            bossHpAlreadyReachedZero &&
+            !overlayState.pendingBossDamageSync
+          ) {
+            const deferredBossDefeatPayload = overlayState.deferredBossDefeatPayload;
+            overlayState.deferredBossDefeatPayload = null;
+            handleStreamerbotMessage(deferredBossDefeatPayload);
+          }
+
           return;
         }
       
