@@ -4801,6 +4801,8 @@
       activePayload: null,
 
       deferredBossDefeatPayload: null,
+
+      pendingCoreBreachBossDamageSync: null,
     
       activePullId: null,
     
@@ -6229,7 +6231,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
         addStageEffect(pullId, "forge-erupting", 2200, { restart: true });
         playForgeResonanceDischarge(pullId);
-
+        applyPendingCoreBreachBossDamageTick({
+          source: "boss-damage-after-core-breach-discharge"
+        });
+        
         await wait(2200);
 
         forgeStage.classList.remove("forge-erupting");
@@ -6275,6 +6280,9 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       if (isActivePull(pullId)) {
         forgeStage.classList.add("eruption-forge-returning");
         playForgeResonanceDischarge(pullId);
+        applyPendingCoreBreachBossDamageTick({
+          source: "boss-damage-after-core-breach-discharge"
+        });
       }
       
       await wait(2200);
@@ -7199,12 +7207,16 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         0,
         Math.min(bossMaxHp, Number(payload.bossHp ?? visibleStartHp))
       );
-    
-      const totalHpDelta = finalBossHp - visibleStartHp;
-    
-      if (totalHpDelta === 0 || coins.length === 0) return [];
-    
-      const isHealing = totalHpDelta > 0;
+
+      const coreBreachTriggerIndex = coins.findIndex((coin) =>
+        coin?.jackpotHit === true ||
+        coin?.coreBreach === true ||
+        coin?.forgeCoreBreach === true ||
+        coin?.breachTriggered === true
+      );
+
+      const hasCoreBreach = coreBreachTriggerIndex >= 0;
+      const isHealing = finalBossHp > visibleStartHp;
     
       const rawCoinWeights = coins.map((coin) => {
         const value = Number(coin.finalValue ?? coin.value ?? 0);
@@ -7218,6 +7230,44 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       });
     
       const rawWeightTotal = rawCoinWeights.reduce((sum, value) => sum + value, 0);
+
+      const totalDamageNeeded = Math.max(0, visibleStartHp - finalBossHp);
+      const reservedCoreBreachDamage =
+        hasCoreBreach && !isHealing
+          ? Math.max(0, totalDamageNeeded - rawWeightTotal)
+          : 0;
+
+      const coinTargetFinalHp =
+        reservedCoreBreachDamage > 0
+          ? Math.max(0, Math.min(bossMaxHp, finalBossHp + reservedCoreBreachDamage))
+          : finalBossHp;
+
+      if (reservedCoreBreachDamage > 0) {
+        overlayState.pendingCoreBreachBossDamageSync = {
+          payload: {
+            ...payload,
+            bossHp: finalBossHp,
+            bossMaxHp,
+            worldBossDamage: reservedCoreBreachDamage,
+            bossDamage: reservedCoreBreachDamage,
+            worldBossHealing: 0,
+            bossHealing: 0,
+            bossDefeated: finalBossHp <= 0,
+            defeated: finalBossHp <= 0,
+            bossEncounterState: finalBossHp <= 0 ? "defeated" : "active",
+            encounterState: finalBossHp <= 0 ? "defeated" : "active"
+          },
+          options: {
+            source: "core-breach-delayed-boss-damage"
+          }
+        };
+      } else {
+        overlayState.pendingCoreBreachBossDamageSync = null;
+      }
+
+      const totalHpDelta = coinTargetFinalHp - visibleStartHp;
+    
+      if (totalHpDelta === 0 || coins.length === 0) return [];
     
       let runningHp = visibleStartHp;
       const ticks = [];
@@ -7228,13 +7278,17 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
         if (coinWeight > 0) {
           const desiredDelta = isHealing ? coinWeight : -coinWeight;
-          const remainingDelta = finalBossHp - runningHp;
+          const remainingDelta = coinTargetFinalHp - runningHp;
     
           hpDelta = isHealing
             ? Math.min(desiredDelta, Math.max(0, remainingDelta))
             : Math.max(desiredDelta, Math.min(0, remainingDelta));
-        } else if (rawWeightTotal <= 0 && index === coins.length - 1) {
-          hpDelta = finalBossHp - runningHp;
+        } else if (
+          rawWeightTotal <= 0 &&
+          reservedCoreBreachDamage <= 0 &&
+          index === coins.length - 1
+        ) {
+          hpDelta = coinTargetFinalHp - runningHp;
         }
     
         const nextHp = Math.max(
@@ -7314,6 +7368,37 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       return true;
     }
 
+    function applyPendingCoreBreachBossDamageTick(options = {}) {
+      if (overlayState.bossWorldSyncSuppressed === true) {
+        overlayState.pendingCoreBreachBossDamageSync = null;
+        return false;
+      }
+
+      const pending = overlayState.pendingCoreBreachBossDamageSync;
+
+      if (!pending || !pending.payload) {
+        return false;
+      }
+
+      overlayState.pendingCoreBreachBossDamageSync = null;
+
+      syncBossHudFromPayload(pending.payload, {
+        ...(pending.options || {}),
+        source: options.source || "boss-damage-after-core-breach-impact"
+      });
+
+      const bossHpReachedZero =
+        Number(pending.payload?.bossHp ?? 999999) <= 0;
+
+      if (bossHpReachedZero) {
+        flushDeferredBossDefeatPayload({
+          source: "boss-defeat-after-core-breach-impact"
+        });
+      }
+
+      return true;
+    }
+    
     function flushDeferredBossDefeatPayload(options = {}) {
       const deferredPayload = overlayState.deferredBossDefeatPayload;
 
@@ -9865,7 +9950,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         ) {
           overlayState.bossWorldSyncSuppressed = true;
           overlayState.pendingBossDamageSync = null;
-      
+          overlayState.pendingCoreBreachBossDamageSync = null;
+          
           const endedAsDefeat =
             data.defeated === true ||
             data.bossDefeated === true ||
@@ -9936,6 +10022,9 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         hasDeferredBossHpChange
           ? buildPendingBossDamageTicks(data)
           : [];
+
+      const hasPendingCoreBreachBossDamage =
+        Boolean(overlayState.pendingCoreBreachBossDamageSync);
       
       if (hasDeferredBossHpChange && pendingBossDamageTicks.length > 0) {
         overlayState.pendingBossDamageSync = {
@@ -9946,7 +10035,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
             source: "coinForgePull-after-each-coin-land"
           }
         };
-      } else if (overlayState.bossWorldSyncSuppressed !== true) {
+      } else if (
+        overlayState.bossWorldSyncSuppressed !== true &&
+        !hasPendingCoreBreachBossDamage
+      ) {
         syncBossHudFromPayload(data, {
           source: "coinForgePull-pre-reveal"
         });
