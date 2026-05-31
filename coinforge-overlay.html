@@ -1286,7 +1286,24 @@
     
       left: 50%;
       top: 50%;
-
+    
+      width: 210px !important;
+      height: 210px !important;
+    
+      object-fit: contain;
+      image-rendering: pixelated;
+    
+      pointer-events: none;
+    
+      opacity: 0;
+    
+      z-index: 12 !important;
+    
+      transform: translate(-50%, -50%) scale(0.85);
+    
+      flex: none;
+    }
+    
     .invidra-omen-eye-flash {
       position: absolute;
       left: 50%;
@@ -1316,23 +1333,6 @@
       filter:
         drop-shadow(0 0 12px rgba(80, 240, 255, 0.75))
         drop-shadow(0 0 28px rgba(20, 80, 255, 0.45));
-    }
-      
-      width: 210px !important;
-      height: 210px !important;
-    
-      object-fit: contain;
-      image-rendering: pixelated;
-    
-      pointer-events: none;
-    
-      opacity: 0;
-    
-      z-index: 12 !important;
-    
-      transform: translate(-50%, -50%) scale(0.85);
-    
-      flex: none;
     }
     
     .slot-wrap .overcharge-duplicate-coin {
@@ -2645,6 +2645,110 @@
       animation: invidraBossHitScreenPulse 1650ms ease-out;
     }
 
+    .invidra-intro-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0;
+      visibility: hidden;
+      z-index: 30;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      image-rendering: pixelated;
+    }
+    
+    .encounter-layer.invidra-intro-active .invidra-intro-layer {
+      visibility: visible;
+      animation: invidraIntroLayerFade 5200ms ease-in-out forwards;
+    }
+    
+    .invidra-intro-eye {
+      width: 260px;
+      height: 150px;
+      background-image: url("images/bosses/invidra/InvidraOmenEyeBlue.png");
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: contain;
+      opacity: 0;
+      filter:
+        drop-shadow(0 0 18px rgba(80, 240, 255, 0.8))
+        drop-shadow(0 0 46px rgba(20, 80, 255, 0.5));
+      animation: invidraIntroEyePulse 5200ms ease-in-out forwards;
+    }
+    
+    .encounter-layer.invidra-intro-reveal .invidra-intro-eye {
+      background-image: url("images/bosses/invidra/InvidraOmenEyeRed.png");
+      filter:
+        drop-shadow(0 0 20px rgba(255, 40, 40, 0.85))
+        drop-shadow(0 0 54px rgba(120, 0, 0, 0.55));
+    }
+    
+    .invidra-intro-title {
+      margin-top: 18px;
+      font-family: "CoinForgeName", "ComboFont", monospace;
+      font-size: 42px;
+      letter-spacing: 5px;
+      color: #58f6ff;
+      opacity: 0;
+      text-shadow:
+        0 0 8px rgba(0, 0, 0, 1),
+        0 0 18px rgba(80, 240, 255, 0.9),
+        0 0 42px rgba(20, 80, 255, 0.55);
+      animation: invidraIntroTextReveal 5200ms ease-in-out forwards;
+    }
+    
+    .encounter-layer.invidra-intro-reveal .invidra-intro-title {
+      color: #ff3838;
+      text-shadow:
+        0 0 8px rgba(0, 0, 0, 1),
+        0 0 18px rgba(255, 45, 45, 0.9),
+        0 0 42px rgba(120, 0, 0, 0.55);
+    }
+    
+    .invidra-intro-subtitle {
+      margin-top: 14px;
+      font-family: "ComboFont", monospace;
+      font-size: 13px;
+      letter-spacing: 3px;
+      color: #d9fbff;
+      opacity: 0;
+      text-shadow:
+        0 0 8px rgba(0, 0, 0, 1),
+        0 0 18px rgba(80, 240, 255, 0.72);
+      animation: invidraIntroSubtitleReveal 5200ms ease-in-out forwards;
+    }
+    
+    @keyframes invidraIntroLayerFade {
+      0% { opacity: 0; }
+      12% { opacity: 1; }
+      78% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+    
+    @keyframes invidraIntroEyePulse {
+      0% { opacity: 0; transform: scale(0.72); }
+      14% { opacity: 1; transform: scale(1); }
+      44% { opacity: 0.72; transform: scale(1.08); }
+      58% { opacity: 1; transform: scale(1.22); }
+      100% { opacity: 0; transform: scale(1.36); }
+    }
+    
+    @keyframes invidraIntroTextReveal {
+      0% { opacity: 0; transform: translateY(18px) scale(0.96); }
+      18% { opacity: 1; transform: translateY(0) scale(1); }
+      72% { opacity: 1; transform: translateY(0) scale(1); }
+      100% { opacity: 0; transform: translateY(-14px) scale(1.04); }
+    }
+    
+    @keyframes invidraIntroSubtitleReveal {
+      0% { opacity: 0; transform: translateY(12px); }
+      26% { opacity: 0.92; transform: translateY(0); }
+      68% { opacity: 0.92; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-10px); }
+    }
+    
     .boss-sprite-layer.boss-sprite-attack-react {
       animation: invidraAttackLoom 1250ms cubic-bezier(.22,.74,.18,1) forwards;
     }
@@ -4369,18 +4473,25 @@
     <span class="ember"></span>
   </div>
   
-  <div id="encounterLayer" class="encounter-layer">
-    <div id="invidraPresenceFog" class="invidra-presence-fog"></div>
-    <div id="bossSpriteLayer" class="boss-sprite-layer">
-      <img id="bossSpriteImage" class="boss-sprite-image" src="" alt="">
-     <div id="bossNamePlate" class="boss-nameplate">INVIDRA</div>
-      <div id="bossHudLayer" class="boss-hud-layer">
-        <div id="bossHpFill" class="boss-hp-fill"></div>
-        <img id="bossHpFrame" class="boss-hp-frame" src="images/bosses/invidra/InvidraHPBar.png" alt="">
-        <div id="bossHpText" class="boss-hp-text">1500/1500 HP</div>
-      </div>
+ <div id="encounterLayer" class="encounter-layer">
+  <div id="invidraPresenceFog" class="invidra-presence-fog"></div>
+
+  <div id="invidraIntroLayer" class="invidra-intro-layer">
+    <div class="invidra-intro-eye"></div>
+    <div class="invidra-intro-title">INVIDRA AWAKENS</div>
+    <div class="invidra-intro-subtitle">THE FORGE IS BEING WATCHED</div>
+  </div>
+
+  <div id="bossSpriteLayer" class="boss-sprite-layer">
+    <img id="bossSpriteImage" class="boss-sprite-image" src="" alt="">
+    <div id="bossNamePlate" class="boss-nameplate">INVIDRA</div>
+    <div id="bossHudLayer" class="boss-hud-layer">
+      <div id="bossHpFill" class="boss-hp-fill"></div>
+      <img id="bossHpFrame" class="boss-hp-frame" src="images/bosses/invidra/InvidraHPBar.png" alt="">
+      <div id="bossHpText" class="boss-hp-text">1500/1500 HP</div>
     </div>
   </div>
+</div>
   
   <div class="overlay-root">
     <div class="forge-simulator">
@@ -4530,6 +4641,12 @@
     
     const forgeEruptionExplosionSound = new Audio("sounds/resonance_eruption_short.m4a");
     forgeEruptionExplosionSound.volume = 0.42;
+
+    const invidraIntroSound = new Audio("sounds/bosses/invidra/INVIDRAIntro.m4a");
+    invidraIntroSound.volume = 0.42;
+    
+    const invidraRoarSound = new Audio("sounds/bosses/invidra/INVIDRARoar.m4a");
+    invidraRoarSound.volume = 0.48;
     
     const comboSounds = {
       broken: new Audio("sounds/combo/combo-broken.mp3"),
@@ -4547,6 +4664,10 @@
     const overlayState = {
       queue: [],
     
+      invidraIntroRevealTimer: null,
+
+      invidraIntroCleanupTimer: null,
+      
       isAnimating: false,
     
       activePayload: null,
@@ -6435,6 +6556,53 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       return "";
     }
 
+    function triggerInvidraIntro(payload = {}) {
+      if (!encounterLayer) return false;
+    
+      clearTimeout(overlayState.invidraIntroRevealTimer);
+      clearTimeout(overlayState.invidraIntroCleanupTimer);
+    
+      encounterLayer.classList.remove(
+        "invidra-intro-active",
+        "invidra-intro-reveal"
+      );
+    
+      void encounterLayer.offsetWidth;
+    
+      encounterLayer.classList.add("invidra-intro-active");
+    
+      try {
+        invidraIntroSound.currentTime = 0;
+        invidraIntroSound.play().catch(() => {});
+      } catch (error) {
+        console.warn("Invidra intro sound failed:", error);
+      }
+    
+      overlayState.invidraIntroRevealTimer = setTimeout(() => {
+        encounterLayer.classList.add("invidra-intro-reveal");
+    
+        try {
+          invidraRoarSound.currentTime = 0;
+          invidraRoarSound.play().catch(() => {});
+        } catch (error) {
+          console.warn("Invidra roar sound failed:", error);
+        }
+    
+        setBossSpriteState("invidra", "idle", {
+          source: "invidra-intro-reveal"
+        });
+      }, 2400);
+    
+      overlayState.invidraIntroCleanupTimer = setTimeout(() => {
+        encounterLayer.classList.remove(
+          "invidra-intro-active",
+          "invidra-intro-reveal"
+        );
+      }, 5200);
+    
+      return true;
+    }
+    
     function setBossWorldState(type, options = {}) {
       if (!forgeStage) return false;
 
@@ -6487,7 +6655,9 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           ...bossWorldStateClasses,
           "invidra-hp-wounded",
           "invidra-hp-danger",
-          "invidra-hp-critical"
+          "invidra-hp-critical",
+          "invidra-intro-active",
+          "invidra-intro-reveal"
         );
       
         delete encounterLayer.dataset.bossWorldState;
