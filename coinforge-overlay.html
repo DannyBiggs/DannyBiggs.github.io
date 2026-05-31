@@ -2807,6 +2807,41 @@
       transform-origin: left bottom;
       will-change: transform, filter;
     }
+
+    .boss-sprite-layer.boss-sprite-avaros.boss-sprite-attack .boss-sprite-image {
+      animation: avarosSiphonPulse 1250ms ease-in-out forwards;
+      transform-origin: center bottom;
+    }
+
+    .boss-sprite-layer.boss-sprite-avaros.boss-sprite-attack-react .boss-sprite-image {
+      animation: avarosSiphonLunge 1250ms cubic-bezier(.22,.74,.18,1) forwards;
+      transform-origin: center bottom;
+      will-change: transform, filter;
+    }
+
+    .boss-sprite-layer.boss-sprite-avaros.boss-sprite-attack-return .boss-sprite-image {
+      animation: avarosSiphonReturnSettle 220ms ease-out forwards;
+      transform-origin: center bottom;
+      will-change: transform, filter;
+    }
+
+    @keyframes avarosSiphonPulse {
+      0% { transform: scale(1); filter: brightness(1); }
+      38% { transform: scale(1.08); filter: brightness(1.35) saturate(1.2); }
+      100% { transform: scale(1.02); filter: brightness(1.05); }
+    }
+
+    @keyframes avarosSiphonLunge {
+      0% { transform: translateY(0px) scale(1.02); filter: brightness(1); }
+      30% { transform: translateY(-10px) scale(1.12); filter: brightness(1.45) saturate(1.25); }
+      68% { transform: translateY(4px) scale(1.18); filter: brightness(1.2) saturate(0.9); }
+      100% { transform: translateY(0px) scale(1.06); filter: brightness(1.05); }
+    }
+
+    @keyframes avarosSiphonReturnSettle {
+      0% { transform: translateY(0px) scale(1.06); filter: brightness(1.05); }
+      100% { transform: translateY(0px) scale(1); filter: brightness(1); }
+    }
     
     @keyframes invidraAttackLoom {
       0% { transform: translateX(0px) translateY(0px) scale(1.03); filter: brightness(1); }
@@ -7061,53 +7096,53 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
     function triggerBossAttackReaction(bossType, options = {}) {
       const safeBossType = normalizeBossWorldType(bossType);
-    
-      if (safeBossType !== "invidra") return false;
-      if (overlayState.activeBossWorldState?.type !== "invidra") return false;
-    
+
+      if (safeBossType !== "invidra" && safeBossType !== "avaros") return false;
+      if (overlayState.activeBossWorldState?.type !== safeBossType) return false;
+
       clearTimeout(overlayState.bossAttackReactionTimer);
       clearTimeout(overlayState.bossAttackReturnTimer);
-    
+
       setBossEncounterState("attacking", {
         source: options.source || "boss-attack-reaction",
         payload: options.payload || null
       });
-    
-      setBossSpriteState("invidra", "attack", {
+
+      setBossSpriteState(safeBossType, "attack", {
         source: options.source || "boss-attack-reaction"
       });
-    
+
       if (bossSpriteLayer) {
         bossSpriteLayer.classList.remove("boss-sprite-attack-react");
         void bossSpriteLayer.offsetWidth;
         bossSpriteLayer.classList.add("boss-sprite-attack-react");
       }
-    
+
       overlayState.bossAttackReactionTimer = setTimeout(() => {
         if (
-          overlayState.activeBossWorldState?.type === "invidra" &&
+          overlayState.activeBossWorldState?.type === safeBossType &&
           overlayState.bossEncounterState === "attacking"
         ) {
           if (bossSpriteLayer) {
             bossSpriteLayer.classList.remove("boss-sprite-attack-react");
             bossSpriteLayer.classList.add("boss-sprite-attack-return");
           }
-      
+
           overlayState.bossAttackReturnTimer = setTimeout(() => {
             if (
-              overlayState.activeBossWorldState?.type === "invidra" &&
+              overlayState.activeBossWorldState?.type === safeBossType &&
               overlayState.bossEncounterState === "attacking"
             ) {
               setBossEncounterState("active", {
                 source: "boss-attack-reaction-return",
                 payload: options.payload || null
               });
-      
-              setBossSpriteState("invidra", "idle", {
+
+              setBossSpriteState(safeBossType, "idle", {
                 source: "boss-attack-reaction-return"
               });
             }
-      
+
             if (bossSpriteLayer) {
               bossSpriteLayer.classList.remove(
                 "boss-sprite-attack-react",
@@ -7122,7 +7157,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           );
         }
       }, 1250);
-    
+
       return true;
     }
     
