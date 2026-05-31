@@ -2598,40 +2598,22 @@
     
     .boss-sprite-layer.boss-sprite-attack .boss-sprite-image {
       animation: invidraAttackImagePulse 1150ms steps(9, end);
+      transform-origin: left bottom;
     }
     
     @keyframes invidraAttackLoom {
-      0% {
-        transform: translateX(0px) translateY(0px) scale(1);
-        filter: brightness(1);
-      }
-    
-      18% {
-        transform: translateX(24px) translateY(-10px) scale(1.08);
-        filter: brightness(1.24);
-      }
-    
-      42% {
-        transform: translateX(42px) translateY(-16px) scale(1.12);
-        filter: brightness(1.18);
-      }
-    
-      68% {
-        transform: translateX(18px) translateY(-6px) scale(1.06);
-        filter: brightness(1.08);
-      }
-    
-      100% {
-        transform: translateX(0px) translateY(0px) scale(1);
-        filter: brightness(1);
-      }
+      0% { transform: translateX(0px) translateY(0px) scale(1.03); filter: brightness(1); }
+      18% { transform: translateX(26px) translateY(-10px) scale(1.12); filter: brightness(1.24); }
+      42% { transform: translateX(44px) translateY(-16px) scale(1.17); filter: brightness(1.18); }
+      68% { transform: translateX(20px) translateY(-6px) scale(1.11); filter: brightness(1.08); }
+      100% { transform: translateX(0px) translateY(0px) scale(1.03); filter: brightness(1); }
     }
     
     @keyframes invidraAttackImagePulse {
-      0% { filter: brightness(1) saturate(1); }
-      16% { filter: brightness(1.34) saturate(1.18) drop-shadow(0 0 30px rgba(90, 225, 255, 0.66)); }
-      42% { filter: brightness(1.16) saturate(1.08) drop-shadow(0 0 48px rgba(25, 85, 230, 0.52)); }
-      100% { filter: brightness(1) saturate(1); }
+      0% { transform: scale(1.07); filter: brightness(1) saturate(1); }
+      16% { transform: scale(1.09); filter: brightness(1.34) saturate(1.18) drop-shadow(0 0 30px rgba(90, 225, 255, 0.66)); }
+      42% { transform: scale(1.1); filter: brightness(1.16) saturate(1.08) drop-shadow(0 0 48px rgba(25, 85, 230, 0.52)); }
+      100% { transform: scale(1.07); filter: brightness(1) saturate(1); }
     }
     
     @keyframes bossSpriteHitReaction {
