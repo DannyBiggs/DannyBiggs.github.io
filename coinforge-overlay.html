@@ -666,9 +666,14 @@
         inset 0 0 100px rgba(255, 230, 120, 0.92);
       mix-blend-mode: screen;
       animation: forgeResonanceShockwave 1700ms cubic-bezier(.08,.82,.22,1) forwards;
-      z-index: 3;
+      z-index: 18;
     }
 
+    .forge-resonance-shockwave-behind-boss {
+      position: fixed;
+      z-index: 18;
+    }
+    
     .forge-resonance-shockwave.shockwave-2 {
       width: 490px;
       height: 490px;
@@ -2586,6 +2591,29 @@
           rgba(0, 0, 8, 0.24) 100%);
       animation: invidraBossHitScreenPulse 1650ms ease-out;
     }
+
+    .boss-sprite-layer.boss-sprite-attack-react {
+      animation: invidraAttackLunge 1150ms steps(9, end);
+    }
+    
+    .boss-sprite-layer.boss-sprite-attack .boss-sprite-image {
+      animation: invidraAttackImagePulse 1150ms steps(9, end);
+    }
+    
+    @keyframes invidraAttackLunge {
+      0% { transform: translateX(0px) translateY(0px) scale(1); filter: brightness(1); }
+      14% { transform: translateX(20px) translateY(-8px) scale(1.035); filter: brightness(1.32); }
+      34% { transform: translateX(34px) translateY(-2px) scale(1.055); filter: brightness(1.18); }
+      58% { transform: translateX(12px) translateY(2px) scale(1.015); filter: brightness(1.05); }
+      100% { transform: translateX(0px) translateY(0px) scale(1); filter: brightness(1); }
+    }
+    
+    @keyframes invidraAttackImagePulse {
+      0% { filter: brightness(1) saturate(1); }
+      16% { filter: brightness(1.28) saturate(1.16) drop-shadow(0 0 28px rgba(90, 225, 255, 0.62)); }
+      42% { filter: brightness(1.12) saturate(1.05) drop-shadow(0 0 44px rgba(25, 85, 230, 0.48)); }
+      100% { filter: brightness(1) saturate(1); }
+    }
     
     @keyframes bossSpriteHitReaction {
       0% { transform: translateX(0px) translateY(0px) scale(1); filter: brightness(1); }
@@ -2776,18 +2804,19 @@
       filter:
         brightness(0.96)
         saturate(0.92)
-        drop-shadow(0 0 10px rgba(60, 165, 255, 0.34));
+        drop-shadow(0 0 12px rgba(60, 165, 255, 0.42));
     }
     
     .slot-wrap.invidra-corrupted-coin::before {
       opacity: 1;
+      inset: -24%;
       background:
         radial-gradient(circle,
-          rgba(70, 185, 255, 0.18) 0%,
-          rgba(30, 80, 220, 0.13) 38%,
-          rgba(5, 12, 38, 0.16) 64%,
+          rgba(70, 185, 255, 0.24) 0%,
+          rgba(30, 80, 220, 0.16) 34%,
+          rgba(5, 12, 38, 0.18) 62%,
           transparent 80%);
-      animation: invidraCoinOmenAura 1050ms ease-out;
+      animation: invidraCoinOmenAura 1150ms ease-out;
     }
     
     .slot-wrap.invidra-corrupted-coin .slot-coin {
@@ -2803,33 +2832,33 @@
       position: absolute;
       left: 50%;
       top: 50%;
-      width: 132px;
-      height: 82px;
+      width: 245px;
+      height: 150px;
       pointer-events: none;
       z-index: 0;
       opacity: 0;
-      transform: translate(-50%, -50%) scale(0.68);
+      transform: translate(-50%, -50%) scale(0.5);
       border-radius: 50%;
       background:
         radial-gradient(ellipse at center,
-          rgba(190, 250, 255, 0.88) 0%,
-          rgba(80, 210, 255, 0.56) 12%,
-          rgba(20, 85, 230, 0.30) 28%,
-          transparent 54%),
+          rgba(225, 255, 255, 0.92) 0%,
+          rgba(95, 225, 255, 0.64) 10%,
+          rgba(25, 95, 240, 0.38) 24%,
+          transparent 48%),
         radial-gradient(ellipse at center,
           transparent 0%,
-          transparent 34%,
-          rgba(90, 225, 255, 0.82) 37%,
-          rgba(20, 80, 220, 0.46) 44%,
-          transparent 54%);
+          transparent 31%,
+          rgba(110, 235, 255, 0.9) 35%,
+          rgba(30, 90, 230, 0.55) 44%,
+          transparent 55%);
       box-shadow:
-        0 0 14px rgba(80, 215, 255, 0.62),
-        0 0 32px rgba(20, 80, 220, 0.42);
+        0 0 20px rgba(80, 215, 255, 0.72),
+        0 0 54px rgba(20, 80, 220, 0.52);
       mix-blend-mode: screen;
       filter: blur(0.5px);
       animation: invidraSocketEyeOpen 1450ms ease-out;
     }
-
+    
     @keyframes invidraSocketEyeOpen {
       0% {
         opacity: 0;
@@ -2839,25 +2868,25 @@
     
       14% {
         opacity: 0.95;
-        transform: translate(-50%, -50%) scaleX(1.04) scaleY(0.76);
+        transform: translate(-50%, -50%) scaleX(1.08) scaleY(0.82);
         filter: blur(0.5px) brightness(1.35);
       }
     
-      32% {
+      34% {
         opacity: 0.72;
-        transform: translate(-50%, -50%) scaleX(0.92) scaleY(0.62);
+        transform: translate(-50%, -50%) scaleX(0.94) scaleY(0.68);
         filter: blur(0.5px) brightness(1.05);
       }
     
-      58% {
+      62% {
         opacity: 0.86;
-        transform: translate(-50%, -50%) scaleX(1.08) scaleY(0.72);
+        transform: translate(-50%, -50%) scaleX(1.14) scaleY(0.78);
         filter: blur(0.3px) brightness(1.24);
       }
     
       100% {
         opacity: 0;
-        transform: translate(-50%, -50%) scaleX(1.24) scaleY(0.84);
+        transform: translate(-50%, -50%) scaleX(1.32) scaleY(0.92);
         filter: blur(1.5px) brightness(0.9);
       }
     }
@@ -4842,9 +4871,13 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       for (let i = 0; i < 3; i++) {
         const shockwave = document.createElement("div");
-        shockwave.className = `forge-resonance-shockwave shockwave-${i + 1}`;
+        shockwave.className = `forge-resonance-shockwave forge-resonance-shockwave-behind-boss shockwave-${i + 1}`;
         shockwave.style.animationDelay = `${i * 95}ms`;
-        burstLayer.appendChild(shockwave);
+        document.body.appendChild(shockwave);
+      
+        setTimeout(() => {
+          shockwave.remove();
+        }, 2300 + (i * 95));
       }
     
       for (let i = 0; i < 18; i++) {
@@ -5444,6 +5477,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       );
     
       if (!acquired) return;
+    
+      triggerBossAttackReaction("invidra", {
+        source: "omen-corruption-attack"
+      });
     
       if (corruptedSlot) {
         addSlotEffect(
@@ -6532,6 +6569,52 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       return true;
     }
+
+    function triggerBossAttackReaction(bossType, options = {}) {
+      const safeBossType = normalizeBossWorldType(bossType);
+    
+      if (safeBossType !== "invidra") return false;
+      if (overlayState.activeBossWorldState?.type !== "invidra") return false;
+    
+      clearTimeout(overlayState.bossAttackReactionTimer);
+    
+      setBossEncounterState("attacking", {
+        source: options.source || "boss-attack-reaction",
+        payload: options.payload || null
+      });
+    
+      setBossSpriteState("invidra", "attack", {
+        source: options.source || "boss-attack-reaction"
+      });
+    
+      if (bossSpriteLayer) {
+        bossSpriteLayer.classList.remove("boss-sprite-attack-react");
+        void bossSpriteLayer.offsetWidth;
+        bossSpriteLayer.classList.add("boss-sprite-attack-react");
+      }
+    
+      overlayState.bossAttackReactionTimer = setTimeout(() => {
+        if (
+          overlayState.activeBossWorldState?.type === "invidra" &&
+          overlayState.bossEncounterState === "attacking"
+        ) {
+          setBossEncounterState("active", {
+            source: "boss-attack-reaction-return",
+            payload: options.payload || null
+          });
+    
+          setBossSpriteState("invidra", "idle", {
+            source: "boss-attack-reaction-return"
+          });
+        }
+    
+        if (bossSpriteLayer) {
+          bossSpriteLayer.classList.remove("boss-sprite-attack-react");
+        }
+      }, 1150);
+    
+      return true;
+    }
     
     function triggerBossDamageReaction(bossType, payload, options = {}) {
       if (!bossType || !payload || payload.bossActive !== true) return false;
@@ -7603,7 +7686,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           }
 
           triggerGlobalInstabilityReaction("BurnedAway", pullId);
-          triggerCorruptionWave(pullId);
+          triggerCorruptionWave(pullId, slotWrap);
           playOwnedSound(pullId, burnedAwaySound, true);
         }
       }
