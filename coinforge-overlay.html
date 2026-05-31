@@ -6573,37 +6573,37 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
     function triggerInvidraIntro(payload = {}) {
       if (!encounterLayer) return false;
-    
+
       const introRevealDelayMs = 7000;
       const introCleanupDelayMs = 8200;
-    
+
       clearTimeout(overlayState.invidraIntroRevealTimer);
       clearTimeout(overlayState.invidraIntroCleanupTimer);
-    
+
       encounterLayer.classList.remove(
         "invidra-intro-active",
         "invidra-intro-reveal"
       );
-    
+
       void encounterLayer.offsetWidth;
-    
-      encounterLayer.classList.add("invidra-intro-active");
-    
+
+      encounterLayer.classList.add("active", "invidra-intro-active");
+
       try {
         invidraIntroSound.currentTime = 0;
         invidraIntroSound.play().catch(() => {});
       } catch (error) {
         console.warn("Invidra intro sound failed:", error);
       }
-    
+
       overlayState.invidraIntroRevealTimer = setTimeout(() => {
-        encounterLayer.classList.add("invidra-intro-reveal");
-    
         syncBossHudFromPayload(payload, {
           source: "invidra-intro-reveal",
           suppressBossHurtReaction: true
         });
-    
+
+        encounterLayer.classList.add("invidra-intro-reveal");
+
         try {
           invidraRoarSound.currentTime = 0;
           invidraRoarSound.play().catch(() => {});
@@ -6611,14 +6611,14 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           console.warn("Invidra roar sound failed:", error);
         }
       }, introRevealDelayMs);
-    
+
       overlayState.invidraIntroCleanupTimer = setTimeout(() => {
         encounterLayer.classList.remove(
           "invidra-intro-active",
           "invidra-intro-reveal"
         );
       }, introCleanupDelayMs);
-    
+
       return true;
     }
     
