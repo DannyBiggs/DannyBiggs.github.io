@@ -2667,7 +2667,7 @@
     
     .encounter-layer.invidra-intro-active .invidra-intro-layer {
       visibility: visible;
-      animation: invidraIntroLayerFade 10200ms ease-in-out forwards;
+      animation: invidraIntroLayerFade 8200ms ease-in-out forwards;
     }
     
     .invidra-intro-eye {
@@ -2684,7 +2684,7 @@
     }
     
     .encounter-layer.invidra-intro-active .invidra-intro-eye {
-      animation: invidraIntroEyePulse 7400ms ease-in-out forwards;
+      animation: invidraIntroEyePulse 7000ms ease-in-out forwards;
     }
     
     .encounter-layer.invidra-intro-reveal .invidra-intro-eye {
@@ -2708,7 +2708,7 @@
     }
     
     .encounter-layer.invidra-intro-active .invidra-intro-title {
-      animation: invidraIntroTextReveal 7400ms ease-in-out forwards;
+      animation: invidraIntroTextReveal 7000ms ease-in-out forwards;
     }
     
     .encounter-layer.invidra-intro-reveal .invidra-intro-title {
@@ -2732,7 +2732,7 @@
     }
     
     .encounter-layer.invidra-intro-active .invidra-intro-subtitle {
-      animation: invidraIntroSubtitleReveal 7400ms ease-in-out forwards;
+      animation: invidraIntroSubtitleReveal 7000ms ease-in-out forwards;
     }
     
     @keyframes invidraIntroLayerFade {
@@ -4493,8 +4493,8 @@
 
   <div id="invidraIntroLayer" class="invidra-intro-layer">
     <div class="invidra-intro-eye"></div>
-    <div class="invidra-intro-title">INVIDRA AWAKENS</div>
-    <div class="invidra-intro-subtitle">THE FORGE IS BEING WATCHED</div>
+    <div class="invidra-intro-title">IT CANNOT BEAR THE PROSPERITY OF OTHERS.</div>
+    <div class="invidra-intro-subtitle">FORTUNE ITSELF BEGINS TO ROT.</div>
   </div>
 
   <div id="bossSpriteLayer" class="boss-sprite-layer">
@@ -6574,8 +6574,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     function triggerInvidraIntro(payload = {}) {
       if (!encounterLayer) return false;
     
-      const introRevealDelayMs = 7400;
-      const introCleanupDelayMs = 10200;
+      const introRevealDelayMs = 7000;
+      const introCleanupDelayMs = 8200;
     
       clearTimeout(overlayState.invidraIntroRevealTimer);
       clearTimeout(overlayState.invidraIntroCleanupTimer);
