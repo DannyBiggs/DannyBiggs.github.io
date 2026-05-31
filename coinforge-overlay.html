@@ -2838,6 +2838,40 @@
       animation: invidraDeathAuraCollapse 4200ms ease-out forwards;
     }
 
+    .boss-sprite-layer.avaros-spawn-active .boss-sprite-image {
+      animation:
+        avarosSpawnRise 2200ms ease-out,
+        avarosSpawnShake 180ms linear 10;
+    }
+    
+    @keyframes avarosSpawnRise {
+      0% {
+        opacity: 0;
+        transform: translateY(120px) scale(0.6);
+        filter: brightness(3);
+      }
+    
+      40% {
+        opacity: 1;
+        transform: translateY(-10px) scale(1.08);
+        filter: brightness(2);
+      }
+    
+      100% {
+        opacity: 1;
+        transform: translateY(0px) scale(1);
+        filter: brightness(1);
+      }
+    }
+    
+    @keyframes avarosSpawnShake {
+      0% { translate: 0px 0px; }
+      25% { translate: -2px 1px; }
+      50% { translate: 2px -1px; }
+      75% { translate: -1px 2px; }
+      100% { translate: 0px 0px; }
+    }
+    
     .encounter-layer[data-boss-encounter-state="defeated"]::after {
       content: "";
       position: fixed;
@@ -7563,6 +7597,24 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       return true;
     }
+
+    function playAvarosSpawnCinematic() {
+      if (!bossSpriteLayer) return false;
+    
+      bossSpriteLayer.classList.remove("avaros-spawn-active");
+    
+      void bossSpriteLayer.offsetWidth;
+    
+      bossSpriteLayer.classList.add("avaros-spawn-active");
+    
+      setTimeout(() => {
+        if (bossSpriteLayer) {
+          bossSpriteLayer.classList.remove("avaros-spawn-active");
+        }
+      }, 2400);
+    
+      return true;
+    }
     
     window.setBossSpriteState = setBossSpriteState;
     window.clearBossSpriteState = clearBossSpriteState;
@@ -10031,18 +10083,33 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           bossEncounterState: data.bossEncounterState || data.encounterState || "spawning"
         };
       
+        console.log(
+          "[Boss Payload]",
+          data.bossType,
+          data.bossEncounterState,
+          data.bossHp,
+          data.bossMaxHp
+        );
+        
         const shouldPlayInvidraIntro =
           normalizedIncomingBossType === "invidra" &&
           overlayState.activeBossWorldState?.type !== "invidra";
-      
+        
         if (shouldPlayInvidraIntro) {
           triggerInvidraIntro(normalizedBossPayload);
           return;
         }
-      
+        
         syncBossHudFromPayload(normalizedBossPayload, {
           source: "streamerbot"
         });
+        
+        if (
+          normalizedIncomingBossType === "avaros" &&
+          String(normalizedBossPayload.bossEncounterState || "").toLowerCase() === "spawning"
+        ) {
+          playAvarosSpawnCinematic();
+        }
       
         return;
       }
