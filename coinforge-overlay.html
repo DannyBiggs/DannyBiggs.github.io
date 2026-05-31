@@ -7231,25 +7231,29 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       const rawWeightTotal = rawCoinWeights.reduce((sum, value) => sum + value, 0);
 
-      const totalDamageNeeded = Math.max(0, visibleStartHp - finalBossHp);
-      const reservedCoreBreachDamage =
+      const coinOnlyFinalHp =
         hasCoreBreach && !isHealing
-          ? Math.max(0, totalDamageNeeded - rawWeightTotal)
+          ? Math.max(0, Math.min(bossMaxHp, visibleStartHp - rawWeightTotal))
+          : finalBossHp;
+
+      const delayedCoreBreachDamage =
+        hasCoreBreach && !isHealing && finalBossHp < coinOnlyFinalHp
+          ? coinOnlyFinalHp - finalBossHp
           : 0;
 
       const coinTargetFinalHp =
-        reservedCoreBreachDamage > 0
-          ? Math.max(0, Math.min(bossMaxHp, finalBossHp + reservedCoreBreachDamage))
+        delayedCoreBreachDamage > 0
+          ? coinOnlyFinalHp
           : finalBossHp;
 
-      if (reservedCoreBreachDamage > 0) {
+      if (delayedCoreBreachDamage > 0) {
         overlayState.pendingCoreBreachBossDamageSync = {
           payload: {
             ...payload,
             bossHp: finalBossHp,
             bossMaxHp,
-            worldBossDamage: reservedCoreBreachDamage,
-            bossDamage: reservedCoreBreachDamage,
+            worldBossDamage: delayedCoreBreachDamage,
+            bossDamage: delayedCoreBreachDamage,
             worldBossHealing: 0,
             bossHealing: 0,
             bossDefeated: finalBossHp <= 0,
@@ -7283,11 +7287,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           hpDelta = isHealing
             ? Math.min(desiredDelta, Math.max(0, remainingDelta))
             : Math.max(desiredDelta, Math.min(0, remainingDelta));
-        } else if (
-          rawWeightTotal <= 0 &&
-          reservedCoreBreachDamage <= 0 &&
-          index === coins.length - 1
-        ) {
+        } else if (rawWeightTotal <= 0 && index === coins.length - 1) {
           hpDelta = coinTargetFinalHp - runningHp;
         }
     
