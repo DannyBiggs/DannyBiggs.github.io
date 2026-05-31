@@ -9378,9 +9378,33 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           }
         );
 
+        const coreBreachDefeatedBoss =
+          event.bossDefeated === true ||
+          Number(event.bossHp ?? 1) <= 0;
+
+        if (coreBreachDefeatedBoss && overlayState.bossWorldSyncSuppressed !== true) {
+          syncBossHudFromPayload(
+            {
+              ...event,
+              bossActive: true,
+              bossDefeated: true,
+              bossEncounterState: "defeated",
+              bossHp: 0
+            },
+            {
+              source: "core-breach-defeat-confirm",
+              suppressBossHurtReaction: true
+            }
+          );
+        }
+
         showForgeResonanceResult(event, results, pullId);
 
-        await wait(Math.max(2600, Number(event.displayMs || 0)));
+        await wait(
+          coreBreachDefeatedBoss
+            ? Math.max(5200, Number(event.displayMs || 0))
+            : Math.max(2600, Number(event.displayMs || 0))
+        );
 
         hideForgeStage();
         clearPlayerIdentity();
