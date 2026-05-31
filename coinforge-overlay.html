@@ -9258,6 +9258,15 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         return;
       }
 
+      if (data.type === "coinForgeBossAttack") {
+        triggerBossAttackReaction(data.bossType || data.bossName || "invidra", {
+          source: "streamerbot-boss-attack",
+          payload: data
+        });
+      
+        return;
+      }
+      
       if (data.type === "coinForgeBossState") {
         if (
           data.active === false ||
@@ -9354,7 +9363,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
   
     if (
       payload?.type === "coinForgeWeeklyWinners" ||
-      payload?.type === "coinForgeBossState"
+      payload?.type === "coinForgeBossState" ||
+      payload?.type === "coinForgeBossAttack"
     ) {
       handleStreamerbotMessage(payload);
     }
