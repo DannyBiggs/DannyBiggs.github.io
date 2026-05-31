@@ -9380,23 +9380,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
         const coreBreachDefeatedBoss =
           event.bossDefeated === true ||
-          Number(event.bossHp ?? 1) <= 0;
-
-        if (coreBreachDefeatedBoss && overlayState.bossWorldSyncSuppressed !== true) {
-          syncBossHudFromPayload(
-            {
-              ...event,
-              bossActive: true,
-              bossDefeated: true,
-              bossEncounterState: "defeated",
-              bossHp: 0
-            },
-            {
-              source: "core-breach-defeat-confirm",
-              suppressBossHurtReaction: true
-            }
-          );
-        }
+          event.defeated === true ||
+          String(event.bossEncounterState || "").toLowerCase() === "defeated";
 
         showForgeResonanceResult(event, results, pullId);
 
