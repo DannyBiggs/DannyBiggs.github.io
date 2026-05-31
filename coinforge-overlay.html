@@ -7336,7 +7336,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       }
       
       if (bossHpText) {
-        bossHpText.textContent = `${bossHp}/${bossMaxHp} HP`;
+        bossHpText.textContent =
+          nextState === "defeated"
+            ? "DEFEATED"
+            : `${bossHp}/${bossMaxHp} HP`;
       }
     
       overlayState.lastBossHp = bossHp;
