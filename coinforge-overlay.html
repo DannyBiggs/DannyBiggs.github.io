@@ -9227,39 +9227,25 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       const hasDeferredBossDamage =
         data.bossActive === true &&
+        overlayState.bossWorldSyncSuppressed !== true &&
         Number(data.worldBossDamage || data.bossDamage || 0) > 0;
       
       if (hasDeferredBossDamage) {
         overlayState.pendingBossDamageSync = {
           payload: data,
           ticks: buildPendingBossDamageTicks(data),
+          reactionPlayed: false,
           options: {
             source: "coinForgePull-after-each-coin-land"
           }
         };
-      } else {
-        const hasDeferredBossDamage =
-          data.bossActive === true &&
-          overlayState.bossWorldSyncSuppressed !== true &&
-          Number(data.worldBossDamage || data.bossDamage || 0) > 0;
-        
-        if (hasDeferredBossDamage) {
-          overlayState.pendingBossDamageSync = {
-            payload: data,
-            ticks: buildPendingBossDamageTicks(data),
-            reactionPlayed: false,
-            options: {
-              source: "coinForgePull-after-each-coin-land"
-            }
-          };
-        } else if (overlayState.bossWorldSyncSuppressed !== true) {
-          syncBossHudFromPayload(data, {
-            source: "coinForgePull-pre-reveal"
-          });
-        }
-                    
-        enqueueForgeEvent(data);
-    }
+      } else if (overlayState.bossWorldSyncSuppressed !== true) {
+        syncBossHudFromPayload(data, {
+          source: "coinForgePull-pre-reveal"
+        });
+      }
+      
+      enqueueForgeEvent(data);
 
     function setupStreamerbotClient() {
   if (typeof StreamerbotClient === "undefined") {
