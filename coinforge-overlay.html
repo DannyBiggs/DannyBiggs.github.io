@@ -2651,17 +2651,23 @@
       pointer-events: none;
       opacity: 0;
       visibility: hidden;
-      z-index: 30;
+      z-index: 90;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       image-rendering: pixelated;
+      background:
+        radial-gradient(circle at 50% 44%,
+          rgba(20, 80, 255, 0.18),
+          rgba(0, 0, 0, 0.42) 34%,
+          rgba(0, 0, 0, 0.72) 72%,
+          rgba(0, 0, 0, 0.86) 100%);
     }
     
     .encounter-layer.invidra-intro-active .invidra-intro-layer {
       visibility: visible;
-      animation: invidraIntroLayerFade 5200ms ease-in-out forwards;
+      animation: invidraIntroLayerFade 10200ms ease-in-out forwards;
     }
     
     .invidra-intro-eye {
@@ -2675,7 +2681,10 @@
       filter:
         drop-shadow(0 0 18px rgba(80, 240, 255, 0.8))
         drop-shadow(0 0 46px rgba(20, 80, 255, 0.5));
-      animation: invidraIntroEyePulse 5200ms ease-in-out forwards;
+    }
+    
+    .encounter-layer.invidra-intro-active .invidra-intro-eye {
+      animation: invidraIntroEyePulse 7400ms ease-in-out forwards;
     }
     
     .encounter-layer.invidra-intro-reveal .invidra-intro-eye {
@@ -2696,7 +2705,10 @@
         0 0 8px rgba(0, 0, 0, 1),
         0 0 18px rgba(80, 240, 255, 0.9),
         0 0 42px rgba(20, 80, 255, 0.55);
-      animation: invidraIntroTextReveal 5200ms ease-in-out forwards;
+    }
+    
+    .encounter-layer.invidra-intro-active .invidra-intro-title {
+      animation: invidraIntroTextReveal 7400ms ease-in-out forwards;
     }
     
     .encounter-layer.invidra-intro-reveal .invidra-intro-title {
@@ -2717,35 +2729,38 @@
       text-shadow:
         0 0 8px rgba(0, 0, 0, 1),
         0 0 18px rgba(80, 240, 255, 0.72);
-      animation: invidraIntroSubtitleReveal 5200ms ease-in-out forwards;
+    }
+    
+    .encounter-layer.invidra-intro-active .invidra-intro-subtitle {
+      animation: invidraIntroSubtitleReveal 7400ms ease-in-out forwards;
     }
     
     @keyframes invidraIntroLayerFade {
       0% { opacity: 0; }
-      12% { opacity: 1; }
-      78% { opacity: 1; }
+      8% { opacity: 1; }
+      82% { opacity: 1; }
       100% { opacity: 0; }
     }
     
     @keyframes invidraIntroEyePulse {
       0% { opacity: 0; transform: scale(0.72); }
-      14% { opacity: 1; transform: scale(1); }
-      44% { opacity: 0.72; transform: scale(1.08); }
-      58% { opacity: 1; transform: scale(1.22); }
+      10% { opacity: 1; transform: scale(1); }
+      72% { opacity: 0.82; transform: scale(1.08); }
+      92% { opacity: 1; transform: scale(1.22); }
       100% { opacity: 0; transform: scale(1.36); }
     }
     
     @keyframes invidraIntroTextReveal {
       0% { opacity: 0; transform: translateY(18px) scale(0.96); }
-      18% { opacity: 1; transform: translateY(0) scale(1); }
-      72% { opacity: 1; transform: translateY(0) scale(1); }
+      12% { opacity: 1; transform: translateY(0) scale(1); }
+      86% { opacity: 1; transform: translateY(0) scale(1); }
       100% { opacity: 0; transform: translateY(-14px) scale(1.04); }
     }
     
     @keyframes invidraIntroSubtitleReveal {
       0% { opacity: 0; transform: translateY(12px); }
-      26% { opacity: 0.92; transform: translateY(0); }
-      68% { opacity: 0.92; transform: translateY(0); }
+      18% { opacity: 0.92; transform: translateY(0); }
+      84% { opacity: 0.92; transform: translateY(0); }
       100% { opacity: 0; transform: translateY(-10px); }
     }
     
@@ -6559,6 +6574,9 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     function triggerInvidraIntro(payload = {}) {
       if (!encounterLayer) return false;
     
+      const introRevealDelayMs = 7400;
+      const introCleanupDelayMs = 10200;
+    
       clearTimeout(overlayState.invidraIntroRevealTimer);
       clearTimeout(overlayState.invidraIntroCleanupTimer);
     
@@ -6592,14 +6610,14 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         } catch (error) {
           console.warn("Invidra roar sound failed:", error);
         }
-      }, 2400);
+      }, introRevealDelayMs);
     
       overlayState.invidraIntroCleanupTimer = setTimeout(() => {
         encounterLayer.classList.remove(
           "invidra-intro-active",
           "invidra-intro-reveal"
         );
-      }, 5200);
+      }, introCleanupDelayMs);
     
       return true;
     }
