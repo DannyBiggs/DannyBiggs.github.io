@@ -6946,6 +6946,13 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     function setBossEncounterState(state, options = {}) {
       const safeState = String(state || "active").trim().toLowerCase();
     
+      const previousEncounterState =
+        overlayState.bossEncounterState;
+    
+      const enteringDefeated =
+        safeState === "defeated" &&
+        previousEncounterState !== "defeated";
+    
       overlayState.bossEncounterState = safeState;
       overlayState.lastBossEncounterPayload = options.payload || null;
     
@@ -6961,27 +6968,40 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         bossSpriteLayer.dataset.bossEncounterState = safeState;
       }
     
-      if (safeState === "defeated") {
+      if (enteringDefeated) {
         const bossType =
           overlayState.activeBossWorldState?.type ||
           bossSpriteLayer?.dataset?.bossType ||
-          normalizeBossWorldType(options.payload?.bossType || options.payload?.bossName);
+          normalizeBossWorldType(
+            options.payload?.bossType ||
+            options.payload?.bossName
+          );
     
         setBossSpriteState(bossType, "dead", {
           source: options.source || "boss-lifecycle"
         });
-
-        if (bossType === "invidra" && overlayState.bossVictorySoundPlayed !== true) {
+    
+        if (
+          bossType === "invidra" &&
+          overlayState.bossVictorySoundPlayed !== true
+        ) {
           overlayState.bossVictorySoundPlayed = true;
-
+    
           try {
             invidraVictorySound.currentTime = 0;
-            invidraVictorySound.play().catch(() => {});
+    
+            invidraVictorySound
+              .play()
+              .catch(() => {});
           } catch (error) {
-            console.warn("Invidra victory sound failed:", error);
+            console.warn(
+              "Invidra victory sound failed:",
+              error
+            );
           }
         }
-      } else {
+      }
+      else if (safeState !== "defeated") {
         overlayState.bossVictorySoundPlayed = false;
       }
     
@@ -7279,14 +7299,15 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       });
     
       const payloadEncounterState =
-      String(payload.bossEncounterState || payload.encounterState || "").toLowerCase();
+        String(payload.bossEncounterState || payload.encounterState || "").toLowerCase();
       
       const nextState =
-      payload.defeated === true ||
-      payload.bossDefeated === true ||
-      payloadEncounterState === "defeated"
-        ? "defeated"
-        : payload.bossEncounterState || payload.encounterState || "active";
+        payload.defeated === true ||
+        payload.bossDefeated === true ||
+        payloadEncounterState === "defeated" ||
+        bossHp <= 0
+          ? "defeated"
+          : payload.bossEncounterState || payload.encounterState || "active";
     
       setBossEncounterState(nextState, {
         source: options.source || "coinForgePull",
