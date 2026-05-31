@@ -2593,11 +2593,15 @@
     }
 
     .boss-sprite-layer.boss-sprite-attack-react {
-      animation: invidraAttackLoom 1250ms cubic-bezier(.22,.74,.18,1);
+      animation: invidraAttackLoom 1250ms cubic-bezier(.22,.74,.18,1) forwards;
+    }
+    
+    .boss-sprite-layer.boss-sprite-attack-return {
+      animation: invidraAttackReturnSettle 220ms ease-out forwards;
     }
     
     .boss-sprite-layer.boss-sprite-attack .boss-sprite-image {
-      animation: invidraAttackImagePulse 1250ms ease-in-out;
+      animation: invidraAttackImagePulse 1250ms ease-in-out forwards;
       transform-origin: left bottom;
     }
     
@@ -2606,7 +2610,12 @@
       28% { transform: translateX(8px) translateY(-4px) scale(1.09); filter: brightness(1.18); }
       56% { transform: translateX(15px) translateY(-7px) scale(1.13); filter: brightness(1.14); }
       82% { transform: translateX(6px) translateY(-3px) scale(1.08); filter: brightness(1.06); }
-      100% { transform: translateX(0px) translateY(0px) scale(1.03); filter: brightness(1); }
+      100% { transform: translateX(2px) translateY(-1px) scale(1.06); filter: brightness(1.02); }
+    }
+    
+    @keyframes invidraAttackReturnSettle {
+      0% { transform: translateX(2px) translateY(-1px) scale(1.06); filter: brightness(1.02); }
+      100% { transform: translateX(0px) translateY(0px) scale(1); filter: brightness(1); }
     }
     
     @keyframes invidraAttackImagePulse {
@@ -6578,6 +6587,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       if (overlayState.activeBossWorldState?.type !== "invidra") return false;
     
       clearTimeout(overlayState.bossAttackReactionTimer);
+      clearTimeout(overlayState.bossAttackReturnTimer);
     
       setBossEncounterState("attacking", {
         source: options.source || "boss-attack-reaction",
@@ -6599,20 +6609,40 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           overlayState.activeBossWorldState?.type === "invidra" &&
           overlayState.bossEncounterState === "attacking"
         ) {
-          setBossEncounterState("active", {
-            source: "boss-attack-reaction-return",
-            payload: options.payload || null
-          });
-    
-          setBossSpriteState("invidra", "idle", {
-            source: "boss-attack-reaction-return"
-          });
+          if (bossSpriteLayer) {
+            bossSpriteLayer.classList.remove("boss-sprite-attack-react");
+            bossSpriteLayer.classList.add("boss-sprite-attack-return");
+          }
+      
+          overlayState.bossAttackReturnTimer = setTimeout(() => {
+            if (
+              overlayState.activeBossWorldState?.type === "invidra" &&
+              overlayState.bossEncounterState === "attacking"
+            ) {
+              setBossEncounterState("active", {
+                source: "boss-attack-reaction-return",
+                payload: options.payload || null
+              });
+      
+              setBossSpriteState("invidra", "idle", {
+                source: "boss-attack-reaction-return"
+              });
+            }
+      
+            if (bossSpriteLayer) {
+              bossSpriteLayer.classList.remove(
+                "boss-sprite-attack-react",
+                "boss-sprite-attack-return"
+              );
+            }
+          }, 220);
+        } else if (bossSpriteLayer) {
+          bossSpriteLayer.classList.remove(
+            "boss-sprite-attack-react",
+            "boss-sprite-attack-return"
+          );
         }
-    
-        if (bossSpriteLayer) {
-          bossSpriteLayer.classList.remove("boss-sprite-attack-react");
-        }
-      }, 1150);
+      }, 1250);
     
       return true;
     }
