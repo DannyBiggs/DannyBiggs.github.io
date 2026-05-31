@@ -7278,10 +7278,15 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         payload
       });
     
+      const payloadEncounterState =
+      String(payload.bossEncounterState || payload.encounterState || "").toLowerCase();
+      
       const nextState =
-        bossHp <= 0
-          ? "defeated"
-          : payload.bossEncounterState || payload.encounterState || "active";
+      payload.defeated === true ||
+      payload.bossDefeated === true ||
+      payloadEncounterState === "defeated"
+        ? "defeated"
+        : payload.bossEncounterState || payload.encounterState || "active";
     
       setBossEncounterState(nextState, {
         source: options.source || "coinForgePull",
@@ -9730,7 +9735,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           const endedAsDefeat =
             data.defeated === true ||
             data.bossDefeated === true ||
-            Number(data.bossHp ?? data.hp ?? data.currentHp ?? 1) <= 0;
+            String(data.bossEncounterState || data.encounterState || "").toLowerCase() === "defeated";
 
           setBossEncounterState(endedAsDefeat ? "defeated" : "escaped", {
             source: "streamerbot",
