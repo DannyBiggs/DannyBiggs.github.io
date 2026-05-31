@@ -7280,10 +7280,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       const bossHpReachedZero =
         Number(nextTick.payload?.bossHp ?? 999999) <= 0;
 
-      if (bossHpReachedZero && overlayState.deferredBossDefeatPayload) {
-        const deferredBossDefeatPayload = overlayState.deferredBossDefeatPayload;
-        overlayState.deferredBossDefeatPayload = null;
-        handleStreamerbotMessage(deferredBossDefeatPayload);
+      if (bossHpReachedZero) {
+        flushDeferredBossDefeatPayload({
+          source: "boss-damage-after-fatal-coin-land"
+        });
       }
       
       if (shouldPlayReaction) {
@@ -7294,6 +7294,57 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         overlayState.pendingBossDamageSync = null;
       }
     
+      return true;
+    }
+
+    function flushDeferredBossDefeatPayload(options = {}) {
+      const deferredPayload = overlayState.deferredBossDefeatPayload;
+
+      if (!deferredPayload) return false;
+
+      overlayState.deferredBossDefeatPayload = null;
+
+      const bossType =
+        deferredPayload.bossType ||
+        deferredPayload.bossName ||
+        deferredPayload.boss ||
+        overlayState.activeBossWorldState?.type ||
+        "OmenEye";
+
+      const bossName =
+        deferredPayload.bossName ||
+        deferredPayload.bossType ||
+        deferredPayload.boss ||
+        (normalizeBossWorldType(bossType) === "invidra" ? "INVIDRA" : "AVAROS");
+
+      const bossMaxHp = Math.max(
+        1,
+        Number(
+          deferredPayload.bossMaxHp ||
+          overlayState.lastBossMaxHp ||
+          1500
+        )
+      );
+
+      overlayState.bossWorldSyncSuppressed = false;
+
+      syncBossHudFromPayload(
+        {
+          ...deferredPayload,
+          bossActive: true,
+          bossType,
+          bossName,
+          bossHp: 0,
+          bossMaxHp,
+          bossDefeated: true,
+          defeated: true,
+          bossEncounterState: "defeated"
+        },
+        {
+          source: options.source || "deferred-boss-defeat"
+        }
+      );
+
       return true;
     }
     
@@ -9618,11 +9669,9 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       forgeEventPlaying = false;
       
-      if (overlayState.deferredBossDefeatPayload) {
-        const deferredBossDefeatPayload = overlayState.deferredBossDefeatPayload;
-        overlayState.deferredBossDefeatPayload = null;
-        handleStreamerbotMessage(deferredBossDefeatPayload);
-      }
+      flushDeferredBossDefeatPayload({
+        source: "forge-queue-fallback"
+      });
     }
 
     
@@ -9789,19 +9838,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       
         if (isDefeatStatePayload) {
           overlayState.deferredBossDefeatPayload = data;
-
-          const bossHpAlreadyReachedZero =
-            Number(overlayState.lastBossHp ?? 999999) <= 0;
-
-          if (
-            bossHpAlreadyReachedZero &&
-            !overlayState.pendingBossDamageSync
-          ) {
-            const deferredBossDefeatPayload = overlayState.deferredBossDefeatPayload;
-            overlayState.deferredBossDefeatPayload = null;
-            handleStreamerbotMessage(deferredBossDefeatPayload);
-          }
-
           return;
         }
       
@@ -9818,10 +9854,15 @@ function getCachedCoinFrame(coinKey, frameNumber) {
             data.bossDefeated === true ||
             String(data.bossEncounterState || data.encounterState || "").toLowerCase() === "defeated";
       
-          setBossEncounterState(endedAsDefeat ? "defeated" : "escaped", {
-            source: "streamerbot",
-            payload: data
-          });
+          const wasAlreadyDefeated =
+            overlayState.bossEncounterState === "defeated";
+          
+          if (!wasAlreadyDefeated) {
+            setBossEncounterState(endedAsDefeat ? "defeated" : "escaped", {
+              source: "streamerbot",
+              payload: data
+            });
+          }
       
           setTimeout(() => {
             clearBossWorldState({ force: true });
