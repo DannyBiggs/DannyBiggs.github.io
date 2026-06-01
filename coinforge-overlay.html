@@ -8266,57 +8266,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       return true;
     }
-
-      if (bossSpriteLayer) {
-        bossSpriteLayer.classList.remove("avaros-spawn-active");
-      }
-
-      void encounterLayer.offsetWidth;
-
-      encounterLayer.classList.add("active", "avaros-intro-active");
-
-      try {
-        avarosIntroSound.currentTime = 0;
-        avarosIntroSound.play().catch(() => {});
-      } catch (error) {
-        console.warn("Avaros intro sound failed:", error);
-      }
-
-      overlayState.avarosIntroRevealTimer = setTimeout(() => {
-        syncBossHudFromPayload(payload, {
-          source: "avaros-intro-reveal",
-          suppressBossHurtReaction: true
-        });
-
-        encounterLayer.classList.add("avaros-intro-reveal");
-
-        if (bossSpriteLayer) {
-          bossSpriteLayer.classList.remove("avaros-spawn-active");
-          void bossSpriteLayer.offsetWidth;
-          bossSpriteLayer.classList.add("avaros-spawn-active");
-        }
-
-        try {
-          avarosRoarSound.currentTime = 0;
-          avarosRoarSound.play().catch(() => {});
-        } catch (error) {
-          console.warn("Avaros roar sound failed:", error);
-        }
-      }, introRevealDelayMs);
-
-      overlayState.avarosIntroCleanupTimer = setTimeout(() => {
-        encounterLayer.classList.remove(
-          "avaros-intro-active",
-          "avaros-intro-reveal"
-        );
-
-        if (bossSpriteLayer) {
-          bossSpriteLayer.classList.remove("avaros-spawn-active");
-        }
-      }, introCleanupDelayMs);
-
-      return true;
-    }
     
     window.setBossSpriteState = setBossSpriteState;
     window.clearBossSpriteState = clearBossSpriteState;
