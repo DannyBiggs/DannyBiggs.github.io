@@ -1334,6 +1334,62 @@
         drop-shadow(0 0 12px rgba(80, 240, 255, 0.75))
         drop-shadow(0 0 28px rgba(20, 80, 255, 0.45));
     }
+
+    .avaros-devour-flash {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 220px;
+      height: 220px;
+      object-fit: contain;
+      image-rendering: pixelated;
+      pointer-events: none;
+      opacity: 0;
+      z-index: 15;
+      transform: translate(-50%, -50%) scale(0.72);
+      filter:
+        drop-shadow(0 0 16px rgba(255, 190, 70, 0.9))
+        drop-shadow(0 0 38px rgba(120, 45, 10, 0.72));
+    }
+
+    .avaros-devour-flash.active {
+      animation: avarosDevourCoinFlash 980ms steps(7, end) forwards;
+    }
+
+    .slot-wrap.avaros-devoured-coin .slot-coin {
+      opacity: 0.18 !important;
+      filter:
+        brightness(0.54)
+        saturate(0.48)
+        contrast(1.25)
+        drop-shadow(0 0 12px rgba(255, 165, 45, 0.62));
+    }
+
+    @keyframes avarosDevourCoinFlash {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.58);
+        filter: brightness(1.2) drop-shadow(0 0 12px rgba(255, 180, 55, 0.7));
+      }
+
+      14% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.08);
+        filter: brightness(1.8) drop-shadow(0 0 30px rgba(255, 210, 90, 0.95));
+      }
+
+      58% {
+        opacity: 0.92;
+        transform: translate(-50%, -50%) scale(1.18);
+        filter: brightness(1.25) drop-shadow(0 0 34px rgba(180, 70, 18, 0.85));
+      }
+
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.34);
+        filter: brightness(0.7) drop-shadow(0 0 18px rgba(80, 30, 8, 0.55));
+      }
+    }
     
     .slot-wrap .overcharge-duplicate-coin {
       position: absolute !important;
@@ -2788,6 +2844,136 @@
       48% { opacity: 0.78; transform: translateY(0); }
       70% { opacity: 0.96; transform: translateY(0); }
       86% { opacity: 0.96; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-10px); }
+    }
+
+    .avaros-intro-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0;
+      visibility: hidden;
+      z-index: 90;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      image-rendering: pixelated;
+      background:
+        radial-gradient(circle at 50% 46%,
+          rgba(255, 180, 55, 0.22),
+          rgba(45, 18, 4, 0.58) 36%,
+          rgba(0, 0, 0, 0.78) 76%,
+          rgba(0, 0, 0, 0.9) 100%);
+    }
+
+    .encounter-layer.avaros-intro-active .avaros-intro-layer {
+      visibility: visible;
+      animation: avarosIntroLayerFade 5600ms ease-in-out forwards;
+    }
+
+    .avaros-intro-sigil {
+      width: 280px;
+      height: 220px;
+      background-image: url("images/bosses/avaros/AvarosDevour.png");
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: contain;
+      opacity: 0;
+      filter:
+        drop-shadow(0 0 20px rgba(255, 190, 70, 0.9))
+        drop-shadow(0 0 54px rgba(150, 70, 18, 0.62));
+    }
+
+    .encounter-layer.avaros-intro-active .avaros-intro-sigil {
+      animation: avarosIntroSigilPulse 3600ms ease-in-out forwards;
+    }
+
+    .encounter-layer.avaros-intro-reveal .avaros-intro-sigil {
+      filter:
+        drop-shadow(0 0 24px rgba(255, 220, 110, 1))
+        drop-shadow(0 0 72px rgba(255, 110, 24, 0.72));
+    }
+
+    .avaros-intro-title {
+      width: min(88vw, 1040px);
+      margin-top: 18px;
+      margin-left: auto;
+      margin-right: auto;
+      font-family: "CoinForgeName", "ComboFont", monospace;
+      font-size: clamp(26px, 2.55vw, 38px);
+      line-height: 1.28;
+      letter-spacing: 3px;
+      color: #ffd36a;
+      opacity: 0;
+      text-align: center;
+      overflow-wrap: normal;
+      text-shadow:
+        0 0 8px rgba(0, 0, 0, 1),
+        0 0 18px rgba(255, 175, 45, 0.9),
+        0 0 42px rgba(135, 55, 12, 0.72);
+    }
+
+    .avaros-intro-title span {
+      display: block;
+    }
+
+    .avaros-intro-title span + span {
+      margin-top: 14px;
+    }
+
+    .encounter-layer.avaros-intro-active .avaros-intro-title {
+      animation: avarosIntroTextReveal 3600ms ease-in-out forwards;
+    }
+
+    .avaros-intro-subtitle {
+      width: min(86vw, 980px);
+      margin-top: 36px;
+      margin-left: auto;
+      margin-right: auto;
+      font-family: "ComboFont", monospace;
+      font-size: clamp(16px, 1.45vw, 23px);
+      line-height: 1.55;
+      letter-spacing: 3px;
+      color: #fff0b0;
+      opacity: 0;
+      text-align: center;
+      text-shadow:
+        0 0 8px rgba(0, 0, 0, 1),
+        0 0 20px rgba(255, 190, 70, 0.9),
+        0 0 38px rgba(150, 70, 18, 0.62);
+    }
+
+    .encounter-layer.avaros-intro-active .avaros-intro-subtitle {
+      animation: avarosIntroSubtitleReveal 3600ms ease-in-out forwards;
+    }
+
+    @keyframes avarosIntroLayerFade {
+      0% { opacity: 0; }
+      10% { opacity: 1; }
+      82% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    @keyframes avarosIntroSigilPulse {
+      0% { opacity: 0; transform: scale(0.68) rotate(-2deg); }
+      18% { opacity: 1; transform: scale(1.02) rotate(1deg); }
+      54% { opacity: 0.86; transform: scale(1.12) rotate(-1deg); }
+      86% { opacity: 1; transform: scale(1.22) rotate(1deg); }
+      100% { opacity: 0; transform: scale(1.42) rotate(-2deg); }
+    }
+
+    @keyframes avarosIntroTextReveal {
+      0% { opacity: 0; transform: translateY(20px) scale(0.96); }
+      18% { opacity: 1; transform: translateY(0) scale(1); }
+      72% { opacity: 1; transform: translateY(0) scale(1.018); }
+      100% { opacity: 0; transform: translateY(-14px) scale(1.05); }
+    }
+
+    @keyframes avarosIntroSubtitleReveal {
+      0% { opacity: 0; transform: translateY(12px); }
+      26% { opacity: 0.96; transform: translateY(0); }
+      76% { opacity: 0.96; transform: translateY(0); }
       100% { opacity: 0; transform: translateY(-10px); }
     }
     
@@ -4844,6 +5030,12 @@
 
     const invidraVictorySound = new Audio("sounds/bosses/invidra/VictorySound.mp3");
     invidraVictorySound.volume = 0.52;
+
+    const avarosIntroSound = new Audio("sounds/bosses/avaros/AvarosIntro.mp3");
+    avarosIntroSound.volume = 0.46;
+    
+    const avarosRoarSound = new Audio("sounds/bosses/avaros/AvarosRoar.mp3");
+    avarosRoarSound.volume = 0.52;
     
     const comboSounds = {
       broken: new Audio("sounds/combo/combo-broken.mp3"),
@@ -5880,6 +6072,37 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         760
       );
     }
+
+    function triggerAvarosDevourFlash(pullId, slotWrap) {
+      if (!isActivePull(pullId) || !slotWrap) return;
+
+      const devour = slotWrap.querySelector(".avaros-devour-flash");
+      if (!devour) return;
+
+      devour.src = `images/bosses/avaros/AvarosDevour.gif?t=${Date.now()}`;
+
+      devour.classList.remove("active");
+
+      void devour.offsetWidth;
+
+      devour.classList.add("active");
+
+      addSlotEffect(
+        pullId,
+        slotWrap,
+        "avaros-devoured-coin",
+        980,
+        { restart: true }
+      );
+
+      registerOwnedCleanupTimer(
+        pullId,
+        () => {
+          devour.classList.remove("active");
+        },
+        980
+      );
+    }
     
     function triggerCorruptionWave(pullId, corruptedSlot = null) {
       if (!isActivePull(pullId)) return;
@@ -6868,7 +7091,9 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           "invidra-hp-danger",
           "invidra-hp-critical",
           "invidra-intro-active",
-          "invidra-intro-reveal"
+          "invidra-intro-reveal",
+          "avaros-intro-active",
+          "avaros-intro-reveal"
         );
       
         delete encounterLayer.dataset.bossWorldState;
@@ -6967,8 +7192,11 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         bossHudLayer.classList.add("active");
       }
 
-      if (bossHpFrame && bossType === "invidra") {
-        bossHpFrame.src = "images/bosses/invidra/InvidraHPBar.png";
+      if (bossHpFrame) {
+        bossHpFrame.src =
+          bossType === "avaros"
+            ? "images/bosses/avaros/AvarosHPBar.png"
+            : "images/bosses/invidra/InvidraHPBar.png";
       }
 
       if (bossHpFill && !bossHpFill.style.width) {
@@ -6976,7 +7204,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       }
       
       if (bossHpText && !bossHpText.textContent) {
-        bossHpText.textContent = bossType === "invidra" ? "1500/1500 HP" : "";
+        bossHpText.textContent = "1500/1500 HP";
       }
 
       overlayState.activeBossSpriteState = {
@@ -7633,21 +7861,68 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       return true;
     }
 
-    function playAvarosSpawnCinematic() {
-      if (!bossSpriteLayer) return false;
-    
-      bossSpriteLayer.classList.remove("avaros-spawn-active");
-    
-      void bossSpriteLayer.offsetWidth;
-    
-      bossSpriteLayer.classList.add("avaros-spawn-active");
-    
-      setTimeout(() => {
+    function triggerAvarosIntro(payload = {}) {
+      if (!encounterLayer) return false;
+
+      const introRevealDelayMs = 3600;
+      const introCleanupDelayMs = 5600;
+
+      clearTimeout(overlayState.avarosIntroRevealTimer);
+      clearTimeout(overlayState.avarosIntroCleanupTimer);
+
+      encounterLayer.classList.remove(
+        "avaros-intro-active",
+        "avaros-intro-reveal"
+      );
+
+      if (bossSpriteLayer) {
+        bossSpriteLayer.classList.remove("avaros-spawn-active");
+      }
+
+      void encounterLayer.offsetWidth;
+
+      encounterLayer.classList.add("active", "avaros-intro-active");
+
+      try {
+        avarosIntroSound.currentTime = 0;
+        avarosIntroSound.play().catch(() => {});
+      } catch (error) {
+        console.warn("Avaros intro sound failed:", error);
+      }
+
+      overlayState.avarosIntroRevealTimer = setTimeout(() => {
+        syncBossHudFromPayload(payload, {
+          source: "avaros-intro-reveal",
+          suppressBossHurtReaction: true
+        });
+
+        encounterLayer.classList.add("avaros-intro-reveal");
+
+        if (bossSpriteLayer) {
+          bossSpriteLayer.classList.remove("avaros-spawn-active");
+          void bossSpriteLayer.offsetWidth;
+          bossSpriteLayer.classList.add("avaros-spawn-active");
+        }
+
+        try {
+          avarosRoarSound.currentTime = 0;
+          avarosRoarSound.play().catch(() => {});
+        } catch (error) {
+          console.warn("Avaros roar sound failed:", error);
+        }
+      }, introRevealDelayMs);
+
+      overlayState.avarosIntroCleanupTimer = setTimeout(() => {
+        encounterLayer.classList.remove(
+          "avaros-intro-active",
+          "avaros-intro-reveal"
+        );
+
         if (bossSpriteLayer) {
           bossSpriteLayer.classList.remove("avaros-spawn-active");
         }
-      }, 2400);
-    
+      }, introCleanupDelayMs);
+
       return true;
     }
     
@@ -8186,10 +8461,14 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     async function playFinalCinematic(coin, slot, pullId) {
 
       if (coin.raw && coin.raw.devoured) {
-      triggerScreenBorder("cursed");
-      addStageEffect(pullId, "cinematic-cursed");
-        triggerBurst("cursed", slot, pullId);
-        await wait(380);
+        triggerScreenBorder("jackpot");
+        addStageEffect(pullId, "cinematic-cursed");
+        triggerAvarosDevourFlash(pullId, slot);
+        triggerBossAttackReaction("avaros", {
+          source: "avaros-devour-attack"
+        });
+        triggerBurst("legendary", slot, pullId);
+        await wait(620);
         return;
       }
 
@@ -10134,17 +10413,19 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           triggerInvidraIntro(normalizedBossPayload);
           return;
         }
+
+        const shouldPlayAvarosIntro =
+          normalizedIncomingBossType === "avaros" &&
+          overlayState.activeBossWorldState?.type !== "avaros";
+        
+        if (shouldPlayAvarosIntro) {
+          triggerAvarosIntro(normalizedBossPayload);
+          return;
+        }
         
         syncBossHudFromPayload(normalizedBossPayload, {
           source: "streamerbot"
         });
-        
-        if (
-          normalizedIncomingBossType === "avaros" &&
-          String(normalizedBossPayload.bossEncounterState || "").toLowerCase() === "spawning"
-        ) {
-          playAvarosSpawnCinematic();
-        }
       
         return;
       }
