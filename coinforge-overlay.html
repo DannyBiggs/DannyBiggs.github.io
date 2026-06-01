@@ -66,8 +66,12 @@
       animation: screenJackpotBorder 0.9s ease-out;
     }
 
-        .screen-border-fx.legendary {
+    .screen-border-fx.legendary {
       animation: screenLegendaryBorder 0.9s ease-out;
+    }
+
+    .screen-border-fx.greed {
+      animation: screenGreedBorder 0.95s ease-out;
     }
     
     @keyframes screenMythicBorder {
@@ -92,6 +96,12 @@
       0% { opacity: 0; box-shadow: inset 0 0 0 rgba(255, 150, 35, 0); }
       30% { opacity: 1; box-shadow: inset 0 0 120px rgba(255, 165, 55, 0.72), inset 0 0 220px rgba(255, 95, 20, 0.28); }
       100% { opacity: 0; box-shadow: inset 0 0 40px rgba(255, 120, 25, 0); }
+    }
+
+    @keyframes screenGreedBorder {
+      0% { opacity: 0; box-shadow: inset 0 0 0 rgba(255, 190, 60, 0); }
+      30% { opacity: 1; box-shadow: inset 0 0 130px rgba(255, 190, 60, 0.78), inset 0 0 230px rgba(115, 52, 8, 0.42); }
+      100% { opacity: 0; box-shadow: inset 0 0 40px rgba(255, 150, 35, 0); }
     }
     
     .embers {
@@ -3672,6 +3682,18 @@
       100% { filter: brightness(1); transform: translateX(0); }
     }
 
+    .forge-stage.cinematic-greed {
+      animation: greedPulse 0.95s ease-in-out;
+    }
+
+    @keyframes greedPulse {
+      0% { filter: brightness(1) saturate(1); transform: scale(1); }
+      18% { filter: brightness(1.35) saturate(1.45) sepia(0.18); transform: scale(1.008); }
+      42% { filter: brightness(0.82) saturate(1.15) sepia(0.36); transform: scale(0.996); }
+      68% { filter: brightness(1.22) saturate(1.35) sepia(0.22); transform: scale(1.004); }
+      100% { filter: brightness(1) saturate(1); transform: scale(1); }
+    }
+    
     .forge-stage.cinematic-mythic {
       animation: mythicBloom 1.1s ease-in-out;
     }
@@ -6167,6 +6189,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         "cinematic-cursed",
         "cinematic-mythic",
         "cinematic-legendary"
+        "cinematic-greed",
       );
     }
 
@@ -6653,6 +6676,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       "cinematic-cursed",
       "cinematic-mythic",
       "cinematic-legendary",
+      "cinematic-greed",
       "escalate-warm",
       "escalate-cursed",
       "instability-global-overcharged",
@@ -8467,14 +8491,14 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     async function playFinalCinematic(coin, slot, pullId) {
 
       if (coin.raw && coin.raw.devoured) {
-        triggerScreenBorder("jackpot");
-        addStageEffect(pullId, "cinematic-cursed");
+        triggerScreenBorder("greed", pullId);
+        addStageEffect(pullId, "cinematic-greed");
         triggerAvarosDevourFlash(pullId, slot);
         triggerBossAttackReaction("avaros", {
           source: "avaros-devour-attack"
         });
         triggerBurst("legendary", slot, pullId);
-        await wait(620);
+        await wait(720);
         return;
       }
 
