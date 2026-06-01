@@ -4862,6 +4862,12 @@
     <div class="invidra-intro-subtitle">FORTUNE ITSELF BEGINS TO ROT.</div>
   </div>
 
+  <div id="avarosIntroLayer" class="avaros-intro-layer">
+    <div class="avaros-intro-sigil"></div>
+    <div class="avaros-intro-title"><span>THE FORGE HAS FED</span><span>TOO WELL.</span></div>
+    <div class="avaros-intro-subtitle">AVAROS ANSWERS THE WEIGHT OF GREED.</div>
+  </div>
+   
   <div id="bossSpriteLayer" class="boss-sprite-layer">
     <img id="bossSpriteImage" class="boss-sprite-image" src="" alt="">
     <div id="bossNamePlate" class="boss-nameplate">INVIDRA</div>
@@ -8581,11 +8587,16 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         const omenEyeFlash = document.createElement("img");
         omenEyeFlash.className = "invidra-omen-eye-flash";
         omenEyeFlash.alt = "Invidra Omen Eye";
+
+        const avarosDevourFlash = document.createElement("img");
+        avarosDevourFlash.className = "avaros-devour-flash";
+        avarosDevourFlash.alt = "Avaros Devour";
         
         slotWrap.appendChild(socketRing);
         slotWrap.appendChild(impactFlash);
         slotWrap.appendChild(img);
         slotWrap.appendChild(omenEyeFlash);
+        slotWrap.appendChild(avarosDevourFlash);
         slotWrap.appendChild(overchargeDuplicate);
         slotWrap.appendChild(burnedAwayGif);
         slotWrap.appendChild(instabilityBadge);
