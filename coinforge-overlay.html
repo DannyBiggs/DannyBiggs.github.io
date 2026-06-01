@@ -1349,59 +1349,59 @@
       position: absolute;
       left: 50%;
       top: 50%;
-      width: 250px;
-      height: 250px;
+      width: 285px;
+      height: 285px;
       object-fit: contain;
       image-rendering: pixelated;
       pointer-events: none;
       opacity: 0;
-      z-index: 1;
-      transform: translate(-50%, -50%) scale(0.72);
+      z-index: 3;
+      transform: translate(-50%, -50%) scale(0.52);
       filter:
-        drop-shadow(0 0 18px rgba(177, 82, 255, 0.88))
-        drop-shadow(0 0 34px rgba(255, 195, 72, 0.58));
+        drop-shadow(0 0 20px rgba(177, 82, 255, 0.95))
+        drop-shadow(0 0 42px rgba(255, 195, 72, 0.7));
     }
 
     .avaros-devour-flash.active {
-      animation: avarosDevourPortalOpen 1180ms steps(8, end) forwards;
+      animation: avarosDevourPortalOpen 1280ms steps(8, end) forwards;
     }
 
     .slot-wrap.avaros-devoured-coin .slot-coin {
       position: relative;
-      z-index: 16;
+      z-index: 8;
       transform-origin: center center;
-      animation: avarosCoinSuckedIntoPortal 1180ms cubic-bezier(.18,.84,.14,1) forwards;
+      animation: avarosCoinSuckedIntoPortal 1280ms cubic-bezier(.18,.84,.14,1) forwards;
       filter:
-        brightness(1.32)
-        saturate(1.16)
-        drop-shadow(0 0 12px rgba(255, 210, 92, 0.72))
-        drop-shadow(0 0 22px rgba(177, 82, 255, 0.56));
+        brightness(1.36)
+        saturate(1.18)
+        drop-shadow(0 0 12px rgba(255, 210, 92, 0.74))
+        drop-shadow(0 0 24px rgba(177, 82, 255, 0.62));
     }
 
     @keyframes avarosDevourPortalOpen {
       0% {
         opacity: 0;
-        transform: translate(-50%, -50%) scale(0.36) rotate(-6deg);
+        transform: translate(-50%, -50%) scale(0.34) rotate(-8deg);
       }
 
-      14% {
+      12% {
         opacity: 1;
-        transform: translate(-50%, -50%) scale(0.9) rotate(2deg);
+        transform: translate(-50%, -50%) scale(0.92) rotate(2deg);
       }
 
-      52% {
-        opacity: 0.96;
-        transform: translate(-50%, -50%) scale(1.08) rotate(-2deg);
+      46% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.18) rotate(-2deg);
       }
 
-      82% {
-        opacity: 0.86;
-        transform: translate(-50%, -50%) scale(0.94) rotate(1deg);
+      78% {
+        opacity: 0.95;
+        transform: translate(-50%, -50%) scale(1.02) rotate(1deg);
       }
 
       100% {
         opacity: 0;
-        transform: translate(-50%, -50%) scale(0.22) rotate(0deg);
+        transform: translate(-50%, -50%) scale(0.2) rotate(0deg);
       }
     }
 
@@ -1411,24 +1411,24 @@
         transform: translate(0px, 0px) scale(1) rotate(0deg);
       }
 
-      22% {
+      18% {
         opacity: 1;
-        transform: translate(0px, -4px) scale(1.08) rotate(-4deg);
+        transform: translate(0px, -6px) scale(1.08) rotate(-5deg);
       }
 
-      52% {
-        opacity: 0.92;
-        transform: translate(0px, 6px) scale(0.72) rotate(12deg);
+      46% {
+        opacity: 0.96;
+        transform: translate(0px, 2px) scale(0.7) rotate(14deg);
       }
 
-      78% {
-        opacity: 0.58;
-        transform: translate(0px, 0px) scale(0.38) rotate(28deg);
+      72% {
+        opacity: 0.66;
+        transform: translate(0px, 0px) scale(0.34) rotate(32deg);
       }
 
       100% {
         opacity: 0;
-        transform: translate(0px, 0px) scale(0.04) rotate(48deg);
+        transform: translate(0px, 0px) scale(0.03) rotate(54deg);
       }
     }
     
@@ -6312,33 +6312,48 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       const devour = slotWrap.querySelector(".avaros-devour-flash");
       const coin = slotWrap.querySelector(".slot-coin");
 
-      if (!devour || !coin) return;
+      if (!devour || !coin) {
+        console.warn("[Avaros Devour] Missing devour portal or coin element.", {
+          hasDevour: !!devour,
+          hasCoin: !!coin,
+          slotWrap
+        });
 
-      devour.src = `images/bosses/avaros/AvarosDevour.gif?t=${Date.now()}`;
+        return;
+      }
 
       devour.classList.remove("active");
       slotWrap.classList.remove("avaros-devoured-coin");
 
+      devour.removeAttribute("src");
+
       void devour.offsetWidth;
       void coin.offsetWidth;
 
-      devour.classList.add("active");
+      devour.src = `images/bosses/avaros/AvarosDevour.gif?t=${Date.now()}`;
 
-      addSlotEffect(
-        pullId,
-        slotWrap,
-        "avaros-devoured-coin",
-        1180,
-        { restart: true }
-      );
+      requestAnimationFrame(() => {
+        if (!isActivePull(pullId)) return;
+
+        devour.classList.add("active");
+
+        addSlotEffect(
+          pullId,
+          slotWrap,
+          "avaros-devoured-coin",
+          1280,
+          { restart: true }
+        );
+      });
 
       registerOwnedCleanupTimer(
         pullId,
         () => {
           devour.classList.remove("active");
           slotWrap.classList.remove("avaros-devoured-coin");
+          devour.removeAttribute("src");
         },
-        1180
+        1280
       );
     }
     
@@ -8701,14 +8716,18 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     async function playFinalCinematic(coin, slot, pullId) {
 
       if (coin.raw && coin.raw.devoured) {
+        console.log("[Avaros Devour] devoured coin payload received:", coin.raw);
+
         triggerScreenBorder("greed", pullId);
         addStageEffect(pullId, "cinematic-greed");
+
         triggerAvarosDevourFlash(pullId, slot);
+
         triggerBossAttackReaction("avaros", {
           source: "avaros-devour-attack"
         });
-        triggerBurst("legendary", slot, pullId);
-        await wait(720);
+
+        await wait(1280);
         return;
       }
 
@@ -8828,9 +8847,9 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         
         slotWrap.appendChild(socketRing);
         slotWrap.appendChild(impactFlash);
+        slotWrap.appendChild(avarosDevourFlash);
         slotWrap.appendChild(img);
         slotWrap.appendChild(omenEyeFlash);
-        slotWrap.appendChild(avarosDevourFlash);
         slotWrap.appendChild(overchargeDuplicate);
         slotWrap.appendChild(burnedAwayGif);
         slotWrap.appendChild(instabilityBadge);
