@@ -2909,10 +2909,10 @@
       overflow: hidden;
       background:
         radial-gradient(circle at 50% 50%,
-          rgba(177, 82, 255, 0.18),
-          rgba(255, 190, 62, 0.12) 24%,
-          rgba(30, 8, 48, 0.62) 48%,
-          rgba(0, 0, 0, 0.86) 100%);
+          rgba(177, 82, 255, 0.12),
+          rgba(255, 190, 62, 0.08) 24%,
+          rgba(30, 8, 48, 0.66) 48%,
+          rgba(0, 0, 0, 0.88) 100%);
     }
 
     .encounter-layer.avaros-intro-active .avaros-intro-layer {
@@ -2924,8 +2924,8 @@
       position: absolute;
       left: 50%;
       top: 50%;
-      width: 520px;
-      height: 520px;
+      width: 500px;
+      height: 500px;
       background-image: url("images/bosses/avaros/AvarosDevour.gif");
       background-repeat: no-repeat;
       background-position: center;
@@ -2934,8 +2934,9 @@
       z-index: 1;
       transform: translate(-50%, -50%) scale(0.68);
       filter:
-        drop-shadow(0 0 26px rgba(177, 82, 255, 0.92))
-        drop-shadow(0 0 58px rgba(255, 190, 62, 0.62));
+        brightness(0.82)
+        drop-shadow(0 0 20px rgba(177, 82, 255, 0.72))
+        drop-shadow(0 0 42px rgba(255, 190, 62, 0.42));
     }
 
     .encounter-layer.avaros-intro-active .avaros-intro-sigil {
@@ -3024,18 +3025,18 @@
       }
 
       64% {
-        opacity: 0.86;
-        transform: translate(-50%, -50%) scale(1.08) rotate(-1deg);
+        opacity: 0.62;
+        transform: translate(-50%, -50%) scale(1.04) rotate(-1deg);
       }
 
       88% {
         opacity: 1;
-        transform: translate(-50%, -50%) scale(1.18) rotate(1deg);
+        transform: translate(-50%, -50%) scale(1.16) rotate(1deg);
       }
 
       100% {
-        opacity: 0.72;
-        transform: translate(-50%, -50%) scale(0.72) rotate(0deg);
+        opacity: 0.82;
+        transform: translate(-50%, -50%) scale(0.86) rotate(0deg);
       }
     }
 
@@ -3066,8 +3067,8 @@
 
       100% {
         opacity: 0;
-        transform: translateY(-92px) scale(0.06) rotate(7deg);
-        filter: brightness(0.35) blur(2px);
+        transform: translateY(-36px) scale(0.05) rotate(5deg);
+        filter: brightness(0.32) blur(2px);
       }
     }
 
@@ -3098,8 +3099,8 @@
 
       100% {
         opacity: 0;
-        transform: translateY(-118px) scale(0.08) rotate(-8deg);
-        filter: brightness(0.35) blur(2px);
+        transform: translateY(-42px) scale(0.06) rotate(-5deg);
+        filter: brightness(0.32) blur(2px);
       }
     }
     
