@@ -5360,6 +5360,9 @@
     
     const avarosRoarSound = new Audio("sounds/bosses/avaros/AvarosRoar.mp3");
     avarosRoarSound.volume = 0.52;
+
+    const avarosVictorySound = new Audio("sounds/bosses/avaros/VictorySound.mp3");
+    avarosVictorySound.volume = 0.52;
     
     const comboSounds = {
       broken: new Audio("sounds/combo/combo-broken.mp3"),
@@ -7347,6 +7350,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         introCleanupDelayMs: 8200,
         introSound: invidraIntroSound,
         roarSound: invidraRoarSound,
+        victorySound: invidraVictorySound,
         sprites: {
           idle: "images/bosses/invidra/InvidraPixelIdle.gif",
           attack: "images/bosses/invidra/InvidraPixelAttackWebP.webp",
@@ -7365,6 +7369,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         introCleanupDelayMs: 10300,
         introSound: avarosIntroSound,
         roarSound: avarosRoarSound,
+        victorySound: avarosVictorySound,
         sprites: {
           idle: "images/bosses/avaros/AvarosPixelIdle.gif",
           attack: "images/bosses/avaros/AvarosPixelSuck.png",
@@ -7698,23 +7703,25 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           source: options.source || "boss-lifecycle"
         });
     
-        if (
-          bossType === "invidra" &&
-          overlayState.bossVictorySoundPlayed !== true
-        ) {
+        if (overlayState.bossVictorySoundPlayed !== true) {
+          const visualConfig = getBossVisualConfig(bossType);
+          const victorySound = visualConfig?.victorySound;
+
           overlayState.bossVictorySoundPlayed = true;
-    
-          try {
-            invidraVictorySound.currentTime = 0;
-    
-            invidraVictorySound
-              .play()
-              .catch(() => {});
-          } catch (error) {
-            console.warn(
-              "Invidra victory sound failed:",
-              error
-            );
+
+          if (victorySound) {
+            try {
+              victorySound.currentTime = 0;
+
+              victorySound
+                .play()
+                .catch(() => {});
+            } catch (error) {
+              console.warn(
+                `${visualConfig?.displayName || bossType} victory sound failed:`,
+                error
+              );
+            }
           }
         }
       }
@@ -9877,7 +9884,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         
         triggerSlotAura(finalCoin, slot, pullId);
 
-        if (finalCoin.name === "Anti Coin" || (finalCoin.raw && finalCoin.raw.omenCorrupted)) {
+        if (finalCoin.raw && finalCoin.raw.omenCorrupted) {
           triggerCorruptionWave(pullId, slotWrap);
         }
 
