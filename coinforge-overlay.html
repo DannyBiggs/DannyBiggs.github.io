@@ -7336,55 +7336,121 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       return "";
     }
 
-    function triggerInvidraIntro(payload = {}) {
+    const BOSS_VISUAL_CONFIG = {
+      invidra: {
+        displayName: "INVIDRA",
+        hpFrame: "images/bosses/invidra/InvidraHPBar.png",
+        introActiveClass: "invidra-intro-active",
+        introRevealClass: "invidra-intro-reveal",
+        spawnClass: "",
+        introRevealDelayMs: 7000,
+        introCleanupDelayMs: 8200,
+        introSound: invidraIntroSound,
+        roarSound: invidraRoarSound,
+        sprites: {
+          idle: "images/bosses/invidra/InvidraPixelIdle.gif",
+          attack: "images/bosses/invidra/InvidraPixelAttackWebP.webp",
+          hurt: "images/bosses/invidra/InvidraPixelHurt.gif",
+          dead: "images/bosses/invidra/InvidraPixelDead.png"
+        }
+      },
+
+      avaros: {
+        displayName: "AVAROS",
+        hpFrame: "images/bosses/avaros/AvarosHPBar.png",
+        introActiveClass: "avaros-intro-active",
+        introRevealClass: "avaros-intro-reveal",
+        spawnClass: "avaros-spawn-active",
+        introRevealDelayMs: 8000,
+        introCleanupDelayMs: 10300,
+        introSound: avarosIntroSound,
+        roarSound: avarosRoarSound,
+        sprites: {
+          idle: "images/bosses/avaros/AvarosPixelIdle.gif",
+          attack: "images/bosses/avaros/AvarosPixelSuck.png",
+          hurt: "images/bosses/avaros/AvarosPixelHurt.png",
+          dead: "images/bosses/avaros/AvarosPixelDead.png"
+        }
+      }
+    };
+
+    function triggerBossIntro(type, payload = {}) {
       if (!encounterLayer) return false;
 
-      const introRevealDelayMs = 7000;
-      const introCleanupDelayMs = 8200;
+      const bossType = normalizeBossWorldType(type);
+      const visualConfig = getBossVisualConfig(bossType);
+
+      if (!bossType || !visualConfig) return false;
 
       clearTimeout(overlayState.invidraIntroRevealTimer);
       clearTimeout(overlayState.invidraIntroCleanupTimer);
+      clearTimeout(overlayState.avarosIntroRevealTimer);
+      clearTimeout(overlayState.avarosIntroCleanupTimer);
 
       encounterLayer.classList.remove(
         "invidra-intro-active",
-        "invidra-intro-reveal"
+        "invidra-intro-reveal",
+        "avaros-intro-active",
+        "avaros-intro-reveal"
       );
+
+      if (bossSpriteLayer && visualConfig.spawnClass) {
+        bossSpriteLayer.classList.remove(visualConfig.spawnClass);
+      }
 
       void encounterLayer.offsetWidth;
 
-      encounterLayer.classList.add("active", "invidra-intro-active");
+      encounterLayer.classList.add("active", visualConfig.introActiveClass);
 
       try {
-        invidraIntroSound.currentTime = 0;
-        invidraIntroSound.play().catch(() => {});
+        visualConfig.introSound.currentTime = 0;
+        visualConfig.introSound.play().catch(() => {});
       } catch (error) {
-        console.warn("Invidra intro sound failed:", error);
+        console.warn(`${visualConfig.displayName} intro sound failed:`, error);
       }
 
-      overlayState.invidraIntroRevealTimer = setTimeout(() => {
+      overlayState[`${bossType}IntroRevealTimer`] = setTimeout(() => {
         syncBossHudFromPayload(payload, {
-          source: "invidra-intro-reveal",
+          source: `${bossType}-intro-reveal`,
           suppressBossHurtReaction: true
         });
 
-        encounterLayer.classList.add("invidra-intro-reveal");
+        encounterLayer.classList.add(visualConfig.introRevealClass);
+
+        if (bossSpriteLayer && visualConfig.spawnClass) {
+          bossSpriteLayer.classList.remove(visualConfig.spawnClass);
+          void bossSpriteLayer.offsetWidth;
+          bossSpriteLayer.classList.add(visualConfig.spawnClass);
+        }
 
         try {
-          invidraRoarSound.currentTime = 0;
-          invidraRoarSound.play().catch(() => {});
+          visualConfig.roarSound.currentTime = 0;
+          visualConfig.roarSound.play().catch(() => {});
         } catch (error) {
-          console.warn("Invidra roar sound failed:", error);
+          console.warn(`${visualConfig.displayName} roar sound failed:`, error);
         }
-      }, introRevealDelayMs);
+      }, visualConfig.introRevealDelayMs);
 
-      overlayState.invidraIntroCleanupTimer = setTimeout(() => {
+      overlayState[`${bossType}IntroCleanupTimer`] = setTimeout(() => {
         encounterLayer.classList.remove(
-          "invidra-intro-active",
-          "invidra-intro-reveal"
+          visualConfig.introActiveClass,
+          visualConfig.introRevealClass
         );
-      }, introCleanupDelayMs);
+
+        if (bossSpriteLayer && visualConfig.spawnClass) {
+          bossSpriteLayer.classList.remove(visualConfig.spawnClass);
+        }
+      }, visualConfig.introCleanupDelayMs);
 
       return true;
+    }
+
+    function triggerInvidraIntro(payload = {}) {
+      return triggerBossIntro("invidra", payload);
+    }
+
+    function triggerAvarosIntro(payload = {}) {
+      return triggerBossIntro("avaros", payload);
     }
     
     function setBossWorldState(type, options = {}) {
@@ -7476,28 +7542,16 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       return true;
     }
 
-    function getBossSpriteAssets(type) {
+    function getBossVisualConfig(type) {
       const bossType = normalizeBossWorldType(type);
-    
-      if (bossType === "invidra") {
-        return {
-          idle: "images/bosses/invidra/InvidraPixelIdle.gif",
-          attack: "images/bosses/invidra/InvidraPixelAttackWebP.webp",
-          hurt: "images/bosses/invidra/InvidraPixelHurt.gif",
-          dead: "images/bosses/invidra/InvidraPixelDead.png"
-        };
-      }
-    
-      if (bossType === "avaros") {
-        return {
-          idle: "images/bosses/avaros/AvarosPixelIdle.gif",
-          attack: "images/bosses/avaros/AvarosPixelSuck.png",
-          hurt: "images/bosses/avaros/AvarosPixelHurt.png",
-          dead: "images/bosses/avaros/AvarosPixelDead.png"
-        };
-      }
-    
-      return null;
+
+      if (!bossType) return null;
+
+      return BOSS_VISUAL_CONFIG[bossType] || null;
+    }
+
+    function getBossSpriteAssets(type) {
+      return getBossVisualConfig(type)?.sprites || null;
     }
 
     function setBossSpriteState(type, state = "idle", options = {}) {
@@ -7534,19 +7588,18 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         `boss-sprite-${safeState}`
       );
 
+      const visualConfig = getBossVisualConfig(bossType);
+
       if (bossNamePlate) {
-        bossNamePlate.textContent = bossType === "invidra" ? "INVIDRA" : "AVAROS";
+        bossNamePlate.textContent = visualConfig?.displayName || bossType.toUpperCase();
       }
 
       if (bossHudLayer) {
         bossHudLayer.classList.add("active");
       }
 
-      if (bossHpFrame) {
-        bossHpFrame.src =
-          bossType === "avaros"
-            ? "images/bosses/avaros/AvarosHPBar.png"
-            : "images/bosses/invidra/InvidraHPBar.png";
+      if (bossHpFrame && visualConfig?.hpFrame) {
+        bossHpFrame.src = visualConfig.hpFrame;
       }
 
       if (bossHpFill && !bossHpFill.style.width) {
@@ -8185,9 +8238,12 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       }
     
       if (bossNamePlate) {
+        const visualConfig = getBossVisualConfig(bossType);
+
         bossNamePlate.textContent =
           payload.bossName ||
-          (bossType === "invidra" ? "INVIDRA" : "AVAROS");
+          visualConfig?.displayName ||
+          bossType.toUpperCase();
       }
     
       if (bossHudLayer) {
@@ -8210,20 +8266,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       return true;
     }
-
-    function triggerAvarosIntro(payload = {}) {
-      if (!encounterLayer) return false;
-
-      const introRevealDelayMs = 8000;
-      const introCleanupDelayMs = 10300;
-
-      clearTimeout(overlayState.avarosIntroRevealTimer);
-      clearTimeout(overlayState.avarosIntroCleanupTimer);
-
-      encounterLayer.classList.remove(
-        "avaros-intro-active",
-        "avaros-intro-reveal"
-      );
 
       if (bossSpriteLayer) {
         bossSpriteLayer.classList.remove("avaros-spawn-active");
@@ -10773,21 +10815,12 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           data.bossMaxHp
         );
         
-        const shouldPlayInvidraIntro =
-          normalizedIncomingBossType === "invidra" &&
-          overlayState.activeBossWorldState?.type !== "invidra";
-        
-        if (shouldPlayInvidraIntro) {
-          triggerInvidraIntro(normalizedBossPayload);
-          return;
-        }
+        const shouldPlayBossIntro =
+          normalizedIncomingBossType &&
+          overlayState.activeBossWorldState?.type !== normalizedIncomingBossType;
 
-        const shouldPlayAvarosIntro =
-          normalizedIncomingBossType === "avaros" &&
-          overlayState.activeBossWorldState?.type !== "avaros";
-        
-        if (shouldPlayAvarosIntro) {
-          triggerAvarosIntro(normalizedBossPayload);
+        if (shouldPlayBossIntro) {
+          triggerBossIntro(normalizedIncomingBossType, normalizedBossPayload);
           return;
         }
         
