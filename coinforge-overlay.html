@@ -3086,16 +3086,26 @@
       pointer-events: none;
       opacity: 0;
       z-index: -1;
-      background-image: url("images/bosses/avaros/AvarosDevour.gif");
-      background-repeat: no-repeat;
-      background-position: center;
-      background-size: contain;
+
+      background:
+        radial-gradient(circle,
+          rgba(177, 82, 255, 0.34) 0%,
+          rgba(255, 195, 72, 0.22) 26%,
+          rgba(60, 18, 92, 0.24) 48%,
+          transparent 72%);
+
       filter:
-        drop-shadow(0 0 26px rgba(177, 82, 255, 0.95))
-        drop-shadow(0 0 58px rgba(255, 195, 72, 0.72));
+        blur(12px)
+        drop-shadow(0 0 26px rgba(177, 82, 255, 0.92))
+        drop-shadow(0 0 58px rgba(255, 195, 72, 0.62));
     }
 
     .boss-sprite-layer.boss-sprite-avaros.avaros-spawn-active::before {
+      background-image: url("images/bosses/avaros/AvarosPortal.gif");
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: contain;
+
       animation: avarosPortalOpen 3000ms steps(8, end) forwards;
     }
 
@@ -3114,7 +3124,7 @@
     }
 
     .boss-sprite-layer.boss-sprite-avaros.boss-sprite-dead::before {
-      animation: avarosPortalCollapse 2600ms ease-in forwards;
+      animation: avarosAuraCollapse 2200ms ease-in forwards;
     }
     
     @keyframes avarosSpawnRise {
@@ -3307,6 +3317,32 @@
       100% {
         opacity: 0;
         transform: scale(0.28);
+      }
+    }
+
+    @keyframes avarosAuraCollapse {
+      0% {
+        opacity: 0.62;
+        transform: scale(1);
+        filter:
+          blur(12px)
+          brightness(1);
+      }
+
+      55% {
+        opacity: 0.34;
+        transform: scale(0.88);
+        filter:
+          blur(18px)
+          brightness(0.82);
+      }
+
+      100% {
+        opacity: 0;
+        transform: scale(0.62);
+        filter:
+          blur(28px)
+          brightness(0.4);
       }
     }
     
