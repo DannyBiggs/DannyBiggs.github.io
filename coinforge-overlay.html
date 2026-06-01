@@ -1378,6 +1378,12 @@
         drop-shadow(0 0 24px rgba(177, 82, 255, 0.62));
     }
 
+    .slot-wrap.avaros-devoured-final .slot-coin {
+      opacity: 0 !important;
+      visibility: hidden !important;
+      transform: scale(0.03) rotate(54deg);
+    }
+    
     @keyframes avarosDevourPortalOpen {
       0% {
         opacity: 0;
@@ -6327,7 +6333,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       }
 
       devour.classList.remove("active");
-      slotWrap.classList.remove("avaros-devoured-coin");
+      slotWrap.classList.remove(
+        "avaros-devoured-coin",
+        "avaros-devoured-final"
+      );
 
       devour.removeAttribute("src");
 
@@ -6353,6 +6362,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       registerOwnedCleanupTimer(
         pullId,
         () => {
+          slotWrap.classList.add("avaros-devoured-final");
           devour.classList.remove("active");
           slotWrap.classList.remove("avaros-devoured-coin");
           devour.removeAttribute("src");
