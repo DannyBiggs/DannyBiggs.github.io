@@ -8849,9 +8849,18 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       }
 
       if (coin.name === "Anti Coin") {
-      triggerScreenBorder("cursed");
-      addStageEffect(pullId, "cinematic-cursed");
-        triggerBurst("cursed", slot, pullId);
+        const activeBossType = overlayState.activeBossWorldState?.type || "";
+
+        if (activeBossType === "avaros") {
+          triggerScreenBorder("greed", pullId);
+          addStageEffect(pullId, "cinematic-greed");
+          triggerBurst("legendary", slot, pullId);
+        } else {
+          triggerScreenBorder("cursed", pullId);
+          addStageEffect(pullId, "cinematic-cursed");
+          triggerBurst("cursed", slot, pullId);
+        }
+
         await wait(380);
         return;
       }
