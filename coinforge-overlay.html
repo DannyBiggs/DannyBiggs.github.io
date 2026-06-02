@@ -7797,6 +7797,15 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       if (!bossType) return false;
 
       const visualConfig = getBossVisualConfig(bossType);
+        acquireCinematic(
+          "bossDefeat",
+          `boss-defeat-${bossType}`,
+          {
+            priority: 100,
+            interrupt: true,
+            interruptible: false
+          }
+        );
       const bossWorldClass = `boss-world-${bossType}`;
 
       overlayState.bossWorldSyncSuppressed = false;
@@ -10653,6 +10662,22 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           event.defeated === true ||
           String(event.bossEncounterState || "").toLowerCase() === "defeated";
 
+        if (overlayState.bossEncounterState === "defeated") {
+          await waitForBossDefeatCleanup();
+        
+          clearForgeResonanceResult();
+          clearSlotStates();
+          resetForgeInstabilityOwnership({ includePersistent: true });
+          slotRow.classList.remove("resonance-result-hidden");
+          slotRow.innerHTML = "";
+        
+          resetForgePressureLifecycleVisuals();
+          stopOwnedAudio();
+          clearComboDisplayState();
+        
+          return;
+        }
+
         showForgeResonanceResult(event, results, pullId);
 
         await wait(
@@ -10685,6 +10710,24 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         stopOwnedAudio();
         clearComboDisplayState();
 
+        return;
+      }
+
+      if (overlayState.bossEncounterState === "defeated") {
+        await waitForBossDefeatCleanup();
+      
+        clearStageRevealEffects();
+        cinematicBurst.classList.remove("active");
+      
+        clearPlayerIdentity();
+        clearSlotStates();
+        resetForgeInstabilityOwnership({ includePersistent: true });
+        slotRow.innerHTML = "";
+      
+        resetForgePressureLifecycleVisuals();
+        stopOwnedAudio();
+        clearComboDisplayState();
+      
         return;
       }
       
