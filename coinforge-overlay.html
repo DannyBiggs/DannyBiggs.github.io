@@ -5392,6 +5392,10 @@
 
       bossDefeatCleanupTimer: null,
 
+      bossDefeatCleanupPromise: null,
+      
+      bossDefeatCleanupResolve: null,
+
       pendingCoreBreachBossDamageSync: null,
     
       activePullId: null,
@@ -7696,15 +7700,36 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     function scheduleBossDefeatCleanup(options = {}) {
       clearTimeout(overlayState.bossDefeatCleanupTimer);
 
-      overlayState.bossDefeatCleanupTimer = setTimeout(() => {
-        if (overlayState.bossEncounterState !== "defeated") return;
-
-        clearBossWorldState({
-          force: true,
-          source: options.source || "boss-defeat-cleanup",
-          payload: options.payload || null
+      if (!overlayState.bossDefeatCleanupPromise) {
+        overlayState.bossDefeatCleanupPromise = new Promise((resolve) => {
+          overlayState.bossDefeatCleanupResolve = resolve;
         });
+      }
+
+      overlayState.bossDefeatCleanupTimer = setTimeout(() => {
+        if (overlayState.bossEncounterState === "defeated") {
+          clearBossWorldState({
+            force: true,
+            source: options.source || "boss-defeat-cleanup",
+            payload: options.payload || null
+          });
+        }
+
+        if (typeof overlayState.bossDefeatCleanupResolve === "function") {
+          overlayState.bossDefeatCleanupResolve(true);
+        }
+
+        overlayState.bossDefeatCleanupPromise = null;
+        overlayState.bossDefeatCleanupResolve = null;
       }, 4800);
+
+      return true;
+    }
+
+    async function waitForBossDefeatCleanup() {
+      if (overlayState.bossDefeatCleanupPromise) {
+        await overlayState.bossDefeatCleanupPromise;
+      }
 
       return true;
     }
@@ -8573,6 +8598,13 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     function hideForgeStage() {
       stopCoreBreachPendingSequence();
       clearStageEffects();
+
+      if (overlayState.bossEncounterState === "defeated") {
+        setForgeStageState("visible", true);
+        document.body.classList.add("forge-active");
+        return;
+      }
+
       clearForgeStageStates();
       document.body.classList.remove("forge-active");
     }
@@ -10722,6 +10754,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           await runForgeRevealExternal(event);
         } finally {
           releaseCinematic(pullId);
+        }
+
+        if (overlayState.bossEncounterState === "defeated") {
+          await waitForBossDefeatCleanup();
         }
       }
     
