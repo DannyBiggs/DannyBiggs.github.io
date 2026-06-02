@@ -8408,12 +8408,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       const pending = overlayState.pendingCoreBreachBossDamageSync;
 
       if (!pending || !pending.payload) {
-        if (overlayState.deferredBossDefeatPayload) {
-          return flushDeferredBossDefeatPayload({
-            source: options.source || "deferred-boss-defeat-after-core-breach-impact"
-          });
-        }
-
         return false;
       }
 
@@ -10727,16 +10721,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
         return;
       }
-
-      if (
-        overlayState.deferredBossDefeatPayload &&
-        !overlayState.pendingCoreBreachBossDamageSync &&
-        overlayState.bossEncounterState !== "defeated"
-      ) {
-        flushDeferredBossDefeatPayload({
-          source: "deferred-boss-defeat-after-visible-coin-sockets"
-        });
-      }
       
       if (overlayState.bossEncounterState === "defeated") {
         await waitForBossDefeatCleanup();
@@ -11095,7 +11079,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           );
       
         if (isDefeatStatePayload) {
-          overlayState.deferredBossDefeatPayload = data;
           return;
         }
 
@@ -11117,7 +11100,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
             String(data.bossEncounterState || data.encounterState || "").toLowerCase() === "defeated";
 
           if (endedAsDefeat) {
-            overlayState.deferredBossDefeatPayload = data;
             return;
           }
 
