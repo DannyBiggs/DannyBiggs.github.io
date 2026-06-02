@@ -3199,7 +3199,8 @@
       }
     }
     
-    .boss-sprite-layer.boss-sprite-attack .boss-sprite-image {
+    .boss-sprite-layer.boss-sprite-attack .boss-sprite-image,
+    .boss-sprite-layer.boss-omen-curse-reaction .boss-sprite-image {
       animation: invidraAttackImagePulse 1250ms ease-in-out forwards;
       transform-origin: left bottom;
     }
@@ -11288,10 +11289,39 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       }
 
       if (data.type === "coinForgeBossAttack") {
-        triggerBossAttackReaction(data.bossType || data.bossName || "invidra", {
-          source: "streamerbot-boss-attack",
+        const attackBossType = normalizeBossWorldType(data.bossType || data.bossName || "invidra");
+        const attackType = String(data.attackType || "").toLowerCase();
+
+        triggerBossAttackReaction(attackBossType, {
+          source: `streamerbot-boss-attack-${attackType || "unknown"}`,
           payload: data
         });
+
+        if (attackBossType === "avaros" && attackType === "siphon") {
+          triggerBossHealReaction(attackBossType, {
+            ...data,
+            bossActive: true,
+            bossHp: data.bossHp || overlayState.lastBossHp || 1,
+            bossMaxHp: data.bossMaxHp || overlayState.lastBossMaxHp || 1500,
+            worldBossHealing: data.worldBossHealing || data.bossHealing || data.stolen || 1
+          }, {
+            source: "avaros-siphon-heal-reaction"
+          });
+        }
+
+        if (attackBossType === "invidra") {
+          triggerScreenBorder("cursed");
+
+          if (bossSpriteLayer) {
+            bossSpriteLayer.classList.remove("boss-omen-curse-reaction");
+            void bossSpriteLayer.offsetWidth;
+            bossSpriteLayer.classList.add("boss-omen-curse-reaction");
+
+            setTimeout(() => {
+              bossSpriteLayer.classList.remove("boss-omen-curse-reaction");
+            }, 1450);
+          }
+        }
       
         return;
       }
