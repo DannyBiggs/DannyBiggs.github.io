@@ -2728,23 +2728,23 @@
 
     .boss-heal-effect-gif {
       position: absolute;
-      left: 290px;
-      bottom: 365px;
-      width: 260px;
-      height: 260px;
+      left: 285px;
+      bottom: 245px;
+      width: 430px;
+      height: 430px;
       object-fit: contain;
       image-rendering: pixelated;
       pointer-events: none;
       opacity: 0;
       visibility: hidden;
-      z-index: 9;
+      z-index: 12;
       mix-blend-mode: screen;
-      transform: translate(-50%, -50%) scale(0.86);
+      transform: translate(-50%, -50%) scale(0.95);
       filter:
-        brightness(1.35)
-        saturate(1.35)
-        drop-shadow(0 0 16px rgba(70, 255, 95, 0.72))
-        drop-shadow(0 0 34px rgba(20, 170, 55, 0.48));
+        brightness(1.45)
+        saturate(1.55)
+        drop-shadow(0 0 18px rgba(70, 255, 95, 0.85))
+        drop-shadow(0 0 42px rgba(20, 190, 65, 0.62));
     }
 
     .boss-heal-effect-gif.active {
@@ -2754,30 +2754,68 @@
 
     .boss-sprite-layer.boss-sprite-avaros .boss-heal-effect-gif {
       left: 300px;
-      bottom: 350px;
-      width: 290px;
-      height: 290px;
+      bottom: 235px;
+      width: 470px;
+      height: 470px;
+    }
+
+    .boss-sprite-layer.boss-heal-reaction .boss-sprite-image {
+      animation:
+        bossHealAuraPulse 1450ms ease-out,
+        bossSpriteIdleFloat 3400ms ease-in-out infinite alternate;
     }
 
     @keyframes bossHealEffectRise {
       0% {
         opacity: 0;
-        transform: translate(-50%, -50%) scale(0.72);
+        transform: translate(-50%, -50%) scale(0.78);
       }
 
       14% {
         opacity: 1;
-        transform: translate(-50%, -56%) scale(1);
+        transform: translate(-50%, -53%) scale(1.04);
       }
 
       72% {
         opacity: 1;
-        transform: translate(-50%, -66%) scale(1.08);
+        transform: translate(-50%, -59%) scale(1.14);
       }
 
       100% {
         opacity: 0;
-        transform: translate(-50%, -82%) scale(1.18);
+        transform: translate(-50%, -66%) scale(1.24);
+      }
+    }
+
+    @keyframes bossHealAuraPulse {
+      0% {
+        filter:
+          brightness(1)
+          saturate(1)
+          drop-shadow(0 0 0 rgba(65, 255, 95, 0));
+      }
+
+      18% {
+        filter:
+          brightness(1.45)
+          saturate(1.45)
+          drop-shadow(0 0 24px rgba(65, 255, 95, 0.95))
+          drop-shadow(0 0 58px rgba(20, 190, 65, 0.68));
+      }
+
+      58% {
+        filter:
+          brightness(1.22)
+          saturate(1.22)
+          drop-shadow(0 0 18px rgba(65, 255, 95, 0.72))
+          drop-shadow(0 0 42px rgba(20, 190, 65, 0.46));
+      }
+
+      100% {
+        filter:
+          brightness(1)
+          saturate(1)
+          drop-shadow(0 0 0 rgba(65, 255, 95, 0));
       }
     }
 
@@ -8210,10 +8248,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         bossHealEffectGif.classList.add("active");
       }
 
-      if (encounterLayer) {
-        encounterLayer.classList.remove("boss-heal-reaction");
-        void encounterLayer.offsetWidth;
-        encounterLayer.classList.add("boss-heal-reaction");
+      if (bossSpriteLayer) {
+        bossSpriteLayer.classList.remove("boss-heal-reaction");
+        void bossSpriteLayer.offsetWidth;
+        bossSpriteLayer.classList.add("boss-heal-reaction");
       }
 
       overlayState.bossHealReactionTimer = setTimeout(() => {
@@ -8224,8 +8262,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           bossHealEffectGif.src = "";
         }
 
-        if (encounterLayer) {
-          encounterLayer.classList.remove("boss-heal-reaction");
+        if (bossSpriteLayer) {
+          bossSpriteLayer.classList.remove("boss-heal-reaction");
         }
       }, 1450);
 
@@ -8700,7 +8738,11 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         triggerBossHealReaction(bossType, payload, options);
       }
       
-      if (bossHp > 0 && options.suppressBossHurtReaction !== true) {
+      if (
+        bossHp > 0 &&
+        healingAmount <= 0 &&
+        options.suppressBossHurtReaction !== true
+      ) {
         triggerBossDamageReaction(bossType, payload, options);
       }
     
