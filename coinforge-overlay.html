@@ -7595,30 +7595,24 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       const visualConfig = getBossVisualConfig(bossType);
 
-      if (safeState === "dead") {
-        clearBossHudVisuals({
-          clearFrame: false
-        });
-      } else {
-        if (bossNamePlate) {
-          bossNamePlate.textContent = visualConfig?.displayName || bossType.toUpperCase();
-        }
+      if (bossNamePlate) {
+        bossNamePlate.textContent = visualConfig?.displayName || bossType.toUpperCase();
+      }
 
-        if (bossHudLayer) {
-          bossHudLayer.classList.add("active");
-        }
+      if (bossHudLayer) {
+        bossHudLayer.classList.add("active");
+      }
 
-        if (bossHpFrame && visualConfig?.hpFrame) {
-          bossHpFrame.src = visualConfig.hpFrame;
-        }
+      if (bossHpFrame && visualConfig?.hpFrame) {
+        bossHpFrame.src = visualConfig.hpFrame;
+      }
 
-        if (bossHpFill && !bossHpFill.style.width) {
-          bossHpFill.style.width = "100%";
-        }
+      if (bossHpFill && !bossHpFill.style.width) {
+        bossHpFill.style.width = "100%";
+      }
 
-        if (bossHpText && !bossHpText.textContent) {
-          bossHpText.textContent = "1500/1500 HP";
-        }
+      if (bossHpText && !bossHpText.textContent) {
+        bossHpText.textContent = "1500/1500 HP";
       }
 
       overlayState.activeBossSpriteState = {
@@ -8265,32 +8259,29 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         triggerBossDamageReaction(bossType, payload, options);
       }
     
-      if (nextState === "defeated") {
-        clearBossHudVisuals({
-          clearFrame: false
-        });
-      } else {
-        if (bossNamePlate) {
-          const visualConfig = getBossVisualConfig(bossType);
+      if (bossNamePlate) {
+        const visualConfig = getBossVisualConfig(bossType);
 
-          bossNamePlate.textContent =
-            payload.bossName ||
-            visualConfig?.displayName ||
-            bossType.toUpperCase();
-        }
+        bossNamePlate.textContent =
+          payload.bossName ||
+          visualConfig?.displayName ||
+          bossType.toUpperCase();
+      }
 
-        if (bossHudLayer) {
-          bossHudLayer.classList.add("active");
-        }
+      if (bossHudLayer) {
+        bossHudLayer.classList.add("active");
+      }
 
-        if (bossHpFill) {
-          bossHpFill.style.width = "336px";
-          bossHpFill.style.transform = `scaleX(${hpPercent / 100})`;
-        }
+      if (bossHpFill) {
+        bossHpFill.style.width = "336px";
+        bossHpFill.style.transform = `scaleX(${hpPercent / 100})`;
+      }
 
-        if (bossHpText) {
-          bossHpText.textContent = `${bossHp}/${bossMaxHp} HP`;
-        }
+      if (bossHpText) {
+        bossHpText.textContent =
+          nextState === "defeated"
+            ? "DEFEATED"
+            : `${bossHp}/${bossMaxHp} HP`;
       }
     
       overlayState.lastBossHp = bossHp;
