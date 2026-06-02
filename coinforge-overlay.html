@@ -7709,6 +7709,95 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       return true;
     }
 
+    function playBossDefeatNow(payload, options = {}) {
+      if (!payload) return false;
+
+      const bossType =
+        normalizeBossWorldType(
+          payload.bossType ||
+          payload.bossName ||
+          overlayState.activeBossWorldState?.type ||
+          bossSpriteLayer?.dataset?.bossType
+        );
+
+      if (!bossType) return false;
+
+      const visualConfig = getBossVisualConfig(bossType);
+      const bossMaxHp = Math.max(
+        1,
+        Number(payload.bossMaxHp || overlayState.lastBossMaxHp || 1500)
+      );
+
+      overlayState.bossWorldSyncSuppressed = false;
+
+      setBossWorldState(bossType, {
+        source: options.source || "visible-fatal-damage",
+        payload
+      });
+
+      if (bossNamePlate) {
+        bossNamePlate.textContent =
+          payload.bossName ||
+          visualConfig?.displayName ||
+          bossType.toUpperCase();
+      }
+
+      if (bossHudLayer) {
+        bossHudLayer.classList.add("active");
+      }
+
+      if (bossHpFrame && visualConfig?.hpFrame) {
+        bossHpFrame.style.visibility = "visible";
+        bossHpFrame.src = visualConfig.hpFrame;
+      }
+
+      if (bossHpFill) {
+        bossHpFill.style.width = "336px";
+        bossHpFill.style.transform = "scaleX(0)";
+      }
+
+      if (bossHpText) {
+        bossHpText.textContent = "DEFEATED";
+      }
+
+      overlayState.lastBossHp = 0;
+      overlayState.lastBossMaxHp = bossMaxHp;
+
+      if (overlayState.bossEncounterState === "defeated") {
+        overlayState.bossEncounterState = "active";
+
+        if (forgeStage) {
+          forgeStage.dataset.bossEncounterState = "active";
+        }
+
+        if (encounterLayer) {
+          encounterLayer.dataset.bossEncounterState = "active";
+        }
+
+        if (bossSpriteLayer) {
+          bossSpriteLayer.dataset.bossEncounterState = "active";
+        }
+      }
+
+      setBossEncounterState("defeated", {
+        source: options.source || "visible-fatal-damage",
+        payload: {
+          ...payload,
+          bossActive: true,
+          active: true,
+          bossType,
+          bossHp: 0,
+          bossMaxHp,
+          defeated: true,
+          bossDefeated: true,
+          bossEncounterState: "defeated",
+          encounterState: "defeated"
+        }
+      });
+
+      return true;
+    }
+    
     function setBossEncounterState(state, options = {}) {
       const safeState = String(state || "active").trim().toLowerCase();
     
@@ -8162,20 +8251,22 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       const shouldPlayReaction =
         pending.reactionPlayed !== true && !bossHpReachedZero;
 
-      syncBossHudFromPayload(visualTickPayload, {
-        ...(pending.options || {}),
-        source: bossHpReachedZero
-          ? "boss-defeat-on-fatal-coin-land"
-          : "boss-damage-after-coin-land",
-        suppressBossHurtReaction: !shouldPlayReaction
-      });
-
       if (bossHpReachedZero) {
         overlayState.pendingBossDamageSync = null;
         overlayState.deferredBossDefeatPayload = null;
 
+        playBossDefeatNow(visualTickPayload, {
+          source: "boss-defeat-after-visible-fatal-coin-socket"
+        });
+
         return true;
       }
+
+      syncBossHudFromPayload(visualTickPayload, {
+        ...(pending.options || {}),
+        source: "boss-damage-after-coin-land",
+        suppressBossHurtReaction: !shouldPlayReaction
+      });
 
       if (shouldPlayReaction) {
         pending.reactionPlayed = true;
@@ -8224,15 +8315,17 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         encounterState: bossHpReachedZero ? "defeated" : "active"
       };
 
-      syncBossHudFromPayload(visualPayload, {
-        ...(pending.options || {}),
-        source: bossHpReachedZero
-          ? "boss-defeat-after-core-breach-impact"
-          : options.source || "boss-damage-after-core-breach-impact"
-      });
-
       if (bossHpReachedZero) {
         overlayState.deferredBossDefeatPayload = null;
+
+        playBossDefeatNow(visualPayload, {
+          source: "boss-defeat-after-visible-core-breach-impact"
+        });
+      } else {
+        syncBossHudFromPayload(visualPayload, {
+          ...(pending.options || {}),
+          source: options.source || "boss-damage-after-core-breach-impact"
+        });
       }
 
       return true;
@@ -8295,7 +8388,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       }
       
       if (!payload || payload.bossActive !== true) {
-        clearBossWorldState({ force: true });
         return false;
       }
     
