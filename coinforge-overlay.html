@@ -7836,6 +7836,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         encounterLayer.dataset.bossEncounterState = "defeated";
       }
 
+      setBossSpriteState(bossType, "dead", {
+        source: options.source || "visible-fatal-damage"
+      });
+
       if (bossSpriteLayer) {
         bossSpriteLayer.classList.remove(
           "boss-sprite-hit-react",
@@ -7847,11 +7851,12 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         bossSpriteLayer.classList.add(
           "active",
           `boss-sprite-${bossType}`,
+          "boss-sprite-dead",
           "boss-sprite-visible-defeat"
         );
 
         bossSpriteLayer.dataset.bossType = bossType;
-        bossSpriteLayer.dataset.bossSpriteState = "visible-defeat";
+        bossSpriteLayer.dataset.bossSpriteState = "dead";
         bossSpriteLayer.dataset.bossEncounterState = "defeated";
         bossSpriteLayer.style.visibility = "visible";
 
@@ -7862,11 +7867,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       if (bossSpriteImage) {
         bossSpriteImage.style.visibility = "visible";
         bossSpriteImage.style.opacity = "1";
-
-        if (!bossSpriteImage.getAttribute("src")) {
-          bossSpriteImage.src = visualConfig?.sprites?.idle || "";
-        }
-
+        bossSpriteImage.src = visualConfig?.sprites?.dead || visualConfig?.sprites?.idle || "";
         bossSpriteImage.alt = bossType;
       }
 
