@@ -10713,6 +10713,16 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         if (overlayState.bossEncounterState === "defeated") {
           await waitForBossDefeatCleanup();
         
+          clearStageRevealEffects();
+          clearStageEffects();
+          stopCoreBreachPendingSequence();
+          cinematicBurst.classList.remove("active");
+
+          hideForgeStage();
+          clearPlayerIdentity();
+        
+          await wait(350);
+        
           clearForgeResonanceResult();
           clearSlotStates();
           resetForgeInstabilityOwnership({ includePersistent: true });
@@ -10720,6 +10730,12 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           slotRow.innerHTML = "";
         
           resetForgePressureLifecycleVisuals();
+
+          resetForgeRuntimeOwnership({
+            includePersistent: true,
+            clearPullOwnership: true
+          });
+
           stopOwnedAudio();
           clearComboDisplayState();
         
