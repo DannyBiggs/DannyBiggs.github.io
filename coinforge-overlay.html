@@ -8501,6 +8501,41 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         }
       );
     }
+
+    function prepareBossVisualDamageForActiveEvent(event) {
+      overlayState.pendingBossDamageSync = null;
+      overlayState.pendingCoreBreachBossDamageSync = null;
+
+      const hasDeferredBossHpChange =
+        event?.bossActive === true &&
+        overlayState.bossWorldSyncSuppressed !== true &&
+        (
+          Number(event.worldBossDamage || event.bossDamage || 0) > 0 ||
+          Number(event.worldBossHealing || event.bossHealing || 0) > 0
+        );
+
+      if (!hasDeferredBossHpChange) {
+        return false;
+      }
+
+      const pendingBossDamageTicks = buildPendingBossDamageTicks(event);
+
+      if (!Array.isArray(pendingBossDamageTicks) || pendingBossDamageTicks.length === 0) {
+        return false;
+      }
+
+      overlayState.pendingBossDamageSync = {
+        payload: event,
+        ticks: pendingBossDamageTicks,
+        reactionPlayed: false,
+        options: {
+          source: "boss-visual-manager-active-pull"
+        }
+      };
+
+      return true;
+    }
+
     
     function syncBossHudFromPayload(payload, options = {}) {
       if (overlayState.bossWorldSyncSuppressed === true) {
@@ -10552,6 +10587,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       const pullCount = Math.max(1, Math.min(5, Number(event.pullCount || results.length || 1)));
       window.currentWoodBurnIndex = 0;
       window.currentWoodBurnTotal = results.filter(coin => coin.name === "Wood Coin").length;
+
+      prepareBossVisualDamageForActiveEvent(event);
       
       if (results.length === 0) {
         hideForgeStage();
@@ -11184,24 +11221,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           Number(data.worldBossHealing || data.bossHealing || 0) > 0
         );
 
-      const pendingBossDamageTicks =
-        hasDeferredBossHpChange
-          ? buildPendingBossDamageTicks(data)
-          : [];
-
-      const hasPendingCoreBreachBossDamage =
-        Boolean(overlayState.pendingCoreBreachBossDamageSync);
+      const hasPendingCoreBreachBossDamage = false;
       
-      if (hasDeferredBossHpChange && pendingBossDamageTicks.length > 0) {
-        overlayState.pendingBossDamageSync = {
-          payload: data,
-          ticks: pendingBossDamageTicks,
-          reactionPlayed: false,
-          options: {
-            source: "coinForgePull-after-each-coin-land"
-          }
-        };
-      } else if (
+      if (
+        !hasDeferredBossHpChange &&
         overlayState.bossWorldSyncSuppressed !== true &&
         overlayState.bossEncounterState !== "defeated" &&
         !overlayState.bossDefeatCleanupPromise &&
