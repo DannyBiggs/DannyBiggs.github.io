@@ -8408,6 +8408,12 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       const pending = overlayState.pendingCoreBreachBossDamageSync;
 
       if (!pending || !pending.payload) {
+        if (overlayState.deferredBossDefeatPayload) {
+          return flushDeferredBossDefeatPayload({
+            source: options.source || "deferred-boss-defeat-after-core-breach-impact"
+          });
+        }
+
         return false;
       }
 
@@ -8482,24 +8488,24 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       overlayState.bossWorldSyncSuppressed = false;
 
-      syncBossHudFromPayload(
+      return playBossDefeatNow(
         {
           ...deferredPayload,
           bossActive: true,
+          active: true,
           bossType,
           bossName,
           bossHp: 0,
           bossMaxHp,
           bossDefeated: true,
           defeated: true,
-          bossEncounterState: "defeated"
+          bossEncounterState: "defeated",
+          encounterState: "defeated"
         },
         {
           source: options.source || "deferred-boss-defeat"
         }
       );
-
-      return true;
     }
     
     function syncBossHudFromPayload(payload, options = {}) {
@@ -10722,6 +10728,16 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         return;
       }
 
+      if (
+        overlayState.deferredBossDefeatPayload &&
+        !overlayState.pendingCoreBreachBossDamageSync &&
+        overlayState.bossEncounterState !== "defeated"
+      ) {
+        flushDeferredBossDefeatPayload({
+          source: "deferred-boss-defeat-after-visible-coin-sockets"
+        });
+      }
+      
       if (overlayState.bossEncounterState === "defeated") {
         await waitForBossDefeatCleanup();
       
