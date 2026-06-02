@@ -2725,6 +2725,62 @@
         bossSpriteHurtFlicker 1250ms steps(10, end),
         bossSpriteHurtViolence 1250ms steps(10, end);
     }
+
+    .boss-heal-effect-gif {
+      position: absolute;
+      left: 290px;
+      bottom: 365px;
+      width: 260px;
+      height: 260px;
+      object-fit: contain;
+      image-rendering: pixelated;
+      pointer-events: none;
+      opacity: 0;
+      visibility: hidden;
+      z-index: 9;
+      mix-blend-mode: screen;
+      transform: translate(-50%, -50%) scale(0.86);
+      filter:
+        brightness(1.35)
+        saturate(1.35)
+        drop-shadow(0 0 16px rgba(70, 255, 95, 0.72))
+        drop-shadow(0 0 34px rgba(20, 170, 55, 0.48));
+    }
+
+    .boss-heal-effect-gif.active {
+      visibility: visible;
+      animation: bossHealEffectRise 1450ms steps(10, end) forwards;
+    }
+
+    .boss-sprite-layer.boss-sprite-avaros .boss-heal-effect-gif {
+      left: 300px;
+      bottom: 350px;
+      width: 290px;
+      height: 290px;
+    }
+
+    @keyframes bossHealEffectRise {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.72);
+      }
+
+      14% {
+        opacity: 1;
+        transform: translate(-50%, -56%) scale(1);
+      }
+
+      72% {
+        opacity: 1;
+        transform: translate(-50%, -66%) scale(1.08);
+      }
+
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -82%) scale(1.18);
+      }
+    }
+
     
     .encounter-layer.boss-damage-reaction .invidra-presence-fog {
       animation:
@@ -5236,6 +5292,7 @@
    
   <div id="bossSpriteLayer" class="boss-sprite-layer">
     <img id="bossSpriteImage" class="boss-sprite-image" src="" alt="">
+    <img id="bossHealEffectGif" class="boss-heal-effect-gif" src="" alt="">
     <div id="bossNamePlate" class="boss-nameplate">INVIDRA</div>
     <div id="bossHudLayer" class="boss-hud-layer">
       <div id="bossHpFill" class="boss-hp-fill"></div>
@@ -5339,6 +5396,7 @@
     const bossHpFill = document.getElementById("bossHpFill");
     const bossHpFrame = document.getElementById("bossHpFrame");
     const bossHpText = document.getElementById("bossHpText");
+    const bossHealEffectGif = document.getElementById("bossHealEffectGif");    
     const connectionStatus = document.getElementById("connectionStatus") || { textContent: "", style: {}, classList: { add() {}, remove() {} } };
     const playerIdentityLayer = document.getElementById("playerIdentityLayer");
     const playerNameplate = document.getElementById("playerNameplate");
@@ -5503,6 +5561,10 @@
       bossDamageReactionActive: false,
       
       bossDamageReactionTimer: null,
+      
+      bossHealReactionActive: false,
+      
+      bossHealReactionTimer: null,
 
       coreBreachPendingTimer: null,
 
@@ -8123,6 +8185,54 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       return true;
     }
 
+    function triggerBossHealReaction(bossType, payload, options = {}) {
+      if (!bossType || !payload || payload.bossActive !== true) return false;
+      if (Number(payload.bossHp || 0) <= 0) return false;
+      if (overlayState.bossEncounterState === "defeated") return false;
+
+      const healingAmount = Number(payload.worldBossHealing || payload.bossHealing || 0);
+
+      if (healingAmount <= 0) return false;
+
+      clearTimeout(overlayState.bossHealReactionTimer);
+
+      overlayState.bossHealReactionActive = true;
+
+      if (bossHealEffectGif) {
+        bossHealEffectGif.classList.remove("active");
+        bossHealEffectGif.src = "";
+
+        void bossHealEffectGif.offsetWidth;
+
+        bossHealEffectGif.src =
+          "images/bosses/LVGamesChargingUpGreen.gif?v=" + Date.now();
+
+        bossHealEffectGif.classList.add("active");
+      }
+
+      if (encounterLayer) {
+        encounterLayer.classList.remove("boss-heal-reaction");
+        void encounterLayer.offsetWidth;
+        encounterLayer.classList.add("boss-heal-reaction");
+      }
+
+      overlayState.bossHealReactionTimer = setTimeout(() => {
+        overlayState.bossHealReactionActive = false;
+
+        if (bossHealEffectGif) {
+          bossHealEffectGif.classList.remove("active");
+          bossHealEffectGif.src = "";
+        }
+
+        if (encounterLayer) {
+          encounterLayer.classList.remove("boss-heal-reaction");
+        }
+      }, 1450);
+
+      return true;
+    }
+
+    
     function updateInvidraHpThresholdState(bossType, hpPercent) {
       const thresholdClasses = [
         "invidra-hp-wounded",
@@ -8579,6 +8689,16 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       });
     
       updateInvidraHpThresholdState(bossType, hpPercent);
+      
+      const healingAmount = Number(payload.worldBossHealing || payload.bossHealing || 0);
+
+      if (
+        bossHp > 0 &&
+        healingAmount > 0 &&
+        options.suppressBossHealReaction !== true
+      ) {
+        triggerBossHealReaction(bossType, payload, options);
+      }
       
       if (bossHp > 0 && options.suppressBossHurtReaction !== true) {
         triggerBossDamageReaction(bossType, payload, options);
