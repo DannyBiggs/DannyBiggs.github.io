@@ -7595,24 +7595,30 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       const visualConfig = getBossVisualConfig(bossType);
 
-      if (bossNamePlate) {
-        bossNamePlate.textContent = visualConfig?.displayName || bossType.toUpperCase();
-      }
+      if (safeState === "dead") {
+        clearBossHudVisuals({
+          clearFrame: false
+        });
+      } else {
+        if (bossNamePlate) {
+          bossNamePlate.textContent = visualConfig?.displayName || bossType.toUpperCase();
+        }
 
-      if (bossHudLayer) {
-        bossHudLayer.classList.add("active");
-      }
+        if (bossHudLayer) {
+          bossHudLayer.classList.add("active");
+        }
 
-      if (bossHpFrame && visualConfig?.hpFrame) {
-        bossHpFrame.src = visualConfig.hpFrame;
-      }
+        if (bossHpFrame && visualConfig?.hpFrame) {
+          bossHpFrame.src = visualConfig.hpFrame;
+        }
 
-      if (bossHpFill && !bossHpFill.style.width) {
-        bossHpFill.style.width = "100%";
-      }
-      
-      if (bossHpText && !bossHpText.textContent) {
-        bossHpText.textContent = "1500/1500 HP";
+        if (bossHpFill && !bossHpFill.style.width) {
+          bossHpFill.style.width = "100%";
+        }
+
+        if (bossHpText && !bossHpText.textContent) {
+          bossHpText.textContent = "1500/1500 HP";
+        }
       }
 
       overlayState.activeBossSpriteState = {
@@ -7621,6 +7627,31 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         source: options.source || "unknown",
         startedAt: Date.now()
       };
+
+      return true;
+    }
+
+    function clearBossHudVisuals(options = {}) {
+      if (bossNamePlate) {
+        bossNamePlate.textContent = "";
+      }
+
+      if (bossHudLayer) {
+        bossHudLayer.classList.remove("active");
+      }
+
+      if (bossHpFill) {
+        bossHpFill.style.width = "0%";
+        bossHpFill.style.transform = "scaleX(0)";
+      }
+
+      if (bossHpText) {
+        bossHpText.textContent = "";
+      }
+
+      if (bossHpFrame && options.clearFrame !== false) {
+        bossHpFrame.removeAttribute("src");
+      }
 
       return true;
     }
@@ -7646,18 +7677,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         bossSpriteImage.alt = "";
       }
 
-      if (bossHudLayer) {
-        bossHudLayer.classList.remove("active");
-      }
+      clearBossHudVisuals();
 
-      if (bossHpFill) {
-        bossHpFill.style.width = "0%";
-      }
-
-      if (bossHpText) {
-        bossHpText.textContent = "";
-      }
-      
       overlayState.activeBossSpriteState = null;
 
       return true;
@@ -8244,29 +8265,32 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         triggerBossDamageReaction(bossType, payload, options);
       }
     
-      if (bossNamePlate) {
-        const visualConfig = getBossVisualConfig(bossType);
+      if (nextState === "defeated") {
+        clearBossHudVisuals({
+          clearFrame: false
+        });
+      } else {
+        if (bossNamePlate) {
+          const visualConfig = getBossVisualConfig(bossType);
 
-        bossNamePlate.textContent =
-          payload.bossName ||
-          visualConfig?.displayName ||
-          bossType.toUpperCase();
-      }
-    
-      if (bossHudLayer) {
-        bossHudLayer.classList.add("active");
-      }
-    
-      if (bossHpFill) {
-        bossHpFill.style.width = "336px";
-        bossHpFill.style.transform = `scaleX(${hpPercent / 100})`;
-      }
-      
-      if (bossHpText) {
-        bossHpText.textContent =
-          nextState === "defeated"
-            ? "DEFEATED"
-            : `${bossHp}/${bossMaxHp} HP`;
+          bossNamePlate.textContent =
+            payload.bossName ||
+            visualConfig?.displayName ||
+            bossType.toUpperCase();
+        }
+
+        if (bossHudLayer) {
+          bossHudLayer.classList.add("active");
+        }
+
+        if (bossHpFill) {
+          bossHpFill.style.width = "336px";
+          bossHpFill.style.transform = `scaleX(${hpPercent / 100})`;
+        }
+
+        if (bossHpText) {
+          bossHpText.textContent = `${bossHp}/${bossMaxHp} HP`;
+        }
       }
     
       overlayState.lastBossHp = bossHp;
