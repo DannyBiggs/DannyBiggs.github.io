@@ -5438,6 +5438,8 @@
 
       deferredBossDefeatPayload: null,
 
+      deferredBossWorldClearPayload: null,
+
       bossDefeatCleanupTimer: null,
 
       bossDefeatCleanupPromise: null,
@@ -7816,6 +7818,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       overlayState.bossWorldSyncSuppressed = false;
       overlayState.deferredBossDefeatPayload = null;
+      overlayState.deferredBossWorldClearPayload = null;
       overlayState.pendingBossDamageSync = null;
       overlayState.pendingCoreBreachBossDamageSync = null;
       overlayState.bossEncounterState = "defeated";
@@ -10887,6 +10890,28 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         }
       }
     
+      if (
+        overlayState.deferredBossWorldClearPayload &&
+        overlayState.bossEncounterState !== "defeated" &&
+        !overlayState.bossDefeatCleanupPromise
+      ) {
+        const deferredClearPayload = overlayState.deferredBossWorldClearPayload;
+        overlayState.deferredBossWorldClearPayload = null;
+
+        overlayState.bossWorldSyncSuppressed = true;
+        overlayState.pendingBossDamageSync = null;
+        overlayState.pendingCoreBreachBossDamageSync = null;
+
+        setBossEncounterState("escaped", {
+          source: "deferred-boss-clear-after-forge-queue",
+          payload: deferredClearPayload
+        });
+
+        setTimeout(() => {
+          clearBossWorldState({ force: true });
+        }, 900);
+      }
+
       forgeEventPlaying = false;
       
     }
@@ -11077,6 +11102,19 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
           if (endedAsDefeat) {
             overlayState.deferredBossDefeatPayload = data;
+            return;
+          }
+
+          const forgeQueueIsActive =
+            forgeEventPlaying === true ||
+            overlayState.isAnimating === true ||
+            Boolean(overlayState.activePullId) ||
+            overlayState.queue.length > 0 ||
+            Boolean(overlayState.pendingBossDamageSync) ||
+            Boolean(overlayState.pendingCoreBreachBossDamageSync);
+
+          if (forgeQueueIsActive) {
+            overlayState.deferredBossWorldClearPayload = data;
             return;
           }
 
