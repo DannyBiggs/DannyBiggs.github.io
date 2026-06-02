@@ -7753,12 +7753,88 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         Number(payload.bossMaxHp || overlayState.lastBossMaxHp || 1500)
       );
 
-      overlayState.bossWorldSyncSuppressed = false;
+      const bossWorldClass = `boss-world-${bossType}`;
+      const deadSpritePath = visualConfig?.sprites?.dead;
 
-      setBossWorldState(bossType, {
+      clearTimeout(overlayState.bossDefeatCleanupTimer);
+
+      overlayState.bossWorldSyncSuppressed = false;
+      overlayState.deferredBossDefeatPayload = null;
+      overlayState.pendingBossDamageSync = null;
+      overlayState.pendingCoreBreachBossDamageSync = null;
+
+      overlayState.activeBossWorldState = {
+        type: bossType,
+        className: bossWorldClass,
         source: options.source || "visible-fatal-damage",
-        payload
-      });
+        payload,
+        startedAt: overlayState.activeBossWorldState?.startedAt || Date.now()
+      };
+
+      overlayState.bossEncounterState = "defeated";
+      overlayState.lastBossEncounterPayload = {
+        ...payload,
+        bossActive: true,
+        active: true,
+        bossType,
+        bossHp: 0,
+        bossMaxHp,
+        defeated: true,
+        bossDefeated: true,
+        bossEncounterState: "defeated",
+        encounterState: "defeated"
+      };
+
+      overlayState.lastBossHp = 0;
+      overlayState.lastBossMaxHp = bossMaxHp;
+
+      if (forgeStage) {
+        forgeStage.classList.add("visible", bossWorldClass);
+        forgeStage.dataset.bossWorldState = bossType;
+        forgeStage.dataset.bossEncounterState = "defeated";
+      }
+
+      if (encounterLayer) {
+        encounterLayer.classList.add("active", bossWorldClass);
+        encounterLayer.dataset.bossWorldState = bossType;
+        encounterLayer.dataset.bossEncounterState = "defeated";
+      }
+
+      if (bossSpriteLayer) {
+        bossSpriteLayer.classList.remove(
+          "boss-sprite-invidra",
+          "boss-sprite-avaros",
+          "boss-sprite-idle",
+          "boss-sprite-attack",
+          "boss-sprite-hurt",
+          "boss-sprite-dead",
+          "boss-sprite-hit-react",
+          "boss-sprite-attack-react",
+          "boss-sprite-attack-return"
+        );
+
+        bossSpriteLayer.classList.add(
+          "active",
+          `boss-sprite-${bossType}`,
+          "boss-sprite-dead"
+        );
+
+        bossSpriteLayer.dataset.bossType = bossType;
+        bossSpriteLayer.dataset.bossSpriteState = "dead";
+        bossSpriteLayer.dataset.bossEncounterState = "defeated";
+        bossSpriteLayer.style.visibility = "visible";
+      }
+
+      if (bossSpriteImage) {
+        bossSpriteImage.style.visibility = "visible";
+        bossSpriteImage.style.opacity = "1";
+
+        if (deadSpritePath) {
+          bossSpriteImage.src = deadSpritePath;
+        }
+
+        bossSpriteImage.alt = bossType;
+      }
 
       if (bossNamePlate) {
         bossNamePlate.textContent =
@@ -7785,39 +7861,37 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         bossHpText.textContent = "DEFEATED";
       }
 
-      overlayState.lastBossHp = 0;
-      overlayState.lastBossMaxHp = bossMaxHp;
+      overlayState.activeBossSpriteState = {
+        type: bossType,
+        state: "dead",
+        source: options.source || "visible-fatal-damage",
+        startedAt: Date.now()
+      };
 
-      if (overlayState.bossEncounterState === "defeated") {
-        overlayState.bossEncounterState = "active";
+      if (overlayState.bossVictorySoundPlayed !== true) {
+        const victorySound = visualConfig?.victorySound;
 
-        if (forgeStage) {
-          forgeStage.dataset.bossEncounterState = "active";
-        }
+        overlayState.bossVictorySoundPlayed = true;
 
-        if (encounterLayer) {
-          encounterLayer.dataset.bossEncounterState = "active";
-        }
+        if (victorySound) {
+          try {
+            victorySound.currentTime = 0;
 
-        if (bossSpriteLayer) {
-          bossSpriteLayer.dataset.bossEncounterState = "active";
+            victorySound
+              .play()
+              .catch(() => {});
+          } catch (error) {
+            console.warn(
+              `${visualConfig?.displayName || bossType} victory sound failed:`,
+              error
+            );
+          }
         }
       }
 
-      setBossEncounterState("defeated", {
+      scheduleBossDefeatCleanup({
         source: options.source || "visible-fatal-damage",
-        payload: {
-          ...payload,
-          bossActive: true,
-          active: true,
-          bossType,
-          bossHp: 0,
-          bossMaxHp,
-          defeated: true,
-          bossDefeated: true,
-          bossEncounterState: "defeated",
-          encounterState: "defeated"
-        }
+        payload: overlayState.lastBossEncounterPayload
       });
 
       return true;
