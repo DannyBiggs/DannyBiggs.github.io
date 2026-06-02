@@ -7581,6 +7581,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       const safeState = assets[state] ? state : "idle";
 
+      bossSpriteImage.style.visibility = "visible";
       bossSpriteImage.src = assets[safeState];
       bossSpriteImage.alt = bossType;
 
@@ -7613,6 +7614,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       }
 
       if (bossHpFrame && visualConfig?.hpFrame) {
+        bossHpFrame.style.visibility = "visible";
         bossHpFrame.src = visualConfig.hpFrame;
       }
 
@@ -7653,6 +7655,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       }
 
       if (bossHpFrame && options.clearFrame !== false) {
+        bossHpFrame.style.visibility = "hidden";
         bossHpFrame.removeAttribute("src");
       }
 
@@ -7676,6 +7679,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       }
 
       if (bossSpriteImage) {
+        bossSpriteImage.style.visibility = "hidden";
         bossSpriteImage.removeAttribute("src");
         bossSpriteImage.alt = "";
       }
@@ -8157,10 +8161,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       if (bossHpReachedZero) {
         overlayState.pendingBossDamageSync = null;
-
-        flushDeferredBossDefeatPayload({
-          source: "boss-damage-after-fatal-coin-land"
-        });
+        overlayState.deferredBossDefeatPayload = null;
 
         return true;
       }
@@ -8199,9 +8200,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         Number(pending.payload?.bossHp ?? 999999) <= 0;
 
       if (bossHpReachedZero) {
-        flushDeferredBossDefeatPayload({
-          source: "boss-defeat-after-core-breach-impact"
-        });
+        overlayState.deferredBossDefeatPayload = null;
       }
 
       return true;
@@ -10604,9 +10603,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       forgeEventPlaying = false;
       
-      flushDeferredBossDefeatPayload({
-        source: "forge-queue-fallback"
-      });
     }
 
     
@@ -10788,17 +10784,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
           if (endedAsDefeat) {
             overlayState.deferredBossDefeatPayload = data;
-
-            if (
-              !overlayState.pendingBossDamageSync &&
-              !overlayState.pendingCoreBreachBossDamageSync &&
-              overlayState.isAnimating !== true
-            ) {
-              flushDeferredBossDefeatPayload({
-                source: "streamerbot-defeat-no-pending-visuals"
-              });
-            }
-
             return;
           }
 
