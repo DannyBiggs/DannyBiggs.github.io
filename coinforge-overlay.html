@@ -10766,13 +10766,23 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       
         clearStageRevealEffects();
         cinematicBurst.classList.remove("active");
-      
+
+        hideForgeStage();
         clearPlayerIdentity();
+      
+        await wait(350);
+      
         clearSlotStates();
         resetForgeInstabilityOwnership({ includePersistent: true });
         slotRow.innerHTML = "";
       
         resetForgePressureLifecycleVisuals();
+
+        resetForgeRuntimeOwnership({
+          includePersistent: true,
+          clearPullOwnership: true
+        });
+
         stopOwnedAudio();
         clearComboDisplayState();
       
