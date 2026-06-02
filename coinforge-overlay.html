@@ -5390,6 +5390,8 @@
 
       deferredBossDefeatPayload: null,
 
+      bossDefeatCleanupTimer: null,
+
       pendingCoreBreachBossDamageSync: null,
     
       activePullId: null,
@@ -7468,9 +7470,16 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         return false;
       }
 
-      clearBossWorldState({ force: true });
-
       const className = `boss-world-${bossType}`;
+
+      if (overlayState.activeBossWorldState?.type === bossType) {
+        overlayState.activeBossWorldState.source = options.source || "unknown";
+        overlayState.activeBossWorldState.payload = options.payload || null;
+
+        return true;
+      }
+
+      clearBossWorldState({ force: true });
 
       overlayState.activeBossWorldState = {
         type: bossType,
@@ -7680,6 +7689,22 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
     // syncBossHudFromPayload is defined once below with boss damage reaction support.
 
+    function scheduleBossDefeatCleanup(options = {}) {
+      clearTimeout(overlayState.bossDefeatCleanupTimer);
+
+      overlayState.bossDefeatCleanupTimer = setTimeout(() => {
+        if (overlayState.bossEncounterState !== "defeated") return;
+
+        clearBossWorldState({
+          force: true,
+          source: options.source || "boss-defeat-cleanup",
+          payload: options.payload || null
+        });
+      }, 4800);
+
+      return true;
+    }
+
     function setBossEncounterState(state, options = {}) {
       const safeState = String(state || "active").trim().toLowerCase();
     
@@ -7716,6 +7741,11 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
         setBossSpriteState(bossType, "dead", {
           source: options.source || "boss-lifecycle"
+        });
+
+        scheduleBossDefeatCleanup({
+          source: options.source || "boss-lifecycle",
+          payload: options.payload || null
         });
     
         if (overlayState.bossVictorySoundPlayed !== true) {
@@ -8094,40 +8124,55 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         overlayState.pendingBossDamageSync = null;
         return false;
       }
-    
+
       const pending = overlayState.pendingBossDamageSync;
-    
+
       if (!pending || !Array.isArray(pending.ticks) || pending.ticks.length === 0) {
         return false;
       }
-    
+
       const nextTick = pending.ticks.shift();
-    
-      const shouldPlayReaction = pending.reactionPlayed !== true;
-    
-      syncBossHudFromPayload(nextTick.payload, {
-        ...(pending.options || {}),
-        source: "boss-damage-after-coin-land",
-        suppressBossHurtReaction: !shouldPlayReaction
-      });
 
       const bossHpReachedZero =
         Number(nextTick.payload?.bossHp ?? 999999) <= 0;
 
+      const visualTickPayload = {
+        ...nextTick.payload,
+        bossDefeated: bossHpReachedZero,
+        defeated: bossHpReachedZero,
+        bossEncounterState: bossHpReachedZero ? "defeated" : "active",
+        encounterState: bossHpReachedZero ? "defeated" : "active"
+      };
+
+      const shouldPlayReaction =
+        pending.reactionPlayed !== true && !bossHpReachedZero;
+
+      syncBossHudFromPayload(visualTickPayload, {
+        ...(pending.options || {}),
+        source: bossHpReachedZero
+          ? "boss-defeat-on-fatal-coin-land"
+          : "boss-damage-after-coin-land",
+        suppressBossHurtReaction: !shouldPlayReaction
+      });
+
       if (bossHpReachedZero) {
+        overlayState.pendingBossDamageSync = null;
+
         flushDeferredBossDefeatPayload({
           source: "boss-damage-after-fatal-coin-land"
         });
+
+        return true;
       }
-      
+
       if (shouldPlayReaction) {
         pending.reactionPlayed = true;
       }
-    
+
       if (pending.ticks.length === 0) {
         overlayState.pendingBossDamageSync = null;
       }
-    
+
       return true;
     }
 
@@ -10736,29 +10781,40 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           data.clear === true ||
           String(data.bossType || data.bossName || data.boss || "").toLowerCase() === "none"
         ) {
-          overlayState.bossWorldSyncSuppressed = true;
-          overlayState.pendingBossDamageSync = null;
-          overlayState.pendingCoreBreachBossDamageSync = null;
-          
           const endedAsDefeat =
             data.defeated === true ||
             data.bossDefeated === true ||
             String(data.bossEncounterState || data.encounterState || "").toLowerCase() === "defeated";
-      
-          const wasAlreadyDefeated =
-            overlayState.bossEncounterState === "defeated";
-          
-          if (!wasAlreadyDefeated) {
-            setBossEncounterState(endedAsDefeat ? "defeated" : "escaped", {
-              source: "streamerbot",
-              payload: data
-            });
+
+          if (endedAsDefeat) {
+            overlayState.deferredBossDefeatPayload = data;
+
+            if (
+              !overlayState.pendingBossDamageSync &&
+              !overlayState.pendingCoreBreachBossDamageSync &&
+              overlayState.isAnimating !== true
+            ) {
+              flushDeferredBossDefeatPayload({
+                source: "streamerbot-defeat-no-pending-visuals"
+              });
+            }
+
+            return;
           }
-      
+
+          overlayState.bossWorldSyncSuppressed = true;
+          overlayState.pendingBossDamageSync = null;
+          overlayState.pendingCoreBreachBossDamageSync = null;
+
+          setBossEncounterState("escaped", {
+            source: "streamerbot",
+            payload: data
+          });
+
           setTimeout(() => {
             clearBossWorldState({ force: true });
-          }, endedAsDefeat ? 4800 : 900);
-      
+          }, 900);
+
           return;
         }
       
