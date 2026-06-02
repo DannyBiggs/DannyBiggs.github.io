@@ -8098,7 +8098,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
         if (
           overlayState.activeBossWorldState?.type === bossType &&
-          overlayState.bossEncounterState === "damaged"
+          overlayState.bossEncounterState !== "defeated" &&
+          !overlayState.bossDefeatCleanupPromise
         ) {
           setBossEncounterState("active", {
             source: "boss-damage-reaction-return",
