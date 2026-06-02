@@ -8140,8 +8140,19 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       const bossHpReachedZero =
         Number(nextTick.payload?.bossHp ?? 999999) <= 0;
 
+      const bossType =
+        normalizeBossWorldType(
+          nextTick.payload?.bossType ||
+          nextTick.payload?.bossName ||
+          overlayState.activeBossWorldState?.type
+        );
+
       const visualTickPayload = {
         ...nextTick.payload,
+        bossActive: true,
+        active: true,
+        bossType: bossType || nextTick.payload?.bossType || nextTick.payload?.bossName,
+        bossHp: bossHpReachedZero ? 0 : nextTick.payload?.bossHp,
         bossDefeated: bossHpReachedZero,
         defeated: bossHpReachedZero,
         bossEncounterState: bossHpReachedZero ? "defeated" : "active",
@@ -8191,13 +8202,34 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       overlayState.pendingCoreBreachBossDamageSync = null;
 
-      syncBossHudFromPayload(pending.payload, {
-        ...(pending.options || {}),
-        source: options.source || "boss-damage-after-core-breach-impact"
-      });
-
       const bossHpReachedZero =
         Number(pending.payload?.bossHp ?? 999999) <= 0;
+
+      const bossType =
+        normalizeBossWorldType(
+          pending.payload?.bossType ||
+          pending.payload?.bossName ||
+          overlayState.activeBossWorldState?.type
+        );
+
+      const visualPayload = {
+        ...pending.payload,
+        bossActive: true,
+        active: true,
+        bossType: bossType || pending.payload?.bossType || pending.payload?.bossName,
+        bossHp: bossHpReachedZero ? 0 : pending.payload?.bossHp,
+        bossDefeated: bossHpReachedZero,
+        defeated: bossHpReachedZero,
+        bossEncounterState: bossHpReachedZero ? "defeated" : "active",
+        encounterState: bossHpReachedZero ? "defeated" : "active"
+      };
+
+      syncBossHudFromPayload(visualPayload, {
+        ...(pending.options || {}),
+        source: bossHpReachedZero
+          ? "boss-defeat-after-core-breach-impact"
+          : options.source || "boss-damage-after-core-breach-impact"
+      });
 
       if (bossHpReachedZero) {
         overlayState.deferredBossDefeatPayload = null;
