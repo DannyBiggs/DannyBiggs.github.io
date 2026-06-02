@@ -3248,6 +3248,54 @@
     .boss-sprite-layer.boss-sprite-avaros.boss-sprite-dead::before {
       animation: avarosAuraCollapse 2200ms ease-in forwards;
     }
+
+    .boss-sprite-layer.boss-sprite-visible-defeat .boss-sprite-image {
+      animation: bossVisibleFatalDefeat 3800ms cubic-bezier(.12,.82,.18,1) forwards !important;
+      transform-origin: center center;
+      will-change: transform, opacity, filter;
+    }
+
+    .boss-sprite-layer.boss-sprite-visible-defeat::before {
+      animation: bossVisibleFatalAuraCollapse 3200ms ease-out forwards !important;
+    }
+
+    @keyframes bossVisibleFatalDefeat {
+      0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: brightness(1.4) saturate(1.2);
+      }
+
+      18% {
+        opacity: 1;
+        transform: translateY(-10px) scale(1.08);
+        filter: brightness(2.2) saturate(1.4);
+      }
+
+      48% {
+        opacity: 0.95;
+        transform: translateY(8px) scale(0.96);
+        filter: brightness(1.1) saturate(0.8);
+      }
+
+      100% {
+        opacity: 0;
+        transform: translateY(90px) scale(0.62);
+        filter: brightness(0.3) saturate(0.2) blur(4px);
+      }
+    }
+
+    @keyframes bossVisibleFatalAuraCollapse {
+      0% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      100% {
+        opacity: 0;
+        transform: scale(0.38);
+      }
+    }
     
     @keyframes avarosSpawnRise {
       0% {
@@ -7675,7 +7723,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           "boss-sprite-idle",
           "boss-sprite-attack",
           "boss-sprite-hurt",
-          "boss-sprite-dead"
+          "boss-sprite-dead",
+          "boss-sprite-visible-defeat"
         );
 
         delete bossSpriteLayer.dataset.bossType;
@@ -7748,45 +7797,14 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       if (!bossType) return false;
 
       const visualConfig = getBossVisualConfig(bossType);
-      const bossMaxHp = Math.max(
-        1,
-        Number(payload.bossMaxHp || overlayState.lastBossMaxHp || 1500)
-      );
-
       const bossWorldClass = `boss-world-${bossType}`;
-      const deadSpritePath = visualConfig?.sprites?.dead;
-
-      clearTimeout(overlayState.bossDefeatCleanupTimer);
 
       overlayState.bossWorldSyncSuppressed = false;
       overlayState.deferredBossDefeatPayload = null;
       overlayState.pendingBossDamageSync = null;
       overlayState.pendingCoreBreachBossDamageSync = null;
-
-      overlayState.activeBossWorldState = {
-        type: bossType,
-        className: bossWorldClass,
-        source: options.source || "visible-fatal-damage",
-        payload,
-        startedAt: overlayState.activeBossWorldState?.startedAt || Date.now()
-      };
-
       overlayState.bossEncounterState = "defeated";
-      overlayState.lastBossEncounterPayload = {
-        ...payload,
-        bossActive: true,
-        active: true,
-        bossType,
-        bossHp: 0,
-        bossMaxHp,
-        defeated: true,
-        bossDefeated: true,
-        bossEncounterState: "defeated",
-        encounterState: "defeated"
-      };
-
       overlayState.lastBossHp = 0;
-      overlayState.lastBossMaxHp = bossMaxHp;
 
       if (forgeStage) {
         forgeStage.classList.add("visible", bossWorldClass);
@@ -7802,35 +7820,33 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       if (bossSpriteLayer) {
         bossSpriteLayer.classList.remove(
-          "boss-sprite-invidra",
-          "boss-sprite-avaros",
-          "boss-sprite-idle",
-          "boss-sprite-attack",
-          "boss-sprite-hurt",
-          "boss-sprite-dead",
           "boss-sprite-hit-react",
           "boss-sprite-attack-react",
-          "boss-sprite-attack-return"
+          "boss-sprite-attack-return",
+          "boss-sprite-visible-defeat"
         );
 
         bossSpriteLayer.classList.add(
           "active",
           `boss-sprite-${bossType}`,
-          "boss-sprite-dead"
+          "boss-sprite-visible-defeat"
         );
 
         bossSpriteLayer.dataset.bossType = bossType;
-        bossSpriteLayer.dataset.bossSpriteState = "dead";
+        bossSpriteLayer.dataset.bossSpriteState = "visible-defeat";
         bossSpriteLayer.dataset.bossEncounterState = "defeated";
         bossSpriteLayer.style.visibility = "visible";
+
+        void bossSpriteLayer.offsetWidth;
+        bossSpriteLayer.classList.add("boss-sprite-visible-defeat");
       }
 
       if (bossSpriteImage) {
         bossSpriteImage.style.visibility = "visible";
         bossSpriteImage.style.opacity = "1";
 
-        if (deadSpritePath) {
-          bossSpriteImage.src = deadSpritePath;
+        if (!bossSpriteImage.getAttribute("src")) {
+          bossSpriteImage.src = visualConfig?.sprites?.idle || "";
         }
 
         bossSpriteImage.alt = bossType;
@@ -7861,13 +7877,6 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         bossHpText.textContent = "DEFEATED";
       }
 
-      overlayState.activeBossSpriteState = {
-        type: bossType,
-        state: "dead",
-        source: options.source || "visible-fatal-damage",
-        startedAt: Date.now()
-      };
-
       if (overlayState.bossVictorySoundPlayed !== true) {
         const victorySound = visualConfig?.victorySound;
 
@@ -7876,22 +7885,16 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         if (victorySound) {
           try {
             victorySound.currentTime = 0;
-
-            victorySound
-              .play()
-              .catch(() => {});
+            victorySound.play().catch(() => {});
           } catch (error) {
-            console.warn(
-              `${visualConfig?.displayName || bossType} victory sound failed:`,
-              error
-            );
+            console.warn(`${visualConfig?.displayName || bossType} victory sound failed:`, error);
           }
         }
       }
 
       scheduleBossDefeatCleanup({
         source: options.source || "visible-fatal-damage",
-        payload: overlayState.lastBossEncounterPayload
+        payload
       });
 
       return true;
