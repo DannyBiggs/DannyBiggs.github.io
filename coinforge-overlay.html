@@ -8106,7 +8106,48 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     
       return true;
     }
-
+    /*
+    ==============================================================================
+    AVAROS REACTION ARCHITECTURE
+    ==============================================================================
+    
+    Avaros currently uses TWO intentionally separate reaction paths:
+    
+    1. Siphon / Heal Reactions
+       - triggerBossAttackReaction(...)
+       - triggerBossHealReaction(...)
+    
+       These are GLOBAL boss reactions.
+       They represent Avaros actively siphoning jackpot energy and healing.
+       Ownership belongs to the boss lifecycle system.
+    
+    2. Devour Reactions
+       - triggerAvarosDevourFlash(...)
+    
+       This is a SLOT-OWNED pull reaction.
+       It represents a specific coin being consumed during a pull.
+       Ownership belongs to the pull/slot lifecycle system.
+    
+    These paths remain intentionally separated because they operate on
+    different ownership models:
+    
+    - Siphon = boss-level event
+    - Devour = slot-level event
+    
+    Future Phase 7 work may introduce a lightweight
+    "Avaros Event Reaction Manager" wrapper that routes both event types
+    through a shared entry point.
+    
+    However, the underlying implementations should remain separate unless
+    a future architecture review determines that ownership and cleanup
+    rules can be unified safely.
+    
+    Current Status:
+    SAFE
+    NO REFACTOR REQUIRED
+    DOCUMENTATION ONLY
+    ==============================================================================
+    */
     function triggerBossAttackReaction(bossType, options = {}) {
       const safeBossType = normalizeBossWorldType(bossType);
 
