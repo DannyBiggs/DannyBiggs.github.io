@@ -8495,6 +8495,10 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       if (overlayState.eruptionActive) return false;
 
       const portalEcho = document.getElementById("avarosSiphonPortalEcho");
+      const forgeWasVisible = forgeStage.classList.contains("visible");
+
+      forgeStage.dataset.avarosSiphonForgeWasVisible = forgeWasVisible ? "true" : "false";
+      forgeStage.classList.add("visible");
 
       forgeStage.classList.remove("avaros-siphon-drain");
       void forgeStage.offsetWidth;
@@ -8517,6 +8521,16 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       overlayState.avarosSiphonVisualTimer = setTimeout(() => {
         if (forgeStage) {
           forgeStage.classList.remove("avaros-siphon-drain");
+
+          if (
+            forgeStage.dataset.avarosSiphonForgeWasVisible !== "true" &&
+            !overlayState.activePullId &&
+            !overlayState.isAnimating
+          ) {
+            forgeStage.classList.remove("visible");
+          }
+
+          delete forgeStage.dataset.avarosSiphonForgeWasVisible;
         }
 
         if (portalEcho) {
