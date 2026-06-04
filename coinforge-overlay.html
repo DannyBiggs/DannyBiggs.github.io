@@ -8019,7 +8019,22 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
       return true;
     }
-    
+    /*
+      Boss lifecycle contract:
+
+      Boss Visual Manager owns visible defeat timing.
+      Defeat visuals must come from visible fatal socket impact or visible Core Breach resolution.
+
+      This function is NOT metadata-only.
+      Entering "defeated" here has side effects:
+      - switches boss sprite to dead
+      - schedules boss defeat cleanup
+      - may play victory sound
+
+      Generic boss sync payloads must not be allowed to route into
+      setBossEncounterState("defeated"). Use the guarded
+      syncBossHudFromPayload() path unless defeat sync is explicitly allowed.
+    */    
     function setBossEncounterState(state, options = {}) {
       const safeState = String(state || "active").trim().toLowerCase();
     
