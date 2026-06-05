@@ -8996,10 +8996,12 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           ? "defeated"
           : payload.bossEncounterState || payload.encounterState || "active";
     
-      setBossEncounterState(nextState, {
-        source: options.source || "coinForgePull",
-        payload
-      });
+      if (options.skipBossEncounterStateSync !== true) {
+        setBossEncounterState(nextState, {
+          source: options.source || "coinForgePull",
+          payload
+        });
+      }
     
       updateInvidraHpThresholdState(bossType, hpPercent);
       
@@ -11621,7 +11623,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           syncBossHudFromPayload(siphonPayload, {
             source: "avaros-siphon-hp-sync",
             suppressBossHealReaction: true,
-            suppressBossHurtReaction: true
+            suppressBossHurtReaction: true,
+            skipBossEncounterStateSync: true
           });
 
           triggerBossHealReaction(attackBossType, siphonPayload, {
