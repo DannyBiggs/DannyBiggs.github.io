@@ -11574,13 +11574,57 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         if (attackBossType === "avaros" && attackType === "siphon") {
           triggerAvarosForgeSiphonVisual(data);
 
-          triggerBossHealReaction(attackBossType, {
+          const siphonHealAmount = Number(
+            data.worldBossHealing ||
+            data.bossHealing ||
+            data.healing ||
+            data.healAmount ||
+            data.stolen ||
+            data.stolenAmount ||
+            0
+          );
+
+          const siphonBossMaxHp = Math.max(
+            1,
+            Number(data.bossMaxHp || overlayState.lastBossMaxHp || 1500)
+          );
+
+          const payloadHasBossHp =
+            data.bossHp !== undefined &&
+            data.bossHp !== null &&
+            data.bossHp !== "";
+
+          const siphonBossHp = payloadHasBossHp
+            ? Number(data.bossHp)
+            : Math.min(
+                siphonBossMaxHp,
+                Number(overlayState.lastBossHp || 0) + siphonHealAmount
+              );
+
+          const siphonPayload = {
             ...data,
             bossActive: true,
-            bossHp: data.bossHp || overlayState.lastBossHp || 1,
-            bossMaxHp: data.bossMaxHp || overlayState.lastBossMaxHp || 1500,
-            worldBossHealing: data.worldBossHealing || data.bossHealing || data.stolen || 1
-          }, {
+            active: true,
+            clear: false,
+            bossType: data.bossType || "CoinEater",
+            bossName: data.bossName || "AVAROS",
+            bossHp: siphonBossHp,
+            bossMaxHp: siphonBossMaxHp,
+            worldBossHealing: siphonHealAmount,
+            bossHealing: siphonHealAmount,
+            bossDefeated: false,
+            defeated: false,
+            bossEncounterState: "active",
+            encounterState: "active"
+          };
+
+          syncBossHudFromPayload(siphonPayload, {
+            source: "avaros-siphon-hp-sync",
+            suppressBossHealReaction: true,
+            suppressBossHurtReaction: true
+          });
+
+          triggerBossHealReaction(attackBossType, siphonPayload, {
             source: "avaros-siphon-heal-reaction"
           });
         }
