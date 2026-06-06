@@ -8269,6 +8269,35 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     }
     /*
     ==============================================================================
+    PHASE 7 FREEZE NOTE — BOSS VISUAL OWNERSHIP
+    ==============================================================================
+    
+    Boss-specific code may request boss reactions, but must not directly own generic
+    render, audio, camera, forge, slot, or cinematic systems.
+    
+    Allowed:
+    - boss state payloads
+    - boss attack payloads
+    - boss visual manager reactions
+    - slot-owned devour/corruption effects
+    - boss-world class ownership through the boss world manager
+    
+    Not allowed:
+    - boss-specific systems directly controlling global camera
+    - boss-specific systems directly interrupting cinematics
+    - boss-specific systems bypassing render ownership
+    - boss-specific systems forcing generic audio cleanup
+    - boss-specific systems clearing forge/pull state directly
+    
+    Current Phase 7 status:
+    SAFE / DOCUMENTATION ONLY
+    
+    Future Phase 8 target:
+    route these visual/audio/camera requests through the Render Orchestration Layer.
+    ==============================================================================
+    */
+    /*
+    ==============================================================================
     AVAROS REACTION ARCHITECTURE
     ==============================================================================
     
