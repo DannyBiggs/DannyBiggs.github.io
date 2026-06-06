@@ -11657,7 +11657,18 @@ function getCachedCoinFrame(coinKey, frameNumber) {
             data.bossDefeated === true ||
             String(data.bossEncounterState || data.encounterState || "").toLowerCase() === "defeated"
           );
-      
+        // IMPORTANT:
+        // Defeated confirmation payloads sent by Streamer.bot must NEVER trigger
+        // boss death visuals directly.
+        //
+        // Fatal-hit ownership belongs exclusively to the boss visual manager,
+        // which determines defeat from visible boss damage reaching 0 HP.
+        //
+        // This guard prevents duplicate defeat animations, premature cleanup,
+        // queued-pull race conditions, and boss reappearance bugs.
+        //
+        // Defeated payloads are confirmation-only.
+        // Cleared payloads are used for final cleanup after the defeat sequence finishes.
         if (isDefeatStatePayload) {
           return;
         }
