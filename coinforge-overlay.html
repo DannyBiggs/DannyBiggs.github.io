@@ -8129,6 +8129,18 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           });
         }
 
+        releaseRender({
+          owner: "boss",
+          layer: RENDER_LAYERS.BOSS,
+          type: "bossDefeat"
+        });
+
+        releaseRender({
+          owner: "boss",
+          layer: RENDER_LAYERS.HUD,
+          type: "bossHudSync"
+        });
+        
         if (overlayState.activeCinematic?.type === "bossDefeat") {
           releaseCinematic(overlayState.activeCinematic.ownerId);
         }
