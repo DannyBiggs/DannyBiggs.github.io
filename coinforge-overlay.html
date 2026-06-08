@@ -5797,6 +5797,107 @@
       slotStates: new Map()
     };
 
+    // ===== PHASE 8.1 RENDER ORCHESTRATION CONTRACTS START =====
+    const RENDER_LAYERS = {
+      CINEMATIC: "cinematic",
+      BOSS: "boss",
+      FORGE: "forge",
+      SLOTS: "slots",
+      HUD: "hud",
+      ACHIEVEMENT: "achievement",
+      AUDIO: "audio",
+      CAMERA: "camera",
+      EVENT: "event"
+    };
+
+    const RENDER_PRIORITIES = {
+      BOSS_SPAWN: 100,
+      BOSS_DEFEAT: 100,
+      FORGE_ERUPTION: 95,
+      FORGE_IGNITED: 80,
+      JACKPOT: 70,
+      ACHIEVEMENT: 50,
+      COIN_EFFECT: 20
+    };
+
+    function requestRender(request = {}) {
+      const normalizedRequest = {
+        owner: request.owner || "unknown",
+        layer: request.layer || "unknown",
+        type: request.type || "unknown",
+        priority: Number(request.priority || 0),
+        payload: request.payload || null,
+        requestedAt: Date.now()
+      };
+
+      overlayState.lastRenderRequest = normalizedRequest;
+
+      return normalizedRequest;
+    }
+
+    function releaseRender(release = {}) {
+      overlayState.lastRenderRelease = {
+        owner: release.owner || "unknown",
+        layer: release.layer || "unknown",
+        type: release.type || "unknown",
+        releasedAt: Date.now()
+      };
+
+      return true;
+    }
+
+    function requestAudio(request = {}) {
+      const pullId = request.pullId || overlayState.activePullId;
+      const sound = request.sound || null;
+      const restart = request.restart !== false;
+
+      overlayState.lastAudioRequest = {
+        owner: request.owner || "unknown",
+        priority: Number(request.priority || 0),
+        soundName: request.soundName || "",
+        requestedAt: Date.now()
+      };
+
+      if (pullId && sound) {
+        playOwnedSound(pullId, sound, restart);
+      }
+
+      return overlayState.lastAudioRequest;
+    }
+
+    function releaseAudio(release = {}) {
+      overlayState.lastAudioRelease = {
+        owner: release.owner || "unknown",
+        releasedAt: Date.now()
+      };
+
+      stopOwnedAudio();
+
+      return true;
+    }
+
+    function requestCinematic(request = {}) {
+      return acquireCinematic(
+        request.type || "unknown",
+        request.owner || "unknown",
+        {
+          priority: Number(request.priority || 0),
+          interrupt: request.interrupt === true,
+          interruptible: request.interruptible !== false
+        }
+      );
+    }
+
+    function releaseRenderCinematic(ownerId, options = {}) {
+      return releaseCinematic(ownerId, options);
+    }
+
+    function queueRenderEvent(event = {}) {
+      enqueueForgeEvent(event);
+      return true;
+    }
+    // ===== PHASE 8.1 RENDER ORCHESTRATION CONTRACTS END =====
+    
     function registerCleanupTimer(timer)
     {
       overlayState.cleanupTimers.push(timer);
