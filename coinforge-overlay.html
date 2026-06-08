@@ -11533,7 +11533,31 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         overlayState.isAnimating = true;
         overlayState.activePayload = event;
         overlayState.activePullId = pullId;
-    
+        
+        requestRender({
+          owner: "renderQueue",
+          layer: RENDER_LAYERS.EVENT,
+          type: "forgeEventProcessing",
+          priority: RENDER_PRIORITIES.COIN_EFFECT,
+          payload: {
+            pullId,
+            eventType: event.type || "unknown",
+            queueLength: overlayState.queue.length
+          }
+        });
+        
+        requestRender({
+          owner: "coin-pull",
+          layer: RENDER_LAYERS.FORGE,
+          type: "forgeReveal",
+          priority: RENDER_PRIORITIES.COIN_EFFECT,
+          payload: {
+            pullId,
+            pullCount: Number(event.pullCount || 1),
+            coinCount: Array.isArray(event.coins) ? event.coins.length : 0
+          }
+        });
+        
         const cinematicAcquired = acquireCinematic(
           "forgeReveal",
           pullId,
@@ -11555,6 +11579,18 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         try {
           await runForgeRevealExternal(event);
         } finally {
+          releaseRender({
+            owner: "coin-pull",
+            layer: RENDER_LAYERS.FORGE,
+            type: "forgeReveal"
+          });
+
+          releaseRender({
+            owner: "renderQueue",
+            layer: RENDER_LAYERS.EVENT,
+            type: "forgeEventProcessed"
+          });
+
           releaseCinematic(pullId);
         }
 
