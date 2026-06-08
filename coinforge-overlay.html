@@ -9322,6 +9322,21 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       }
     }    
 
+    window.debugRenderState = function debugRenderState() {
+      return {
+        lastRenderRequest: overlayState.lastRenderRequest || null,
+        lastRenderRelease: overlayState.lastRenderRelease || null,
+        lastAudioRequest: overlayState.lastAudioRequest || null,
+        lastAudioRelease: overlayState.lastAudioRelease || null,
+        activeAudioOwner: overlayState.activeAudioOwner || null,
+        activeCinematic: overlayState.activeCinematic || null,
+        activeEventReaction: overlayState.activeEventReaction || null,
+        queueLength: overlayState.queue ? overlayState.queue.length : 0,
+        isAnimating: overlayState.isAnimating,
+        activePullId: overlayState.activePullId || null
+      };
+    };
+    
     window.debugForgeState = function debugForgeState() {
       const slotWraps = Array.from(document.querySelectorAll(".slot-wrap"));
 
