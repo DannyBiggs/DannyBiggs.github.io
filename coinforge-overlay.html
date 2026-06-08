@@ -8265,12 +8265,14 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         overlayState.bossVictorySoundPlayed = true;
 
         if (victorySound) {
-          try {
-            victorySound.currentTime = 0;
-            victorySound.play().catch(() => {});
-          } catch (error) {
-            console.warn(`${visualConfig?.displayName || bossType} victory sound failed:`, error);
-          }
+          requestAudio({
+            owner: "boss",
+            sound: victorySound,
+            soundName: "BossVictorySound",
+            priority: RENDER_PRIORITIES.BOSS_DEFEAT,
+            pullId: overlayState.activePullId || `boss-defeat-${bossType}`,
+            restart: true
+          });
         }
       }
 
