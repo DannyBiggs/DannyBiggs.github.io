@@ -9132,7 +9132,21 @@ function getCachedCoinFrame(coinKey, frameNumber) {
           payload
         });
       }
-    
+
+      requestRender({
+        owner: "boss",
+        layer: RENDER_LAYERS.HUD,
+        type: "bossHudSync",
+        priority: RENDER_PRIORITIES.COIN_EFFECT,
+        payload: {
+          bossType,
+          bossHp,
+          bossMaxHp,
+          hpPercent,
+          encounterState: nextState
+        }
+      });
+      
       updateInvidraHpThresholdState(bossType, hpPercent);
       
       const healingAmount = Number(payload.worldBossHealing || payload.bossHealing || 0);
