@@ -6085,6 +6085,45 @@
 
     ==============================================================================
     */
+
+    /*
+    ==============================================================================
+    PHASE 8.3 QUEUE CANCELLATION OWNERSHIP MAP — DOCUMENTATION ONLY
+
+    IMPORTANT:
+    This documents cancellation ownership only.
+    Do not add queue cancellation enforcement during Phase 8.3.
+
+    Current Queue Cancellation:
+    - No active generalized queue cancellation owner exists.
+    - Queue entries are normally processed, not canceled.
+
+    Safe Cancellation Owner:
+    - Forge Queue Processor
+
+    Current Safe Behavior:
+    - Queue entries may be skipped only by existing guards, such as cinematic
+      ownership conflicts or protected boss cleanup states.
+    - These are not true queue cancellation systems.
+
+    Systems That Must NOT Own Queue Cancellation:
+    - Boss Visual Manager
+    - Cinematic Manager
+    - Instability Manager
+    - Achievement Manager
+    - Jackpot Manager
+
+    Future Registry Candidate:
+    - A future Queue Cancellation Registry may document who is allowed to cancel
+      queued entries, but it must not be enforced until fully audited.
+
+    Phase 8 Rule:
+    Document cancellation ownership only.
+    Do not implement cancellation behavior, cancellation priority, queue removal
+    rules, or interruption logic in Phase 8.3.
+
+    ==============================================================================
+    */
     
     function requestRender(request = {}) {
       const normalizedRequest = {
