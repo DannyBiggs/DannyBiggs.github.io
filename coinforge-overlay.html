@@ -9671,9 +9671,11 @@ function getCachedCoinFrame(coinKey, frameNumber) {
 
     window.debugOwnershipHistory = function()
     {
+      const history = overlayState.ownershipHistory || [];
+    
       return {
-        ownershipHistory: overlayState.ownershipHistory || [],
-        count: overlayState.ownershipHistory ? overlayState.ownershipHistory.length : 0,
+        ownershipHistory: history,
+        count: history.length,
         enforcementStatus: "debug-only; no ownership enforcement active"
       };
     };
