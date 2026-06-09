@@ -5820,6 +5820,76 @@
       COIN_EFFECT: 20
     };
 
+    /*
+    ==============================================================================
+    PHASE 8.2 PRIORITY REGISTRY — DOCUMENTATION ONLY
+    ==============================================================================
+
+    Purpose:
+    This table documents current intended render/cinematic priority ownership.
+
+    IMPORTANT:
+    This registry is NOT enforcement logic yet.
+    Do not use this comment block to change behavior, timing, interruption rules,
+    cleanup order, boss defeat flow, queue behavior, or audio stopping.
+
+    Current Priority Map:
+
+    100 — Boss Spawn
+          Owner: Boss Visual Manager
+          Layer(s): BOSS, HUD
+          Rule: Spawn presentation has top visual priority.
+
+    100 — Boss Defeat
+          Owner: Boss Visual Manager
+          Layer(s): BOSS, HUD, CINEMATIC
+          Rule: Visible fatal damage equals defeat animation equals cleanup.
+          Do not move this ownership.
+
+    95  — Forge Eruption
+          Owner: Cinematic/Event Manager
+          Layer(s): CINEMATIC, FORGE, CAMERA, EVENT
+          Rule: Full cinematic takeover. Timing is frozen unless explicitly changed.
+
+    80  — Forge Ignited
+          Owner: Forge/Event Manager
+          Layer(s): FORGE, EVENT, AUDIO
+          Rule: Timed forge state. Phase 8 may track, not control.
+
+    70  — Jackpot
+          Owner: Jackpot/Event Manager
+          Layer(s): EVENT, HUD, AUDIO
+          Rule: Major reward presentation below boss and eruption priority.
+
+    50  — Achievement
+          Owner: Achievement Manager
+          Layer(s): ACHIEVEMENT, AUDIO
+          Rule: Notification layer. Should not interrupt boss/cinematic ownership.
+
+    20  — Coin Effects
+          Owner: Coin Pull System / Slot Effects
+          Layer(s): SLOTS, FORGE, AUDIO
+          Rule: Normal pull visuals and slot effects.
+
+    20  — Render Queue
+          Owner: Forge Queue Processor
+          Layer(s): EVENT
+          Rule: Tracks queue processing only.
+
+    10  — Forge Reveal Cinematic
+          Owner: Coin Pull System
+          Layer(s): CINEMATIC, FORGE
+          Rule: Existing acquireCinematic priority. Documented mismatch candidate;
+          do not change until Phase 8.2 audit is complete.
+
+    Future Phase 8.2 Work:
+    - Audit all actual requestRender/requestAudio/acquireCinematic calls.
+    - Confirm priority values match current behavior.
+    - Only after stabilization should this become active enforcement logic.
+
+    ==============================================================================
+    */
+    
     function requestRender(request = {}) {
       const normalizedRequest = {
         owner: request.owner || "unknown",
