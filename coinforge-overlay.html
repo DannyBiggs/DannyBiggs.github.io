@@ -5939,6 +5939,112 @@
 
     ==============================================================================
     */
+
+    /*
+    ==============================================================================
+    PHASE 8.3 QUEUE SUSPENSION OWNERSHIP MAP — DOCUMENTATION ONLY
+
+    IMPORTANT:
+    This map documents who can pause, block, delay, or resume queue progression.
+    It must not be used as enforcement logic in Phase 8.3.
+
+    No timing changes.
+    No queue behavior changes.
+    No cinematic arbitration changes.
+    No boss defeat cleanup changes.
+
+    Queue Suspension / Blocking Owners:
+
+    1. Forge Queue Processor
+       Mechanism:
+       - forgeEventPlaying
+
+       Current Behavior:
+       - Prevents multiple processForgeQueue() loops from running at the same time.
+       - Blocks duplicate queue processors, not individual queue entries.
+
+       Ownership:
+       - Owned by the Forge Queue Processor.
+
+    2. Coin Pull / Forge Reveal Cinematic
+       Mechanism:
+       - acquireCinematic("forgeReveal", pullId, { priority: 10, interrupt: false })
+
+       Current Behavior:
+       - If another cinematic owns the stage, forge reveal may be skipped.
+       - This is current behavior and must not be changed during Phase 8.3.
+
+       Ownership:
+       - Forge reveal ownership belongs to the Coin Pull System.
+       - Cinematic arbitration belongs to the Cinematic Manager.
+
+    3. Boss Defeat Cleanup Protection
+       Mechanism:
+       - waitForBossDefeatCleanup()
+
+       Current Behavior:
+       - If bossEncounterState is defeated, queue progression waits for boss defeat
+         cleanup protection before continuing.
+
+       Ownership:
+       - Boss defeat visuals and cleanup timing remain owned by Boss Visual Manager.
+       - Queue only respects the protected state.
+
+    4. Deferred Boss World Clear
+       Mechanism:
+       - deferredBossWorldClearPayload
+
+       Current Behavior:
+       - Boss clear/escape sync may be deferred until the forge queue is no longer
+         blocking it.
+
+       Ownership:
+       - Boss lifecycle owns the clear/escape state.
+       - Forge Queue Processor only provides the safe point after queue processing.
+
+    5. Prepare Payload Preview Guard
+       Mechanism:
+       - if (forgeEventPlaying) return;
+
+       Current Behavior:
+       - coinForgePrepare does not rebuild preview slots while a forge event is
+         already playing.
+
+       Ownership:
+       - Prepare preview belongs to the Coin Pull System.
+       - The guard protects active queue animation state.
+
+    Queue Resume Owners:
+
+    1. Forge Queue Processor
+       Mechanism:
+       - while (overlayState.queue.length > 0)
+
+       Current Behavior:
+       - Queue naturally continues after runForgeRevealExternal(event) completes.
+
+    2. Cinematic Release
+       Mechanism:
+       - releaseCinematic(pullId)
+
+       Current Behavior:
+       - Forge reveal ownership is released in the finally block.
+
+    3. Render Release
+       Mechanism:
+       - releaseRender(owner: "coin-pull")
+       - releaseRender(owner: "renderQueue")
+
+       Current Behavior:
+       - Render tracking is released after the reveal attempt completes.
+
+    Phase 8 Rule:
+    This is a documentation-only suspension map.
+    Do not convert this into queue enforcement, priority arbitration, or cleanup
+    refactoring without a separate audit and stabilization pass.
+
+    ==============================================================================
+    */
     
     function requestRender(request = {}) {
       const normalizedRequest = {
