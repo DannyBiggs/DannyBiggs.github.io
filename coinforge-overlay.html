@@ -5892,6 +5892,54 @@
     ==============================================================================
     */
     
+    /*
+    ==============================================================================
+    PHASE 8.3 RENDER QUEUE OWNERSHIP MAP — DOCUMENTATION ONLY
+
+    IMPORTANT:
+    This is not queue enforcement logic.
+    Do not use this map to change queue behavior, timing, interruption rules,
+    cinematic ownership, boss defeat cleanup, or render arbitration.
+
+    Current Queue Owner:
+    Forge Queue Processor
+
+    Queue Creation:
+    - C# action writes requests into coinForgeRequestQueue.
+    - Browser overlay receives coinForgePull events.
+    - enqueueForgeEvent(event) normalizes pull ownership and pushes into overlayState.queue.
+
+    Queue Processing:
+    - processForgeQueue() owns active queue processing.
+    - It shifts one event at a time from overlayState.queue.
+    - It marks overlayState.isAnimating, overlayState.activePayload, and overlayState.activePullId.
+
+    Queue Render Tracking:
+    - requestRender(owner: "renderQueue") tracks queue processing.
+    - requestRender(owner: "coin-pull") tracks forge reveal visuals.
+    - releaseRender() releases both after runForgeRevealExternal(event).
+
+    Queue Suspension / Blocking:
+    - forgeEventPlaying prevents overlapping queue processors.
+    - acquireCinematic("forgeReveal") may block reveal if another cinematic owns the stage.
+    - Boss defeat cleanup can delay queue continuation after a defeated state.
+
+    Queue Resume:
+    - Queue resumes naturally after runForgeRevealExternal(event) completes.
+    - Queue continues while overlayState.queue.length > 0.
+
+    Queue Cleanup:
+    - Queue entries are removed by overlayState.queue.shift().
+    - Active render/cinematic ownership is released in the finally block.
+    - Deferred boss clear may process only after the forge queue is no longer blocking it.
+
+    Phase 8 Rule:
+    Track and document queue ownership only.
+    Do not centralize, enforce, reorder, or refactor queue control in Phase 8.3.
+
+    ==============================================================================
+    */
+    
     function requestRender(request = {}) {
       const normalizedRequest = {
         owner: request.owner || "unknown",
