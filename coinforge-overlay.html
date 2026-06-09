@@ -6124,6 +6124,51 @@
 
     ==============================================================================
     */
+
+    /*
+    ==============================================================================
+    PHASE 8.3 QUEUE RESUME OWNERSHIP MAP — DOCUMENTATION ONLY
+
+    IMPORTANT:
+    This documents queue resume ownership only.
+    Do not change queue resume behavior during Phase 8.3.
+
+    Current Queue Resume Owner:
+    - Forge Queue Processor
+
+    Normal Resume Path:
+    - processForgeQueue() continues while overlayState.queue.length > 0.
+    - Each forge event resumes naturally after runForgeRevealExternal(event)
+      completes.
+
+    Resume After Render/Cinematic Cleanup:
+    - releaseCinematic(pullId)
+    - releaseRender(owner: "coin-pull")
+    - releaseRender(owner: "renderQueue")
+
+    Current Behavior:
+    - These releases allow the current queue item to complete cleanly.
+    - They do not forcibly start the next queue item.
+    - The existing while loop controls natural queue continuation.
+
+    Resume After Boss Protection:
+    - waitForBossDefeatCleanup() may delay continuation.
+    - Once boss cleanup protection is satisfied, the queue continues naturally.
+
+    Systems That Must NOT Directly Resume The Queue:
+    - Boss Visual Manager
+    - Cinematic Manager
+    - Instability Manager
+    - Achievement Manager
+    - Jackpot Manager
+
+    Phase 8 Rule:
+    Document resume ownership only.
+    Do not implement resume priority, forced resume, interruption resume,
+    queue arbitration, or recovery behavior in Phase 8.3.
+
+    ==============================================================================
+    */
     
     function requestRender(request = {}) {
       const normalizedRequest = {
