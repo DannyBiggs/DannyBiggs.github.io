@@ -5904,16 +5904,52 @@
 
       overlayState.lastRenderRequest = normalizedRequest;
 
+      if (!Array.isArray(overlayState.ownershipHistory)) {
+        overlayState.ownershipHistory = [];
+      }
+
+      overlayState.ownershipHistory.push({
+        action: "requestRender",
+        owner: normalizedRequest.owner,
+        layer: normalizedRequest.layer,
+        type: normalizedRequest.type,
+        priority: normalizedRequest.priority,
+        timestamp: normalizedRequest.requestedAt
+      });
+
+      if (overlayState.ownershipHistory.length > 30) {
+        overlayState.ownershipHistory.shift();
+      }
+
       return normalizedRequest;
     }
 
     function releaseRender(release = {}) {
-      overlayState.lastRenderRelease = {
+      const normalizedRelease = {
         owner: release.owner || "unknown",
         layer: release.layer || "unknown",
         type: release.type || "unknown",
         releasedAt: Date.now()
       };
+
+      overlayState.lastRenderRelease = normalizedRelease;
+
+      if (!Array.isArray(overlayState.ownershipHistory)) {
+        overlayState.ownershipHistory = [];
+      }
+
+      overlayState.ownershipHistory.push({
+        action: "releaseRender",
+        owner: normalizedRelease.owner,
+        layer: normalizedRelease.layer,
+        type: normalizedRelease.type,
+        priority: null,
+        timestamp: normalizedRelease.releasedAt
+      });
+
+      if (overlayState.ownershipHistory.length > 30) {
+        overlayState.ownershipHistory.shift();
+      }
 
       return true;
     }
