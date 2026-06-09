@@ -5735,6 +5735,8 @@
       lastEventReactionBlock: null,
       
       eventReactionHistory: [],
+
+      ownershipHistory: [],
       
       eventReactionSuspension: null,
 
@@ -9460,6 +9462,7 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         activeAudioOwner: overlayState.activeAudioOwner || null,
         activeCinematic: overlayState.activeCinematic || null,
         activeEventReaction: overlayState.activeEventReaction || null,
+        ownershipHistory: overlayState.ownershipHistory || [],
         queueLength: overlayState.queue ? overlayState.queue.length : 0,
         isAnimating: overlayState.isAnimating,
         activePullId: overlayState.activePullId || null
@@ -9593,6 +9596,15 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         },
     
         enforcementStatus: "documentation-only; no priority enforcement active"
+      };
+    };
+
+    window.debugOwnershipHistory = function()
+    {
+      return {
+        ownershipHistory: overlayState.ownershipHistory || [],
+        count: overlayState.ownershipHistory ? overlayState.ownershipHistory.length : 0,
+        enforcementStatus: "debug-only; no ownership enforcement active"
       };
     };
     
