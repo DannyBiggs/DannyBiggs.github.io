@@ -6145,7 +6145,14 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     }
     
     function playSlotLandSound(pullId) {
-      playOwnedSound(pullId, slotLandSound, true);
+      requestAudio({
+        owner: "slot",
+        sound: slotLandSound,
+        soundName: "SlotLandSound",
+        priority: RENDER_PRIORITIES.COIN_EFFECT,
+        pullId,
+        restart: true
+      });
     }
 
     function startForgeEruptionAudioPlaceholder(pullId, phase) {
@@ -6227,11 +6234,25 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     }
     
     function playForgeHammerSound(pullId) {
-      playOwnedSound(pullId, forgeHammerSound, true);
+      requestAudio({
+        owner: "forge",
+        sound: forgeHammerSound,
+        soundName: "ForgeHammerSound",
+        priority: RENDER_PRIORITIES.COIN_EFFECT,
+        pullId,
+        restart: true
+      });
     }
 
     function playForgeHammerEchoSound(pullId) {
-      playOwnedSound(pullId, forgeHammerEchoSound, true);
+      requestAudio({
+        owner: "forge",
+        sound: forgeHammerEchoSound,
+        soundName: "ForgeHammerEchoSound",
+        priority: RENDER_PRIORITIES.COIN_EFFECT,
+        pullId,
+        restart: true
+      });
     }
 
     function playAchievementSound() {
@@ -6276,11 +6297,25 @@ function getCachedCoinFrame(coinKey, frameNumber) {
     }
     
     function playWoodBurnSound(pullId) {
-      playOwnedSound(pullId, woodBurnSound, true);
+      requestAudio({
+        owner: "forge",
+        sound: woodBurnSound,
+        soundName: "WoodBurnSound",
+        priority: RENDER_PRIORITIES.COIN_EFFECT,
+        pullId,
+        restart: true
+      });
     }
 
     function playForgeIgnitionSound(pullId) {
-      playOwnedSound(pullId, forgeIgnitionSound, true);
+      requestAudio({
+        owner: "forge",
+        sound: forgeIgnitionSound,
+        soundName: "ForgeIgnitionSound",
+        priority: RENDER_PRIORITIES.FORGE_IGNITED,
+        pullId,
+        restart: true
+      });
     }
         
     function normalizeCoinName(name) {
