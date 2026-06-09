@@ -6169,6 +6169,49 @@
 
     ==============================================================================
     */
+
+    /*
+    ==============================================================================
+    PHASE 8.3 QUEUE CREATION OWNERSHIP MAP — DOCUMENTATION ONLY
+
+    IMPORTANT:
+    This documents queue creation ownership only.
+    Do not change queue creation behavior during Phase 8.3.
+
+    Server-Side Queue Creation:
+    - C# command/action writes forge requests into coinForgeRequestQueue.
+    - Owner: C# Coin Forge Command / Payload Sender
+
+    Browser-Side Queue Creation:
+    - coinForgePull websocket event receives the finalized pull payload.
+    - enqueueForgeEvent(event) pushes the event into overlayState.queue.
+    - Owner: Coin Pull System / Forge Queue Processor
+
+    Prepare Payload Preview:
+    - coinForgePrepare prepares visual preview state before the finalized pull event.
+    - It does not own the active processing queue.
+    - Owner: Coin Pull System
+
+    Active Queue State:
+    - overlayState.queue stores pending browser-side forge events.
+    - overlayState.activePayload stores the event currently being processed.
+    - overlayState.activePullId stores the currently active pull identifier.
+    - Owner: Forge Queue Processor
+
+    Systems That Must NOT Create Queue Entries:
+    - Boss Visual Manager
+    - Cinematic Manager
+    - Instability Manager
+    - Achievement Manager
+    - Jackpot Manager
+
+    Phase 8 Rule:
+    Document queue creation ownership only.
+    Do not move queue creation, centralize queue entry creation, add priority
+    queueing, or introduce queue arbitration in Phase 8.3.
+
+    ==============================================================================
+    */
     
     function requestRender(request = {}) {
       const normalizedRequest = {
