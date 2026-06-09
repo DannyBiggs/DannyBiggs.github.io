@@ -6045,6 +6045,46 @@
 
     ==============================================================================
     */
+
+    /*
+    ==============================================================================
+    PHASE 8.3 QUEUE CLEANUP OWNERSHIP MAP — DOCUMENTATION ONLY
+
+    IMPORTANT:
+    This documents cleanup ownership only.
+    Do not change queue cleanup behavior during Phase 8.3.
+
+    Queue Entry Cleanup:
+    - overlayState.queue.shift()
+    - Owner: Forge Queue Processor
+    - Removes one queued forge event when processing begins.
+
+    Active Pull Cleanup:
+    - overlayState.activePayload = null
+    - overlayState.activePullId = null
+    - overlayState.isAnimating = false
+    - Owner: Forge Queue Processor
+
+    Render Ownership Cleanup:
+    - releaseRender(owner: "coin-pull")
+    - releaseRender(owner: "renderQueue")
+    - Owner: Render tracking layer
+
+    Cinematic Cleanup:
+    - releaseCinematic(pullId)
+    - Owner: Cinematic Manager
+
+    Boss Cleanup Interaction:
+    - Boss Visual Manager owns boss defeat cleanup timing.
+    - Queue cleanup only waits for or respects boss-safe cleanup states.
+    - Queue must not directly own boss defeat cleanup.
+
+    Phase 8 Rule:
+    Document cleanup ownership only.
+    Do not refactor, centralize, reorder, or enforce cleanup behavior here.
+
+    ==============================================================================
+    */
     
     function requestRender(request = {}) {
       const normalizedRequest = {
