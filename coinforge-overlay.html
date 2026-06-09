@@ -5966,6 +5966,23 @@
         requestedAt: Date.now()
       };
 
+      if (!Array.isArray(overlayState.ownershipHistory)) {
+        overlayState.ownershipHistory = [];
+      }
+
+      overlayState.ownershipHistory.push({
+        action: "requestAudio",
+        owner: overlayState.lastAudioRequest.owner,
+        layer: "audio",
+        type: overlayState.lastAudioRequest.soundName || "audioRequest",
+        priority: overlayState.lastAudioRequest.priority,
+        timestamp: overlayState.lastAudioRequest.requestedAt
+      });
+
+      if (overlayState.ownershipHistory.length > 30) {
+        overlayState.ownershipHistory.shift();
+      }
+
       if (pullId && sound) {
         playOwnedSound(pullId, sound, restart);
       }
@@ -5978,6 +5995,23 @@
         owner: release.owner || "unknown",
         releasedAt: Date.now()
       };
+
+      if (!Array.isArray(overlayState.ownershipHistory)) {
+        overlayState.ownershipHistory = [];
+      }
+
+      overlayState.ownershipHistory.push({
+        action: "releaseAudio",
+        owner: overlayState.lastAudioRelease.owner,
+        layer: "audio",
+        type: release.type || "audioRelease",
+        priority: null,
+        timestamp: overlayState.lastAudioRelease.releasedAt
+      });
+
+      if (overlayState.ownershipHistory.length > 30) {
+        overlayState.ownershipHistory.shift();
+      }
 
       stopOwnedAudio();
 
