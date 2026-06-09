@@ -9465,6 +9465,59 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         activePullId: overlayState.activePullId || null
       };
     };
+
+    window.debugPriorityRegistry = function()
+    {
+      return {
+        registry: {
+          BOSS_SPAWN: 100,
+          BOSS_DEFEAT: 100,
+          FORGE_ERUPTION: 95,
+          FORGE_IGNITED: 80,
+          JACKPOT: 70,
+          ACHIEVEMENT: 50,
+          COIN_EFFECT: 20
+        },
+    
+        knownUsage: [
+          {
+            system: "Boss Defeat Cinematic",
+            priority: 100,
+            source: "acquireCinematic"
+          },
+    
+          {
+            system: "Forge Reveal Cinematic",
+            priority: 10,
+            source: "acquireCinematic"
+          },
+    
+          {
+            system: "Coin Pull Render",
+            priority: 20,
+            source: "requestRender"
+          },
+    
+          {
+            system: "Render Queue",
+            priority: 20,
+            source: "requestRender"
+          },
+    
+          {
+            system: "Forge Ignited Audio",
+            priority: 80,
+            source: "requestAudio"
+          },
+    
+          {
+            system: "Wood Burn Audio",
+            priority: 20,
+            source: "requestAudio"
+          }
+        ]
+      };
+    };
     
     window.debugForgeState = function debugForgeState() {
       const slotWraps = Array.from(document.querySelectorAll(".slot-wrap"));
