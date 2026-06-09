@@ -9482,40 +9482,117 @@ function getCachedCoinFrame(coinKey, frameNumber) {
         knownUsage: [
           {
             system: "Boss Defeat Cinematic",
+            owner: "Boss Visual Manager",
             priority: 100,
-            source: "acquireCinematic"
+            source: "acquireCinematic",
+            status: "tracked"
           },
     
           {
             system: "Forge Reveal Cinematic",
+            owner: "Coin Pull System",
             priority: 10,
-            source: "acquireCinematic"
+            source: "acquireCinematic",
+            status: "documented mismatch candidate"
           },
     
           {
             system: "Coin Pull Render",
+            owner: "Coin Pull System",
             priority: 20,
-            source: "requestRender"
+            source: "requestRender",
+            status: "tracked"
           },
     
           {
             system: "Render Queue",
+            owner: "Forge Queue Processor",
             priority: 20,
-            source: "requestRender"
+            source: "requestRender",
+            status: "tracked"
           },
     
           {
             system: "Forge Ignited Audio",
+            owner: "Forge/Event Manager",
             priority: 80,
-            source: "requestAudio"
+            source: "requestAudio",
+            status: "tracked"
           },
     
           {
             system: "Wood Burn Audio",
+            owner: "Forge/Event Manager",
             priority: 20,
-            source: "requestAudio"
+            source: "requestAudio",
+            status: "tracked"
           }
-        ]
+        ],
+    
+        ownershipCandidates: {
+          visual: [
+            "Forge stage visibility",
+            "Forge pressure gauge",
+            "Forge glow",
+            "Slot impact/socket effects",
+            "Instability visuals",
+            "Forge Ignited visuals",
+            "Forge Eruption visuals",
+            "Boss attack reaction",
+            "Boss damage reaction",
+            "Boss heal reaction",
+            "Avaros devour visual",
+            "Avaros forge siphon visual",
+            "Invidra corruption visual",
+            "Achievement popup",
+            "Jackpot effects",
+            "Screen border effects"
+          ],
+    
+          audio: [
+            "Slot land sound",
+            "Wood burn sound",
+            "Forge ignition sound",
+            "Forge eruption buildup sound",
+            "Forge eruption explosion sound",
+            "Boss victory fallback sound",
+            "Achievement sound",
+            "Jackpot sound"
+          ],
+    
+          cinematic: [
+            "Forge Reveal",
+            "Forge Eruption",
+            "Boss Spawn Intro",
+            "Boss Defeat",
+            "Invidra Intro",
+            "Avaros Intro"
+          ],
+    
+          render: [
+            "renderQueue",
+            "coin-pull",
+            "boss",
+            "forge",
+            "slot",
+            "achievement",
+            "jackpot",
+            "eventReaction"
+          ],
+    
+          screen: [
+            "Boss Defeat",
+            "Boss Spawn",
+            "Forge Eruption",
+            "Forge Ignited",
+            "Jackpot",
+            "Achievement",
+            "Coin Pull / Forge Reveal",
+            "Screen Border FX"
+          ]
+        },
+    
+        enforcementStatus: "documentation-only; no priority enforcement active"
       };
     };
     
