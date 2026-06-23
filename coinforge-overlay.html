@@ -6884,7 +6884,8 @@ function getCachedCoinFrame(coinKey, frameNumber) {
       if (!isActivePull(pullId)) return;
       if (!forgeResonanceResult) return;
 
-      const earnedTotal = getForgeResonanceEarnedTotal(event, results);
+      //const earnedTotal = getForgeResonanceEarnedTotal(event, results);
+      const earnedTotal = Number(event.jackpotPayout || 0);
       const userName = event.user || event.userName || "FORGED";
 
       forgeResonanceTitle.textContent = "CORE BREACH";
